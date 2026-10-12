@@ -88,6 +88,9 @@ const CELL_W = 270, CELL_H = 180;    // every box gets its own cell, so they nev
 const PAD_X = 40, PAD_Y = 72;        // empty margin around the edge of the canvas
 const SPREAD = 1.5;                  // empty room per box: lower = closer together (1.2 is snug, 2.5 is spread out)
 
+// on a phone the entries sit in a tidy grid instead of being scattered
+const phone = window.matchMedia("(max-width: 40rem)");
+
 const thoughtsScroll = document.getElementById("thoughts-scroll");
 const canvas = document.getElementById("thoughts-canvas");
 const featured = document.getElementById("featured");
@@ -112,8 +115,24 @@ function shuffleArray(list) {
   return list;
 }
 
+// scattered boxes have a set size; in the phone grid the grid decides
+function sizeEntries() {
+  entryEls.forEach((el) => {
+    el.style.width = phone.matches ? "" : BOX_W + "px";
+    el.style.height = phone.matches ? "" : BOX_H + "px";
+  });
+}
+
 // puts every box in its own random cell, with a little random wiggle inside it
+// (on a phone: a grid, and "shuffle" just mixes up the order)
 function layoutEntries() {
+  if (phone.matches) {
+    canvas.classList.add("grid");
+    canvas.style.width = canvas.style.height = "";
+    entryEls.forEach((el) => { el.style.left = el.style.top = ""; });
+    return;
+  }
+  canvas.classList.remove("grid");
   const cellsNeeded = Math.max(1, Math.ceil(entryEls.length * SPREAD));
   const aspect = Math.min(2, Math.max(0.8, window.innerWidth / window.innerHeight));
   let cols = Math.max(1, Math.ceil(Math.sqrt(cellsNeeded * aspect * CELL_H / CELL_W)));
@@ -136,8 +155,6 @@ function buildEntries() {
     const el = document.createElement("button");
     el.type = "button";
     el.className = "entry";
-    el.style.width = BOX_W + "px";
-    el.style.height = BOX_H + "px";
 
     const date = document.createElement("span");
     date.className = "entry-date";
@@ -159,6 +176,7 @@ function buildEntries() {
     return el;
   });
 
+  sizeEntries();
   layoutEntries();
   // turn the sliding animation on only after the first placement
   requestAnimationFrame(() => requestAnimationFrame(() => canvas.classList.add("animate")));
@@ -210,7 +228,20 @@ function pickOne() {
   openFeatured(i);
 }
 
-document.getElementById("btn-shuffle").addEventListener("click", layoutEntries);
+document.getElementById("btn-shuffle").addEventListener("click", () => {
+  if (phone.matches) {
+    shuffleArray([...entryEls]).forEach((el) => canvas.appendChild(el));   // grid: mix up the order
+    thoughtsScroll.scrollTop = 0;
+  } else {
+    layoutEntries();
+  }
+});
+
+// turning the phone sideways (or resizing the window) switches between the grid and the scatter
+phone.addEventListener("change", () => {
+  sizeEntries();
+  layoutEntries();
+});
 document.getElementById("btn-pick").addEventListener("click", pickOne);
 document.getElementById("btn-close").addEventListener("click", closeFeatured);
 document.getElementById("featured-backdrop").addEventListener("click", closeFeatured);
@@ -229,8 +260,9 @@ let justDragged = false;
 
 function makeDraggable(el) {
   el.addEventListener("pointerdown", (e) => {
-    // mouse and pen only; on a touch screen, swiping still scrolls the page
-    if (e.pointerType === "touch" || e.button !== 0) return;
+    // mouse and pen only; on a touch screen, swiping still scrolls the page.
+    // and in the phone grid there's nothing to drag
+    if (e.pointerType === "touch" || e.button !== 0 || phone.matches) return;
 
     const start = {
       x: e.clientX, y: e.clientY,
@@ -1134,7 +1166,9 @@ function readRows() {
 }
 
 // ----- drag a box to a new spot; the others slide out of the way -----
-function startItemDrag(e, el) {
+// opts.immediate: lift the box at once (used after a long press on a touch screen)
+// opts.onDone: called when the box is let go
+function startItemDrag(e, el, opts) {
   const startX = e.clientX, startY = e.clientY;
   const mainEl = document.getElementById("main");
   let pointer = { x: startX, y: startY };
@@ -1227,11 +1261,7 @@ function startItemDrag(e, el) {
     frame = requestAnimationFrame(tick);
   }
 
-  function onMove(ev) {
-    pointer = { x: ev.clientX, y: ev.clientY };
-    if (started) return;
-    // small wiggles don't count as a drag
-    if (Math.hypot(pointer.x - startX, pointer.y - startY) < 5) return;
+  function lift() {
     started = true;
     const r = el.getBoundingClientRect();
     grabX = (startX - r.left) / r.width;
@@ -1241,10 +1271,19 @@ function startItemDrag(e, el) {
     frame = requestAnimationFrame(tick);
   }
 
+  function onMove(ev) {
+    pointer = { x: ev.clientX, y: ev.clientY };
+    if (started) return;
+    // small wiggles don't count as a drag
+    if (Math.hypot(pointer.x - startX, pointer.y - startY) < 5) return;
+    lift();
+  }
+
   function onUp() {
     window.removeEventListener("pointermove", onMove);
     window.removeEventListener("pointerup", onUp);
     window.removeEventListener("pointercancel", onUp);
+    if (opts && opts.onDone) opts.onDone();
     if (!started) return;
     cancelAnimationFrame(frame);
     mbJustDragged = true;                                    // so letting go after a drag doesn't open the box
@@ -1273,14 +1312,63 @@ function startItemDrag(e, el) {
   window.addEventListener("pointermove", onMove);
   window.addEventListener("pointerup", onUp);
   window.addEventListener("pointercancel", onUp);
+  if (opts && opts.immediate) lift();
 }
 
-// mouse and pen only; on a touch screen, swiping still scrolls the page
+// On a touch screen, a quick swipe still scrolls the page and a tap opens the box.
+// To move a box, press and hold it for a moment (it buzzes if your phone can), then drag.
+let lastPointerType = "mouse";
+
+function startTouchHold(e, el) {
+  const id = e.pointerId;
+  let x = e.clientX, y = e.clientY;
+  const sx = x, sy = y;
+  const timer = setTimeout(pickUp, 350);
+
+  function stopWatching() {
+    clearTimeout(timer);
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", cancel);
+    window.removeEventListener("pointercancel", cancel);
+  }
+  function cancel() { stopWatching(); }
+  function onMove(ev) {
+    if (ev.pointerId !== id) return;
+    x = ev.clientX;
+    y = ev.clientY;
+    if (Math.hypot(x - sx, y - sy) > 10) cancel();     // they're scrolling, not holding
+  }
+  function pickUp() {
+    stopWatching();
+    if (navigator.vibrate) { try { navigator.vibrate(15); } catch (err) {} }
+    // while a box is held, the page must not scroll under the finger
+    const stopScroll = (ev) => ev.preventDefault();
+    window.addEventListener("touchmove", stopScroll, { passive: false });
+    startItemDrag({ clientX: x, clientY: y }, el, {
+      immediate: true,
+      onDone: () => window.removeEventListener("touchmove", stopScroll),
+    });
+  }
+
+  window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", cancel);
+  window.addEventListener("pointercancel", cancel);
+}
+
 mbGrid.addEventListener("pointerdown", (e) => {
-  if (e.pointerType === "touch" || e.button !== 0) return;
+  lastPointerType = e.pointerType;
+  if (e.button !== 0) return;
   const el = e.target.closest(".mb-item");
-  if (el) startItemDrag(e, el);
+  if (!el) return;
+  if (e.pointerType === "touch") startTouchHold(e, el);
+  else startItemDrag(e, el);
 });
+
+// no "save image" / copy menu when a finger presses and holds a box
+mbGrid.addEventListener("contextmenu", (e) => {
+  if (lastPointerType === "touch" && e.target.closest(".mb-item")) e.preventDefault();
+});
+
 mbGrid.addEventListener("dragstart", (e) => e.preventDefault());   // no ghost images
 
 renderTabs();
