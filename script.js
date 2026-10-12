@@ -22,7 +22,28 @@ function showPage() {
   }
 
   document.getElementById("main").scrollTop = 0;
+
+  // Return button only shows when a page other than home is selected
+  returnBtn.hidden = !found || name === DEFAULT_PAGE;
 }
 
-window.addEventListener("hashchange", showPage);
+// ---------- Top left buttons ----------
+const refreshBtn = document.getElementById("btn-refresh");
+const returnBtn = document.getElementById("btn-return");
+let hasNavigated = false;   // true once the visitor has moved between pages here
+
+refreshBtn.addEventListener("click", () => location.reload());
+
+returnBtn.addEventListener("click", () => {
+  if (hasNavigated) {
+    history.back();                  // go back to the page they came from
+  } else {
+    location.hash = DEFAULT_PAGE;    // landed here directly, so go home
+  }
+});
+
+window.addEventListener("hashchange", () => {
+  hasNavigated = true;
+  showPage();
+});
 showPage();
