@@ -1314,7 +1314,7 @@ themeBtn.addEventListener("click", () => {
   setTheme(isLight ? "dark" : "light");
 });
 
-// remember their choice (so refresh doesn't reset it); dark is the default
-let saved = "dark";
-try { saved = localStorage.getItem("theme") || "dark"; } catch (e) {}
+// remember their choice (so refresh doesn't reset it); light is the default
+let saved = "light";
+try { saved = localStorage.getItem("theme") || "light"; } catch (e) {}
 setTheme(saved);
