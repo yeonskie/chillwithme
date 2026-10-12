@@ -3,6 +3,7 @@
   --font-mono: "Roboto Mono", monospace;
 
   --bar-height: 2.5rem;   /* height of the top and bottom bars */
+  --radius: 3px;          /* how rounded the corners of the entry boxes are */
   --bg: #141414;     /* deep charcoal, not pure black */
   --text: #f2efe9;   /* soft off-white */
   --line: #f2efe9;
@@ -58,6 +59,7 @@ main {
   min-height: 0;          /* lets it scroll inside the flex layout */
   overflow-y: auto;
   position: relative;
+  z-index: 0;             /* keeps everything inside the middle below the menu */
 }
 
 .page { display: none; padding: 1.5rem; }
@@ -207,3 +209,890 @@ main {
 @media (prefers-reduced-motion: reduce) {
   .menu-list, .menu-list.open { transition: none; }
 }
+
+/* ---------- Thoughts to consume page ---------- */
+/* this page fills the whole middle section and scrolls on its own */
+.page[data-page="thoughts"] {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+}
+
+.thoughts-scroll {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  z-index: 0;              /* keeps dragged boxes below the buttons and the enlarged entry */
+  cursor: grab;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+.thoughts-scroll.dragging { cursor: grabbing; user-select: none; }
+
+/* width and height are set in script.js; margin centers it when it's narrower than the screen */
+.thoughts-canvas { position: relative; margin: 0 auto; }
+
+/* shuffle and pick one for me, near the top */
+.thoughts-toolbar {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.35rem 0.9rem;
+  background: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.thoughts-toolbar button,
+.featured-actions button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.thoughts-toolbar button:hover,
+.featured-actions button:hover { text-decoration: underline; }
+
+/* each entry is its own outlined box */
+.entry {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  overflow: hidden;
+  text-align: left;
+  font: inherit;
+  font-size: 0.8rem;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: grab;
+  user-select: none;
+}
+
+.entry.dragging { cursor: grabbing; }
+
+.entry:hover .entry-title { text-decoration: underline; }
+
+.entry-date { font-size: 0.7rem; opacity: 0.6; }
+
+.entry-title {
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.entry-preview {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+/* boxes glide to their new spots when you hit shuffle */
+.thoughts-canvas.animate .entry {
+  transition: left 0.7s ease, top 0.7s ease;
+}
+
+/* no gliding while you're holding a box, so it follows the cursor exactly */
+.thoughts-canvas.animate .entry.dragging { transition: none; }
+
+/* the enlarged entry in the middle */
+.featured {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.featured[hidden] { display: none; }
+
+.featured-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  opacity: 0.88;
+}
+
+.featured-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: min(30rem, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 1.5rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  animation: featured-pop 0.22s ease;
+  transition: width 0.25s ease;
+}
+
+.featured-card.expanded { width: min(44rem, 100%); }
+
+.featured-date { font-size: 0.75rem; opacity: 0.6; }
+
+.featured-card h2 { font-size: 1.25rem; line-height: 1.3; }
+
+.featured-body p + p { margin-top: 0.9rem; }
+
+/* before it's expanded, only a short preview shows */
+.featured-card:not(.expanded) .featured-body p {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.featured-actions {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+}
+
+@keyframes featured-pop {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .thoughts-canvas.animate .entry { transition: none; }
+  .featured-card { animation: none; transition: none; }
+}
+
+/* ---------- Braindump page (moodboards) ---------- */
+.page[data-page="braindump"] {
+  padding: 3rem clamp(1rem, 6vw, 5.5rem) 4rem;
+}
+
+.mb {
+  container-type: inline-size;
+  --mb-gap: 1.2rem;
+  /* one unit of height: the width of a 3-column box in a line of three, so it's a square */
+  --mb-unit: calc((100cqw - 2 * var(--mb-gap)) / 4);
+}
+
+/* the tabs on the left, the reset button on the right */
+.mb-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin-bottom: 3.25rem;
+}
+
+/* the + button and the tabs sit together on the left */
+.mb-left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem 0.5rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.mb-plus {
+  position: relative;
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 2.25rem;
+  text-align: center;
+  color: inherit;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+/* "add more" appears under the button on hover or keyboard focus */
+.mb-plus::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 5;
+}
+
+.mb-newboard {
+  width: auto;
+  padding: 0 0.9rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.mb-right { display: flex; align-items: flex-end; gap: 1.25rem; flex: 0 0 auto; }
+
+/* the little secret line, shown under the tabs while you're on a board of your own */
+.mb-note {
+  margin: 0.6rem 0 1.6rem;
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+.mb:has(.mb-note:not([hidden])) .mb-top { margin-bottom: 0; }
+
+.mb-plus:hover::after, .mb-plus:focus-visible::after { opacity: 1; }
+
+.mb-reset {
+  flex: 0 0 auto;
+  padding: 0;
+  font: inherit;
+  font-size: 0.75rem;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mb-reset:hover { text-decoration: underline; }
+
+/* tabs: joined together, rounded on the two top corners */
+.mb-tabs {
+  display: flex;
+  width: fit-content;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  scrollbar-width: none;
+}
+
+.mb-tab {
+  flex: 0 0 auto;
+  width: max-content;
+  min-width: 7.5rem;
+  height: 2.25rem;
+  padding: 0 1rem;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 2.25rem;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mb-tab + .mb-tab { border-left: 1px solid var(--line); }
+.mb-tab:hover { text-decoration: underline; }
+
+/* the tab you're on is filled in */
+.mb-tab[aria-selected="true"] {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.mb-loading { font-size: 0.8rem; opacity: 0.6; }
+
+/* the board is a stack of lines; each line shares its width between its boxes */
+.mb-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mb-gap);
+}
+
+.mb-row {
+  display: flex;
+  gap: var(--mb-gap);
+  height: calc(var(--mb-unit) * var(--rh, 1) + (var(--rh, 1) - 1) * var(--mb-gap));
+}
+
+.mb-item {
+  position: relative;
+  flex: 0 0 calc((100% - (var(--n, 1) - 1) * var(--mb-gap)) * var(--c, 3) / var(--total, 12));
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: grab;
+  user-select: none;
+}
+
+.mb-grid.sorting, .mb-grid.sorting .mb-item { cursor: grabbing; }
+
+/* the box you're holding follows the cursor and sits on top */
+.mb-item.lifted {
+  z-index: 30;
+  pointer-events: none;
+}
+
+/* pictures */
+.mb-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* what shows until you add a real picture: a box with a cross through it */
+.mb-placeholder {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(to top right, transparent calc(50% - 0.5px), var(--line) calc(50% - 0.5px), var(--line) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to top left, transparent calc(50% - 0.5px), var(--line) calc(50% - 0.5px), var(--line) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+}
+
+.mb-placeholder span {
+  padding: 0.25rem 0.6rem;
+  background: var(--bg);
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+/* text boxes */
+.mb-text { padding: 1rem; font-size: 0.8rem; line-height: 1.6; }
+.mb-text h3 { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.mb-text p { white-space: pre-line; }
+
+/* color boxes */
+.mb-color {
+  display: flex;
+  align-items: flex-end;
+  padding: 0.75rem;
+  font-size: 0.7rem;
+}
+
+/* on small screens each line wraps into 6 columns so boxes stay readable */
+@container (max-width: 40rem) {
+  .mb-tabs, .mb-grid {
+    --mb-unit: calc((100cqw - 5 * var(--mb-gap)) / 6 * 2 + var(--mb-gap));
+  }
+  .mb-row { flex-wrap: wrap; height: auto; }
+  .mb-item {
+    flex: 0 0 calc((100% - 5 * var(--mb-gap)) / 6 * var(--c-sm, 2) + (var(--c-sm, 2) - 1) * var(--mb-gap));
+    height: calc(var(--mb-unit) * var(--r, 1) + (var(--r, 1) - 1) * var(--mb-gap));
+  }
+}
+
+/* ---------- Moodboard viewer (click a box to enlarge it) ---------- */
+/* covers the middle section only, so the top and bottom bars stay usable */
+.mb-light {
+  position: fixed;
+  top: var(--bar-height);
+  bottom: var(--bar-height);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+}
+
+.mb-light[hidden] { display: none; }
+
+.mb-light-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  opacity: 0.94;
+}
+
+.mb-light-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 1.5rem 0 0.5rem;
+  overflow: hidden;
+}
+
+/* every box in a row, side by side; the script slides this so the chosen one is in the middle */
+.mb-light-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  width: max-content;
+  height: 100%;
+  transition: transform 0.35s ease;
+}
+
+.mb-light-track.instant { transition: none; }
+
+.mb-slide {
+  flex: 0 0 auto;
+  height: min(100%, 44rem);
+  overflow: auto;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  opacity: 0.35;
+  transform: scale(0.82);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  cursor: pointer;
+}
+
+/* the one in the middle */
+.mb-slide.active {
+  opacity: 1;
+  transform: none;
+  cursor: default;
+}
+
+/* pictures show whole here, never cropped */
+.mb-slide img {
+  display: block;
+  height: 100%;
+  width: auto;
+  max-width: calc(100vw - 8rem);
+  object-fit: contain;
+}
+
+.mb-slide-ph { width: min(40rem, calc(100vw - 8rem)); }
+
+.mb-slide-text {
+  width: min(34rem, calc(100vw - 8rem));
+  padding: 1.5rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.mb-slide-text h2 { margin-bottom: 0.75rem; font-size: 1.1rem; line-height: 1.3; }
+.mb-slide-text p { white-space: pre-line; }
+
+.mb-slide-color {
+  display: flex;
+  align-items: flex-end;
+  aspect-ratio: 1;
+  max-width: calc(100vw - 8rem);
+  padding: 1rem;
+  font-size: 0.75rem;
+}
+
+.mb-light-bar {
+  position: relative;
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.9rem 1rem 1.1rem;
+  font-size: 0.75rem;
+}
+
+.mb-light-bar button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.mb-light-bar button:hover:not(:disabled) { text-decoration: underline; }
+.mb-light-bar button:disabled { opacity: 0.3; cursor: default; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mb-light-track, .mb-slide { transition: none; }
+}
+
+/* ---------- "add more" box ---------- */
+.mb-add {
+  position: fixed;
+  top: var(--bar-height);
+  bottom: var(--bar-height);
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.mb-add[hidden] { display: none; }
+
+.mb-add-backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  opacity: 0.94;
+}
+
+.mb-add-card {
+  position: relative;
+  width: min(26rem, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 1.25rem;
+  font-size: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.mb-add-card h2 { font-size: 1rem; margin-bottom: 0.25rem; }
+.mb-add-sub { margin-bottom: 1rem; opacity: 0.6; }
+
+.mb-add-kinds {
+  display: flex;
+  width: fit-content;
+  margin-bottom: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.mb-add-kinds button {
+  padding: 0 1rem;
+  height: 2rem;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mb-add-kinds button + button { border-left: 1px solid var(--line); }
+.mb-add-kinds button:hover { text-decoration: underline; }
+.mb-add-kinds button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+
+.mb-add-fields[hidden] { display: none; }
+
+.mb-add-card label {
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.mb-add-card input[type="text"], .mb-add-card textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.3rem;
+  padding: 0.5rem 0.6rem;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.mb-add-card textarea { resize: vertical; }
+
+.mb-add-card input[type="color"] {
+  display: block;
+  width: 4rem;
+  height: 2rem;
+  margin-top: 0.3rem;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.mb-add-card input:focus-visible, .mb-add-card textarea:focus-visible { outline: 1px solid var(--text); outline-offset: 2px; }
+
+.mb-add-msg { min-height: 1.2em; margin-bottom: 0.6rem; }
+
+.mb-add-actions { display: flex; gap: 1.5rem; }
+
+.mb-add-actions button {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mb-add-actions button:hover:not(:disabled) { text-decoration: underline; }
+.mb-add-actions button:disabled { opacity: 0.4; cursor: default; }
+
+/* colors: one swatch, or several in a row like a palette */
+.mb-add-colors { margin-bottom: 0.8rem; }
+.mb-add-swatches { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.3rem 0 0.5rem; }
+.mb-add-swatches .sw { display: flex; align-items: flex-start; }
+
+.mb-add-swatches input[type="color"] { margin-top: 0; }
+
+.mb-add-swatches .sw-x {
+  width: 1rem;
+  height: 1rem;
+  margin-left: -0.4rem;
+  margin-top: -0.4rem;
+  padding: 0;
+  font: inherit;
+  font-size: 0.7rem;
+  line-height: 1;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.mb-add-morecolor {
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mb-add-morecolor:hover { text-decoration: underline; }
+
+.mb-color.mb-palette, .mb-slide-color.mb-palette {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  overflow: hidden;
+}
+
+.mb-stripe { flex: 1 1 0; min-width: 0; }
+
+.mb-chip {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  max-width: calc(100% - 1rem);
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  line-height: 1.3;
+  color: var(--text);
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+
+/* the "are you sure?" box sits above everything else */
+.mb-confirm { z-index: 50; }
+.mb-confirm-card { width: min(20rem, 100%); }
+.mb-confirm-card p { margin-bottom: 1rem; font-size: 0.8rem; line-height: 1.5; }
+
+/* ---------- Music page ---------- */
+.page[data-page="music"] {
+  padding: 3rem clamp(1rem, 6vw, 5.5rem) 4rem;
+}
+
+.music-now {
+  max-width: 40rem;
+  margin-bottom: 2.5rem;
+  padding: 1.25rem;
+  font-size: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.music-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; }
+.music-artist { margin-bottom: 1rem; opacity: 0.6; }
+
+.music-seek {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+}
+
+.music-seek input { flex: 1 1 auto; min-width: 0; }
+.music-seek span { flex: 0 0 auto; min-width: 2.5rem; }
+.music-seek span:last-child { text-align: right; }
+
+.music input[type="range"] { accent-color: var(--text); cursor: pointer; }
+
+.music-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.1rem;
+}
+
+.music-controls button, .song-act, .music-pick button {
+  padding: 0.2rem 0.5rem;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.music-controls button:hover, .song-act:hover, .music-pick button:hover { text-decoration: underline; }
+.music-controls button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+
+.music-vol { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+.music-vol input { width: 6rem; }
+
+.music-msg { min-height: 1.2em; margin-top: 0.6rem; opacity: 0.7; }
+
+.music-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  margin-bottom: 2.75rem;
+}
+
+.music:has(.mb-note:not([hidden])) .music-top { margin-bottom: 0; }
+
+/* the songs: one outlined list, a row each */
+.music-list {
+  max-width: 40rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.music-list li { display: flex; align-items: stretch; }
+.music-list li + li { border-top: 1px solid var(--line); }
+
+.song-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) minmax(0, 0.8fr);
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 0.75rem;
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.song-main:hover .song-title { text-decoration: underline; }
+.song-title, .song-artist { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.song-artist { opacity: 0.6; }
+.song-act { flex: 0 0 auto; margin: 0 0.4rem; align-self: center; }
+
+.music-list li.current { background: var(--text); color: var(--bg); }
+.music-list li.current .song-artist { opacity: 0.7; }
+
+.music-empty { padding: 1rem 0.75rem; opacity: 0.6; }
+
+.music-pick { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.music-pick button { border: 1px solid var(--line); padding: 0.4rem 0.8rem; }
+.music-secret { margin: 1rem 0 0; }
+
+/* the small player that shows on other pages while music is going */
+.mini {
+  position: fixed;
+  right: 1rem;
+  top: calc(var(--bar-height) + 0.75rem);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: min(22rem, calc(100vw - 2rem));
+  padding: 0.4rem 0.75rem;
+  font-size: 0.7rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.mini[hidden] { display: none; }
+.mini-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mini-title:hover { text-decoration: underline; }
+
+.mini button {
+  flex: 0 0 auto;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.mini button:hover { text-decoration: underline; }
+
+/* a short "added!" message under the tabs */
+.music-toast { max-width: 40rem; min-height: 1.4em; margin: 0.6rem 0 0.6rem; font-size: 0.75rem; }
+
+/* ---------- Community page ---------- */
+.page[data-page="community"] {
+  padding: 3rem clamp(1rem, 6vw, 5.5rem) 4rem;
+}
+
+.cm-intro { max-width: 36rem; margin-bottom: 1.5rem; font-size: 0.8rem; line-height: 1.6; }
+
+.cm-top { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 0.5rem; }
+
+.cm-status { min-height: 1.6em; margin-bottom: 1.2rem; padding-top: 0.5rem; font-size: 0.75rem; opacity: 0.7; }
+
+/* the posts, laid out like the moodboard: outlined boxes of different sizes */
+.cm-grid { column-width: 16rem; column-gap: 1.2rem; }
+
+.cm-card {
+  display: block;
+  break-inside: avoid;
+  margin: 0 0 1.2rem;
+  overflow: hidden;
+  font-size: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.cm-card img { display: block; width: 100%; height: auto; }
+.cm-card-text { padding: 0.9rem 1rem; }
+.cm-card-text p { white-space: pre-line; overflow-wrap: anywhere; line-height: 1.55; }
+.cm-card-meta { margin-top: 0.7rem; font-size: 0.7rem; opacity: 0.6; }
+
+.cm-more { display: block; margin: 0.5rem 0 0; }
+.cm-more[hidden] { display: none; }
+
+.cm-preview {
+  display: block;
+  max-width: 100%;
+  max-height: 12rem;
+  margin: 0 0 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.cm-fine { margin: 1rem 0 0; }
+.mb-add-card input[type="file"] { display: block; margin-top: 0.3rem; font: inherit; color: inherit; max-width: 100%; }
+
+.cm-hint { margin: -0.4rem 0 0.9rem; }

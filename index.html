@@ -43,13 +43,211 @@
     </section>
 
     <section class="page" data-page="thoughts">
-      <h1>thoughts to consume</h1>
-      <p>Placeholder page.</p>
+      <div class="thoughts-toolbar">
+        <button type="button" id="btn-shuffle">shuffle</button>
+        <button type="button" id="btn-pick">pick one for me</button>
+      </div>
+
+      <!-- the big scrollable area where the entry boxes get scattered -->
+      <div class="thoughts-scroll" id="thoughts-scroll">
+        <div class="thoughts-canvas" id="thoughts-canvas"></div>
+      </div>
+
+      <!-- the enlarged entry that appears in the middle -->
+      <div class="featured" id="featured" hidden>
+        <div class="featured-backdrop" id="featured-backdrop"></div>
+        <article class="featured-card" id="featured-card" role="dialog" aria-modal="true" aria-labelledby="featured-title">
+          <p class="featured-date" id="featured-date"></p>
+          <h2 id="featured-title"></h2>
+          <div class="featured-body" id="featured-body"></div>
+          <div class="featured-actions">
+            <button type="button" id="btn-expand" aria-expanded="false">expand</button>
+            <button type="button" id="btn-close">close</button>
+          </div>
+        </article>
+      </div>
     </section>
 
     <section class="page" data-page="braindump">
-      <h1>braindump</h1>
-      <p>Placeholder page.</p>
+      <div class="mb">
+        <div class="mb-top">
+          <!-- one tab per moodboard (built in script.js from moodboards.js) -->
+          <div class="mb-left">
+            <!-- opens the "add more" box: type something in and it lands on the current moodboard -->
+            <button type="button" class="mb-plus" id="mb-add" aria-label="add more" data-tip="add more">+</button>
+            <div class="mb-tabs" id="mb-tabs" role="tablist"></div>
+            <!-- lets a visitor make a moodboard of their own (kept only in their browser) -->
+            <button type="button" class="mb-plus mb-newboard" id="mb-new" data-tip="only you can see it">make yours</button>
+          </div>
+          <!-- puts the current moodboard back the way it is in moodboards.js -->
+          <div class="mb-right">
+            <button type="button" class="mb-reset" id="mb-delete" hidden>delete board</button>
+            <button type="button" class="mb-reset" id="mb-reset">reset</button>
+          </div>
+        </div>
+        <p class="mb-note" id="mb-note" hidden>this only lives on your browser. no one else can see, like a little secret.</p>
+        <!-- the grid of boxes you can drag around -->
+        <div class="mb-grid" id="mb-grid"></div>
+      </div>
+
+      <!-- the "add more" box -->
+      <div class="mb-add" id="mb-add-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="mb-add-title">
+        <div class="mb-add-backdrop" id="mb-add-backdrop"></div>
+        <form class="mb-add-card" id="mb-add-form" novalidate>
+          <h2 id="mb-add-title">add more</h2>
+          <p class="mb-add-sub" id="mb-add-sub"></p>
+
+          <div class="mb-add-kinds" id="mb-add-kinds">
+            <button type="button" data-kind="image" aria-pressed="true">picture</button>
+            <button type="button" data-kind="text" aria-pressed="false">text</button>
+            <button type="button" data-kind="color" aria-pressed="false">color</button>
+          </div>
+
+          <div class="mb-add-fields" data-fields="image">
+            <label>picture address<input type="text" id="mb-add-src" placeholder="https://..." autocomplete="off"></label>
+            <label>caption (optional)<input type="text" id="mb-add-alt" autocomplete="off"></label>
+          </div>
+          <div class="mb-add-fields" data-fields="text" hidden>
+            <label>title (optional)<input type="text" id="mb-add-title-in" autocomplete="off"></label>
+            <label>your words<textarea id="mb-add-text" rows="5"></textarea></label>
+          </div>
+          <div class="mb-add-fields" data-fields="color" hidden>
+            <div class="mb-add-colors">
+              <span>colors</span>
+              <div class="mb-add-swatches" id="mb-add-swatches"></div>
+              <button type="button" class="mb-add-morecolor" id="mb-add-morecolor">+ another color</button>
+            </div>
+            <label>name (optional)<input type="text" id="mb-add-label" autocomplete="off"></label>
+          </div>
+
+          <p class="mb-add-msg" id="mb-add-msg" role="status"></p>
+          <div class="mb-add-actions">
+            <button type="submit" id="mb-add-go">add</button>
+            <button type="button" id="mb-add-cancel">cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- make your own moodboard -->
+      <div class="mb-add" id="mb-new-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="mb-new-title">
+        <div class="mb-add-backdrop" id="mb-new-backdrop"></div>
+        <form class="mb-add-card" id="mb-new-form" novalidate>
+          <h2 id="mb-new-title">make your own moodboard</h2>
+          <p class="mb-add-sub">this only lives on your browser. no one else can see, like a little secret.</p>
+          <label>name<input type="text" id="mb-new-name" maxlength="24" placeholder="my moodboard" autocomplete="off"></label>
+          <p class="mb-add-msg" id="mb-new-msg" role="status"></p>
+          <div class="mb-add-actions">
+            <button type="submit">make it</button>
+            <button type="button" id="mb-new-cancel">cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- the enlarged view that opens when you click a box -->
+      <div class="mb-light" id="mb-light" hidden role="dialog" aria-modal="true" aria-label="moodboard viewer">
+        <div class="mb-light-backdrop"></div>
+        <div class="mb-light-stage" id="mb-light-stage">
+          <div class="mb-light-track" id="mb-light-track"></div>
+        </div>
+        <div class="mb-light-bar">
+          <button type="button" id="mb-prev">prev</button>
+          <span id="mb-count"></span>
+          <button type="button" id="mb-next">next</button>
+          <button type="button" id="mb-remove" hidden>remove</button>
+          <button type="button" id="mb-light-close">close</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" data-page="music">
+      <div class="music">
+        <!-- what's playing -->
+        <div class="music-now">
+          <p class="music-title" id="music-title">nothing playing</p>
+          <p class="music-artist" id="music-artist">pick a song below</p>
+          <div class="music-seek">
+            <span id="music-cur">0:00</span>
+            <input type="range" id="music-seek" min="0" max="1000" value="0" step="1" aria-label="song position">
+            <span id="music-dur">0:00</span>
+          </div>
+          <div class="music-controls">
+            <button type="button" id="music-shuffle" aria-pressed="false">shuffle</button>
+            <button type="button" id="music-prev">prev</button>
+            <button type="button" id="music-play">play</button>
+            <button type="button" id="music-next">next</button>
+            <button type="button" id="music-repeat" aria-pressed="false">repeat</button>
+            <label class="music-vol">volume <input type="range" id="music-vol" min="0" max="100" value="80" aria-label="volume"></label>
+          </div>
+          <p class="music-msg" id="music-msg" role="status"></p>
+        </div>
+
+        <!-- all songs, plus a tab for each playlist a visitor makes -->
+        <div class="music-top">
+          <div class="mb-left">
+            <button type="button" class="mb-plus" id="music-newpl" aria-label="new playlist" data-tip="new playlist">+</button>
+            <div class="mb-tabs" id="music-tabs" role="tablist"></div>
+          </div>
+          <div class="mb-right">
+            <button type="button" class="mb-reset" id="music-delpl" hidden>delete playlist</button>
+          </div>
+        </div>
+        <p class="mb-note" id="music-note" hidden>this only lives on your browser. no one else can see, like a little secret.</p>
+
+        <p class="music-toast" id="music-toast" role="status"></p>
+        <ol class="music-list" id="music-list"></ol>
+      </div>
+
+      <!-- add a song to a playlist, or start a new playlist -->
+      <div class="mb-add" id="music-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="music-dialog-title">
+        <div class="mb-add-backdrop" id="music-dialog-backdrop"></div>
+        <form class="mb-add-card" id="music-dialog-form" novalidate>
+          <h2 id="music-dialog-title">add to playlist</h2>
+          <p class="mb-add-sub" id="music-dialog-sub"></p>
+          <div class="music-pick" id="music-pick"></div>
+          <label><span id="music-new-label">or start a new playlist</span>
+            <input type="text" id="music-new-name" maxlength="24" placeholder="my playlist" autocomplete="off">
+          </label>
+          <p class="mb-add-msg" id="music-dialog-msg" role="status"></p>
+          <div class="mb-add-actions">
+            <button type="submit">make it</button>
+            <button type="button" id="music-dialog-cancel">close</button>
+          </div>
+          <p class="mb-add-sub music-secret">playlists only live on your browser. no one else can see, like a little secret.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="page" data-page="community">
+      <div class="cm">
+        <p class="cm-intro">leave something here. a thought, a photo, anything.</p>
+        <div class="cm-top">
+          <button type="button" class="mb-plus" id="cm-add" aria-label="add yours" data-tip="add yours">+</button>
+          <button type="button" class="mb-reset" id="cm-refresh">check for new</button>
+        </div>
+        <p class="cm-status" id="cm-status" role="status"></p>
+        <div class="cm-grid" id="cm-grid"></div>
+        <button type="button" class="mb-reset cm-more" id="cm-more" hidden>show more</button>
+      </div>
+
+      <!-- add something -->
+      <div class="mb-add" id="cm-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="cm-dialog-title">
+        <div class="mb-add-backdrop" id="cm-dialog-backdrop"></div>
+        <form class="mb-add-card" id="cm-form" novalidate>
+          <h2 id="cm-dialog-title">add yours</h2>
+          <p class="mb-add-sub">it goes up right away, for everyone to see.</p>
+          <label>name (optional)<input type="text" id="cm-name" maxlength="24" autocomplete="off"></label>
+          <label>your words<textarea id="cm-body" rows="5" maxlength="500"></textarea></label>
+          <label>photo address (optional)<input type="text" id="cm-photo" placeholder="https://..." autocomplete="off"></label>
+          <p class="mb-add-sub cm-hint">right-click a picture online and choose "copy image address", then paste it here.</p>
+          <img class="cm-preview" id="cm-preview" alt="" hidden>
+          <p class="mb-add-msg" id="cm-msg" role="status"></p>
+          <div class="mb-add-actions">
+            <button type="submit" id="cm-send">send</button>
+            <button type="button" id="cm-cancel">cancel</button>
+          </div>
+          <p class="mb-add-sub cm-fine">please keep it kind and don't share anything private. anyone can see what you post.</p>
+        </form>
+      </div>
     </section>
 
     <section class="page" data-page="about">
@@ -61,6 +259,17 @@
       <h1>writing</h1>
       <p>Placeholder writing page.</p>
     </section>
+    <!-- "are you sure?" box (used instead of the browser's own pop up, which can be blocked) -->
+      <div class="mb-add mb-confirm" id="mb-confirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="mb-confirm-text">
+        <div class="mb-add-backdrop" id="mb-confirm-backdrop"></div>
+        <div class="mb-add-card mb-confirm-card">
+          <p id="mb-confirm-text"></p>
+          <div class="mb-add-actions">
+            <button type="button" id="mb-confirm-yes">yes</button>
+            <button type="button" id="mb-confirm-no">cancel</button>
+          </div>
+        </div>
+      </div>
   </main>
 
   <!-- FIXED BOTTOM BAR: 3 even sections -->
@@ -72,6 +281,8 @@
         <div class="menu-inner">
           <a href="#thoughts">thoughts to consume</a>
           <a href="#braindump">braindump</a>
+          <a href="#music">music</a>
+          <a href="#community">build up the community</a>
         </div>
       </div>
       <button type="button" id="btn-menu" aria-expanded="false" aria-controls="menu-list">get into it</button>
@@ -79,6 +290,20 @@
     <div class="cell cell-right"><span id="today"></span></div>
   </footer>
 
+  <!-- a small player that follows you to other pages while music is going (top right) -->
+  <div class="mini" id="mini" hidden>
+    <a href="#music" class="mini-title" id="mini-title"></a>
+    <button type="button" id="mini-prev">prev</button>
+    <button type="button" id="mini-play">pause</button>
+    <button type="button" id="mini-next">next</button>
+  </div>
+
+  <script src="entries.js"></script>
+  <script src="moodboards.js"></script>
+  <script src="songs.js"></script>
   <script src="script.js"></script>
+  <script src="music.js"></script>
+  <script src="community-config.js"></script>
+  <script src="community.js"></script>
 </body>
 </html>
