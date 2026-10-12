@@ -1,2 +1,50 @@
-<h1>Hello, world!</h1>
-<p>Under construction.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>zine</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Roboto+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- FIXED TOP BAR: 3 even sections -->
+  <header class="bar bar-top">
+    <div class="cell"><a href="#home">top 1 (home)</a></div>
+    <div class="cell"><a href="#about">top 2 (about)</a></div>
+    <div class="cell"><a href="#writing">top 3 (writing)</a></div>
+  </header>
+
+  <!-- MIDDLE: only this part changes between pages -->
+  <main id="main">
+    <section class="page" data-page="home">
+      <h1>home</h1>
+      <p>This is the middle section. Each page lives in its own block like this one.</p>
+    </section>
+
+    <section class="page" data-page="about">
+      <h1>about</h1>
+      <p>Placeholder about page.</p>
+    </section>
+
+    <section class="page" data-page="writing">
+      <h1>writing</h1>
+      <p>Placeholder writing page.</p>
+    </section>
+  </main>
+
+  <!-- FIXED BOTTOM BAR: 3 even sections -->
+  <footer class="bar bar-bottom">
+    <div class="cell">bottom 1</div>
+    <div class="cell">bottom 2</div>
+    <div class="cell">bottom 3</div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

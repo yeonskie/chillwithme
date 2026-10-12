@@ -1,0 +1,60 @@
+/* ---------- Variables (easy to change later) ---------- */
+:root {
+  --font-mono: "Roboto Mono", monospace;
+  --font-serif: "Libre Baskerville", Georgia, serif;
+
+  --bar-height: 2.5rem;   /* height of the top and bottom bars */
+  --bg: #ffffff;
+  --text: #111111;
+  --line: #111111;
+}
+
+/* ---------- Base ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-serif);
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* ---------- Fixed top and bottom bars ---------- */
+.bar {
+  flex: 0 0 var(--bar-height);
+  height: var(--bar-height);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);   /* 3 even sections */
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: var(--bg);
+}
+
+.bar-top    { border-bottom: 1px solid var(--line); }
+.bar-bottom { border-top: 1px solid var(--line); }
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 0.5rem;
+}
+
+.cell + .cell { border-left: 1px solid var(--line); }
+
+/* ---------- Middle section (the part that changes) ---------- */
+main {
+  flex: 1 1 auto;
+  min-height: 0;          /* lets it scroll inside the flex layout */
+  overflow-y: auto;
+  position: relative;
+}
+
+.page { display: none; padding: 1.5rem; }
+.page.active { display: block; }
