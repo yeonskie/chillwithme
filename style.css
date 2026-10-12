@@ -1,12 +1,18 @@
 /* ---------- Variables (easy to change later) ---------- */
 :root {
   --font-mono: "Roboto Mono", monospace;
-  --font-serif: "Libre Baskerville", Georgia, serif;
 
   --bar-height: 2.5rem;   /* height of the top and bottom bars */
-  --bg: #ffffff;
-  --text: #111111;
-  --line: #111111;
+  --bg: #141414;     /* deep charcoal, not pure black */
+  --text: #f2efe9;   /* soft off-white */
+  --line: #f2efe9;
+}
+
+/* ---------- Light mode (switched on by the top right button) ---------- */
+:root[data-theme="light"] {
+  --bg: #f2efe9;     /* soft off-white */
+  --text: #2a2a2a;   /* soft charcoal */
+  --line: #2a2a2a;
 }
 
 /* ---------- Base ---------- */
@@ -19,7 +25,7 @@ body {
   flex-direction: column;
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-serif);
+  font-family: var(--font-mono);
 }
 
 a { color: inherit; text-decoration: none; }
@@ -46,8 +52,6 @@ a { color: inherit; text-decoration: none; }
   padding: 0 0.5rem;
 }
 
-.cell + .cell { border-left: 1px solid var(--line); }
-
 /* ---------- Middle section (the part that changes) ---------- */
 main {
   flex: 1 1 auto;
@@ -63,6 +67,7 @@ main {
 .cell-left {
   justify-content: flex-start;   /* left aligned */
   gap: 0.75rem;
+  padding-left: 1rem;            /* space on the left of the top left section */
 }
 
 .cell-left button {
@@ -78,3 +83,127 @@ main {
 
 /* keeps the return button truly hidden when it has the hidden attribute */
 .cell-left button[hidden] { display: none; }
+
+/* ---------- Theme toggle button (top right) ---------- */
+.cell-toggle {
+  justify-content: flex-end;   /* right aligned */
+  padding-right: 1.75rem;      /* space on the right of the top right section */
+}
+
+.cell-toggle button {
+  width: 100%;
+  height: 100%;
+  text-align: right;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.cell-toggle button:hover { text-decoration: underline; }
+
+/* ---------- Scrolling marquee text (top center) ---------- */
+.cell-marquee {
+  padding: 0;
+  min-width: 0;            /* keeps the 3 sections even */
+  justify-content: center;
+}
+
+/* the window is exactly as wide as one copy of the text */
+.marquee-window {
+  position: relative;
+  overflow: hidden;
+  max-width: 100%;         /* on very small screens, never wider than the section */
+}
+
+.marquee-sizer {
+  display: block;
+  visibility: hidden;      /* only here to give the window its width */
+  white-space: nowrap;
+}
+
+.marquee-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 10s linear infinite;   /* bigger number = slower */
+}
+
+.marquee-item {
+  white-space: nowrap;
+  padding-right: 2rem;     /* space between each repeat of the text */
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* people who prefer less motion get static text */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}
+
+/* ---------- Bottom bar ---------- */
+.cell-right {
+  justify-content: flex-end;   /* right aligned */
+  padding-right: 1.75rem;      /* same space as the top right section */
+}
+
+.cell-menu button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cell-menu button:hover { text-decoration: underline; }
+
+/* ---------- Menu that opens upward (bottom center) ---------- */
+.bar-bottom {
+  position: relative;
+  z-index: 10;               /* keeps the open menu above the page content */
+}
+
+.cell-menu { position: relative; }
+
+.menu-list {
+  position: absolute;
+  bottom: calc(100% + 1px);  /* sits right above the bottom bar */
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-rows: 0fr;   /* closed: no height */
+  visibility: hidden;
+  background: var(--bg);
+  transition: grid-template-rows 0.25s ease, visibility 0s linear 0.25s;
+}
+
+.menu-list.open {
+  grid-template-rows: 1fr;   /* open: grows to fit the links, upward */
+  visibility: visible;
+  transition: grid-template-rows 0.25s ease, visibility 0s;
+}
+
+.menu-inner {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-inner a {
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+}
+
+.menu-inner a:hover { text-decoration: underline; }
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-list, .menu-list.open { transition: none; }
+}

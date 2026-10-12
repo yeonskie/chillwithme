@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Roboto+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
 </head>
@@ -18,9 +18,21 @@
     <div class="cell cell-left">
       <button type="button" id="btn-refresh">refresh</button>
       <button type="button" id="btn-return" hidden>return</button>
+      <button type="button" id="btn-home" hidden>home</button>
     </div>
-    <div class="cell"><a href="#about">top 2 (about)</a></div>
-    <div class="cell"><a href="#writing">top 3 (writing)</a></div>
+    <div class="cell cell-marquee">
+      <!-- To change the text, edit it in all 3 places below -->
+      <div class="marquee-window">
+        <span class="marquee-sizer" aria-hidden="true">as always, daydreaming about you..."(っ- ‸ - ς)ᶻ 𝗓 𐰁</span>
+        <div class="marquee-track">
+          <span class="marquee-item">as always, daydreaming about you..."(っ- ‸ - ς)ᶻ 𝗓 𐰁</span>
+          <span class="marquee-item" aria-hidden="true">as always, daydreaming about you..."(っ- ‸ - ς)ᶻ 𝗓 𐰁</span>
+        </div>
+      </div>
+    </div>
+    <div class="cell cell-toggle">
+      <button type="button" id="btn-theme">bring the sun back 𖤓˚࿔</button>
+    </div>
   </header>
 
   <!-- MIDDLE: only this part changes between pages -->
@@ -28,6 +40,16 @@
     <section class="page" data-page="home">
       <h1>home</h1>
       <p>This is the middle section. Each page lives in its own block like this one.</p>
+    </section>
+
+    <section class="page" data-page="thoughts">
+      <h1>thoughts to consume</h1>
+      <p>Placeholder page.</p>
+    </section>
+
+    <section class="page" data-page="braindump">
+      <h1>braindump</h1>
+      <p>Placeholder page.</p>
     </section>
 
     <section class="page" data-page="about">
@@ -43,9 +65,18 @@
 
   <!-- FIXED BOTTOM BAR: 3 even sections -->
   <footer class="bar bar-bottom">
-    <div class="cell">bottom 1</div>
-    <div class="cell">bottom 2</div>
-    <div class="cell">bottom 3</div>
+    <div class="cell cell-left">yeonskie's brain dump</div>
+    <div class="cell cell-menu">
+      <!-- opens upward from the "get into it" button; each link switches the page -->
+      <div class="menu-list" id="menu-list">
+        <div class="menu-inner">
+          <a href="#thoughts">thoughts to consume</a>
+          <a href="#braindump">braindump</a>
+        </div>
+      </div>
+      <button type="button" id="btn-menu" aria-expanded="false" aria-controls="menu-list">get into it</button>
+    </div>
+    <div class="cell cell-right"><span id="today"></span></div>
   </footer>
 
   <script src="script.js"></script>
