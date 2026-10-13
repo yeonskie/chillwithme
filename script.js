@@ -394,6 +394,11 @@ function savedRows(b, count) {
 // how many of the 12 columns a box takes: the "cols" you set, otherwise a picture
 // fits its own shape (a square picture is 3 columns, a wide one more, a tall one fewer)
 function itemCols(item) {
+  // text boxes without a width of their own are narrow: 2 columns for a short note, 3 for anything longer
+  // (the add box used to save every text box as 4 wide, so a 4 on a text box counts as "automatic" too)
+  if (item.type === "text" && (!item.cols || item.cols === 4)) {
+    return String((item.title || "") + (item.text || "")).trim().length <= 60 ? 2 : 3;
+  }
   if (item.cols) return clampNum(item.cols, 1, 12);
   if (item.type === "image" && item.aspect) return clampNum(3 * item.aspect, 1, 12);
   return 3;
@@ -912,7 +917,7 @@ addForm.addEventListener("submit", async (e) => {
   } else if (addKind === "text") {
     const text = document.getElementById("mb-add-text").value.trim();
     if (!text) { addMsg.textContent = "write something first"; return; }
-    raw = { type: "text", text, cols: 4 };
+    raw = { type: "text", text };               // no width saved: text boxes size themselves (see itemCols)
     const title = document.getElementById("mb-add-title-in").value.trim();
     if (title) raw.title = title;
   } else {
@@ -1472,6 +1477,66 @@ mbGrid.addEventListener("dragstart", (e) => e.preventDefault());   // no ghost i
 
 renderTabs();
 renderBoard();
+
+// ---------- Confession booth: the words fade in one by one, then the button ----------
+const confessIntro = document.getElementById("confession-intro");
+const confessNext = document.getElementById("confession-next");
+const confessLine = document.getElementById("confession-line");
+const confessGo = document.getElementById("confession-go");
+
+if (confessIntro && confessNext && confessLine && confessGo) {
+  // split the sentence into words, so each one can fade in on its own
+  const sentence = confessLine.textContent.trim();
+  const words = sentence.split(/\s+/);
+  confessLine.setAttribute("aria-label", sentence);
+  confessLine.textContent = "";
+  words.forEach((word, i) => {
+    const span = document.createElement("span");
+    span.className = "confession-word";
+    span.setAttribute("aria-hidden", "true");
+    span.style.setProperty("--i", i);
+    span.textContent = word;
+    confessLine.appendChild(span);
+    if (i < words.length - 1) confessLine.appendChild(document.createTextNode(" "));
+  });
+  // the button comes in after the last word
+  confessGo.style.setProperty("--go-delay", 0.5 + words.length * 0.35 + 0.8 + "s");
+
+  // someone who has already been through the first screen goes straight to the fair grounds next time
+  const SEEN_KEY = "confession-seen";
+  function hasSeen() {
+    try { return localStorage.getItem(SEEN_KEY) === "1"; } catch (e) { return false; }
+  }
+  function markSeen() {
+    try { localStorage.setItem(SEEN_KEY, "1"); } catch (e) {}
+  }
+
+  // sets the page up for the next visit: the intro for a first time, the fair grounds (no animation) after that
+  function resetConfession() {
+    confessIntro.classList.remove("leaving");
+    const seen = hasSeen();
+    confessIntro.hidden = seen;
+    confessNext.hidden = !seen;
+    confessNext.classList.toggle("instant", seen);
+  }
+
+  // the button: fade the first screen out, then show the fair grounds
+  confessGo.addEventListener("click", () => {
+    markSeen();
+    confessIntro.classList.add("leaving");
+    setTimeout(() => {
+      confessIntro.hidden = true;
+      confessNext.classList.remove("instant");     // this first time it fades in
+      confessNext.hidden = false;
+    }, reduceMotion.matches ? 0 : 600);
+  });
+
+  // leaving the page sets it up for the next visit
+  window.addEventListener("hashchange", () => {
+    if (location.hash !== "#confession") resetConfession();
+  });
+  resetConfession();
+}
 
 // ---------- Today's date (bottom right), shown as month.date.year ----------
 const todayEl = document.getElementById("today");

@@ -21,9 +21,11 @@ const SONGS = [
   { title: "iconic by mistake", artist: "le sserafim, illit, katseye", src: "music/iconic by mistake.mp3", category: "k-pop" },
   { title: "blue valentine", artist: "nmixx", src: "music/blue valentine.mp3", category: "k-pop" },
   { title: "disconnected", artist: "5 seconds of summer", src: "music/disconnected.mp3", category: "boy band excellence" },
-  { title: "sun kiss", artist: "tuide", src: "music/sun.mp3", category: "k-pop" },
+  { title: "sun kiss", artist: "tuide", src: "music/sun kiss.mp3", category: "k-pop" },
   { title: "feel special", artist: "twice", src: "music/feel special.mp3", category: "k-pop" },
   { title: "alive", artist: "one direction", src: "music/alive.mp3", category: "boy band excellence" },
   { title: "that's so true", artist: "gracie abrams", src: "music/that's so true.mp3", category: "pop girlies" },
   { title: "juno", artist: "sabrina carpenter", src: "music/juno.mp3", category: "pop girlies" },
+  { title: "in bloom", artist: "zerobaseone", src: "music/in bloom.mp3", category: "k-pop" },
+  { title: "left right", artist: "xg", src: "music/left right.mp3", category: "k-pop" },
 ];

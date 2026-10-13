@@ -1290,3 +1290,157 @@ main {
 .mb-add-filehint { margin: -0.4rem 0 0.9rem; font-size: 0.7rem; }
 .mb-add-filehint:empty { display: none; }
 .mb-plus[hidden] { display: none; }
+
+/* phones: the music tabs (all songs, the categories, the playlists) wrap onto new lines instead of scrolling sideways */
+@media (max-width: 40rem) {
+  .music-top .mb-tabs {
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 0.5rem;
+    overflow: visible;
+    border: none;
+    border-radius: 0;
+  }
+  .music-top .mb-tab {
+    min-width: 0;
+    max-width: 100%;
+    padding: 0 0.9rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+  .music-top .mb-tab + .mb-tab { border-left: 1px solid var(--line); }
+}
+
+/* ---------- Confession booth ---------- */
+/* fills the middle and centers its words */
+.page[data-page="confession"] {
+  position: absolute;
+  inset: 0;
+  padding: 1.5rem;
+}
+.page[data-page="confession"].active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confession { width: 100%; text-align: center; }
+.confession-intro, .confession-next {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+.confession-intro[hidden], .confession-next[hidden] { display: none; }
+
+.confession-line {
+  font-size: clamp(1.1rem, 4vw, 1.7rem);
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+/* each word fades in a little after the one before it (--i is the word's number) */
+.confession-word {
+  display: inline-block;
+  opacity: 0;
+  animation: confession-in 1.2s ease forwards;
+  animation-delay: calc(0.5s + var(--i, 0) * 0.35s);
+}
+
+.confession-go {
+  padding: 0.85rem 1.5rem;
+  font: inherit;
+  font-size: 0.8rem;
+  color: inherit;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  opacity: 0;
+  animation: confession-in 1.2s ease forwards;
+  animation-delay: var(--go-delay, 3s);    /* script.js sets this to come after the last word */
+}
+.confession-go:hover, .confession-go:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+
+.confession-intro.leaving { opacity: 0; transition: opacity 0.6s ease; }
+.confession-next { animation: confession-in 1.2s ease both; }
+.confession-next.instant { animation: none; }       /* someone who's been here before skips the fade */
+
+@keyframes confession-in {
+  from { opacity: 0; transform: translateY(0.5rem); filter: blur(3px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .confession-word, .confession-go, .confession-next { animation: none; opacity: 1; }
+  .confession-intro.leaving { transition: none; }
+}
+
+/* ---------- Fairgrounds: places scattered around ---------- */
+.confession-next { width: 100%; max-width: 46rem; margin: 0 auto; gap: 1.2rem; }
+.fair-head { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+.fair-sub { font-size: 0.8rem; opacity: 0.65; letter-spacing: 0.02em; }
+.fair-map { position: relative; width: 100%; height: clamp(17rem, 54vh, 28rem); }
+.fair-place {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-50%, -50%) rotate(var(--r, 0deg));
+  padding: 0.35rem 0.6rem;
+  font-size: clamp(0.95rem, 3.4vw, 1.3rem);
+  white-space: nowrap;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+  text-decoration-thickness: 1px;
+  border-radius: var(--radius);
+}
+.fair-place:hover, .fair-place:focus-visible { background: var(--text); color: var(--bg); outline: none; text-decoration: none; }
+
+/* ---------- Place pages (where secrets get hidden) ---------- */
+.place-back { display: inline-block; margin-bottom: 1.2rem; font-size: 0.8rem; color: inherit; text-underline-offset: 0.25em; }
+.place-title { font-size: clamp(1.3rem, 4vw, 1.9rem); font-weight: 400; margin-bottom: 0.4rem; }
+.place-sub { font-size: 0.8rem; opacity: 0.65; margin-bottom: 1.2rem; }
+.place-form { display: flex; flex-direction: column; gap: 0.6rem; max-width: 30rem; margin-bottom: 1.5rem; }
+.place-form textarea, .place-form input {
+  width: 100%; padding: 0.7rem 0.8rem; font: inherit; font-size: 0.85rem;
+  color: inherit; background: transparent; border: 1px solid var(--line); border-radius: var(--radius);
+}
+.place-form textarea { min-height: 6rem; resize: vertical; }
+.place-form button {
+  align-self: flex-start; padding: 0.7rem 1.3rem; font: inherit; font-size: 0.8rem;
+  color: inherit; background: none; border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer;
+}
+.place-form button:hover, .place-form button:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.place-form button:disabled { opacity: 0.5; cursor: default; }
+.place-status { min-height: 1.2em; margin-bottom: 0.8rem; font-size: 0.8rem; opacity: 0.75; }
+.place-more { margin-top: 1rem; padding: 0.6rem 1.1rem; font: inherit; font-size: 0.8rem; color: inherit; background: none; border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.place-more[hidden] { display: none; }
+
+/* centered place pages: the secrets sit in up to 3 columns underneath, only as wide as that needs */
+.page.place { text-align: center; }
+.place-inner { width: 100%; max-width: 52rem; margin: 0 auto; }
+.place-form { margin-left: auto; margin-right: auto; text-align: left; }
+.place-form button { align-self: center; }
+.place .cm-grid {
+  column-width: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;      /* one or two secrets stay centered */
+  gap: 1.2rem;
+  align-items: flex-start;
+  margin: 0 auto;
+}
+.place .cm-card { margin: 0; cursor: pointer; flex: 0 0 calc((100% - 2.4rem) / 3); min-width: 0; }
+.place .cm-card:hover, .place .cm-card:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.place .cm-card-text p:not(.cm-card-meta) {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.secret-pop { text-align: center; }
+.secret-pop-text { font-size: 0.95rem; line-height: 1.6; white-space: pre-line; overflow-wrap: anywhere; }
+.secret-pop .cm-card-meta { margin-bottom: 1.2rem; }
+@media (max-width: 44rem) { .place .cm-card { flex-basis: calc((100% - 1.2rem) / 2); } }
+@media (max-width: 30rem) { .place .cm-card { flex-basis: 100%; } }

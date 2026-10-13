@@ -271,6 +271,39 @@
       </div>
     </section>
 
+    <section class="page" data-page="confession">
+      <div class="confession">
+        <!-- the first screen: the words fade in one by one (script.js), then the button -->
+        <div class="confession-intro" id="confession-intro">
+          <p class="confession-line" id="confession-line">the place for all your secrets...</p>
+          <button type="button" class="confession-go" id="confession-go">continue to the fair grounds</button>
+        </div>
+        <!-- what the button opens: the fair grounds (placeholder until you design it) -->
+        <div class="confession-next" id="confession-next" hidden>
+          <div class="fair-head">
+            <p class="confession-line confession-title">welcome the fairgrounds</p>
+            <p class="fair-sub">choose a place to hide your thoughts</p>
+          </div>
+          <nav class="fair-map" aria-label="places to hide a secret">
+            <a class="fair-place" href="#circus-tent" style="--x:26%;--y:10%;--r:-4deg">circus tent</a>
+            <a class="fair-place" href="#fun-house" style="--x:74%;--y:28%;--r:3deg">the fun house</a>
+            <a class="fair-place" href="#house-of-mirrors" style="--x:72%;--y:68%;--r:2deg">house of mirrors</a>
+            <a class="fair-place" href="#tunnel-of-love" style="--x:28%;--y:48%;--r:-2deg">tunnel of love</a>
+            <a class="fair-place" href="#haunted-house" style="--x:36%;--y:90%;--r:-3deg">haunted house</a>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <section class="page place" data-page="circus-tent" data-place="circus-tent" data-title="circus tent"></section>
+
+    <section class="page place" data-page="fun-house" data-place="fun-house" data-title="the fun house"></section>
+
+    <section class="page place" data-page="house-of-mirrors" data-place="house-of-mirrors" data-title="house of mirrors"></section>
+
+    <section class="page place" data-page="haunted-house" data-place="haunted-house" data-title="haunted house"></section>
+    <section class="page place" data-page="tunnel-of-love" data-place="tunnel-of-love" data-title="tunnel of love"></section>
+
     <section class="page" data-page="about">
       <h1>about</h1>
       <p>Placeholder about page.</p>
@@ -341,6 +374,7 @@
           <a href="#braindump">braindump</a>
           <a href="#music">music</a>
           <a href="#community">build up the community</a>
+          <a href="#confession">confession booth</a>
         </nav>
         </div>
       </div>
@@ -364,6 +398,7 @@
   <script src="music.js"></script>
   <script src="community-config.js"></script>
   <script src="community.js"></script>
+  <script src="secrets.js"></script>
   <script src="journal.js"></script>
 </body>
 </html>
