@@ -1444,3 +1444,47 @@ main {
 .secret-pop .cm-card-meta { margin-bottom: 1.2rem; }
 @media (max-width: 44rem) { .place .cm-card { flex-basis: calc((100% - 1.2rem) / 2); } }
 @media (max-width: 30rem) { .place .cm-card { flex-basis: 100%; } }
+
+/* ---------- Music page: everything centered ---------- */
+.music { max-width: 40rem; margin: 0 auto; text-align: center; }
+.music-now { margin-left: auto; margin-right: auto; }
+.music-controls { justify-content: center; }
+.music-vol { margin-left: 0; }
+.music-top { justify-content: center; align-items: center; }
+.music-top .mb-left { justify-content: center; }
+.music-top .mb-right { justify-content: center; }
+.music-list { margin-left: auto; margin-right: auto; text-align: left; }
+.music-toast, .mb-note { margin-left: auto; margin-right: auto; text-align: center; }
+.music-pick { justify-content: center; }
+@media (max-width: 40rem) {
+  .music-top { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.75rem 0.5rem; }
+  .music-top .mb-tabs { order: 0; width: 100%; justify-content: center; justify-self: auto; }
+  .music-top .mb-plus { order: 1; }
+  .music-top .mb-right { order: 2; margin-left: 0; justify-self: auto; }
+}
+
+/* ---------- Thoughts page: centered ---------- */
+.thoughts-canvas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;        /* a short last row (or just a few entries) stays centered */
+  align-content: flex-start;
+  gap: 0.9rem;
+  width: 100%;
+  max-width: 68rem;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.thoughts-canvas .entry { flex: 0 0 14rem; max-width: 100%; box-sizing: border-box; text-align: center; align-items: center; }
+@media (max-width: 40rem) {
+  .thoughts-canvas { gap: 0.75rem; }
+  .thoughts-canvas .entry { flex: 0 0 calc((100% - 0.75rem) / 2); }
+}
+
+/* thoughts page: more room above the buttons and the boxes */
+.thoughts-toolbar { top: 2rem; }
+.thoughts-canvas { padding-top: 6rem; }
+@media (max-width: 40rem) {
+  .thoughts-toolbar { top: 1.5rem; }
+  .thoughts-canvas { padding-top: 5rem; }
+}
