@@ -1566,3 +1566,16 @@ main {
 }
 
 .home-ul { text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
+
+.home-random {
+  margin-top: 1.25rem;
+  padding: 0.55rem 1.1rem;
+  font: inherit;
+  font-size: 0.8rem;
+  color: inherit;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.home-random:hover, .home-random:focus-visible { background: var(--text); color: var(--bg); outline: none; }

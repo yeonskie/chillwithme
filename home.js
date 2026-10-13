@@ -1,5 +1,5 @@
 // ---------- Home page: the rotating boxes ----------
-// The boxes slide from left to right and fade into each other. It turns by itself every 2.3 seconds. It waits while someone hovers or focuses it, and
+// The boxes slide from left to right and fade into each other. It turns by itself every 3 seconds. It waits while someone hovers or focuses it, and
 // whenever the home page isn't the one showing. The < and > buttons (and swiping) turn it by hand.
 
 (function () {
@@ -78,6 +78,21 @@
     if (Math.abs(dx) > 40) { const d = dx < 0 ? -1 : 1; show(index - d, d); start(); }
   });
   list.addEventListener("pointercancel", () => { startX = null; });
+
+  // "randomize my stay": jumps to a random page, including the fairground places (never the same one twice in a row)
+  const randomBtn = document.getElementById("home-random");
+  if (randomBtn) {
+    let lastPick = "";
+    randomBtn.addEventListener("click", () => {
+      // the pages in the boxes, plus every fairground place (circus tent, fun house, and so on)
+      const pages = slides.map((s) => s.querySelector("a")).filter(Boolean).map((a) => a.getAttribute("href"))
+        .concat(Array.from(document.querySelectorAll(".page.place")).map((p) => "#" + p.dataset.page));
+      const options = pages.length > 1 ? pages.filter((p) => p !== lastPick) : pages;
+      if (!options.length) return;
+      lastPick = options[Math.floor(Math.random() * options.length)];
+      location.hash = lastPick;
+    });
+  }
 
   show(0);
   start();
