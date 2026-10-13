@@ -79,12 +79,11 @@
   });
   list.addEventListener("pointercancel", () => { startX = null; });
 
-  // a random page: the ones in the boxes plus every fairground place (never the same one twice in a row,
+  // a random page: one of the pages in the boxes (never the same one twice in a row,
   // and never the page you're already on). Used by "randomize my stay" and by "surprise me" in the bottom bar.
   let lastPick = "";
   function goRandom() {
-    const pages = slides.map((s) => s.querySelector("a")).filter(Boolean).map((a) => a.getAttribute("href"))
-      .concat(Array.from(document.querySelectorAll(".page.place")).map((p) => "#" + p.dataset.page));
+    const pages = slides.map((s) => s.querySelector("a")).filter(Boolean).map((a) => a.getAttribute("href"));
     const options = pages.filter((p) => p !== lastPick && p !== location.hash);
     const pool = options.length ? options : pages;
     if (!pool.length) return;
