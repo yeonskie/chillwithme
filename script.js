@@ -237,10 +237,16 @@ const boardReady = [];
 const boardPrep = [];
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let currentBoard = 0;
+const TABS_SHOWN = 5;          // how many moodboard tabs show before the rest go behind "+ more"
+let tabsExpanded = false;
 
 // boards and boxes you added on the website while signed in (journal.js loads them from the database)
 let onlineBoardNames = [];
 let onlineItemMap = {};       // board name -> [{ id, item }]
+let boardMeta = {};           // board name -> { description, position, layout, layout_at }: what you set for everyone (journal.js loads it)
+const metaOf = (name) => boardMeta[name] || {};
+let savedFlash = null;        // the timer that puts "save order" back after it says "saved"
+const unsavedOrder = new Set();   // names of shared boards you've rearranged but not saved yet (the "save order" button)
 let ownerMode = false;        // true while you're signed in
 
 function clampNum(n, min, max) {
@@ -391,6 +397,54 @@ function savedRows(b, count) {
   return valid ? entry.rows : null;
 }
 
+// ----- the order you set for everyone (saved online by journal.js, see supabase-board-meta.sql) -----
+// each box is remembered by its online id (boxes from moodboards.js by their place in that file),
+// so adding or removing a box later doesn't throw the order away
+function itemKey(b, i) {
+  return (boardOnlineIds[b] && boardOnlineIds[b][i]) || "c" + i;
+}
+
+function sharedRows(b, count) {
+  const m = metaOf(boards[b] && boards[b].name);
+  if (boardMine[b] || !Array.isArray(m.layout)) return null;
+  const where = new Map();
+  for (let i = 0; i < count; i++) where.set(itemKey(b, i), i);
+  const used = new Set(), rows = [];
+  m.layout.forEach((row) => {
+    if (!Array.isArray(row)) return;
+    const line = [];
+    row.forEach((key) => {
+      if (where.has(key) && !used.has(key)) { used.add(key); line.push(where.get(key)); }
+    });
+    if (line.length) rows.push(line);
+  });
+  if (!rows.length) return null;
+  for (let i = 0; i < count; i++) {                // boxes added since you set the order go at the end
+    if (used.has(itemKey(b, i))) continue;
+    if (rows[rows.length - 1].length >= 4) rows.push([]);
+    rows[rows.length - 1].push(i);
+  }
+  return rows;
+}
+
+// the description under a moodboard's name: what you set online, otherwise "description" from moodboards.js
+function boardDesc(b) {
+  if (!boards[b] || boardMine[b]) return "";
+  const m = metaOf(boards[b].name);
+  return String(m.description != null ? m.description : boards[b].description || "").trim();
+}
+
+// saves how a board is arranged, for everyone (owner only; the "save order" button); clear puts it back to the default
+function shareLayout(b, clear) {
+  const name = boards[b].name;
+  const keys = clear ? null : boardRows[b].map((row) => row.map((i) => itemKey(b, i)));
+  const at = new Date().toISOString();
+  if (typeof siteDb === "undefined") return Promise.reject(new Error("not available"));
+  return siteDb.saveLayout(name, keys, at).then(() => {
+    boardMeta[name] = { ...metaOf(name), layout: keys, layout_at: at };
+  });
+}
+
 // how many of the 12 columns a box takes: the "cols" you set, otherwise a picture
 // fits its own shape (a square picture is 3 columns, a wide one more, a tall one fewer)
 function itemCols(item) {
@@ -423,18 +477,21 @@ function loadShape(item) {
   });
 }
 
-// which boxes start on which line: a new line begins once the current one is full (12 columns)
+// every line holds 4 boxes (only the last line may hold fewer): this keeps the order and re-cuts the lines
+const PER_ROW = 4;
+function evenRows(rows) {
+  const flat = rows.flat();
+  const out = [];
+  for (let i = 0; i < flat.length; i += PER_ROW) out.push(flat.slice(i, i + PER_ROW));
+  return out;
+}
+
+// which boxes start on which line: every box is the same size now, so each line holds 4 (and wraps on small screens)
 function initialRows(items) {
   const rows = [];
-  let sum = 0;
   items.forEach((item, i) => {
-    const cols = itemCols(item);
-    if (!rows.length || sum + cols > 12) {
-      rows.push([]);
-      sum = 0;
-    }
+    if (!rows.length || rows[rows.length - 1].length >= 4) rows.push([]);
     rows[rows.length - 1].push(i);
-    sum += cols;
   });
   return rows;
 }
@@ -461,13 +518,13 @@ function registerBoard(board, mine, online) {
   }
   const items = raw.map(normalizeItem);
   boardItems.push(items);
-  boardSig.push(hashText(mine ? "mine:" + board.name : JSON.stringify([board, ids])));
+  boardSig.push(hashText(mine ? "mine:" + board.name : JSON.stringify([board, ids, metaOf(board.name).layout_at || ""])));
   boardReady.push(false);
   boardPrep.push(
     Promise.all(items.map(loadShape)).then(() => {
       const k = boards.indexOf(board);          // the board may have moved or been deleted while its pictures loaded
       if (k < 0) return;
-      boardRows[k] = savedRows(k, items.length) || initialRows(items);
+      boardRows[k] = savedRows(k, items.length) || sharedRows(k, items.length) || initialRows(items);
       boardReady[k] = true;
     })
   );
@@ -479,12 +536,19 @@ userBoards.forEach((board) => registerBoard(board, true, false));
 
 // starts the boards over: moodboards.js first, then the ones you made on the website, then this browser's own
 function rebuildBoards() {
+  unsavedOrder.clear();
   const keep = boards[currentBoard] ? boards[currentBoard].name : null;
   [boards, boardMine, boardOnline, boardOnlineIds, boardItems, boardSig, origCount, boardReady, boardPrep, boardRows].forEach((list) => { list.length = 0; });
-  baseBoards.forEach((board) => registerBoard(board, false, false));
+  // the shared boards sit in the order you set (the move buttons), the rest in the order they were made
+  const shared = baseBoards.map((board) => ({ board, online: false }));
   onlineBoardNames
     .filter((name) => !baseBoards.some((base) => base.name === name))
-    .forEach((name) => registerBoard({ name, items: [] }, false, true));
+    .forEach((name) => shared.push({ board: { name, items: [] }, online: true }));
+  const place = (e) => (Number.isInteger(metaOf(e.board.name).position) ? metaOf(e.board.name).position : Infinity);
+  shared
+    .map((e, n) => ({ e, n }))
+    .sort((x, y) => (place(x.e) === place(y.e) ? x.n - y.n : place(x.e) < place(y.e) ? -1 : 1))
+    .forEach(({ e }) => registerBoard(e.board, false, e.online));
   userBoards.forEach((board) => registerBoard(board, true, false));
   const k = keep === null ? -1 : boards.findIndex((board) => board.name === keep);
   currentBoard = k >= 0 ? k : 0;
@@ -493,8 +557,10 @@ function rebuildBoards() {
 }
 
 // journal.js calls this with what's stored online
-function setOnlineBoards(names, rows) {
+function setOnlineBoards(names, rows, meta) {
   onlineBoardNames = names.slice();
+  boardMeta = {};
+  (meta || []).forEach((m) => { if (m && typeof m.board_name === "string") boardMeta[m.board_name] = m; });
   onlineItemMap = {};
   rows.forEach((row) => {
     (onlineItemMap[row.board_name] = onlineItemMap[row.board_name] || []).push({ id: row.id, item: row.item });
@@ -616,8 +682,30 @@ function renderTabs() {
   // you can delete your own boards, and (signed in) the ones you made for everyone
   document.getElementById("mb-delete").hidden = !(mine || (ownerMode && boardOnline[currentBoard]));
   document.getElementById("mb-note").hidden = !mine;
+  // the description under the tabs, and (for you, signed in) the buttons that change it and the board's place
+  const desc = document.getElementById("mb-desc");
+  if (desc) {
+    const text = boardDesc(currentBoard);
+    desc.textContent = text;
+    desc.hidden = !text;
+  }
+  const shareable = ownerMode && boards[currentBoard] && !mine;
+  const sharedList = boards.map((x, i) => i).filter((i) => !boardMine[i]);
+  const editBtn = document.getElementById("mb-edit-desc");
+  const leftBtn = document.getElementById("mb-move-left");
+  const rightBtn = document.getElementById("mb-move-right");
+  updateSaveOrder();
+  if (editBtn && leftBtn && rightBtn) {
+    editBtn.hidden = !shareable;
+    leftBtn.hidden = !shareable || sharedList[0] === currentBoard;
+    rightBtn.hidden = !shareable || sharedList[sharedList.length - 1] === currentBoard;
+  }
   mbTabs.innerHTML = "";
+  // only the first few moodboards show as tabs; the rest sit behind a "+ more" button (the board you're on always shows)
+  const crowded = boards.length > TABS_SHOWN;
+  mbTabs.classList.toggle("expanded", crowded && tabsExpanded);
   boards.forEach((board, i) => {
+    if (crowded && !tabsExpanded && i >= TABS_SHOWN && i !== currentBoard) return;
     const tab = document.createElement("button");
     tab.type = "button";
     tab.className = "mb-tab";
@@ -631,9 +719,55 @@ function renderTabs() {
     });
     mbTabs.appendChild(tab);
   });
+  // closed: "+ N more" is the last tab in the row
+  const hidden = boards.length - boards.filter((b, i) => i < TABS_SHOWN || i === currentBoard).length;
+  if (crowded && !tabsExpanded && hidden > 0) {
+    const moreTab = document.createElement("button");
+    moreTab.type = "button";
+    moreTab.className = "mb-tab mb-more";
+    moreTab.id = "mb-more-tab";
+    moreTab.setAttribute("aria-expanded", "false");
+    moreTab.textContent = "+ " + hidden + " more";
+    moreTab.addEventListener("click", () => {
+      tabsExpanded = true;
+      renderTabs();
+      const less = document.getElementById("mb-more");
+      if (less) less.focus();
+    });
+    mbTabs.appendChild(moreTab);
+  }
+  // open: a plain "see less" sits left of reset
+  const less = document.getElementById("mb-more");
+  if (less) {
+    less.hidden = !(crowded && tabsExpanded);
+    less.textContent = "see less";
+  }
+  checkTopWrap();
+}
+
+// centers the buttons by the moodboard names whenever they don't all fit on one line
+// (measured with the centering off, so it can switch back when the window is made wider)
+function checkTopWrap() {
+  const top = document.querySelector(".mb-top");
+  const left = top && top.querySelector(".mb-left");
+  const right = top && top.querySelector(".mb-right");
+  if (!top || !left || !right || top.offsetParent === null) return;      // not on screen
+  if (window.getComputedStyle(top).display !== "flex") { top.classList.remove("wrapped"); return; }   // phones use their own layout
+  top.classList.remove("wrapped");
+  const kids = [...left.children].filter((c) => c.offsetParent !== null);
+  const leftWraps = kids.length > 1 && kids.some((c) => Math.abs(c.offsetTop - kids[0].offsetTop) > 4 && c.offsetTop > kids[0].offsetTop + 4);
+  const rightWraps = right.offsetTop >= left.offsetTop + left.offsetHeight - 2 && [...right.children].some((c) => c.offsetParent !== null);
+  top.classList.toggle("wrapped", leftWraps || rightWraps);
+}
+window.addEventListener("resize", checkTopWrap);
+window.addEventListener("hashchange", () => setTimeout(checkTopWrap, 0));
+if (window.ResizeObserver) {
+  const mbBox = document.querySelector(".mb");
+  if (mbBox) new ResizeObserver(() => checkTopWrap()).observe(mbBox);
 }
 
 function drawBoard(b) {
+  boardRows[b] = evenRows(boardRows[b]);       // always 4 to a line, whatever was saved or added
   mbGrid.innerHTML = "";
   const items = boardItems[b];
   boardRows[b].forEach((indices) => {
@@ -649,6 +783,14 @@ function drawBoard(b) {
     mbGrid.appendChild(note);
   }
   [...mbGrid.children].forEach(setRowVars);   // after they're all in place, so "fill" knows which line is last
+}
+
+// opens a moodboard by its number (home.js uses this for the random pages)
+function showBoard(i) {
+  if (!(i >= 0 && i < boards.length)) return;
+  currentBoard = i;
+  renderTabs();
+  renderBoard();
 }
 
 function renderBoard() {
@@ -674,14 +816,29 @@ function renderBoard() {
   });
 }
 
+// "see less" (shown once all the moodboards are open) folds the extra moodboards away again
+if (document.getElementById("mb-more")) {
+  document.getElementById("mb-more").addEventListener("click", () => {
+    tabsExpanded = false;
+    renderTabs();
+    const again = document.getElementById("mb-more-tab");
+    if (again) again.focus();
+  });
+}
+
 // the reset button: put this board back the way it is in moodboards.js
 document.getElementById("mb-reset").addEventListener("click", () => {
   const b = currentBoard;
   if (!boardReady[b]) return;
   const before = new Map([...mbGrid.querySelectorAll(".mb-item")].map((el) => [el.dataset.index, el.getBoundingClientRect()]));
 
-  boardRows[b] = initialRows(boardItems[b]);
+  // a visitor goes back to the order you set for everyone; you (signed in) clear that order too
+  boardRows[b] = (!ownerMode && sharedRows(b, boardItems[b].length)) || initialRows(boardItems[b]);
   clearSavedLayout(b);
+  if (ownerMode && !boardMine[b]) {                    // for you this is a draft: "save order" makes it the order for everyone
+    unsavedOrder.add(boards[b].name);
+    updateSaveOrder();
+  }
   drawBoard(b);
 
   // slide every box from where it was to where it landed
@@ -1087,6 +1244,105 @@ document.getElementById("mb-delete").addEventListener("click", async () => {
   renderBoard();
 });
 
+// ----- you, signed in: "save order" makes the way you arranged the boxes the order for everyone -----
+function updateSaveOrder() {
+  const saveOrderBtn = document.getElementById("mb-save-order");
+  if (!saveOrderBtn) return;
+  const b = currentBoard;
+  const on = ownerMode && boards[b] && !boardMine[b];
+  saveOrderBtn.hidden = !on;
+  if (!on) return;
+  const dirty = unsavedOrder.has(boards[b].name);
+  saveOrderBtn.disabled = !dirty;
+  if (!savedFlash) saveOrderBtn.textContent = "save order";
+}
+
+if (document.getElementById("mb-save-order")) {
+  const saveOrderBtn = document.getElementById("mb-save-order");
+  saveOrderBtn.addEventListener("click", async () => {
+    const b = currentBoard;
+    if (!boards[b] || boardMine[b] || !boardReady[b]) return;
+    const name = boards[b].name;
+    saveOrderBtn.disabled = true;
+    saveOrderBtn.textContent = "saving...";
+    try {
+      await shareLayout(b);
+      unsavedOrder.delete(name);
+      saveOrderBtn.textContent = "saved";
+      savedFlash = setTimeout(() => { savedFlash = null; updateSaveOrder(); }, 1800);
+    } catch (err) {
+      saveOrderBtn.textContent = "save order";
+      askConfirm("couldn't save the new order for everyone (" + err.message + ")", "ok");
+    }
+    updateSaveOrder();
+  });
+}
+
+// ----- you, signed in: edit a moodboard's description, and move it along the tabs (for everyone) -----
+(function () {
+  const dialog = document.getElementById("mb-desc-dialog");
+  const form = document.getElementById("mb-desc-form");
+  const text = document.getElementById("mb-desc-text");
+  const msg = document.getElementById("mb-desc-msg");
+  const saveBtn = document.getElementById("mb-desc-save");
+  const editBtn = document.getElementById("mb-edit-desc");
+  const leftBtn = document.getElementById("mb-move-left");
+  const rightBtn = document.getElementById("mb-move-right");
+  if (!dialog || !form || !editBtn || !leftBtn || !rightBtn) return;      // index.html out of date: the rest still works
+
+  function open() {
+    if (!ownerMode || boardMine[currentBoard] || !boards[currentBoard]) return;
+    document.getElementById("mb-desc-for").textContent = boards[currentBoard].name;
+    text.value = boardDesc(currentBoard);
+    msg.textContent = "";
+    dialog.hidden = false;
+    text.focus();
+  }
+  function close() {
+    if (dialog.hidden) return;
+    dialog.hidden = true;
+    editBtn.focus();
+  }
+  editBtn.addEventListener("click", open);
+  document.getElementById("mb-desc-cancel").addEventListener("click", close);
+  document.getElementById("mb-desc-backdrop").addEventListener("click", close);
+  dialog.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+  window.addEventListener("hashchange", close);
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = boards[currentBoard] && boards[currentBoard].name;
+    if (!name || typeof siteDb === "undefined") return;
+    saveBtn.disabled = true;
+    msg.textContent = "saving...";
+    try {
+      await siteDb.saveDescription(name, text.value.trim().slice(0, 300));
+      dialog.hidden = true;
+    } catch (err) {
+      msg.textContent = "couldn't save that (" + err.message + ")";
+    }
+    saveBtn.disabled = false;
+  });
+
+  // move this board one place earlier or later among the shared boards (yours made in a browser stay at the end)
+  async function move(step) {
+    const list = boards.map((x, i) => i).filter((i) => !boardMine[i]);
+    const at = list.indexOf(currentBoard), to = at + step;
+    if (at < 0 || to < 0 || to >= list.length || typeof siteDb === "undefined") return;
+    const names = list.map((i) => boards[i].name);
+    [names[at], names[to]] = [names[to], names[at]];
+    leftBtn.disabled = rightBtn.disabled = true;
+    try {
+      await siteDb.saveOrder(names);
+    } catch (err) {
+      askConfirm("couldn't save the new order (" + err.message + ")", "ok");
+    }
+    leftBtn.disabled = rightBtn.disabled = false;
+  }
+  leftBtn.addEventListener("click", () => move(-1));
+  rightBtn.addEventListener("click", () => move(1));
+})();
+
 // ----- click a box to see it enlarged, like a carousel -----
 const light = document.getElementById("mb-light");
 const lightStage = document.getElementById("mb-light-stage");
@@ -1263,6 +1519,21 @@ mbGrid.addEventListener("keydown", (e) => {
   openLightbox(el);
 });
 
+// re-cuts the lines on screen into 4 boxes each (the last line may have fewer), keeping the order
+function rebalanceRows() {
+  const items = [...mbGrid.querySelectorAll(".mb-item")];
+  const rows = [...mbGrid.children].filter((r) => r.classList.contains("mb-row"));
+  const need = Math.ceil(items.length / PER_ROW);
+  while (rows.length < need) {
+    const row = document.createElement("div");
+    row.className = "mb-row";
+    mbGrid.appendChild(row);
+    rows.push(row);
+  }
+  rows.forEach((row, k) => row.append(...items.slice(k * PER_ROW, (k + 1) * PER_ROW)));
+  rows.forEach((row) => { if (!row.children.length) row.remove(); });
+}
+
 function readRows() {
   return [...mbGrid.children]
     .map((row) => [...row.children].map((c) => Number(c.dataset.index)))
@@ -1336,6 +1607,7 @@ function startItemDrag(e, el, opts) {
     if (spot.where === "before") spot.ref.before(el);
     else spot.ref.after(el);
     if (!oldRow.children.length) oldRow.remove();   // a line with nothing left disappears
+    rebalanceRows();                                // keep 4 to a line while you drag
     [...mbGrid.children].forEach(setRowVars);
     follow();
 
@@ -1410,7 +1682,13 @@ function startItemDrag(e, el, opts) {
 
     // remember the new arrangement, so switching tabs and coming back keeps it
     boardRows[currentBoard] = readRows();
-    saveLayout(currentBoard);
+    if (ownerMode && !boardMine[currentBoard]) {
+      clearSavedLayout(currentBoard);            // you're setting the order for everyone: it waits for the "save order" button
+      unsavedOrder.add(boards[currentBoard].name);
+      updateSaveOrder();
+    } else {
+      saveLayout(currentBoard);
+    }
   }
 
   window.addEventListener("pointermove", onMove);

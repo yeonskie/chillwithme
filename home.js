@@ -79,16 +79,27 @@
   });
   list.addEventListener("pointercancel", () => { startX = null; });
 
-  // a random page: one of the pages in the boxes (never the same one twice in a row,
-  // and never the page you're already on). Used by "randomize my stay" and by "surprise me" in the bottom bar.
+  // a random page: one of the pages in the boxes, and every moodboard counts as its own page, so a
+  // random pick can land on any of them. Never the same one twice in a row, and never the one you're on now.
+  // Used by "randomize my stay" and by "surprise me" in the bottom bar.
   let lastPick = "";
   function goRandom() {
     const pages = slides.map((s) => s.querySelector("a")).filter(Boolean).map((a) => a.getAttribute("href"));
-    const options = pages.filter((p) => p !== lastPick && p !== location.hash);
-    const pool = options.length ? options : pages;
+    const count = typeof boards !== "undefined" ? boards.length : 0;           // the moodboards (from script.js)
+    const keys = [];
+    pages.forEach((p) => {
+      if (p === "#braindump" && count > 0) for (let n = 0; n < count; n++) keys.push("#braindump:" + n);
+      else keys.push(p);
+    });
+    const hereKey = location.hash === "#braindump" && count > 0 && typeof currentBoard !== "undefined"
+      ? "#braindump:" + currentBoard : location.hash;
+    const options = keys.filter((k) => k !== lastPick && k !== hereKey);
+    const pool = options.length ? options : keys;
     if (!pool.length) return;
     lastPick = pool[Math.floor(Math.random() * pool.length)];
-    location.hash = lastPick;
+    const [page, board] = lastPick.split(":");
+    if (board !== undefined && typeof showBoard === "function") showBoard(Number(board));
+    location.hash = page;
   }
 
   const randomBtn = document.getElementById("home-random");

@@ -142,15 +142,18 @@
   async function loadBoards(force) {
     if (!configured) return;
     try {
-      const [boardRows, itemRows] = await Promise.all([
+      const [boardRows, itemRows, metaRows] = await Promise.all([
         request("/rest/v1/boards?select=name&order=created_at.asc&limit=100", { method: "GET" }).then((r) => r.json()),
         request("/rest/v1/board_items?select=id,board_name,item&order=created_at.asc&limit=2000", { method: "GET" }).then((r) => r.json()),
+        // descriptions and the order you set (supabase-board-meta.sql); if that hasn't been run yet, the boards still load
+        request("/rest/v1/board_meta?select=board_name,description,position,layout,layout_at&limit=500", { method: "GET" }).then((r) => r.json()).catch(() => []),
       ]);
+      const meta = (Array.isArray(metaRows) ? metaRows : []).filter((m) => m && typeof m.board_name === "string");
       const names = boardRows.map((r) => r.name).filter((n) => typeof n === "string");
       const items = itemRows.filter((r) => r && r.item && typeof r.item === "object" && typeof r.board_name === "string");
-      if (!force && !hadBoards && !names.length && !items.length) return;      // nothing online: leave the page as it is
+      if (!force && !hadBoards && !names.length && !items.length && !meta.length) return;      // nothing online: leave the page as it is
       hadBoards = true;
-      setOnlineBoards(names, items);
+      setOnlineBoards(names, items, meta);
     } catch (e) {
       // can't reach the database: moodboards.js still shows
     }
@@ -169,6 +172,15 @@
     } catch (e) {
       // a leftover file is harmless
     }
+  }
+
+  // adds or updates the settings rows (one per moodboard), keeping any column that isn't mentioned
+  async function upsertMeta(rows) {
+    await asOwner("/rest/v1/board_meta?on_conflict=board_name", {
+      method: "POST",
+      headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+      body: JSON.stringify(rows),
+    });
   }
 
   // what script.js calls when you add or remove something for everyone (the database only accepts you)
@@ -197,7 +209,22 @@
       await asOwner("/rest/v1/boards", { method: "POST", body: JSON.stringify({ name }) });
       await loadBoards(true);
     },
+    // a moodboard's description (for everyone). empty puts back the one from moodboards.js, if there is one
+    async saveDescription(name, text) {
+      await upsertMeta([{ board_name: name, description: text || null }]);
+      await loadBoards(true);
+    },
+    // the order of the shared moodboards: a list of their names, first to last
+    async saveOrder(names) {
+      await upsertMeta(names.map((n, i) => ({ board_name: n, position: i })));
+      await loadBoards(true);
+    },
+    // how a moodboard's boxes are arranged, for everyone (rows of box ids); null puts it back to the default
+    async saveLayout(name, rows, at) {
+      await upsertMeta([{ board_name: name, layout: rows, layout_at: at }]);
+    },
     async removeBoard(name, srcs) {
+      await asOwner("/rest/v1/board_meta?board_name=eq." + encodeURIComponent(name), { method: "DELETE" }).catch(() => {});
       await asOwner("/rest/v1/board_items?board_name=eq." + encodeURIComponent(name), { method: "DELETE" });
       await asOwner("/rest/v1/boards?name=eq." + encodeURIComponent(name), { method: "DELETE" });
       for (const src of srcs || []) await dropFile(src);

@@ -1590,3 +1590,148 @@ main {
 }
 .bar-surprise:hover, .bar-surprise:focus-visible { text-decoration: underline; outline: none; }
 .bar-surprise[hidden], #bar-name[hidden] { display: none; }
+
+/* ---------- Moodboard: every box is the same size ---------- */
+/* a box is a square, 4 to a line (2 on small screens) and never wider than 14rem, so the board looks tidy
+   whatever is inside. Pictures are cropped to fit; text boxes show what fits (click one to read it all). */
+.mb-grid { --mb-card: min(14rem, calc((100cqw - 3 * var(--mb-gap)) / 4)); }
+.mb-row { height: auto; flex-wrap: wrap; justify-content: center; }
+.mb-item {
+  flex: 0 0 var(--mb-card);
+  width: var(--mb-card);
+  height: auto;
+  aspect-ratio: 1 / 1;
+}
+.mb-text { overflow: hidden; }
+.mb-text h3, .mb-text p { overflow-wrap: anywhere; }
+@container (max-width: 40rem) {
+  .mb-grid { --mb-card: calc((100cqw - var(--mb-gap)) / 2); }
+  .mb-item { flex: 0 0 var(--mb-card); height: auto; }
+}
+
+/* phones: moodboard names wrap onto new lines (and a long name wraps inside its tab) instead of running off the side */
+@media (max-width: 40rem) {
+  .mb-top .mb-tabs {
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 0.5rem;
+    overflow: visible;
+    border: none;
+    border-radius: 0;
+  }
+  .mb-top .mb-tab {
+    min-width: 0;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    min-height: 2.25rem;
+    padding: 0.5rem 0.9rem;
+    line-height: 1.35;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+  .mb-top .mb-tab + .mb-tab { border-left: 1px solid var(--line); }
+}
+
+/* the description under a moodboard's name */
+.mb-desc {
+  max-width: 40rem;
+  margin: 0.9rem 0 1.6rem;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  opacity: 0.75;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.mb-desc[hidden], .mb-reset[hidden] { display: none; }
+.mb-reset:disabled { opacity: 0.4; cursor: default; }
+
+/* phones: the buttons beside "make yours" (description, move, delete, reset) wrap instead of running off the side */
+@media (max-width: 40rem) {
+  .mb-top .mb-right { grid-column: 3 / -1; flex-wrap: wrap; gap: 0.4rem 1rem; height: auto; min-width: 0; }
+}
+
+/* moodboard description: centered */
+.mb-desc { margin-left: auto; margin-right: auto; text-align: center; }
+
+/* "+ N more" at the end of the moodboard tabs */
+.mb-more { min-width: 0; }
+
+/* opened up: every moodboard shows, wrapping onto new lines, each in its own outline */
+.mb-tabs.expanded {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  overflow: visible;
+  border: none;
+  border-radius: 0;
+}
+.mb-tabs.expanded .mb-tab {
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.mb-tabs.expanded .mb-tab + .mb-tab { border-left: 1px solid var(--line); }
+
+/* when the buttons are too many to sit on the same line as the moodboard names, everything in that area is centered
+   (script.js adds "wrapped" to .mb-top whenever a line has wrapped) */
+.mb-top.wrapped { justify-content: center; }
+.mb-top.wrapped .mb-left { justify-content: center; }
+.mb-top.wrapped .mb-right { flex: 1 1 100%; justify-content: center; margin-left: 0; }
+.mb-top.wrapped .mb-tabs { justify-content: center; }
+
+/* phones: the moodboard names already have a line to themselves, so the buttons (save order, description, move, delete, reset) get their own centered line too */
+@media (max-width: 40rem) {
+  .mb-top .mb-right {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: stretch;
+    justify-content: center;
+    margin-left: 0;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* ---------- Touch screens: easier to tap ---------- */
+@media (pointer: coarse) {
+  /* small text buttons get a bigger invisible area to tap (their looks and spacing don't change) */
+  .thoughts-toolbar button,
+  .mb-reset,
+  .cm-refresh,
+  #cm-refresh,
+  .place-back,
+  .music-controls button,
+  .song-act,
+  .bar-surprise,
+  .menu-x {
+    position: relative;
+  }
+  .thoughts-toolbar button::after,
+  .mb-reset::after,
+  #cm-refresh::after,
+  .place-back::after,
+  .music-controls button::after,
+  .song-act::after,
+  .bar-surprise::after {
+    content: "";
+    position: absolute;
+    inset: -0.7rem -0.5rem;
+  }
+  .music-seek input[type="range"], .music-vol input[type="range"] { height: 2rem; }
+
+  /* iPhones zoom the whole page in when a box with small text is tapped; 16px stops that */
+  input, textarea, select { font-size: 16px; }
+  .mb-add-card input[type="text"], .mb-add-card input[type="password"], .mb-add-card input[type="email"], .mb-add-card textarea,
+  .place-form textarea, .place-form input { font-size: 16px; }
+}
+
+/* "make yours" sits with reset, the same size of text, in an outlined rectangle */
+.mb-right .mb-newboard {
+  height: auto;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}

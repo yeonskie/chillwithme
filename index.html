@@ -113,16 +113,25 @@
             <div class="mb-tabs" id="mb-tabs" role="tablist"></div>
             <!-- on a board a visitor made themselves (and only there): add to it. it stays in their browser -->
             <button type="button" class="mb-plus" id="mb-add-mine" aria-label="add to this board" data-tip="add to this board" hidden>+</button>
-            <!-- lets a visitor make a moodboard of their own (kept only in their browser) -->
-            <button type="button" class="mb-plus mb-newboard" id="mb-new" data-tip="only you can see it">make yours</button>
           </div>
           <!-- puts the current moodboard back the way it is in moodboards.js -->
           <div class="mb-right">
+            <!-- only for you, signed in: change this moodboard's description and where it sits in the tabs (for everyone) -->
+            <button type="button" class="mb-reset" id="mb-save-order" hidden>save order</button>
+            <button type="button" class="mb-reset" id="mb-edit-desc" hidden>description</button>
+            <button type="button" class="mb-reset" id="mb-move-left" aria-label="move this moodboard earlier" hidden>move &lt;</button>
+            <button type="button" class="mb-reset" id="mb-move-right" aria-label="move this moodboard later" hidden>move &gt;</button>
             <button type="button" class="mb-reset" id="mb-delete" hidden>delete board</button>
+            <!-- "see less": only shows once the extra moodboards have been opened with the "+ N more" tab (script.js) -->
+            <button type="button" class="mb-reset" id="mb-more" hidden>see less</button>
+            <!-- lets a visitor make a moodboard of their own (kept only in their browser) -->
+            <button type="button" class="mb-plus mb-newboard" id="mb-new" data-tip="only you can see it">make yours</button>
             <button type="button" class="mb-reset" id="mb-reset">reset</button>
           </div>
         </div>
         <p class="mb-note" id="mb-note" hidden>this only lives on your browser. no one else can see, like a little secret.</p>
+        <!-- a short line about the current moodboard (you write it with the "description" button once you're signed in) -->
+        <p class="mb-desc" id="mb-desc" hidden></p>
         <!-- the grid of boxes you can drag around -->
         <div class="mb-grid" id="mb-grid"></div>
       </div>
@@ -365,6 +374,23 @@
         </div>
       </form>
     </div>
+
+    <!-- the moodboard description box (owner only) -->
+      <div class="mb-add" id="mb-desc-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="mb-desc-title">
+        <div class="mb-add-backdrop" id="mb-desc-backdrop"></div>
+        <form class="mb-add-card" id="mb-desc-form" novalidate>
+          <h2 id="mb-desc-title">description</h2>
+          <p class="mb-add-sub" id="mb-desc-for"></p>
+          <label>shown under the moodboard's name
+            <textarea id="mb-desc-text" rows="4" maxlength="300"></textarea>
+          </label>
+          <p class="mb-add-msg" id="mb-desc-msg" role="status"></p>
+          <div class="mb-add-actions">
+            <button type="submit" id="mb-desc-save">save</button>
+            <button type="button" id="mb-desc-cancel">cancel</button>
+          </div>
+        </form>
+      </div>
 
     <!-- "are you sure?" box (used instead of the browser's own pop up, which can be blocked) -->
       <div class="mb-add mb-confirm" id="mb-confirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="mb-confirm-text">
