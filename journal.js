@@ -146,7 +146,7 @@
         request("/rest/v1/boards?select=name&order=created_at.asc&limit=100", { method: "GET" }).then((r) => r.json()),
         request("/rest/v1/board_items?select=id,board_name,item&order=created_at.asc&limit=2000", { method: "GET" }).then((r) => r.json()),
         // descriptions and the order you set (supabase-board-meta.sql); if that hasn't been run yet, the boards still load
-        request("/rest/v1/board_meta?select=board_name,description,position,layout,layout_at&limit=500", { method: "GET" }).then((r) => r.json()).catch(() => []),
+        request("/rest/v1/board_meta?select=board_name,title,description,position,layout,layout_at&limit=500", { method: "GET" }).then((r) => r.json()).catch(() => []),
       ]);
       const meta = (Array.isArray(metaRows) ? metaRows : []).filter((m) => m && typeof m.board_name === "string");
       const names = boardRows.map((r) => r.name).filter((n) => typeof n === "string");
@@ -207,6 +207,11 @@
     },
     async addBoard(name) {
       await asOwner("/rest/v1/boards", { method: "POST", body: JSON.stringify({ name }) });
+      await loadBoards(true);
+    },
+    // a moodboard's name as shown to everyone (empty puts back its own name)
+    async saveTitle(name, title) {
+      await upsertMeta([{ board_name: name, title: title || null }]);
       await loadBoards(true);
     },
     // a moodboard's description (for everyone). empty puts back the one from moodboards.js, if there is one

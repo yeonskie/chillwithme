@@ -1735,3 +1735,20 @@ main {
   font-size: 0.75rem;
   line-height: 1.2;
 }
+
+/* ---------- Moodboard names: everything up there stays centered ---------- */
+.mb-top { justify-content: center; }
+.mb-top .mb-left { justify-content: center; }
+.mb-top .mb-tabs { justify-content: center; }
+.mb-top .mb-tab { text-align: center; }
+.mb-top .mb-right { justify-content: center; }
+.mb-note { text-align: center; margin-left: auto; margin-right: auto; }
+
+/* phones: names on top (centered), then the + buttons, then the other buttons, all centered */
+@media (max-width: 40rem) {
+  .mb-top { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.75rem 0.5rem; }
+  .mb-top .mb-left { display: contents; }
+  .mb-top .mb-tabs { order: 0; width: 100%; justify-content: center; justify-self: auto; }
+  .mb-top .mb-plus-wrap, .mb-top #mb-add-mine { order: 1; }
+  .mb-top .mb-right { order: 2; flex: 1 1 100%; width: 100%; margin-left: 0; justify-content: center; justify-self: auto; }
+}

@@ -271,6 +271,14 @@ function normalizeItem(raw) {
 // ----- boxes you add with the + button (kept in this browser, in addition to moodboards.js) -----
 const ADDED_KEY = "moodboard-added";
 
+// the name shown for a board: a title you set for everyone (owner), otherwise its own name
+function boardTitle(b) {
+  const board = boards[b];
+  if (!board) return "";
+  const t = boardMine[b] ? "" : String(metaOf(board.name).title || "").trim();
+  return t || board.name || "moodboard " + (b + 1);
+}
+
 function boardKey(b) {
   return boards[b].name || "moodboard " + (b + 1);
 }
@@ -695,6 +703,8 @@ function renderTabs() {
   const leftBtn = document.getElementById("mb-move-left");
   const rightBtn = document.getElementById("mb-move-right");
   updateSaveOrder();
+  const renameBtn = document.getElementById("mb-rename");
+  if (renameBtn) renameBtn.hidden = !(shareable || (mine && boards[currentBoard]));
   if (editBtn && leftBtn && rightBtn) {
     editBtn.hidden = !shareable;
     leftBtn.hidden = !shareable || sharedList[0] === currentBoard;
@@ -711,7 +721,7 @@ function renderTabs() {
     tab.className = "mb-tab";
     tab.setAttribute("role", "tab");
     tab.setAttribute("aria-selected", String(i === currentBoard));
-    tab.textContent = board.name || "moodboard " + (i + 1);
+    tab.textContent = boardTitle(i);
     tab.addEventListener("click", () => {
       currentBoard = i;
       renderTabs();
@@ -918,8 +928,8 @@ function openAdd(forSite) {
     : "uploaded pictures stay in your browser. no one else can see.";
   document.getElementById("mb-add-title").textContent = addForSite ? "add for everyone" : "add more";
   document.getElementById("mb-add-sub").textContent = addForSite
-    ? "goes onto " + boardKey(currentBoard) + " for everyone to see"
-    : "goes onto " + boardKey(currentBoard);
+    ? "goes onto " + boardTitle(currentBoard) + " for everyone to see"
+    : "goes onto " + boardTitle(currentBoard);
   addDialog.hidden = false;
   document.getElementById("mb-add-src").focus();
 }
@@ -1214,7 +1224,7 @@ document.getElementById("mb-delete").addEventListener("click", async () => {
   const b = currentBoard;
   if (ownerMode && boardOnline[b]) {
     const name = boards[b].name;
-    const yes = await askConfirm('delete "' + name + '" for everyone, with everything in it? this can\'t be undone.', "delete");
+    const yes = await askConfirm('delete "' + boardTitle(b) + '" for everyone, with everything in it? this can\'t be undone.', "delete");
     if (!yes) { document.getElementById("mb-delete").focus(); return; }
     try {
       await siteDb.removeBoard(name, (onlineItemMap[name] || []).map((row) => row.item && row.item.src));
@@ -1224,7 +1234,7 @@ document.getElementById("mb-delete").addEventListener("click", async () => {
     return;
   }
   if (!boardMine[b]) return;
-  const yes = await askConfirm('delete "' + boards[b].name + '" and everything in it? this can\'t be undone.', "delete");
+  const yes = await askConfirm('delete "' + boardTitle(b) + '" and everything in it? this can\'t be undone.', "delete");
   if (!yes) { document.getElementById("mb-delete").focus(); return; }
   if (!boardMine[b] || b !== currentBoard) return;
   userBoards.splice(userBoards.indexOf(boards[b]), 1);
@@ -1278,6 +1288,75 @@ if (document.getElementById("mb-save-order")) {
   });
 }
 
+// ----- rename a moodboard: you (signed in) for everyone, anyone for a board they made themselves -----
+(function () {
+  const dialog = document.getElementById("mb-name-dialog");
+  const form = document.getElementById("mb-name-form");
+  const input = document.getElementById("mb-name-text");
+  const msg = document.getElementById("mb-name-msg");
+  const saveBtn = document.getElementById("mb-name-save");
+  const openBtn = document.getElementById("mb-rename");
+  if (!dialog || !form || !input || !openBtn) return;        // index.html out of date: the rest still works
+
+  function open() {
+    const b = currentBoard;
+    if (!boards[b] || !(boardMine[b] || ownerMode)) return;
+    document.getElementById("mb-name-for").textContent = boardMine[b]
+      ? "only you will see the new name"
+      : "everyone will see the new name";
+    input.maxLength = boardMine[b] ? 24 : 40;
+    input.value = boardTitle(b);
+    msg.textContent = "";
+    dialog.hidden = false;
+    input.focus();
+    input.select();
+  }
+  function close() {
+    if (dialog.hidden) return;
+    dialog.hidden = true;
+    openBtn.focus();
+  }
+  openBtn.addEventListener("click", open);
+  document.getElementById("mb-name-cancel").addEventListener("click", close);
+  document.getElementById("mb-name-backdrop").addEventListener("click", close);
+  dialog.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+  window.addEventListener("hashchange", close);
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const b = currentBoard;
+    const board = boards[b];
+    if (!board) return;
+    const name = input.value.trim().slice(0, boardMine[b] ? 24 : 40);
+    const clash = boards.some((x, i) => i !== b && boardTitle(i).toLowerCase() === name.toLowerCase());
+    if (boardMine[b]) {
+      if (!name) { msg.textContent = "give it a name"; return; }
+      if (clash) { msg.textContent = "there's already a board with that name"; return; }
+      board.name = name;                              // the board lives in this browser, so just change it here
+      boardSig[b] = hashText("mine:" + name);
+      saveMine();
+      saveLayout(b);                                  // keep how it was arranged
+      dialog.hidden = true;
+      renderTabs();
+      openBtn.focus();
+      return;
+    }
+    if (!ownerMode || typeof siteDb === "undefined") return;
+    if (name && clash) { msg.textContent = "there's already a board with that name"; return; }
+    saveBtn.disabled = true;
+    msg.textContent = "saving...";
+    try {
+      // an empty box (or its original name) puts the original name back
+      await siteDb.saveTitle(board.name, !name || name === board.name ? null : name);
+      dialog.hidden = true;
+      openBtn.focus();
+    } catch (err) {
+      msg.textContent = "couldn't save that (" + err.message + ")";
+    }
+    saveBtn.disabled = false;
+  });
+})();
+
 // ----- you, signed in: edit a moodboard's description, and move it along the tabs (for everyone) -----
 (function () {
   const dialog = document.getElementById("mb-desc-dialog");
@@ -1292,7 +1371,7 @@ if (document.getElementById("mb-save-order")) {
 
   function open() {
     if (!ownerMode || boardMine[currentBoard] || !boards[currentBoard]) return;
-    document.getElementById("mb-desc-for").textContent = boards[currentBoard].name;
+    document.getElementById("mb-desc-for").textContent = boardTitle(currentBoard);
     text.value = boardDesc(currentBoard);
     msg.textContent = "";
     dialog.hidden = false;

@@ -118,6 +118,7 @@
           <div class="mb-right">
             <!-- only for you, signed in: change this moodboard's description and where it sits in the tabs (for everyone) -->
             <button type="button" class="mb-reset" id="mb-save-order" hidden>save order</button>
+            <button type="button" class="mb-reset" id="mb-rename" hidden>rename</button>
             <button type="button" class="mb-reset" id="mb-edit-desc" hidden>description</button>
             <button type="button" class="mb-reset" id="mb-move-left" aria-label="move this moodboard earlier" hidden>move &lt;</button>
             <button type="button" class="mb-reset" id="mb-move-right" aria-label="move this moodboard later" hidden>move &gt;</button>
@@ -374,6 +375,23 @@
         </div>
       </form>
     </div>
+
+    <!-- rename a moodboard: you (signed in) for everyone, or anyone for a board they made themselves -->
+      <div class="mb-add" id="mb-name-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="mb-name-title">
+        <div class="mb-add-backdrop" id="mb-name-backdrop"></div>
+        <form class="mb-add-card" id="mb-name-form" novalidate>
+          <h2 id="mb-name-title">rename</h2>
+          <p class="mb-add-sub" id="mb-name-for"></p>
+          <label>name
+            <input type="text" id="mb-name-text" maxlength="40" autocomplete="off">
+          </label>
+          <p class="mb-add-msg" id="mb-name-msg" role="status"></p>
+          <div class="mb-add-actions">
+            <button type="submit" id="mb-name-save">save</button>
+            <button type="button" id="mb-name-cancel">cancel</button>
+          </div>
+        </form>
+      </div>
 
     <!-- the moodboard description box (owner only) -->
       <div class="mb-add" id="mb-desc-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="mb-desc-title">
