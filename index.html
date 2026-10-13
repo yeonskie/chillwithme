@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>zine</title>
+  <title>yeon's brain</title>
+  <!-- the little icon on the browser tab: put your image in this folder with this exact name (favicon.png) -->
+  <link rel="icon" href="favicon.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,9 +51,11 @@
       <div class="thoughts-toolbar">
         <button type="button" id="btn-shuffle">shuffle</button>
         <button type="button" id="btn-pick">pick one for me</button>
+        <!-- only appears after you sign in (see journal.js): add a new entry right here -->
+        <button type="button" class="mb-plus" id="entry-add" aria-label="add an entry" data-tip="add an entry" hidden>+</button>
       </div>
 
-      <!-- the big scrollable area where the entry boxes get scattered -->
+      <!-- the scrollable grid of entry boxes -->
       <div class="thoughts-scroll" id="thoughts-scroll">
         <div class="thoughts-canvas" id="thoughts-canvas"></div>
       </div>
@@ -65,6 +69,8 @@
           <div class="featured-body" id="featured-body"></div>
           <div class="featured-actions">
             <button type="button" id="btn-expand" aria-expanded="false">expand</button>
+            <button type="button" id="btn-edit" hidden>edit</button>
+            <button type="button" id="btn-delete" hidden>delete</button>
             <button type="button" id="btn-close">close</button>
           </div>
         </article>
@@ -77,8 +83,17 @@
           <!-- one tab per moodboard (built in script.js from moodboards.js) -->
           <div class="mb-left">
             <!-- opens the "add more" box: type something in and it lands on the current moodboard -->
-            <button type="button" class="mb-plus" id="mb-add" aria-label="add more" data-tip="add more">+</button>
+            <!-- only appears after you sign in (see journal.js): hover it for a little menu, add an entry or add a moodboard, for everyone to see -->
+            <div class="mb-plus-wrap" id="mb-plus-wrap" hidden>
+              <button type="button" class="mb-plus" id="mb-add" aria-label="add for everyone" aria-haspopup="true" aria-expanded="false">+</button>
+              <div class="mb-drop" id="mb-drop">
+                <button type="button" id="mb-choose-entry">add entry</button>
+                <button type="button" id="mb-choose-board">add moodboard</button>
+              </div>
+            </div>
             <div class="mb-tabs" id="mb-tabs" role="tablist"></div>
+            <!-- on a board a visitor made themselves (and only there): add to it. it stays in their browser -->
+            <button type="button" class="mb-plus" id="mb-add-mine" aria-label="add to this board" data-tip="add to this board" hidden>+</button>
             <!-- lets a visitor make a moodboard of their own (kept only in their browser) -->
             <button type="button" class="mb-plus mb-newboard" id="mb-new" data-tip="only you can see it">make yours</button>
           </div>
@@ -108,6 +123,8 @@
 
           <div class="mb-add-fields" data-fields="image">
             <label>picture address<input type="text" id="mb-add-src" placeholder="https://..." autocomplete="off"></label>
+            <label>or upload a picture<input type="file" id="mb-add-file" accept="image/*"></label>
+            <p class="mb-add-sub mb-add-filehint" id="mb-add-filehint"></p>
             <label>caption (optional)<input type="text" id="mb-add-alt" autocomplete="off"></label>
           </div>
           <div class="mb-add-fields" data-fields="text" hidden>
@@ -136,7 +153,7 @@
         <div class="mb-add-backdrop" id="mb-new-backdrop"></div>
         <form class="mb-add-card" id="mb-new-form" novalidate>
           <h2 id="mb-new-title">make your own moodboard</h2>
-          <p class="mb-add-sub">this only lives on your browser. no one else can see, like a little secret.</p>
+          <p class="mb-add-sub" id="mb-new-sub">this only lives on your browser. no one else can see, like a little secret.</p>
           <label>name<input type="text" id="mb-new-name" maxlength="24" placeholder="my moodboard" autocomplete="off"></label>
           <p class="mb-add-msg" id="mb-new-msg" role="status"></p>
           <div class="mb-add-actions">
@@ -242,6 +259,7 @@
           <label>your words<textarea id="cm-body" rows="5" maxlength="500"></textarea></label>
           <label>photo address (optional)<input type="text" id="cm-photo" placeholder="https://..." autocomplete="off"></label>
           <p class="mb-add-sub cm-hint">right-click a picture online and choose "copy image address", then paste it here.</p>
+          <label>or upload a photo<input type="file" id="cm-file" accept="image/*"></label>
           <img class="cm-preview" id="cm-preview" alt="" hidden>
           <p class="mb-add-msg" id="cm-msg" role="status"></p>
           <div class="mb-add-actions">
@@ -262,6 +280,40 @@
       <h1>writing</h1>
       <p>Placeholder writing page.</p>
     </section>
+    <!-- owner only: write or edit an entry -->
+    <div class="mb-add mb-owner" id="entry-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="entry-dialog-title">
+      <div class="mb-add-backdrop" id="entry-dialog-backdrop"></div>
+      <form class="mb-add-card entry-edit-card" id="entry-form" novalidate>
+        <h2 id="entry-dialog-title">new entry</h2>
+        <label>title<input type="text" id="entry-title" maxlength="120" autocomplete="off"></label>
+        <label>date<input type="text" id="entry-date" maxlength="10" placeholder="MM.DD.YYYY" autocomplete="off"></label>
+        <label>your words (leave a blank line between paragraphs)<textarea id="entry-text" rows="10"></textarea></label>
+        <p class="mb-add-msg" id="entry-msg" role="status"></p>
+        <div class="mb-add-actions">
+          <button type="submit" id="entry-save">save</button>
+          <button type="button" id="entry-cancel">cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- owner only: sign in / sign out (opened by the secret) -->
+    <div class="mb-add mb-owner" id="owner-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="owner-title">
+      <div class="mb-add-backdrop" id="owner-backdrop"></div>
+      <form class="mb-add-card" id="owner-form" novalidate>
+        <h2 id="owner-title">hello you</h2>
+        <p class="mb-add-sub" id="owner-sub"></p>
+        <div id="owner-fields">
+          <label>email<input type="email" id="owner-email" autocomplete="username"></label>
+          <label>password<input type="password" id="owner-pass" autocomplete="current-password"></label>
+        </div>
+        <p class="mb-add-msg" id="owner-msg" role="status"></p>
+        <div class="mb-add-actions">
+          <button type="submit" id="owner-go">sign in</button>
+          <button type="button" id="owner-cancel">cancel</button>
+        </div>
+      </form>
+    </div>
+
     <!-- "are you sure?" box (used instead of the browser's own pop up, which can be blocked) -->
       <div class="mb-add mb-confirm" id="mb-confirm" hidden role="alertdialog" aria-modal="true" aria-labelledby="mb-confirm-text">
         <div class="mb-add-backdrop" id="mb-confirm-backdrop"></div>
@@ -279,16 +331,20 @@
   <footer class="bar bar-bottom">
     <div class="cell cell-left">yeonskie's brain dump</div>
     <div class="cell cell-menu">
-      <!-- opens upward from the "get into it" button; each link switches the page -->
-      <div class="menu-list" id="menu-list">
-        <div class="menu-inner">
+      <!-- opens a menu in the middle of the screen; each link switches the page -->
+      <div class="menu-overlay" id="menu-list" hidden>
+        <div class="menu-backdrop" id="menu-backdrop"></div>
+        <div class="menu-wrap">
+          <button type="button" class="menu-x" id="menu-x" aria-label="close menu">&#10005;</button>
+        <nav class="menu-card" aria-label="pages">
           <a href="#thoughts">thoughts to consume</a>
           <a href="#braindump">braindump</a>
           <a href="#music">music</a>
           <a href="#community">build up the community</a>
+        </nav>
         </div>
       </div>
-      <button type="button" id="btn-menu" aria-expanded="false" aria-controls="menu-list">get into it</button>
+      <button type="button" id="btn-menu" aria-expanded="false" aria-controls="menu-list">get into it (click me!)</button>
     </div>
     <div class="cell cell-right"><span id="today"></span></div>
   </footer>
@@ -308,5 +364,6 @@
   <script src="music.js"></script>
   <script src="community-config.js"></script>
   <script src="community.js"></script>
+  <script src="journal.js"></script>
 </body>
 </html>

@@ -171,7 +171,7 @@ main {
 
 .cell-menu button:hover { text-decoration: underline; }
 
-/* ---------- Menu that opens upward (bottom center) ---------- */
+/* ---------- Menu that opens in the middle of the screen ---------- */
 .bar-bottom {
   position: relative;
   z-index: 10;               /* keeps the open menu above the page content */
@@ -179,40 +179,102 @@ main {
 
 .cell-menu { position: relative; }
 
-.menu-list {
-  position: absolute;
-  bottom: calc(100% + 1px);  /* sits right above the bottom bar */
+/* covers the middle section only, so the bottom button can still close it */
+.menu-overlay {
+  position: fixed;
+  top: var(--bar-height);
+  bottom: var(--bar-height);
   left: 0;
   right: 0;
   display: grid;
-  grid-template-rows: 0fr;   /* closed: no height */
-  visibility: hidden;
+  place-items: center;
+  padding: 1rem;
+}
+
+.menu-overlay[hidden] { display: none; }
+
+.menu-backdrop {
+  position: absolute;
+  inset: 0;
   background: var(--bg);
-  transition: grid-template-rows 0.25s ease, visibility 0s linear 0.25s;
+  opacity: 0.92;
 }
 
-.menu-list.open {
-  grid-template-rows: 1fr;   /* open: grows to fit the links, upward */
-  visibility: visible;
-  transition: grid-template-rows 0.25s ease, visibility 0s;
-}
-
-.menu-inner {
-  min-height: 0;
-  overflow: hidden;
+/* a rectangle with slightly rounded corners, right in the middle */
+.menu-card {
+  position: relative;
   display: flex;
   flex-direction: column;
+  gap: 0.6rem;
+  width: min(22rem, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
 
-.menu-inner a {
-  padding: 0.75rem 0.5rem;
+.menu-wrap {
+  position: relative;
+  animation: menu-pop 0.18s ease;   /* the x and the menu fade in together */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+  width: min(22rem, 100%);
+  max-height: 100%;
+}
+.menu-wrap .menu-card { width: 100%; min-height: 0; }
+
+/* the x sits above the menu, in its own little box */
+.menu-wrap .menu-x {
+  flex: 0 0 auto;
+  width: 1.4rem;
+  height: 1.4rem;
+  display: grid;
+  place-items: center;
+  font: inherit;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0;
+  cursor: pointer;
+}
+.menu-wrap .menu-x:hover, .menu-wrap .menu-x:focus-visible, .menu-wrap .menu-x:active {
+  text-decoration: none; background: var(--text); color: var(--bg); }
+
+.music-vol[hidden] { display: none; }
+
+.menu-card a {
+  display: block;
+  padding: 0.9rem 1rem;
   text-align: center;
+  font-size: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
 
-.menu-inner a:hover { text-decoration: underline; }
+/* hovering, tapping, tabbing to it, or being on that page: the colors flip */
+.menu-card a:hover,
+.menu-card a:focus-visible,
+.menu-card a:active,
+.menu-card a[aria-current="page"] {
+  background: var(--text);
+  color: var(--bg);
+  outline: none;
+}
+
+@keyframes menu-pop {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .menu-list, .menu-list.open { transition: none; }
+  .menu-wrap { animation: none; }
 }
 
 /* ---------- Thoughts to consume page ---------- */
@@ -227,16 +289,18 @@ main {
   position: absolute;
   inset: 0;
   overflow: auto;
-  z-index: 0;              /* keeps dragged boxes below the buttons and the enlarged entry */
-  cursor: grab;
+  z-index: 0;              /* keeps the boxes below the buttons and the enlarged entry */
   scrollbar-width: thin;
   scrollbar-color: var(--line) transparent;
 }
 
-.thoughts-scroll.dragging { cursor: grabbing; user-select: none; }
-
-/* width and height are set in script.js; margin centers it when it's narrower than the screen */
-.thoughts-canvas { position: relative; margin: 0 auto; }
+/* the grid of entries, same idea as the moodboard */
+.thoughts-canvas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.9rem;
+  padding: 3.75rem clamp(1rem, 6vw, 5.5rem) 4rem;   /* room at the top for the buttons */
+}
 
 /* shuffle and pick one for me, near the top */
 .thoughts-toolbar {
@@ -246,6 +310,7 @@ main {
   transform: translateX(-50%);
   z-index: 5;
   display: flex;
+  align-items: center;
   gap: 1.5rem;
   padding: 0.35rem 0.9rem;
   background: var(--bg);
@@ -269,10 +334,10 @@ main {
 
 /* each entry is its own outlined box */
 .entry {
-  position: absolute;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  height: 10rem;
   padding: 0.75rem;
   overflow: hidden;
   text-align: left;
@@ -282,11 +347,8 @@ main {
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  cursor: grab;
-  user-select: none;
+  cursor: pointer;
 }
-
-.entry.dragging { cursor: grabbing; }
 
 .entry:hover .entry-title { text-decoration: underline; }
 
@@ -294,9 +356,10 @@ main {
 
 .entry-title {
   font-weight: 700;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .entry-preview {
@@ -306,38 +369,6 @@ main {
   overflow: hidden;
   line-height: 1.5;
 }
-
-/* phone: a tidy grid, scrolling down the page */
-.thoughts-scroll:has(.thoughts-canvas.grid) { cursor: auto; }
-
-.thoughts-canvas.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
-  gap: 0.75rem;
-  margin: 0;
-  padding: 3.75rem 1rem 1.5rem;   /* room at the top for shuffle and pick one for me */
-}
-
-.thoughts-canvas.grid .entry {
-  position: static;
-  height: 10rem;
-  cursor: pointer;
-}
-
-.thoughts-canvas.grid .entry-title {
-  white-space: normal;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-/* boxes glide to their new spots when you hit shuffle */
-.thoughts-canvas.animate .entry {
-  transition: left 0.7s ease, top 0.7s ease;
-}
-
-/* no gliding while you're holding a box, so it follows the cursor exactly */
-.thoughts-canvas.animate .entry.dragging { transition: none; }
 
 /* the enlarged entry in the middle */
 .featured {
@@ -405,7 +436,6 @@ main {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .thoughts-canvas.animate .entry { transition: none; }
   .featured-card { animation: none; transition: none; }
 }
 
@@ -425,7 +455,7 @@ main {
 .mb-top {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-wrap: wrap;
   gap: 0.75rem 1rem;
   margin-bottom: 3.25rem;
@@ -485,7 +515,10 @@ main {
   white-space: nowrap;
 }
 
+/* reset (and delete board) sit on their own line, under the + and tabs row */
 .mb-right { display: flex; align-items: flex-end; gap: 1.25rem; flex: 0 0 auto; }
+/* reset sits right next to "make yours" */
+.mb-top .mb-right { justify-content: flex-start; align-items: center; height: 2.25rem; padding-top: 2px; box-sizing: border-box; margin-left: 0.25rem; }
 
 /* the little secret line, shown under the tabs while you're on a board of your own */
 .mb-note {
@@ -549,6 +582,8 @@ main {
 .mb-tab[aria-selected="true"] {
   background: var(--text);
   color: var(--bg);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .mb-loading { font-size: 0.8rem; opacity: 0.6; }
@@ -827,7 +862,7 @@ main {
   margin-bottom: 0.8rem;
 }
 
-.mb-add-card input[type="text"], .mb-add-card textarea {
+.mb-add-card input[type="text"], .mb-add-card input[type="password"], .mb-add-card input[type="email"], .mb-add-card textarea {
   display: block;
   width: 100%;
   margin-top: 0.3rem;
@@ -1121,6 +1156,7 @@ main {
   border-radius: var(--radius);
 }
 
+.cm-preview[hidden] { display: none; }   /* with no photo chosen, the empty frame showed up as a dot */
 .cm-fine { margin: 1rem 0 0; }
 .mb-add-card input[type="file"] { display: block; margin-top: 0.3rem; font: inherit; color: inherit; max-width: 100%; }
 
@@ -1156,7 +1192,10 @@ main {
 
   /* easier to tap */
   .cell-left button, .cell-menu button { padding: 0.7rem 0; }
-  .menu-inner a { padding: 0.9rem 0.5rem; }
+  .menu-card a { padding: 1rem; }
+
+  /* a little more room in the middle, for "get into it (click me!)" */
+  .bar-bottom { grid-template-columns: 1fr 1.35fr 1fr; }
 }
 
 /* phones: tighter top of the moodboard, music and community pages */
@@ -1166,9 +1205,88 @@ main {
   .mb:has(.mb-note:not([hidden])) .mb-top, .music:has(.mb-note:not([hidden])) .music-top { margin-bottom: 0; }
   /* tabs on their own line, then the + and "make yours" on the left and reset on the right */
   .mb-top, .music-top { display: grid; grid-template-columns: auto auto 1fr; gap: 0.75rem 0.5rem; align-items: center; }
+  .mb-top { grid-template-columns: repeat(4, auto) 1fr; }       /* room for the owner's +, the board's +, make yours, reset */
   .mb-top .mb-left, .music-top .mb-left { display: contents; }
   .mb-top .mb-tabs, .music-top .mb-tabs { grid-column: 1 / -1; grid-row: 1; justify-self: start; }
-  .mb-top .mb-plus, .music-top .mb-plus { grid-row: 2; grid-column: 1; }
-  .mb-top .mb-newboard { grid-row: 2; grid-column: 2; }
-  .mb-top .mb-right, .music-top .mb-right { grid-row: 2; grid-column: 3; justify-self: end; }
+  .music-top .mb-plus { grid-row: 2; grid-column: 1; }
+  .music-top .mb-right { grid-row: 2; grid-column: 3; justify-self: end; }
+  /* on the braindump page the buttons fill the second line left to right, whichever ones are showing */
+  .mb-top .mb-plus-wrap, .mb-top #mb-add-mine, .mb-top .mb-newboard, .mb-top .mb-right { grid-row: 2; grid-column: auto; }
+  .mb-top .mb-right { justify-self: start; margin-left: 0.5rem; }
 }
+
+/* phones: the small player sits just above the bottom bar instead of the top right */
+@media (max-width: 40rem) {
+  .mini {
+    top: auto;
+    bottom: calc(var(--bar-height) + 0.6rem);
+    left: 1rem;
+    right: 1rem;
+    max-width: none;
+    padding: 0.55rem 0.9rem;
+  }
+  .mini-title { flex: 1 1 auto; }
+}
+
+/* ---------- Journal: grid on phones, and the owner-only editor ---------- */
+@media (max-width: 40rem) {
+  .thoughts-canvas {
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+    gap: 0.75rem;
+    padding: 3.75rem 1rem 1.5rem;
+  }
+}
+
+/* only shown once you've signed in (journal.js turns them on) */
+.thoughts-toolbar [hidden],
+.featured-actions [hidden] { display: none; }
+
+.thoughts-toolbar .mb-plus { flex: 0 0 auto; }
+
+.entry-edit-card { width: min(34rem, 100%); }
+.mb-owner { z-index: 45; }
+
+/* the + (owner only): hover it (or tap it on a phone) for a little menu under it */
+.mb-plus-wrap { position: relative; flex: 0 0 auto; z-index: 6; }
+.mb-plus-wrap[hidden] { display: none; }
+.mb-plus:not([data-tip])::after { display: none; }
+
+.mb-drop {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: none;
+  padding-top: 0.35rem;        /* bridges the gap, so the menu doesn't close on the way down to it */
+}
+.mb-plus-wrap.open .mb-drop { display: block; }
+
+.mb-drop { font-size: 0.75rem; }
+.mb-drop button {
+  display: block;
+  width: 100%;
+  min-width: 10rem;
+  padding: 0.7rem 0.9rem;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+.mb-drop button + button { border-top: none; }
+.mb-drop button:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+.mb-drop button:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+.mb-drop button:hover, .mb-drop button:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.mb-drop button[hidden] { display: none; }
+.mb-plus[hidden] { display: none; }
+
+
+
+/* with no moodboards at all, the empty tab strip showed up as a tiny dot */
+.mb-tabs:empty { display: none; }
+
+/* the "or upload a picture" line in the add box */
+.mb-add-filehint { margin: -0.4rem 0 0.9rem; font-size: 0.7rem; }
+.mb-add-filehint:empty { display: none; }
+.mb-plus[hidden] { display: none; }

@@ -2,10 +2,32 @@
 // The music keeps playing when someone moves to another page, because the player lives
 // outside the pages. A small player follows them around (top right) until they come back.
 
+(function () {
 const songsFileOk = typeof SONGS !== "undefined" && Array.isArray(SONGS);   // false if songs.js is missing or has a typo in it
+// a song's categories: category: "k-pop"  or  category: ["k-pop", "chill"]  (or "k-pop, chill")
+function toCategories(value) {
+  const list = Array.isArray(value) ? value : typeof value === "string" ? value.split(",") : [];
+  return list.map((c) => String(c).trim()).filter(Boolean);
+}
+
 const songs = (songsFileOk ? SONGS : [])
   .filter((s) => s && typeof s.src === "string" && s.src)
-  .map((s) => ({ title: s.title || fileTitle(s.src), artist: s.artist || "", src: s.src }));
+  .map((s) => ({
+    title: s.title || fileTitle(s.src),
+    artist: s.artist || "",
+    src: s.src,
+    cats: toCategories(s.category !== undefined ? s.category : s.categories),
+  }));
+
+// one tab per category, next to "all songs". CATEGORIES in songs.js (optional) sets their order;
+// any other category follows in the order it first shows up in the song list
+const cats = [];
+function addCategory(name) {
+  if (!cats.some((c) => c.toLowerCase() === name.toLowerCase())) cats.push(name);
+}
+toCategories(typeof CATEGORIES !== "undefined" ? CATEGORIES : []).forEach(addCategory);
+songs.forEach((s) => s.cats.forEach(addCategory));
+const hasCategory = (song, name) => song.cats.some((c) => c.toLowerCase() === name.toLowerCase());
 
 function fileTitle(src) {
   const name = src.split("/").pop().replace(/\.[^.]+$/, "");
@@ -57,10 +79,15 @@ function songBySrc(src) {
   return songs.find((s) => s.src === src);
 }
 
-let view = 0;                    // 0 = all songs, otherwise playlist number + 1
+// the tabs, left to right: all songs (0), then the categories, then the playlists visitors make
+let view = 0;
+const catAt = () => (view >= 1 && view <= cats.length ? cats[view - 1] : null);   // the category being shown, if any
+const plAt = () => view - 1 - cats.length;                                       // the playlist being shown (-1 if it isn't one)
 function viewSongs() {
   if (view === 0) return songs;
-  const pl = playlists[view - 1];
+  const cat = catAt();
+  if (cat) return songs.filter((s) => hasCategory(s, cat));
+  const pl = playlists[plAt()];
   return pl ? pl.songs.map(songBySrc).filter(Boolean) : songs;
 }
 
@@ -188,6 +215,13 @@ try {
   if (localStorage.getItem(VOL_KEY) !== null && v >= 0 && v <= 100) el.vol.value = v;
 } catch (e) {}
 audio.volume = el.vol.value / 100;
+// iPhones and iPads don't let a web page change the volume (it's always the phone's own volume
+// buttons), so the slider would do nothing there. Hide it when the browser ignores the setting.
+try {
+  audio.volume = 0.5;
+  if (Math.abs(audio.volume - 0.5) > 0.01) el.vol.closest(".music-vol").hidden = true;
+  audio.volume = el.vol.value / 100;
+} catch (e) {}
 el.vol.addEventListener("input", () => {
   audio.volume = el.vol.value / 100;
   try { localStorage.setItem(VOL_KEY, el.vol.value); } catch (e) {}
@@ -227,19 +261,19 @@ function say(text) {
 // ----- the list and the tabs -----
 function renderTabs() {
   el.tabs.innerHTML = "";
-  ["all songs", ...playlists.map((p) => p.name)].forEach((name, i) => {
+  ["all songs", ...cats, ...playlists.map((p) => p.name)].forEach((name, i) => {
     const tab = document.createElement("button");
     tab.type = "button";
     tab.className = "mb-tab";
     tab.setAttribute("role", "tab");
     tab.setAttribute("aria-selected", String(i === view));
     // each playlist shows how many songs are in it, so you can see an add worked
-    tab.textContent = i === 0 ? name : name + " (" + playlists[i - 1].songs.filter(songBySrc).length + ")";
+    tab.textContent = i <= cats.length ? name : name + " (" + playlists[i - 1 - cats.length].songs.filter(songBySrc).length + ")";
     tab.addEventListener("click", () => { view = i; el.toast.textContent = ""; renderTabs(); renderList(); });
     el.tabs.appendChild(tab);
   });
-  el.delpl.hidden = view === 0;
-  el.note.hidden = view === 0;
+  el.delpl.hidden = plAt() < 0;       // delete and the little secret note are for playlists only
+  el.note.hidden = plAt() < 0;
 }
 
 function renderList() {
@@ -248,7 +282,7 @@ function renderList() {
   if (!list.length) {
     const li = document.createElement("li");
     li.className = "music-empty";
-    li.textContent = view === 0
+    li.textContent = plAt() < 0
       ? (songsFileOk
           ? "no songs yet. put mp3 files in the music folder and list them in songs.js."
           : "couldn't read songs.js. check that it's next to index.html and that every line ends with a comma and every title and file name is in quotes.")
@@ -282,7 +316,7 @@ function renderList() {
     const act = document.createElement("button");
     act.type = "button";
     act.className = "song-act";
-    if (view === 0) {
+    if (plAt() < 0) {
       act.textContent = "add";
       act.setAttribute("aria-label", "add " + song.title + " to a playlist");
       act.addEventListener("click", () => openDialog(song));
@@ -290,7 +324,7 @@ function renderList() {
       act.textContent = "remove";
       act.setAttribute("aria-label", "remove " + song.title + " from this playlist");
       act.addEventListener("click", () => {
-        const pl = playlists[view - 1];
+        const pl = playlists[plAt()];
         pl.songs.splice(pl.songs.indexOf(song.src), 1);
         savePlaylists();
         renderTabs();
@@ -336,7 +370,7 @@ function openDialog(song) {
         if (!savePlaylists()) { pl.songs.pop(); dMsg.textContent = "couldn't save. is your browser blocking storage?"; return; }
         closeDialog();
         renderTabs();
-        if (view === k + 1) renderList();
+        if (plAt() === k) renderList();
         say('added "' + song.title + '" to ' + pl.name);
       });
       pick.appendChild(b);
@@ -363,7 +397,7 @@ form.addEventListener("submit", (e) => {
     dMsg.textContent = "couldn't save. is your browser blocking storage?";
     return;
   }
-  if (!dialogSong) view = playlists.length;     // from the + button: jump to the new playlist
+  if (!dialogSong) view = cats.length + playlists.length;     // from the + button: jump to the new playlist
   closeDialog();
   renderTabs();
   renderList();
@@ -377,11 +411,11 @@ dialog.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDialog(
 window.addEventListener("hashchange", closeDialog);
 
 el.delpl.addEventListener("click", async () => {
-  const k = view - 1;
+  const k = plAt();
   if (!playlists[k]) return;
   const yes = await askConfirm('delete "' + playlists[k].name + '"? the songs stay in all songs.', "delete");
   if (!yes) { el.delpl.focus(); return; }
-  if (view - 1 !== k) return;
+  if (plAt() !== k) return;
   playlists.splice(k, 1);
   savePlaylists();
   view = 0;
@@ -391,3 +425,4 @@ el.delpl.addEventListener("click", async () => {
 
 renderTabs();
 renderList();
+})();

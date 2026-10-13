@@ -18,7 +18,12 @@
 //   Delete those lines (and the files in the music folder) when you add your own.
 
 const SONGS = [
-  { title: "iconic by mistake", artist: "le sserafim, illit, katseye", src: "music/iconic by mistake.mp3" },
-  { title: "blue valentine", artist: "nmixx", src: "blue valentine.mp3" },
-  { title: "sample three", artist: "just a tone", src: "music/sample-three.mp3" },
+  { title: "iconic by mistake", artist: "le sserafim, illit, katseye", src: "music/iconic by mistake.mp3", category: "k-pop" },
+  { title: "blue valentine", artist: "nmixx", src: "music/blue valentine.mp3", category: "k-pop" },
+  { title: "disconnected", artist: "5 seconds of summer", src: "music/disconnected.mp3", category: "boy band excellence" },
+  { title: "sun kiss", artist: "tuide", src: "music/sun.mp3", category: "k-pop" },
+  { title: "feel special", artist: "twice", src: "music/feel special.mp3", category: "k-pop" },
+  { title: "alive", artist: "one direction", src: "music/alive.mp3", category: "boy band excellence" },
+  { title: "that's so true", artist: "gracie abrams", src: "music/that's so true.mp3", category: "pop girlies" },
+  { title: "juno", artist: "sabrina carpenter", src: "music/juno.mp3", category: "pop girlies" },
 ];

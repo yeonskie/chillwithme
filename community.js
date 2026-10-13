@@ -16,12 +16,16 @@
 
   const grid = $("cm-grid"), status = $("cm-status"), moreBtn = $("cm-more");
   const dialog = $("cm-dialog"), form = $("cm-form"), msg = $("cm-msg"), sendBtn = $("cm-send");
-  const photoInput = $("cm-photo"), preview = $("cm-preview"), addBtn = $("cm-add");
+  const photoInput = $("cm-photo"), preview = $("cm-preview"), addBtn = $("cm-add"), fileInput = $("cm-file");
 
   let posts = [];
   let loadedAt = 0;
   let loading = false;
   let photoOk = "";                      // the picture address that has been checked and works
+  let pendingBlob = null;                // a photo picked from the device, shrunk and waiting to be sent with the post
+  let pendingUrl = "";                   // its preview address (freed when it's no longer needed)
+  const BUCKET = "community-photos";
+  const MAX_FILE_BYTES = 8 * 1024 * 1024;   // files bigger than this are turned away before trying
   let statusTimer = null;
 
   // ----- talking to Supabase -----
@@ -142,6 +146,7 @@
     if (!configured) { say("the community isn't set up yet. check back soon.", true); return; }
     form.reset();
     photoOk = "";
+    clearPending();
     preview.hidden = true;
     preview.removeAttribute("src");
     msg.textContent = "";
@@ -188,6 +193,8 @@
     preview.hidden = true;
     msg.textContent = "";
     if (!url) return;
+    fileInput.value = "";                       // an address replaces any uploaded file
+    clearPending();
     msg.textContent = "checking the picture...";
     sendBtn.disabled = true;
     const ok = await checkPhoto(url);
@@ -204,6 +211,77 @@
     }
   });
 
+  // ----- a photo picked from the device -----
+  function clearPending() {
+    pendingBlob = null;
+    if (pendingUrl) URL.revokeObjectURL(pendingUrl);
+    pendingUrl = "";
+  }
+
+  // makes a photo smaller so it loads quickly: longest side 1400px, saved as a jpeg
+  function shrinkPhoto(file) {
+    return new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        if (!img.naturalWidth) return reject(new Error("couldn't read that photo"));
+        const scale = Math.min(1, 1400 / Math.max(img.naturalWidth, img.naturalHeight));
+        const w = Math.max(1, Math.round(img.naturalWidth * scale));
+        const h = Math.max(1, Math.round(img.naturalHeight * scale));
+        const cv = document.createElement("canvas");
+        cv.width = w;
+        cv.height = h;
+        const ctx = cv.getContext("2d");
+        ctx.fillStyle = "#ffffff";              // see-through parts of a png turn white
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        cv.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("couldn't prepare that photo"))), "image/jpeg", 0.82);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("couldn't read that photo")); };
+      img.src = url;
+    });
+  }
+
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files[0];
+    clearPending();
+    photoOk = "";
+    preview.hidden = true;
+    msg.textContent = "";
+    if (!file) return;
+    photoInput.value = "";                      // an uploaded file replaces any address
+    if (!/^image\//.test(file.type)) { fileInput.value = ""; msg.textContent = "that file isn't a photo"; return; }
+    if (file.size > MAX_FILE_BYTES) { fileInput.value = ""; msg.textContent = "that photo is too big (8 MB at most)"; return; }
+    msg.textContent = "preparing the photo...";
+    sendBtn.disabled = true;
+    try {
+      const blob = await shrinkPhoto(file);
+      if (fileInput.files[0] !== file) return;  // they picked something else meanwhile
+      pendingBlob = blob;
+      pendingUrl = URL.createObjectURL(blob);
+      preview.src = pendingUrl;
+      preview.hidden = false;
+      msg.textContent = "";
+    } catch (err) {
+      fileInput.value = "";
+      msg.textContent = err.message;
+    } finally {
+      sendBtn.disabled = false;
+    }
+  });
+
+  // sends the photo to storage and gives back its public address
+  async function uploadPending() {
+    const name = newId() + ".jpg";
+    await api("/storage/v1/object/" + BUCKET + "/" + name, {
+      method: "POST",
+      headers: headers({ "Content-Type": "image/jpeg" }),
+      body: pendingBlob,
+    });
+    return BASE + "/storage/v1/object/public/" + BUCKET + "/" + name;
+  }
+
   function newId() {
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
     const hex = "0123456789abcdef";
@@ -217,8 +295,8 @@
     e.preventDefault();
     const body = $("cm-body").value.trim();
     const name = $("cm-name").value.trim().slice(0, 24);
-    const photoUrl = photoInput.value.trim();
-    if (!body && !photoUrl) { msg.textContent = "write something or add a photo first"; return; }
+    let photoUrl = photoInput.value.trim();
+    if (!body && !photoUrl && !pendingBlob) { msg.textContent = "write something or add a photo first"; return; }
 
     let last = 0;
     try { last = Number(localStorage.getItem(LAST_KEY)) || 0; } catch (err) {}
@@ -226,7 +304,18 @@
     if (wait > 0) { msg.textContent = "one post a minute, please. try again in " + Math.ceil(wait / 1000) + "s"; return; }
 
     sendBtn.disabled = true;
-    msg.textContent = photoUrl ? "checking the picture..." : "sending...";
+    if (pendingBlob) {
+      msg.textContent = "uploading the photo...";
+      try {
+        photoUrl = await uploadPending();
+      } catch (err) {
+        sendBtn.disabled = false;
+        msg.textContent = "couldn't upload that photo right now. try again in a bit. (" + String(err.message || err).slice(0, 160) + ")";
+        return;
+      }
+      photoOk = photoUrl;
+    }
+    if (!pendingBlob) msg.textContent = photoUrl ? "checking the picture..." : "sending...";
     if (photoUrl && photoOk !== photoUrl && !(await checkPhoto(photoUrl))) {
       sendBtn.disabled = false;
       msg.textContent = photoProblem(photoUrl);
@@ -242,6 +331,7 @@
       });
       try { localStorage.setItem(LAST_KEY, String(Date.now())); } catch (err) {}
       sendBtn.disabled = false;
+      clearPending();
       closeDialog();
       say("posted!");
       await load(false);                       // fetch the feed again so the new post is at the top

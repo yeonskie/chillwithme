@@ -23,6 +23,12 @@ function showPage() {
 
   document.getElementById("main").scrollTop = 0;
 
+  // the menu button for the page you're on stays highlighted
+  document.querySelectorAll(".menu-card a").forEach((link) => {
+    if (link.getAttribute("href") === "#" + name && found) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
+
   // Return and home buttons only show when a page other than home is selected
   const onHome = !found || name === DEFAULT_PAGE;
   returnBtn.hidden = onHome;
@@ -55,18 +61,25 @@ window.addEventListener("hashchange", () => {
 });
 showPage();
 
-// ---------- Menu (bottom center) ----------
+// ---------- Menu (bottom center): opens in the middle of the screen ----------
 const menuBtn = document.getElementById("btn-menu");
 const menuList = document.getElementById("menu-list");
 
-function setMenu(open) {
-  menuList.classList.toggle("open", open);
+function setMenu(open, returnFocus) {
+  menuList.hidden = !open;
   menuBtn.setAttribute("aria-expanded", String(open));
+  if (open) {
+    // start on the page you're on, so the keyboard begins in a sensible place
+    const here = menuList.querySelector('a[aria-current="page"]') || menuList.querySelector("a");
+    if (here) here.focus();
+  } else if (returnFocus) {
+    menuBtn.focus();
+  }
 }
 
 // click "get into it" to open or close the menu
 menuBtn.addEventListener("click", () => {
-  setMenu(!menuList.classList.contains("open"));
+  setMenu(menuList.hidden);
 });
 
 // picking a page closes the menu
@@ -74,23 +87,14 @@ menuList.addEventListener("click", (e) => {
   if (e.target.closest("a")) setMenu(false);
 });
 
-// clicking anywhere else, or pressing Escape, also closes it
-document.addEventListener("click", (e) => {
-  if (!e.target.closest(".cell-menu")) setMenu(false);
-});
+// clicking the empty space around it, or pressing Escape, also closes it
+document.getElementById("menu-backdrop").addEventListener("click", () => setMenu(false));
+document.getElementById("menu-x").addEventListener("click", () => setMenu(false, true));
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") setMenu(false);
+  if (e.key === "Escape" && !menuList.hidden) setMenu(false, true);
 });
 
-// ---------- Thoughts to consume: scattered entries ----------
-const BOX_W = 224, BOX_H = 128;      // size of each entry box (px)
-const CELL_W = 270, CELL_H = 180;    // every box gets its own cell, so they never overlap
-const PAD_X = 40, PAD_Y = 72;        // empty margin around the edge of the canvas
-const SPREAD = 1.5;                  // empty room per box: lower = closer together (1.2 is snug, 2.5 is spread out)
-
-// on a phone the entries sit in a tidy grid instead of being scattered
-const phone = window.matchMedia("(max-width: 40rem)");
-
+// ---------- Thoughts to consume: a grid of entries ----------
 const thoughtsScroll = document.getElementById("thoughts-scroll");
 const canvas = document.getElementById("thoughts-canvas");
 const featured = document.getElementById("featured");
@@ -100,7 +104,9 @@ const featuredTitle = document.getElementById("featured-title");
 const featuredBody = document.getElementById("featured-body");
 const expandBtn = document.getElementById("btn-expand");
 
-const entries = typeof ENTRIES !== "undefined" ? ENTRIES : [];   // comes from entries.js
+// the list on the page: entries.js plus anything added on the site (see journal.js).
+// journal.js calls setEntries(...) to swap in the full list.
+let entries = typeof ENTRIES !== "undefined" ? ENTRIES.slice() : [];
 let entryEls = [];
 let currentIndex = -1;
 let lastPicked = -1;
@@ -113,40 +119,6 @@ function shuffleArray(list) {
     [list[i], list[j]] = [list[j], list[i]];
   }
   return list;
-}
-
-// scattered boxes have a set size; in the phone grid the grid decides
-function sizeEntries() {
-  entryEls.forEach((el) => {
-    el.style.width = phone.matches ? "" : BOX_W + "px";
-    el.style.height = phone.matches ? "" : BOX_H + "px";
-  });
-}
-
-// puts every box in its own random cell, with a little random wiggle inside it
-// (on a phone: a grid, and "shuffle" just mixes up the order)
-function layoutEntries() {
-  if (phone.matches) {
-    canvas.classList.add("grid");
-    canvas.style.width = canvas.style.height = "";
-    entryEls.forEach((el) => { el.style.left = el.style.top = ""; });
-    return;
-  }
-  canvas.classList.remove("grid");
-  const cellsNeeded = Math.max(1, Math.ceil(entryEls.length * SPREAD));
-  const aspect = Math.min(2, Math.max(0.8, window.innerWidth / window.innerHeight));
-  let cols = Math.max(1, Math.ceil(Math.sqrt(cellsNeeded * aspect * CELL_H / CELL_W)));
-  let rows = Math.max(1, Math.ceil(cellsNeeded / cols));
-
-  canvas.style.width = cols * CELL_W + PAD_X * 2 + "px";
-  canvas.style.height = rows * CELL_H + PAD_Y * 2 + "px";
-
-  const cells = shuffleArray([...Array(cols * rows).keys()]);
-  entryEls.forEach((el, i) => {
-    const cell = cells[i];
-    el.style.left = PAD_X + (cell % cols) * CELL_W + Math.random() * (CELL_W - BOX_W) + "px";
-    el.style.top = PAD_Y + Math.floor(cell / cols) * CELL_H + Math.random() * (CELL_H - BOX_H) + "px";
-  });
 }
 
 function buildEntries() {
@@ -169,17 +141,17 @@ function buildEntries() {
     preview.textContent = String(entry.text || "").trim().split(/\n\s*\n/)[0];
 
     el.append(date, title, preview);
-    // a click opens the entry, but letting go after a drag shouldn't
-    el.addEventListener("click", () => { if (!justDragged) openFeatured(i); });
-    makeDraggable(el);
+    el.addEventListener("click", () => openFeatured(i));
     canvas.appendChild(el);
     return el;
   });
+}
 
-  sizeEntries();
-  layoutEntries();
-  // turn the sliding animation on only after the first placement
-  requestAnimationFrame(() => requestAnimationFrame(() => canvas.classList.add("animate")));
+// swaps in a new list of entries and redraws the grid
+function setEntries(list) {
+  entries = list.slice();
+  buildEntries();
+  if (!featured.hidden) closeFeatured();
 }
 
 // ----- the enlarged entry -----
@@ -209,6 +181,8 @@ function openFeatured(i) {
   featured.hidden = false;
   featuredCard.scrollTop = 0;
   expandBtn.focus();
+  // journal.js listens for this, to show edit / delete when you're signed in
+  document.dispatchEvent(new CustomEvent("entryshown", { detail: entries[i] }));
 }
 
 function closeFeatured() {
@@ -228,19 +202,10 @@ function pickOne() {
   openFeatured(i);
 }
 
+// shuffle just mixes up the order of the boxes
 document.getElementById("btn-shuffle").addEventListener("click", () => {
-  if (phone.matches) {
-    shuffleArray([...entryEls]).forEach((el) => canvas.appendChild(el));   // grid: mix up the order
-    thoughtsScroll.scrollTop = 0;
-  } else {
-    layoutEntries();
-  }
-});
-
-// turning the phone sideways (or resizing the window) switches between the grid and the scatter
-phone.addEventListener("change", () => {
-  sizeEntries();
-  layoutEntries();
+  shuffleArray([...entryEls]).forEach((el) => canvas.appendChild(el));
+  thoughtsScroll.scrollTop = 0;
 });
 document.getElementById("btn-pick").addEventListener("click", pickOne);
 document.getElementById("btn-close").addEventListener("click", closeFeatured);
@@ -254,108 +219,6 @@ document.addEventListener("keydown", (e) => {
 });
 window.addEventListener("hashchange", closeFeatured);   // leaving the page closes it
 
-// ----- drag an entry box to move it -----
-let zTop = 1;            // whichever box you moved last ends up on top
-let justDragged = false;
-
-function makeDraggable(el) {
-  el.addEventListener("pointerdown", (e) => {
-    // mouse and pen only; on a touch screen, swiping still scrolls the page.
-    // and in the phone grid there's nothing to drag
-    if (e.pointerType === "touch" || e.button !== 0 || phone.matches) return;
-
-    const start = {
-      x: e.clientX, y: e.clientY,
-      left: parseFloat(el.style.left), top: parseFloat(el.style.top),
-      scrollLeft: thoughtsScroll.scrollLeft, scrollTop: thoughtsScroll.scrollTop,
-    };
-    let pointer = { x: e.clientX, y: e.clientY };
-    let moved = false;
-    let frame = null;
-
-    // keeps the box under the cursor, even if the page scrolled meanwhile
-    function place() {
-      const left = start.left + (pointer.x - start.x) + (thoughtsScroll.scrollLeft - start.scrollLeft);
-      const top = start.top + (pointer.y - start.y) + (thoughtsScroll.scrollTop - start.scrollTop);
-      el.style.left = Math.min(Math.max(left, 0), canvas.offsetWidth - BOX_W) + "px";
-      el.style.top = Math.min(Math.max(top, 0), canvas.offsetHeight - BOX_H) + "px";
-    }
-
-    // holding a box near the edge of the screen scrolls the page along
-    function tick() {
-      const r = thoughtsScroll.getBoundingClientRect();
-      const EDGE = 48, SPEED = 14;
-      let dx = 0, dy = 0;
-      if (pointer.x < r.left + EDGE) dx = -SPEED;
-      else if (pointer.x > r.right - EDGE) dx = SPEED;
-      if (pointer.y < r.top + EDGE) dy = -SPEED;
-      else if (pointer.y > r.bottom - EDGE) dy = SPEED;
-      if (dx || dy) {
-        thoughtsScroll.scrollLeft += dx;
-        thoughtsScroll.scrollTop += dy;
-        place();
-      }
-      frame = requestAnimationFrame(tick);
-    }
-
-    function onMove(ev) {
-      pointer = { x: ev.clientX, y: ev.clientY };
-      if (!moved) {
-        // small wiggles still count as a click
-        if (Math.hypot(pointer.x - start.x, pointer.y - start.y) < 5) return;
-        moved = true;
-        el.classList.add("dragging");
-        el.style.zIndex = ++zTop;
-        el.setPointerCapture(e.pointerId);
-        frame = requestAnimationFrame(tick);
-      }
-      place();
-    }
-
-    function onUp() {
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onUp);
-      cancelAnimationFrame(frame);
-      if (moved) {
-        el.classList.remove("dragging");
-        justDragged = true;                          // so this drag doesn't count as a click
-        setTimeout(() => { justDragged = false; }, 0);
-      }
-    }
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-    window.addEventListener("pointercancel", onUp);
-  });
-}
-
-// ----- click and drag the background to move around (mouse only) -----
-let drag = null;
-
-thoughtsScroll.addEventListener("pointerdown", (e) => {
-  if (e.pointerType !== "mouse" || e.button !== 0 || e.target.closest(".entry")) return;
-  const rect = thoughtsScroll.getBoundingClientRect();
-  // ignore presses on the scrollbars themselves
-  if (e.clientX > rect.left + thoughtsScroll.clientWidth) return;
-  if (e.clientY > rect.top + thoughtsScroll.clientHeight) return;
-  drag = { x: e.clientX, y: e.clientY, left: thoughtsScroll.scrollLeft, top: thoughtsScroll.scrollTop };
-  thoughtsScroll.classList.add("dragging");
-});
-
-window.addEventListener("pointermove", (e) => {
-  if (!drag) return;
-  thoughtsScroll.scrollLeft = drag.left - (e.clientX - drag.x);
-  thoughtsScroll.scrollTop = drag.top - (e.clientY - drag.y);
-});
-
-function stopDrag() {
-  drag = null;
-  thoughtsScroll.classList.remove("dragging");
-}
-window.addEventListener("pointerup", stopDrag);
-window.addEventListener("pointercancel", stopDrag);
-
 buildEntries();
 
 // ---------- Braindump: moodboards ----------
@@ -365,6 +228,8 @@ const baseBoards = typeof MOODBOARDS !== "undefined" ? MOODBOARDS : [];   // com
 // everything below is filled in by registerBoard(): the boards from moodboards.js first, then boards made in this browser
 const boards = [];
 const boardMine = [];      // true for a board someone made with the "make yours" button
+const boardOnline = [];    // true for a board you (the owner) made on the website, which everyone sees
+const boardOnlineIds = []; // for each board: the database id behind each box you added on the website (null for the others)
 const boardItems = [];
 const boardSig = [];
 const origCount = [];      // how many boxes come from moodboards.js (or, on a board of your own, 0); the rest were added here
@@ -372,6 +237,11 @@ const boardReady = [];
 const boardPrep = [];
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let currentBoard = 0;
+
+// boards and boxes you added on the website while signed in (journal.js loads them from the database)
+let onlineBoardNames = [];
+let onlineItemMap = {};       // board name -> [{ id, item }]
+let ownerMode = false;        // true while you're signed in
 
 function clampNum(n, min, max) {
   return Math.min(max, Math.max(min, Number(n) || min));
@@ -567,11 +437,18 @@ function initialRows(items) {
 const boardRows = [];                            // each board's current lines, kept while the page is open
 
 // sets a board up: works out its boxes, measures its pictures, and works out its lines
-function registerBoard(board, mine) {
+function registerBoard(board, mine, online) {
   const b = boards.length;
   boards.push(board);
   boardMine.push(!!mine);
-  let raw = board.items || [];
+  boardOnline.push(!!online);
+  let raw = (board.items || []).slice();
+  const ids = raw.map(() => null);
+  if (!mine) {
+    // boxes added on the website count as part of the board, right after the ones from moodboards.js
+    (onlineItemMap[board.name] || []).forEach((row) => { raw.push(row.item); ids.push(row.id); });
+  }
+  boardOnlineIds.push(ids);
   origCount.push(mine ? 0 : raw.length);
   if (!mine) {
     const extra = loadAdded()[boardKey(b)];
@@ -579,7 +456,7 @@ function registerBoard(board, mine) {
   }
   const items = raw.map(normalizeItem);
   boardItems.push(items);
-  boardSig.push(hashText(mine ? "mine:" + board.name : JSON.stringify(board)));
+  boardSig.push(hashText(mine ? "mine:" + board.name : JSON.stringify([board, ids])));
   boardReady.push(false);
   boardPrep.push(
     Promise.all(items.map(loadShape)).then(() => {
@@ -592,8 +469,42 @@ function registerBoard(board, mine) {
   return b;
 }
 
-baseBoards.forEach((board) => registerBoard(board, false));
-userBoards.forEach((board) => registerBoard(board, true));
+baseBoards.forEach((board) => registerBoard(board, false, false));
+userBoards.forEach((board) => registerBoard(board, true, false));
+
+// starts the boards over: moodboards.js first, then the ones you made on the website, then this browser's own
+function rebuildBoards() {
+  const keep = boards[currentBoard] ? boards[currentBoard].name : null;
+  [boards, boardMine, boardOnline, boardOnlineIds, boardItems, boardSig, origCount, boardReady, boardPrep, boardRows].forEach((list) => { list.length = 0; });
+  baseBoards.forEach((board) => registerBoard(board, false, false));
+  onlineBoardNames
+    .filter((name) => !baseBoards.some((base) => base.name === name))
+    .forEach((name) => registerBoard({ name, items: [] }, false, true));
+  userBoards.forEach((board) => registerBoard(board, true, false));
+  const k = keep === null ? -1 : boards.findIndex((board) => board.name === keep);
+  currentBoard = k >= 0 ? k : 0;
+  renderTabs();
+  renderBoard();
+}
+
+// journal.js calls this with what's stored online
+function setOnlineBoards(names, rows) {
+  onlineBoardNames = names.slice();
+  onlineItemMap = {};
+  rows.forEach((row) => {
+    (onlineItemMap[row.board_name] = onlineItemMap[row.board_name] || []).push({ id: row.id, item: row.item });
+  });
+  closeLightbox();
+  rebuildBoards();
+}
+
+// journal.js calls this when you sign in or out: shows or hides the owner buttons
+function setOwnerMode(on) {
+  ownerMode = !!on;
+  const plusBox = document.getElementById("mb-plus-wrap");
+  if (plusBox) plusBox.hidden = !ownerMode;       // the + is only for you, once you're signed in
+  renderTabs();
+}
 
 // a color box can have one color ("color") or several ("colors"), like a palette
 function itemColors(item) {
@@ -696,7 +607,9 @@ function setRowVars(row) {
 
 function renderTabs() {
   const mine = !!boardMine[currentBoard];
-  document.getElementById("mb-delete").hidden = !mine;
+  document.getElementById("mb-add-mine").hidden = !mine || ownerMode;       // adding to a board of your own (you, the owner, use the other + instead)
+  // you can delete your own boards, and (signed in) the ones you made for everyone
+  document.getElementById("mb-delete").hidden = !(mine || (ownerMode && boardOnline[currentBoard]));
   document.getElementById("mb-note").hidden = !mine;
   mbTabs.innerHTML = "";
   boards.forEach((board, i) => {
@@ -727,7 +640,7 @@ function drawBoard(b) {
   if (!boardRows[b].length) {
     const note = document.createElement("p");
     note.className = "mb-loading";
-    note.textContent = "nothing here yet. hit + to add something.";
+    note.textContent = "nothing here yet.";
     mbGrid.appendChild(note);
   }
   [...mbGrid.children].forEach(setRowVars);   // after they're all in place, so "fill" knows which line is last
@@ -736,7 +649,13 @@ function drawBoard(b) {
 function renderBoard() {
   const b = currentBoard;
   mbGrid.innerHTML = "";
-  if (!boardItems[b]) return;
+  if (!boardItems[b]) {
+    const note = document.createElement("p");
+    note.className = "mb-loading";
+    note.textContent = "no moodboards yet.";
+    mbGrid.appendChild(note);
+    return;
+  }
   if (boardReady[b]) {
     drawBoard(b);
     return;
@@ -782,6 +701,7 @@ const addMsg = document.getElementById("mb-add-msg");
 const addGo = document.getElementById("mb-add-go");
 const addButton = document.getElementById("mb-add");
 let addKind = "image";
+let addForSite = false;        // true when the owner is adding a box for everyone
 let addColors = ["#e8b4c8"];
 const SWATCH_IDEAS = ["#9fb8d6", "#f2e3a5", "#b9d9b0", "#d9b9e8", "#f0b99b", "#a5dcd6", "#c9c9c9"];
 
@@ -824,13 +744,20 @@ function setAddKind(kind) {
   addMsg.textContent = "";
 }
 
-function openAdd() {
+function openAdd(forSite) {
   if (!boards.length) return;
+  addForSite = forSite === true;
   addForm.reset();
   setAddKind("image");
   addColors = ["#e8b4c8"];
   drawSwatches();
-  document.getElementById("mb-add-sub").textContent = "goes onto " + boardKey(currentBoard);
+  document.getElementById("mb-add-filehint").textContent = addForSite
+    ? "uploaded pictures are saved online, so everyone can see them."
+    : "uploaded pictures stay in your browser. no one else can see.";
+  document.getElementById("mb-add-title").textContent = addForSite ? "add for everyone" : "add more";
+  document.getElementById("mb-add-sub").textContent = addForSite
+    ? "goes onto " + boardKey(currentBoard) + " for everyone to see"
+    : "goes onto " + boardKey(currentBoard);
   addDialog.hidden = false;
   document.getElementById("mb-add-src").focus();
 }
@@ -838,18 +765,21 @@ function openAdd() {
 function closeAdd() {
   if (addDialog.hidden) return;
   addDialog.hidden = true;
-  addButton.focus();
+  (addForSite ? addButton : document.getElementById("mb-add-mine")).focus();
 }
 
 // puts a new box at the end of the current board and remembers it
+let addFailed = "";            // why the last add didn't work: "load" (picture) or "save" (browser storage)
+
 async function addToBoard(b, raw) {
+  addFailed = "";
   if (!boardReady[b]) await boardPrep[b];
   const item = normalizeItem(raw);
   await loadShape(item);
   if (!boards[b]) return false;
-  if (item.type === "image" && item.failed) return false;
+  if (item.type === "image" && item.failed) { addFailed = "load"; return false; }
 
-  if (!boards[b] || !persistAdd(b, raw)) return false;
+  if (!boards[b] || !persistAdd(b, raw)) { addFailed = "save"; return false; }
 
   boardItems[b].push(item);
   const idx = boardItems[b].length - 1;
@@ -863,7 +793,39 @@ async function addToBoard(b, raw) {
   return true;
 }
 
-addButton.addEventListener("click", openAdd);
+// the + shows a little menu under it: hover on a computer, tap on a phone
+// (guarded: if index.html is out of date and has no menu, the rest of the page still works)
+if (document.getElementById("mb-plus-wrap")) {
+  const plusWrap = document.getElementById("mb-plus-wrap");
+  const plusDrop = document.getElementById("mb-drop");
+
+  function setPlusMenu(open) {
+    // "add entry" needs a shared moodboard to put it on (not a private one of your own)
+    if (open) document.getElementById("mb-choose-entry").hidden = !boards.length || !!boardMine[currentBoard];
+    plusWrap.classList.toggle("open", open);
+    addButton.setAttribute("aria-expanded", String(open));
+  }
+
+  // a mouse (or pen) opens it by hovering; a finger opens it with a tap. checking the kind of pointer
+  // works on every device, including laptops that also have a touch screen
+  let plusPointer = "mouse";
+  plusWrap.addEventListener("pointerdown", (e) => { plusPointer = e.pointerType || "mouse"; });
+  plusWrap.addEventListener("pointerenter", (e) => { if (e.pointerType !== "touch") setPlusMenu(true); });
+  plusWrap.addEventListener("pointerleave", (e) => { if (e.pointerType !== "touch") setPlusMenu(false); });
+  addButton.addEventListener("click", (e) => {
+    const open = plusWrap.classList.contains("open");
+    // a mouse click while hovering keeps it open; a tap or the keyboard toggles it
+    setPlusMenu(plusPointer === "touch" || e.detail === 0 ? !open : true);
+  });
+  document.addEventListener("click", (e) => { if (!plusWrap.contains(e.target)) setPlusMenu(false); });
+  plusWrap.addEventListener("keydown", (e) => { if (e.key === "Escape") { setPlusMenu(false); addButton.focus(); } });
+  document.getElementById("mb-choose-entry").addEventListener("click", () => { setPlusMenu(false); openAdd(true); });
+  document.getElementById("mb-choose-board").addEventListener("click", () => { setPlusMenu(false); openNew(true); });
+  window.addEventListener("hashchange", () => setPlusMenu(false));
+}
+
+// the + on a board of your own (kept in this browser)
+document.getElementById("mb-add-mine").addEventListener("click", () => openAdd(false));
 document.getElementById("mb-add-cancel").addEventListener("click", closeAdd);
 document.getElementById("mb-add-backdrop").addEventListener("click", closeAdd);
 document.getElementById("mb-add-kinds").addEventListener("click", (e) => {
@@ -873,12 +835,79 @@ document.getElementById("mb-add-kinds").addEventListener("click", (e) => {
 addDialog.addEventListener("keydown", (e) => { if (e.key === "Escape") closeAdd(); });
 window.addEventListener("hashchange", closeAdd);
 
+// ----- uploading a picture from your device -----
+const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;       // bigger files are turned away before trying
+
+function readPicture(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => { URL.revokeObjectURL(url); img.naturalWidth ? resolve(img) : reject(new Error("couldn't read that picture")); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("couldn't read that picture")); };
+    img.src = url;
+  });
+}
+
+// makes a picture smaller so it loads quickly: the longest side becomes maxSide, saved as a jpeg
+async function shrinkPicture(file, maxSide, quality) {
+  const img = await readPicture(file);
+  const scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+  const w = Math.max(1, Math.round(img.naturalWidth * scale));
+  const h = Math.max(1, Math.round(img.naturalHeight * scale));
+  const cv = document.createElement("canvas");
+  cv.width = w;
+  cv.height = h;
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = "#ffffff";                    // see-through parts of a png turn white
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(img, 0, 0, w, h);
+  return new Promise((resolve, reject) => {
+    cv.toBlob((blob) => (blob ? resolve(blob) : reject(new Error("couldn't prepare that picture"))), "image/jpeg", quality);
+  });
+}
+
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error("couldn't read that picture"));
+    reader.readAsDataURL(blob);
+  });
+}
+
+// the address to save for a picture picked from the device
+async function pictureFromFile(file, forSite) {
+  if (!/^image\//.test(file.type)) throw new Error("that file isn't a picture");
+  if (file.size > MAX_UPLOAD_BYTES) throw new Error("that picture is too big (8 MB at most)");
+  if (forSite) {
+    // saved online for everyone: a gif keeps its animation (up to 5 MB), anything else is shrunk first
+    const blob = file.type === "image/gif" && file.size <= 5 * 1024 * 1024 ? file : await shrinkPicture(file, 1800, 0.85);
+    return siteDb.uploadImage(blob);
+  }
+  // kept in this browser only, so it's made small enough to fit in the browser's storage
+  let url = await blobToDataUrl(await shrinkPicture(file, 1000, 0.78));
+  if (url.length > 350000) url = await blobToDataUrl(await shrinkPicture(file, 640, 0.7));
+  return url;
+}
+
 addForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   let raw;
   if (addKind === "image") {
-    const src = document.getElementById("mb-add-src").value.trim();
-    if (!src) { addMsg.textContent = "paste a picture address first"; return; }
+    let src = document.getElementById("mb-add-src").value.trim();
+    const file = document.getElementById("mb-add-file").files[0];
+    if (!src && !file) { addMsg.textContent = "paste a picture address or choose a file first"; return; }
+    if (file) {                                    // an uploaded file wins over an address
+      addGo.disabled = true;
+      addMsg.textContent = "preparing the picture...";
+      try {
+        src = await pictureFromFile(file, addForSite);
+      } catch (err) {
+        addGo.disabled = false;
+        addMsg.textContent = err.message;
+        return;
+      }
+    }
     raw = { type: "image", src, alt: document.getElementById("mb-add-alt").value.trim() };
   } else if (addKind === "text") {
     const text = document.getElementById("mb-add-text").value.trim();
@@ -895,9 +924,29 @@ addForm.addEventListener("submit", async (e) => {
   }
   addGo.disabled = true;
   addMsg.textContent = addKind === "image" ? "checking the picture..." : "";
-  const ok = await addToBoard(currentBoard, raw);
+  let ok;
+  if (addForSite) {
+    // saved online, so everyone sees it
+    const test = normalizeItem(raw);
+    await loadShape(test);
+    if (test.type === "image" && test.failed) ok = false;
+    else {
+      try {
+        addMsg.textContent = "saving...";
+        await siteDb.addItem(boardKey(currentBoard), raw);
+        ok = true;
+      } catch (err) {
+        addGo.disabled = false;
+        addMsg.textContent = "couldn't save that (" + err.message + ")";
+        return;
+      }
+    }
+  } else {
+    ok = await addToBoard(currentBoard, raw);
+  }
   addGo.disabled = false;
   if (ok) closeAdd();
+  else if (addFailed === "save") addMsg.textContent = "couldn't save that. your browser's storage might be full";
   else addMsg.textContent = addKind === "image" ? "couldn't load that picture. check the address" : "couldn't save that";
 });
 
@@ -939,8 +988,14 @@ const newForm = document.getElementById("mb-new-form");
 const newMsg = document.getElementById("mb-new-msg");
 const newButton = document.getElementById("mb-new");
 const MAX_MINE = 12;
+let newForSite = false;        // true when the owner is making a board for everyone
 
-function openNew() {
+function openNew(forSite) {
+  newForSite = forSite === true;
+  document.getElementById("mb-new-title").textContent = newForSite ? "make a board for everyone" : "make your own moodboard";
+  document.getElementById("mb-new-sub").textContent = newForSite
+    ? "everyone will see it on the website."
+    : "this only lives on your browser. no one else can see, like a little secret.";
   newForm.reset();
   newMsg.textContent = "";
   newDialog.hidden = false;
@@ -950,17 +1005,33 @@ function openNew() {
 function closeNew() {
   if (newDialog.hidden) return;
   newDialog.hidden = true;
-  newButton.focus();
+  (newForSite ? addButton : newButton).focus();
 }
 
-newButton.addEventListener("click", openNew);
+newButton.addEventListener("click", () => openNew(false));
 document.getElementById("mb-new-cancel").addEventListener("click", closeNew);
 document.getElementById("mb-new-backdrop").addEventListener("click", closeNew);
 newDialog.addEventListener("keydown", (e) => { if (e.key === "Escape") closeNew(); });
 window.addEventListener("hashchange", closeNew);
 
-newForm.addEventListener("submit", (e) => {
+newForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  if (newForSite) {
+    const name = document.getElementById("mb-new-name").value.trim().slice(0, 24);
+    if (!name) { newMsg.textContent = "give it a name first"; return; }
+    if (boards.some((board) => board.name === name)) { newMsg.textContent = "there's already a board with that name"; return; }
+    try {
+      newMsg.textContent = "saving...";
+      await siteDb.addBoard(name);
+    } catch (err) {
+      newMsg.textContent = "couldn't save that (" + err.message + ")";
+      return;
+    }
+    const k = boards.findIndex((board) => board.name === name);
+    if (k >= 0) { currentBoard = k; renderTabs(); renderBoard(); }
+    closeNew();
+    return;
+  }
   if (userBoards.length >= MAX_MINE) { newMsg.textContent = "that's plenty of boards for now (" + MAX_MINE + ")"; return; }
   const name = document.getElementById("mb-new-name").value.trim().slice(0, 24) || "my moodboard";
   const board = { name, items: [] };
@@ -979,6 +1050,17 @@ newForm.addEventListener("submit", (e) => {
 // delete a board of your own
 document.getElementById("mb-delete").addEventListener("click", async () => {
   const b = currentBoard;
+  if (ownerMode && boardOnline[b]) {
+    const name = boards[b].name;
+    const yes = await askConfirm('delete "' + name + '" for everyone, with everything in it? this can\'t be undone.', "delete");
+    if (!yes) { document.getElementById("mb-delete").focus(); return; }
+    try {
+      await siteDb.removeBoard(name, (onlineItemMap[name] || []).map((row) => row.item && row.item.src));
+    } catch (err) {
+      askConfirm("couldn't delete that (" + err.message + ")", "ok");
+    }
+    return;
+  }
   if (!boardMine[b]) return;
   const yes = await askConfirm('delete "' + boards[b].name + '" and everything in it? this can\'t be undone.', "delete");
   if (!yes) { document.getElementById("mb-delete").focus(); return; }
@@ -994,7 +1076,7 @@ document.getElementById("mb-delete").addEventListener("click", async () => {
     });
     localStorage.setItem(LAYOUT_KEY, JSON.stringify(next));
   } catch (e) {}
-  [boards, boardMine, boardItems, boardSig, origCount, boardReady, boardPrep, boardRows].forEach((list) => list.splice(b, 1));
+  [boards, boardMine, boardOnline, boardOnlineIds, boardItems, boardSig, origCount, boardReady, boardPrep, boardRows].forEach((list) => list.splice(b, 1));
   currentBoard = Math.max(0, b - 1);
   renderTabs();
   renderBoard();
@@ -1062,13 +1144,19 @@ function centerSlide(animate = true) {
   lightTrack.style.transform = `translateX(${x}px)`;
 }
 
+// the database id of a box you added on the website, or null
+function siteItemId(b, idx) {
+  return ownerMode && boardOnlineIds[b] && boardOnlineIds[b][idx] ? boardOnlineIds[b][idx] : null;
+}
+
 function showSlide(i, animate = true) {
   slideIndex = Math.max(0, Math.min(slides.length - 1, i));
   slides.forEach((s, k) => s.classList.toggle("active", k === slideIndex));
   lightCount.textContent = `${slideIndex + 1} / ${slides.length}`;
   lightPrev.disabled = slideIndex === 0;
   lightNext.disabled = slideIndex === slides.length - 1;
-  lightRemove.hidden = !(slideItems[slideIndex] >= origCount[currentBoard]);   // only boxes you added here can be removed
+  // boxes you added in this browser can be removed; so can the ones you put on the website, while you're signed in
+  lightRemove.hidden = !(slideItems[slideIndex] >= origCount[currentBoard] || siteItemId(currentBoard, slideItems[slideIndex]));
   centerSlide(animate);
 }
 
@@ -1102,6 +1190,17 @@ document.getElementById("mb-light-close").addEventListener("click", closeLightbo
 // remove a box you added with the + button (boxes from moodboards.js are removed by editing that file)
 lightRemove.addEventListener("click", async () => {
   const b = currentBoard, idx = slideItems[slideIndex];
+  const siteId = siteItemId(b, idx);
+  if (siteId) {
+    const yes = await askConfirm("remove this box for everyone?", "remove");
+    if (!yes) { lightRemove.focus(); return; }
+    try {
+      await siteDb.removeItem(siteId, boardItems[b][idx].src);      // reloads the boards, which closes this viewer
+    } catch (err) {
+      askConfirm("couldn't remove that (" + err.message + ")", "ok");
+    }
+    return;
+  }
   if (!(idx >= origCount[b])) return;
   const yes = await askConfirm("remove this box?", "remove");
   if (!yes) { lightRemove.focus(); return; }
