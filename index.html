@@ -43,8 +43,26 @@
   <!-- MIDDLE: only this part changes between pages -->
   <main id="main">
     <section class="page" data-page="home">
-      <h1>home</h1>
-      <p>This is the middle section. Each page lives in its own block like this one.</p>
+      <div class="home">
+        <h1 class="home-title">welcome to yeon's space</h1>
+        <p class="home-sub">enjoy your stay!</p>
+
+        <!-- the rotating boxes. To add one, copy a <li> and change the link and the words.
+             Later, drop your svg inside the box above the words (inside the <a>). -->
+        <div class="home-carousel" id="home-carousel" role="group" aria-roledescription="carousel" aria-label="places to visit">
+          <button type="button" class="home-arrow" id="home-prev" aria-label="previous">&lt;</button>
+          <ul class="home-slides" id="home-slides">
+            <li class="home-slide"><a href="#thoughts"><span class="home-slide-label">thoughts to consume</span></a></li>
+            <li class="home-slide"><a href="#braindump"><span class="home-slide-label">braindump</span></a></li>
+            <li class="home-slide"><a href="#music"><span class="home-slide-label">music</span></a></li>
+            <li class="home-slide"><a href="#community"><span class="home-slide-label">build the community</span></a></li>
+            <li class="home-slide"><a href="#confession"><span class="home-slide-label">confession booth</span></a></li>
+          </ul>
+          <button type="button" class="home-arrow" id="home-next" aria-label="next">&gt;</button>
+        </div>
+
+        <p class="home-sub home-sub-below"><span class="home-ul">hear</span> my thoughts, <span class="home-ul">create</span> your own moodboard, <span class="home-ul">confess</span> your secrets</p>
+      </div>
     </section>
 
     <section class="page" data-page="thoughts">
@@ -395,6 +413,7 @@
   <script src="moodboards.js"></script>
   <script src="songs.js"></script>
   <script src="script.js"></script>
+  <script src="home.js"></script>
   <script src="music.js"></script>
   <script src="community-config.js"></script>
   <script src="community.js"></script>
