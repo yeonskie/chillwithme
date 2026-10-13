@@ -381,7 +381,11 @@
 
   <!-- FIXED BOTTOM BAR: 3 even sections -->
   <footer class="bar bar-bottom">
-    <div class="cell cell-left">yeonskie's brain dump</div>
+    <div class="cell cell-left">
+      <span id="bar-name">yeonskie's brain dump</span>
+      <!-- on every page except home, the name is swapped for this (see home.js) -->
+      <button type="button" class="bar-surprise" id="bar-surprise" hidden>surprise me</button>
+    </div>
     <div class="cell cell-menu">
       <!-- opens a menu in the middle of the screen; each link switches the page -->
       <div class="menu-overlay" id="menu-list" hidden>

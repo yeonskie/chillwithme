@@ -79,19 +79,35 @@
   });
   list.addEventListener("pointercancel", () => { startX = null; });
 
-  // "randomize my stay": jumps to a random page, including the fairground places (never the same one twice in a row)
+  // a random page: the ones in the boxes plus every fairground place (never the same one twice in a row,
+  // and never the page you're already on). Used by "randomize my stay" and by "surprise me" in the bottom bar.
+  let lastPick = "";
+  function goRandom() {
+    const pages = slides.map((s) => s.querySelector("a")).filter(Boolean).map((a) => a.getAttribute("href"))
+      .concat(Array.from(document.querySelectorAll(".page.place")).map((p) => "#" + p.dataset.page));
+    const options = pages.filter((p) => p !== lastPick && p !== location.hash);
+    const pool = options.length ? options : pages;
+    if (!pool.length) return;
+    lastPick = pool[Math.floor(Math.random() * pool.length)];
+    location.hash = lastPick;
+  }
+
   const randomBtn = document.getElementById("home-random");
-  if (randomBtn) {
-    let lastPick = "";
-    randomBtn.addEventListener("click", () => {
-      // the pages in the boxes, plus every fairground place (circus tent, fun house, and so on)
-      const pages = slides.map((s) => s.querySelector("a")).filter(Boolean).map((a) => a.getAttribute("href"))
-        .concat(Array.from(document.querySelectorAll(".page.place")).map((p) => "#" + p.dataset.page));
-      const options = pages.length > 1 ? pages.filter((p) => p !== lastPick) : pages;
-      if (!options.length) return;
-      lastPick = options[Math.floor(Math.random() * options.length)];
-      location.hash = lastPick;
-    });
+  if (randomBtn) randomBtn.addEventListener("click", goRandom);
+
+  // bottom left: the name on the home page, "surprise me" everywhere else
+  const barName = document.getElementById("bar-name");
+  const barSurprise = document.getElementById("bar-surprise");
+  if (barName && barSurprise) {
+    const sync = () => {
+      const current = document.querySelector(".page.active");
+      const atHome = !current || current.dataset.page === "home";
+      barName.hidden = !atHome;
+      barSurprise.hidden = atHome;
+    };
+    barSurprise.addEventListener("click", goRandom);
+    window.addEventListener("hashchange", sync);
+    sync();
   }
 
   show(0);
