@@ -1935,3 +1935,23 @@ main {
 .gi-end-title { font-size: 1.15rem; font-weight: 700; margin: 0 0 0.6rem; }
 .gi-end-score { font-size: 0.9rem; margin: 0 0 1rem; }
 @media (pointer: coarse) { .gi-input { font-size: 16px; } }
+
+/* owner only: the "add an idol" box */
+.gi-dialog { position: fixed; top: var(--bar-height); bottom: var(--bar-height); left: 0; right: 0; z-index: 40; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+.gi-dialog[hidden] { display: none; }
+.gi-dialog-backdrop { position: absolute; inset: 0; background: color-mix(in srgb, var(--bg) 80%, transparent); }
+.gi-dialog-card { position: relative; width: min(24rem, 100%); max-height: 100%; overflow: auto; box-sizing: border-box; padding: 1.25rem; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); text-align: left; }
+.gi-dialog-card h2 { font-size: 1rem; margin: 0 0 0.9rem; text-align: center; }
+.gi-field { display: block; font-size: 0.78rem; margin-bottom: 0.7rem; }
+.gi-field small { opacity: 0.6; margin-left: 0.3rem; }
+.gi-field input[type="text"], .gi-field input[type="file"] { display: block; width: 100%; box-sizing: border-box; margin-top: 0.25rem; font: inherit; font-size: 0.8rem; color: inherit; background: none; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.3rem 0.5rem; }
+.gi-check { display: flex; gap: 0.5rem; align-items: center; font-size: 0.75rem; margin-bottom: 0.7rem; }
+.gi-form-msg { min-height: 1.3em; font-size: 0.75rem; margin: 0 0 0.6rem; }
+.gi-dialog-actions { display: flex; gap: 0.6rem; justify-content: center; }
+.gi-added { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--line); }
+.gi-added h3 { font-size: 0.78rem; margin: 0 0 0.5rem; font-weight: 700; }
+.gi-added ul { list-style: none; margin: 0; padding: 0; }
+.gi-added li { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; font-size: 0.78rem; padding: 0.15rem 0; }
+.gi-added li button { font: inherit; font-size: 0.72rem; color: inherit; background: none; border: 1px solid var(--line); border-radius: var(--radius); padding: 0 0.45rem; cursor: pointer; }
+.gi-added li button:hover { background: var(--text); color: var(--bg); }
+@media (pointer: coarse) { .gi-field input[type="text"] { font-size: 16px; } }

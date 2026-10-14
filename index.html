@@ -323,7 +323,7 @@
         <a href="#arcade" class="hy-back">&larr; back to the arcade</a>
         <h1 class="hy-title">guess the k-pop idol</h1>
         <p class="hy-hint">who's behind the blur? every wrong guess makes the photo clearer.</p>
-        <p class="hy-bar"><span id="gi-round">round 1 / 10</span> <span id="gi-score">score 0</span> <button type="button" class="hy-btn" id="gi-restart">restart</button></p>
+        <p class="hy-bar"><span id="gi-round">round 1 / 10</span> <span id="gi-score">score 0</span> <button type="button" class="hy-btn" id="gi-restart">restart</button> <button type="button" class="hy-btn" id="gi-add" hidden>+ add idol</button></p>
 
         <div class="gi-game" id="gi-game">
           <div class="gi-photo" id="gi-photo"><img id="gi-img" alt="a blurred photo of a k-pop idol" draggable="false"></div>
@@ -349,6 +349,39 @@
         </div>
       </div>
     </section>
+
+    <!-- owner only: add an idol for everyone -->
+    <div class="gi-dialog" id="gi-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="gi-dialog-title">
+      <div class="gi-dialog-backdrop" id="gi-dialog-backdrop"></div>
+      <form class="gi-dialog-card" id="gi-add-form" autocomplete="off" novalidate>
+        <h2 id="gi-dialog-title">add an idol</h2>
+        <label class="gi-field">name
+          <input type="text" id="gi-f-name" maxlength="40" placeholder="jisoo">
+        </label>
+        <label class="gi-field">group(s) <small>separate with commas</small>
+          <input type="text" id="gi-f-groups" maxlength="120" placeholder="blackpink">
+        </label>
+        <label class="gi-field">other spellings that count <small>separate with commas</small>
+          <input type="text" id="gi-f-alts" maxlength="300" placeholder="kim jisoo, ji soo">
+        </label>
+        <label class="gi-check"><input type="checkbox" id="gi-f-combos" checked> also accept "group name" and "name group"</label>
+        <label class="gi-field">hint
+          <input type="text" id="gi-f-hint" maxlength="200" placeholder="oldest member of the group">
+        </label>
+        <label class="gi-field">photo
+          <input type="file" id="gi-f-photo" accept="image/*">
+        </label>
+        <p class="gi-form-msg" id="gi-f-msg" role="status"></p>
+        <div class="gi-dialog-actions">
+          <button type="submit" class="hy-btn" id="gi-f-save">save</button>
+          <button type="button" class="hy-btn" id="gi-f-cancel">close</button>
+        </div>
+        <div class="gi-added" id="gi-added" hidden>
+          <h3>added on the website</h3>
+          <ul id="gi-added-list"></ul>
+        </div>
+      </form>
+    </div>
 
     <section class="page" data-page="hyrax">
       <div class="hy-wrap">

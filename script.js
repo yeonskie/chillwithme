@@ -580,6 +580,7 @@ function setOnlineBoards(names, rows, meta) {
 // journal.js calls this when you sign in or out: shows or hides the owner buttons
 function setOwnerMode(on) {
   ownerMode = !!on;
+  window.dispatchEvent(new CustomEvent("ownermode", { detail: ownerMode }));   // other pages (like the idol game) listen for this
   const plusBox = document.getElementById("mb-plus-wrap");
   if (plusBox) plusBox.hidden = !ownerMode;       // the + is only for you, once you're signed in
   renderTabs();

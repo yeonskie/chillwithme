@@ -228,6 +228,14 @@
     async saveLayout(name, rows, at) {
       await upsertMeta([{ board_name: name, layout: rows, layout_at: at }]);
     },
+    // idols for the "guess the k-pop idol" game (see supabase-idols.sql)
+    async addIdol(row) {
+      await asOwner("/rest/v1/idols", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(row) });
+    },
+    async removeIdol(id, photo) {
+      await asOwner("/rest/v1/idols?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+      await dropFile(photo);
+    },
     async removeBoard(name, srcs) {
       await asOwner("/rest/v1/board_meta?board_name=eq." + encodeURIComponent(name), { method: "DELETE" }).catch(() => {});
       await asOwner("/rest/v1/board_items?board_name=eq." + encodeURIComponent(name), { method: "DELETE" });
