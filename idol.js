@@ -27,7 +27,7 @@
 
   // ---- things you can change ----
   const ROUNDS = 10;                         // photos per game (fewer if you have fewer idols)
-  const BLUR = [9, 6, 4, 2, 1];          // how blurry the photo is after 0, 1, 2... wrong guesses
+  const BLUR = [9, 5, 2.5, 1, 0];          // how blurry the photo is after 0, 1, 2... wrong guesses
   const MAX_POINTS = 5;                      // points for a right answer. each wrong guess and each hint takes 1 away, so the score can go negative
   const PHOTO_DIR = "games/idol/photos/";
 
@@ -152,11 +152,6 @@
     if (matches.includes(current)) {
       score += MAX_POINTS; roundPts += MAX_POINTS;
       reveal("yes! " + fmt(roundPts) + " this round");
-      return;
-    }
-    if (!matches.length) {            // not on the list: doesn't count as a guess
-      msg.textContent = "that's not one of the idols here. try another spelling?";
-      input.select();
       return;
     }
     wrong++; score--; roundPts--;     // every wrong guess costs a point
