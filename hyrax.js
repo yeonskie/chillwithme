@@ -260,14 +260,42 @@
   againBtn.addEventListener("click", () => { wake(); build(); });
   if (restartBtn) restartBtn.addEventListener("click", () => { wake(); build(); });   // new random food, hyrax back in the middle
 
+  // ---------- the pop-up the first time you open the game ----------
+  const intro = document.getElementById("hy-intro");
+  const introGo = document.getElementById("hy-intro-go");
+  const SEEN_KEY = "hyrax-intro-seen";    // remembered in the visitor's browser, so it only shows the first time
+  let seenThisVisit = false;
+
+  function introSeen() {
+    if (seenThisVisit) return true;
+    try { return localStorage.getItem(SEEN_KEY) === "1"; } catch (e) { return false; }
+  }
+  function showIntro() {
+    if (!intro || introSeen()) return;
+    intro.hidden = false;
+    introGo.focus();
+  }
+  function closeIntro() {
+    if (!intro || intro.hidden) return;
+    intro.hidden = true;
+    seenThisVisit = true;
+    try { localStorage.setItem(SEEN_KEY, "1"); } catch (e) { /* it just shows again next time */ }
+    wake();    // clicking the button also lets the sound play
+    hyrax.focus({ preventScroll: true });
+  }
+  if (introGo) introGo.addEventListener("click", closeIntro);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeIntro(); });
+
   // ---------- when to build ----------
   // the board only has a size once the page is showing, so build then (and again if the window changes before you've started)
   function check() {
     if (location.hash !== "#hyrax") return;
     if (!cells.length) build();
+    showIntro();
   }
   window.addEventListener("hashchange", () => {
-    if (location.hash === "#hyrax") requestAnimationFrame(() => { if (!cells.length) build(); });
+    if (location.hash === "#hyrax") requestAnimationFrame(() => { if (!cells.length) build(); showIntro(); });
+    else if (intro) intro.hidden = true;
   });
   let resizeTimer = null;
   window.addEventListener("resize", () => {
