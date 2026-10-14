@@ -51,6 +51,7 @@
     eatTimer = null; finished = false; started = false; eaten = 0; dragging = false;
     board.querySelectorAll(".hy-cell").forEach((c) => c.remove());
     againBtn.hidden = true;
+    if (restartBtn) restartBtn.hidden = false;
     hint.textContent = "the hyrax is hungry. drag it around to find food.";
 
     const small = window.matchMedia("(max-width: 40rem)").matches;
@@ -161,6 +162,7 @@
     setPic("done");
     hint.textContent = "the hyrax is full. thank you!";
     againBtn.hidden = false;
+    if (restartBtn) restartBtn.hidden = true;   // "play again" takes its place
     cells.forEach((c) => { c.seen = true; c.el.classList.add("seen"); });
   }
 
@@ -263,23 +265,19 @@
   // ---------- the pop-up the first time you open the game ----------
   const intro = document.getElementById("hy-intro");
   const introGo = document.getElementById("hy-intro-go");
-  const SEEN_KEY = "hyrax-intro-seen";    // remembered in the visitor's browser, so it only shows the first time
-  let seenThisVisit = false;
+  // shows every time you arrive at the game, except when the page is simply refreshed
+  const navEntry = performance.getEntriesByType && performance.getEntriesByType("navigation")[0];
+  let justRefreshed = !!navEntry && navEntry.type === "reload";
 
-  function introSeen() {
-    if (seenThisVisit) return true;
-    try { return localStorage.getItem(SEEN_KEY) === "1"; } catch (e) { return false; }
-  }
   function showIntro() {
-    if (!intro || introSeen()) return;
+    if (!intro) return;
+    if (justRefreshed) { justRefreshed = false; return; }   // a refresh skips it, once
     intro.hidden = false;
     introGo.focus();
   }
   function closeIntro() {
     if (!intro || intro.hidden) return;
     intro.hidden = true;
-    seenThisVisit = true;
-    try { localStorage.setItem(SEEN_KEY, "1"); } catch (e) { /* it just shows again next time */ }
     wake();    // clicking the button also lets the sound play
     hyrax.focus({ preventScroll: true });
   }
