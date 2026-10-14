@@ -1752,3 +1752,150 @@ main {
   .mb-top .mb-plus-wrap, .mb-top #mb-add-mine { order: 1; }
   .mb-top .mb-right { order: 2; flex: 1 1 100%; width: 100%; margin-left: 0; justify-content: center; justify-self: auto; }
 }
+
+/* ---------- The arcade ---------- */
+.page[data-page="arcade"] {
+  position: absolute;
+  inset: 0;
+  padding: 1.5rem;
+  overflow: auto;
+}
+.page[data-page="arcade"].active { display: flex; flex-direction: column; align-items: center; }
+
+.arcade { width: 100%; margin: auto; text-align: center; }
+.arcade-title { font-size: clamp(1.3rem, 5vw, 2rem); font-weight: 700; margin-bottom: 0.4rem; }
+.arcade-sub { font-size: 0.8rem; opacity: 0.7; }
+
+/* the circle: every game is placed round it, and the whole thing turns slowly.
+   --n (how many games) and --i (which one) are set in arcade.js */
+.arcade-ring {
+  --r: max(9rem, calc(var(--n, 3) * 2rem));        /* the circle gets bigger as games are added */
+  --card-w: 10rem;
+  --card-h: 5.5rem;
+  position: relative;
+  width: calc(var(--r) * 2 + var(--card-w));
+  max-width: 100%;
+  height: calc(var(--r) * 2 + var(--card-h));
+  margin: 2.5rem auto 1.5rem;
+  padding: 0;
+  list-style: none;
+  animation: arcade-spin 45s linear infinite;
+}
+
+.arcade-item {
+  --a: calc(360deg / var(--n, 3) * var(--i, 0));
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: rotate(var(--a)) translateY(calc(var(--r) * -1));
+}
+
+/* each box turns the opposite way to the circle, so its words always stay upright */
+.arcade-card {
+  position: absolute;
+  left: calc(var(--card-w) / -2);
+  top: calc(var(--card-h) / -2);
+  width: var(--card-w);
+  height: var(--card-h);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 0.85rem;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transform: rotate(calc(var(--a) * -1));
+  animation: arcade-unspin 45s linear infinite;
+}
+.arcade-card:hover, .arcade-card:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.arcade-tag { font-size: 0.65rem; opacity: 0.7; }
+
+/* pointing at a game (or tabbing to one) stops the turning so it's easy to click */
+.arcade-ring:hover, .arcade-ring:hover .arcade-card,
+.arcade-ring:focus-within, .arcade-ring:focus-within .arcade-card { animation-play-state: paused; }
+
+@keyframes arcade-spin { to { transform: rotate(360deg); } }
+@keyframes arcade-unspin {
+  from { transform: rotate(calc(var(--a) * -1)); }
+  to   { transform: rotate(calc(var(--a) * -1 - 360deg)); }
+}
+
+.arcade-status { min-height: 1.4em; font-size: 0.8rem; opacity: 0.8; }
+
+/* a visitor who asks their device for less movement gets the circle standing still */
+@media (prefers-reduced-motion: reduce) {
+  .arcade-ring, .arcade-card { animation: none; }
+}
+
+/* phones: no turning circle, just the games stacked in the middle */
+@media (max-width: 40rem) {
+  .arcade-ring {
+    width: 100%;
+    height: auto;
+    margin: 1.75rem auto 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+    animation: none;
+  }
+  .arcade-item { position: static; width: 100%; height: auto; transform: none; }
+  .arcade-card { position: static; width: min(18rem, 100%); height: auto; min-height: 4.5rem; transform: none; animation: none; margin: 0 auto; }
+}
+
+/* ---------- Help the hyrax ---------- */
+.page[data-page="hyrax"] { position: absolute; inset: 0; padding: 0.75rem 1rem 1rem; overflow: hidden; }
+.page[data-page="hyrax"].active { display: flex; flex-direction: column; }
+.hy-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; width: 100%; }
+.hy-head { text-align: center; padding-bottom: 0.6rem; }
+.hy-back { display: inline-block; font-size: 0.75rem; color: inherit; opacity: 0.7; text-decoration: none; margin-bottom: 0.4rem; }
+.hy-back:hover, .hy-back:focus-visible { opacity: 1; text-decoration: underline; }
+.hy-title { font-size: clamp(1.1rem, 4vw, 1.5rem); font-weight: 700; margin: 0 0 0.25rem; }
+.hy-hint { font-size: 0.78rem; opacity: 0.75; margin: 0 0 0.4rem; }
+.hy-bar { font-size: 0.75rem; margin: 0; display: flex; gap: 0.75rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+.hy-btn { font: inherit; font-size: 0.75rem; color: inherit; background: none; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.15rem 0.6rem; cursor: pointer; }
+.hy-btn:hover, .hy-btn:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.hy-btn[hidden] { display: none; }
+
+/* the board fills everything left over; the boxes are placed by hyrax.js */
+.hy-board { position: relative; flex: 1; min-height: 0; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+.hy-cell {
+  position: absolute;
+  width: calc(var(--cell) - 4px); height: calc(var(--cell) - 4px);
+  margin: 2px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.3s, border-color 0.3s;
+}
+.hy-cell svg { width: 78%; height: 78%; color: #2f8a2a; stroke-width: 2.4; opacity: 0; transition: opacity 0.2s; }
+.hy-cell.seen { border-style: dashed; border-color: transparent; background: color-mix(in srgb, var(--text) 6%, transparent); }
+.hy-cell.seen svg { opacity: 1; }
+.hy-cell.seen:has(svg) { background: #2f8a2a; border-color: #2f8a2a; border-style: solid; }
+.hy-cell.seen:has(svg) svg { color: #fff; }
+.hy-cell.eaten { animation: hy-flash 0.8s ease-out; }
+@keyframes hy-flash { from { background: #2f8a2a; } }
+
+/* the word that floats up when the hyrax eats */
+.hy-pop { position: absolute; z-index: 3; transform: translate(-50%, -100%); font-size: 0.95rem; font-weight: 700; color: #2f8a2a; pointer-events: none; animation: hy-pop 0.9s ease-out forwards; }
+@keyframes hy-pop { from { opacity: 1; margin-top: 0; } to { opacity: 0; margin-top: -2.2rem; } }
+
+.hy-hyrax {
+  position: absolute; left: 0; top: 0;
+  width: auto; max-width: none;
+  cursor: grab; touch-action: none; user-select: none; -webkit-user-drag: none;
+  z-index: 2; outline: none;
+  will-change: transform;
+}
+.hy-hyrax.dragging { cursor: grabbing; }
+.hy-hyrax:focus-visible { filter: drop-shadow(0 0 3px var(--text)); }
