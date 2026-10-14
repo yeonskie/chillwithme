@@ -57,6 +57,7 @@
             <li class="home-slide"><a href="#music"><span class="home-slide-label">music</span></a></li>
             <li class="home-slide"><a href="#community"><span class="home-slide-label">community board</span></a></li>
             <li class="home-slide"><a href="#confession"><span class="home-slide-label">confession booth</span></a></li>
+            <li class="home-slide"><a href="#arcade"><span class="home-slide-label">enter the arcade</span></a></li>
           </ul>
           <button type="button" class="home-arrow" id="home-next" aria-label="next">&gt;</button>
         </div>
@@ -307,13 +308,45 @@
         <!-- the games, going round in a circle (a plain list on phones). To add a game, copy an <li> and change the words.
              Put <span class="arcade-tag">multiplayer</span> under the name for the ones you play with other people. -->
         <ul class="arcade-ring" id="arcade-ring">
-          <li class="arcade-item"><button type="button" class="arcade-card"><span class="arcade-name">guess the k-pop idol</span></button></li>
+          <li class="arcade-item"><button type="button" class="arcade-card" data-href="#idol"><span class="arcade-name">guess the k-pop idol</span></button></li>
           <li class="arcade-item"><button type="button" class="arcade-card"><span class="arcade-name">scattergories</span><span class="arcade-tag">multiplayer</span></button></li>
           <li class="arcade-item"><button type="button" class="arcade-card"><span class="arcade-name">pictionary</span><span class="arcade-tag">multiplayer</span></button></li>
           <li class="arcade-item"><button type="button" class="arcade-card"><span class="arcade-name">yeon's trivia</span></button></li>
           <li class="arcade-item"><button type="button" class="arcade-card" data-href="#hyrax"><span class="arcade-name">help the hyrax</span></button></li>
         </ul>
         <p class="arcade-status" id="arcade-status" role="status"></p>
+      </div>
+    </section>
+
+    <section class="page" data-page="idol">
+      <div class="gi-wrap">
+        <a href="#arcade" class="hy-back">&larr; back to the arcade</a>
+        <h1 class="hy-title">guess the k-pop idol</h1>
+        <p class="hy-hint">who's behind the blur? every wrong guess makes the photo clearer.</p>
+        <p class="hy-bar"><span id="gi-round">round 1 / 10</span> <span id="gi-score">score 0</span> <button type="button" class="hy-btn" id="gi-restart">restart</button></p>
+
+        <div class="gi-game" id="gi-game">
+          <div class="gi-photo" id="gi-photo"><img id="gi-img" alt="a blurred photo of a k-pop idol" draggable="false"></div>
+          <p class="gi-msg" id="gi-msg" role="status">the game isn't running yet... (if this stays, idol.js isn't loading)</p>
+
+          <form class="gi-form" id="gi-form" autocomplete="off">
+            <input class="gi-input" id="gi-input" type="text" autocomplete="off" placeholder="type a name" aria-label="your guess" autocapitalize="off" autocorrect="off" spellcheck="false">
+            <button type="submit" class="hy-btn" id="gi-guess">guess</button>
+          </form>
+
+          <p class="gi-actions" id="gi-actions">
+            <button type="button" class="hy-btn" id="gi-hintbtn">hint (-1 point)</button>
+            <button type="button" class="hy-btn" id="gi-skip">skip</button>
+          </p>
+          <p class="gi-hinttext" id="gi-hinttext"></p>
+          <button type="button" class="hy-btn gi-next" id="gi-next" hidden>next</button>
+        </div>
+
+        <div class="gi-end" id="gi-end" hidden>
+          <h2 class="gi-end-title">all done!</h2>
+          <p class="gi-end-score" id="gi-end-score"></p>
+          <button type="button" class="hy-btn" id="gi-again">play again</button>
+        </div>
       </div>
     </section>
 
@@ -506,6 +539,8 @@
   <script src="home.js"></script>
   <script src="arcade.js"></script>
   <script src="hyrax.js"></script>
+  <script src="idols.js"></script>
+  <script src="idol.js"></script>
   <script src="music.js"></script>
   <script src="community-config.js"></script>
   <script src="community.js"></script>

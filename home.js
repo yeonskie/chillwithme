@@ -83,11 +83,14 @@
   // random pick can land on any of them. Never the same one twice in a row, and never the one you're on now.
   // Used by "randomize my stay" and by "surprise me" in the bottom bar.
   let lastPick = "";
+  // pages that are in the random pool but not in the carousel: add a game here once it's finished
+  const EXTRA_RANDOM = ["#hyrax"];
+
   function goRandom() {
     const pages = slides.map((s) => s.querySelector("a")).filter(Boolean).map((a) => a.getAttribute("href"));
     const count = typeof boards !== "undefined" ? boards.length : 0;           // the moodboards (from script.js)
     const keys = [];
-    pages.forEach((p) => {
+    pages.concat(EXTRA_RANDOM).forEach((p) => {
       if (p === "#braindump" && count > 0) for (let n = 0; n < count; n++) keys.push("#braindump:" + n);
       else keys.push(p);
     });
