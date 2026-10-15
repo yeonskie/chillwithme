@@ -221,11 +221,11 @@
             <span id="music-dur">0:00</span>
           </div>
           <div class="music-controls">
-            <button type="button" id="music-shuffle" aria-pressed="false">shuffle</button>
-            <button type="button" id="music-prev">prev</button>
-            <button type="button" id="music-play">play</button>
-            <button type="button" id="music-next">next</button>
-            <button type="button" id="music-repeat" aria-pressed="false">repeat</button>
+            <button type="button" class="icon-btn" id="music-shuffle" aria-pressed="false" aria-label="shuffle" title="shuffle"></button>
+            <button type="button" class="icon-btn" id="music-prev" aria-label="previous song" title="previous"></button>
+            <button type="button" class="icon-btn icon-play" id="music-play" aria-label="play" title="play"></button>
+            <button type="button" class="icon-btn" id="music-next" aria-label="next song" title="next"></button>
+            <button type="button" class="icon-btn" id="music-repeat" aria-pressed="false" aria-label="repeat: off" title="repeat: off"></button>
             <label class="music-vol">volume <input type="range" id="music-vol" min="0" max="100" value="80" aria-label="volume"></label>
           </div>
           <p class="music-msg" id="music-msg" role="status"></p>
@@ -591,9 +591,9 @@
   <!-- a small player that follows you to other pages while music is going (top right) -->
   <div class="mini" id="mini" hidden>
     <a href="#music" class="mini-title" id="mini-title"></a>
-    <button type="button" id="mini-prev">prev</button>
-    <button type="button" id="mini-play">pause</button>
-    <button type="button" id="mini-next">next</button>
+    <button type="button" class="icon-btn" id="mini-prev" aria-label="previous song" title="previous"></button>
+    <button type="button" class="icon-btn" id="mini-play" aria-label="pause" title="pause"></button>
+    <button type="button" class="icon-btn" id="mini-next" aria-label="next song" title="next"></button>
   </div>
 
   <script src="entries.js"></script>

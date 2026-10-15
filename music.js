@@ -42,6 +42,22 @@ function fileTitle(src) {
 const audio = new Audio();
 audio.preload = "metadata";
 
+// the control icons (little line drawings, so they take the page's colors)
+const SVG = (inner, filled) => '<svg viewBox="0 0 24 24" aria-hidden="true" fill="' + (filled ? "currentColor" : "none") + '" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + inner + "</svg>";
+const ICONS = {
+  play: SVG('<polygon points="7 4 20 12 7 20 7 4"/>', true),
+  pause: SVG('<rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>', true),
+  prev: SVG('<polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/>', true),
+  next: SVG('<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>', true),
+  shuffle: SVG('<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>'),
+  repeat: SVG('<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>'),
+  repeat1: SVG('<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/><path d="M11 10h1v4"/>'),
+};
+function setIcon(btn, name, label) {
+  btn.innerHTML = ICONS[name];
+  if (label) { btn.setAttribute("aria-label", label); btn.title = label; }
+}
+
 const $ = (id) => document.getElementById(id);
 const el = {
   title: $("music-title"), artist: $("music-artist"), cur: $("music-cur"), dur: $("music-dur"),
@@ -95,6 +111,13 @@ function viewSongs() {
   const pl = playlists[plAt()];
   return pl ? pl.songs.map(songBySrc).filter(Boolean) : songs;
 }
+
+// the icons on the buttons (play/pause is kept up to date by syncUI)
+setIcon(el.prev, "prev"); setIcon(el.miniPrev, "prev");
+setIcon(el.next, "next"); setIcon(el.miniNext, "next");
+setIcon(el.shuffle, "shuffle");
+setIcon(el.repeat, "repeat");
+setIcon(el.play, "play"); setIcon(el.miniPlay, "play");
 
 // ----- the player -----
 let queue = [];                  // the songs lined up to play (a copy of the list you started from)
@@ -211,7 +234,7 @@ el.shuffle.addEventListener("click", () => {
 });
 el.repeat.addEventListener("click", () => {
   repeatMode = (repeatMode + 1) % 3;         // off, then the whole list, then just this song
-  el.repeat.textContent = ["repeat", "repeat all", "repeat one"][repeatMode];
+  setIcon(el.repeat, repeatMode === 2 ? "repeat1" : "repeat", ["repeat: off", "repeat: all songs", "repeat: this song"][repeatMode]);
   el.repeat.setAttribute("aria-pressed", String(repeatMode > 0));
 });
 
@@ -242,8 +265,8 @@ if ("mediaSession" in navigator) {
 // keeps the buttons, the highlighted row and the small player in step with what's happening
 function syncUI() {
   const playing = !audio.paused && !audio.ended && !!current();
-  el.play.textContent = playing ? "pause" : "play";
-  el.miniPlay.textContent = playing ? "pause" : "play";
+  setIcon(el.play, playing ? "pause" : "play", playing ? "pause" : "play");
+  setIcon(el.miniPlay, playing ? "pause" : "play", playing ? "pause" : "play");
   const song = current();
   el.mini.hidden = !song || location.hash === "#music";
   el.miniTitle.textContent = song ? song.title : "";

@@ -1970,3 +1970,31 @@ main {
 .song-added li span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .song-added li button { flex: 0 0 auto; font: inherit; font-size: 0.72rem; color: inherit; background: none; border: 1px solid var(--line); border-radius: var(--radius); padding: 0 0.45rem; cursor: pointer; }
 .song-added li button:hover { background: var(--text); color: var(--bg); }
+
+/* ---------- Music controls as icons ---------- */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  color: inherit;
+  background: none;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.icon-btn svg { width: 1.2rem; height: 1.2rem; display: block; pointer-events: none; }
+.icon-btn:hover, .icon-btn:focus-visible { background: color-mix(in srgb, var(--text) 12%, transparent); text-decoration: none; outline: none; }
+.icon-btn[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.music-controls { gap: 0.5rem 0.6rem; }
+.music-controls .icon-play { width: 3.25rem; height: 3.25rem; }
+.music-controls .icon-play svg { width: 1.5rem; height: 1.5rem; }
+
+/* the small player that follows you around */
+.mini .icon-btn { width: 1.9rem; height: 1.9rem; }
+.mini .icon-btn svg { width: 0.95rem; height: 0.95rem; }
+.mini { gap: 0.4rem; }
+.mini-title { margin-right: 0.35rem; }
+.mini .icon-btn:hover { text-decoration: none; }
