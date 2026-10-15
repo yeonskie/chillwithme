@@ -427,12 +427,9 @@ function sharedRows(b, count) {
     if (line.length) rows.push(line);
   });
   if (!rows.length) return null;
-  for (let i = 0; i < count; i++) {                // boxes added since you set the order go at the end
-    if (used.has(itemKey(b, i))) continue;
-    if (rows[rows.length - 1].length >= 4) rows.push([]);
-    rows[rows.length - 1].push(i);
-  }
-  return rows;
+  const fresh = [];                                // boxes added since you set the order go at the top, newest first
+  for (let i = count - 1; i >= 0; i--) if (!used.has(itemKey(b, i))) fresh.push(i);
+  return fresh.length ? evenRows([fresh, ...rows]) : rows;
 }
 
 // the description under a moodboard's name: what you set online, otherwise "description" from moodboards.js
@@ -494,10 +491,21 @@ function evenRows(rows) {
   return out;
 }
 
+// the order boxes start in: the newest ones (added on the website, or in this browser) come first,
+// then the boxes from moodboards.js in the order they're written there
+function defaultOrder(b, count) {
+  const fileCount = boardMine[b] || !boards[b] ? 0 : Math.min(count, (boards[b].items || []).length);
+  const order = [];
+  for (let i = count - 1; i >= fileCount; i--) order.push(i);
+  for (let i = 0; i < fileCount; i++) order.push(i);
+  return order;
+}
+
 // which boxes start on which line: every box is the same size now, so each line holds 4 (and wraps on small screens)
-function initialRows(items) {
+function initialRows(items, b) {
+  const order = b === undefined ? items.map((item, i) => i) : defaultOrder(b, items.length);
   const rows = [];
-  items.forEach((item, i) => {
+  order.forEach((i) => {
     if (!rows.length || rows[rows.length - 1].length >= 4) rows.push([]);
     rows[rows.length - 1].push(i);
   });
@@ -532,7 +540,7 @@ function registerBoard(board, mine, online) {
     Promise.all(items.map(loadShape)).then(() => {
       const k = boards.indexOf(board);          // the board may have moved or been deleted while its pictures loaded
       if (k < 0) return;
-      boardRows[k] = savedRows(k, items.length) || sharedRows(k, items.length) || initialRows(items);
+      boardRows[k] = savedRows(k, items.length) || sharedRows(k, items.length) || initialRows(items, k);
       boardReady[k] = true;
     })
   );
@@ -844,7 +852,7 @@ document.getElementById("mb-reset").addEventListener("click", () => {
   const before = new Map([...mbGrid.querySelectorAll(".mb-item")].map((el) => [el.dataset.index, el.getBoundingClientRect()]));
 
   // a visitor goes back to the order you set for everyone; you (signed in) clear that order too
-  boardRows[b] = (!ownerMode && sharedRows(b, boardItems[b].length)) || initialRows(boardItems[b]);
+  boardRows[b] = (!ownerMode && sharedRows(b, boardItems[b].length)) || initialRows(boardItems[b], b);
   clearSavedLayout(b);
   if (ownerMode && !boardMine[b]) {                    // for you this is a draft: "save order" makes it the order for everyone
     unsavedOrder.add(boards[b].name);
@@ -956,11 +964,7 @@ async function addToBoard(b, raw) {
 
   boardItems[b].push(item);
   const idx = boardItems[b].length - 1;
-  const rows = boardRows[b];
-  const last = rows[rows.length - 1];
-  const used = last ? last.reduce((sum, i) => sum + itemCols(boardItems[b][i]), 0) : 99;
-  if (last && used + itemCols(item) <= 12) last.push(idx);
-  else rows.push([idx]);
+  boardRows[b] = evenRows([[idx], ...boardRows[b]]);       // the new box goes first
   saveLayout(b);
   if (b === currentBoard) drawBoard(b);
   return true;
