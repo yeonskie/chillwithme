@@ -25,8 +25,13 @@ const cats = [];
 function addCategory(name) {
   if (!cats.some((c) => c.toLowerCase() === name.toLowerCase())) cats.push(name);
 }
-toCategories(typeof CATEGORIES !== "undefined" ? CATEGORIES : []).forEach(addCategory);
-songs.forEach((s) => s.cats.forEach(addCategory));
+function buildCategories() {
+  cats.length = 0;
+  toCategories(typeof CATEGORIES !== "undefined" ? CATEGORIES : []).forEach(addCategory);
+  songs.forEach((s) => s.cats.forEach(addCategory));
+}
+buildCategories();
+const fileSongs = songs.slice();               // the songs from songs.js; the ones added on the website come after them
 const hasCategory = (song, name) => song.cats.some((c) => c.toLowerCase() === name.toLowerCase());
 
 function fileTitle(src) {
@@ -422,6 +427,161 @@ el.delpl.addEventListener("click", async () => {
   renderTabs();
   renderList();
 });
+
+// ----- songs you add on the website (owner only, see supabase-music.sql) -----
+// they're stored in Supabase; everyone sees them after the songs from songs.js
+let online = [];
+
+function whenReady(fn) {
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+  else fn();
+}
+
+async function loadOnline() {
+  const BASE = String((typeof COMMUNITY !== "undefined" ? COMMUNITY.url : "") || "").trim().replace(/\/+$/, "");
+  const KEY = String((typeof COMMUNITY !== "undefined" ? COMMUNITY.key : "") || "").trim();
+  if (!(/^https:\/\/[^\s/]+/i.test(BASE) && KEY.length > 20)) return false;
+  try {
+    const h = { apikey: KEY };
+    if (/^eyJ/.test(KEY)) h.Authorization = "Bearer " + KEY;
+    const res = await fetch(BASE + "/rest/v1/songs?select=*&order=created_at.asc&limit=1000", { headers: h });
+    if (!res.ok) return false;                     // the table isn't set up yet: just use songs.js
+    const rows = await res.json();
+    online = rows
+      .filter((r) => r && typeof r.src === "string" && r.src)
+      .map((r) => ({ id: r.id, title: r.title || fileTitle(r.src), artist: r.artist || "", src: r.src, cats: toCategories(r.categories), online: true }));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// puts songs.js and the online songs together and redraws, keeping what's playing and the tab you're on
+function mergeOnline() {
+  const have = new Set(fileSongs.map((s) => s.src));
+  songs.splice(0, songs.length, ...fileSongs, ...online.filter((s) => !have.has(s.src)));
+  buildCategories();
+  if (view > cats.length + playlists.length) view = 0;
+  renderTabs();
+  renderList();
+}
+
+const addSongBtn = $("music-addsong"), songDialog = $("song-dialog"), songForm = $("song-form");
+const songMsg = $("song-msg"), songSave = $("song-save");
+let isOwner = typeof ownerMode !== "undefined" && ownerMode;
+
+function syncOwner(on) {
+  isOwner = !!on;
+  addSongBtn.hidden = !isOwner;
+  if (!isOwner && !songDialog.hidden) songDialog.hidden = true;
+}
+window.addEventListener("ownermode", (e) => syncOwner(e.detail));
+syncOwner(isOwner);
+
+const splitList = (s) => Array.from(new Set(String(s || "").split(",").map((x) => x.trim()).filter(Boolean)));
+
+// the existing categories as little buttons: tap one to add it to the box
+function drawChips() {
+  const box = $("song-chips");
+  box.innerHTML = "";
+  const chosen = splitList($("song-cats").value).map((c) => c.toLowerCase());
+  cats.forEach((name) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = name;
+    b.classList.toggle("on", chosen.includes(name.toLowerCase()));
+    b.addEventListener("click", () => {
+      const list = splitList($("song-cats").value);
+      const at = list.findIndex((c) => c.toLowerCase() === name.toLowerCase());
+      if (at >= 0) list.splice(at, 1); else list.push(name);
+      $("song-cats").value = list.join(", ");
+      drawChips();
+    });
+    box.appendChild(b);
+  });
+  box.hidden = !cats.length;
+}
+
+function drawAdded() {
+  const ul = $("song-added-list");
+  ul.innerHTML = "";
+  online.forEach((song) => {
+    const li = document.createElement("li");
+    const label = document.createElement("span");
+    label.textContent = song.title + (song.artist ? " - " + song.artist : "");
+    const del = document.createElement("button");
+    del.type = "button"; del.textContent = "remove";
+    del.addEventListener("click", async () => {
+      const yes = await askConfirm('remove "' + song.title + '" from the site?', "remove");
+      if (!yes) return;
+      try {
+        await window.siteDb.removeSong(song.id, song.src);
+        if (current() && current().src === song.src) { audio.pause(); audio.removeAttribute("src"); queue = []; qi = -1; el.title.textContent = "nothing playing"; el.artist.textContent = "pick a song below"; }
+        await loadOnline();
+        mergeOnline();
+        drawAdded();
+        songMsg.textContent = "removed " + song.title + ".";
+      } catch (err) { songMsg.textContent = "couldn't remove: " + err.message; }
+    });
+    li.append(label, del);
+    ul.appendChild(li);
+  });
+  $("song-added").hidden = !online.length;
+}
+
+function openSongDialog() {
+  songForm.reset();
+  songMsg.textContent = "";
+  drawChips();
+  drawAdded();
+  songDialog.hidden = false;
+  $("song-file").focus();
+}
+function closeSongDialog() { songDialog.hidden = true; }
+addSongBtn.addEventListener("click", openSongDialog);
+$("song-cancel").addEventListener("click", closeSongDialog);
+$("song-dialog-backdrop").addEventListener("click", closeSongDialog);
+songDialog.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSongDialog(); });
+window.addEventListener("hashchange", closeSongDialog);
+$("song-cats").addEventListener("input", drawChips);
+
+// choosing a file fills in the title from its name (you can change it)
+$("song-file").addEventListener("change", () => {
+  const f = $("song-file").files[0];
+  if (f && !$("song-title").value.trim()) $("song-title").value = fileTitle(f.name).replace(/[_]+/g, " ").trim();
+});
+
+const MAX_MB = 50;                                  // the most the free Supabase plan allows for one file
+
+songForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const file = $("song-file").files[0];
+  const title = $("song-title").value.trim();
+  if (!file) { songMsg.textContent = "choose a music file."; return; }
+  if (!title) { songMsg.textContent = "add a song title."; return; }
+  if (file.size > MAX_MB * 1024 * 1024) { songMsg.textContent = "that file is " + Math.round(file.size / 1048576) + " MB. the limit is " + MAX_MB + " MB."; return; }
+
+  songSave.disabled = true;
+  songMsg.textContent = "uploading... a big file can take a minute.";
+  try {
+    const src = await window.siteDb.uploadAudio(file);
+    songMsg.textContent = "saving...";
+    await window.siteDb.addSong({ title, artist: $("song-artist").value.trim(), categories: splitList($("song-cats").value), src });
+    await loadOnline();
+    mergeOnline();
+    songForm.reset();
+    drawChips();
+    drawAdded();
+    songMsg.textContent = 'added "' + title + '"! add another, or close this.';
+    $("song-file").focus();
+  } catch (err) {
+    songMsg.textContent = "couldn't save: " + err.message + (/^404/.test(err.message) ? " (did you run supabase-music.sql?)" : "");
+  } finally {
+    songSave.disabled = false;
+  }
+});
+
+whenReady(async () => { if (await loadOnline()) mergeOnline(); });
 
 renderTabs();
 renderList();

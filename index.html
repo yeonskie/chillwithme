@@ -238,6 +238,7 @@
             <div class="mb-tabs" id="music-tabs" role="tablist"></div>
           </div>
           <div class="mb-right">
+            <button type="button" class="mb-reset" id="music-addsong" hidden>+ add song</button>
             <button type="button" class="mb-reset" id="music-delpl" hidden>delete playlist</button>
           </div>
         </div>
@@ -263,6 +264,36 @@
             <button type="button" id="music-dialog-cancel">close</button>
           </div>
           <p class="mb-add-sub music-secret">playlists only live on your browser. no one else can see, like a little secret.</p>
+        </form>
+      </div>
+
+      <!-- owner only: add a song for everyone -->
+      <div class="mb-add" id="song-dialog" hidden role="dialog" aria-modal="true" aria-labelledby="song-dialog-title">
+        <div class="mb-add-backdrop" id="song-dialog-backdrop"></div>
+        <form class="mb-add-card" id="song-form" novalidate autocomplete="off">
+          <h2 id="song-dialog-title">add a song</h2>
+          <label>music file
+            <input type="file" id="song-file" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac">
+          </label>
+          <label>song title
+            <input type="text" id="song-title" maxlength="80" placeholder="song name">
+          </label>
+          <label>artist
+            <input type="text" id="song-artist" maxlength="80" placeholder="who made it">
+          </label>
+          <label>category <small>separate with commas</small>
+            <input type="text" id="song-cats" maxlength="120" placeholder="k-pop, chill">
+          </label>
+          <div class="song-chips" id="song-chips"></div>
+          <p class="mb-add-msg" id="song-msg" role="status"></p>
+          <div class="mb-add-actions">
+            <button type="submit" id="song-save">save</button>
+            <button type="button" id="song-cancel">close</button>
+          </div>
+          <div class="song-added" id="song-added" hidden>
+            <h3>added on the website</h3>
+            <ul id="song-added-list"></ul>
+          </div>
         </form>
       </div>
     </section>

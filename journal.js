@@ -44,7 +44,7 @@
   // ----- talking to Supabase -----
   async function request(path, options, token) {
     const ctl = new AbortController();
-    const timer = setTimeout(() => ctl.abort(), 20000);
+    const timer = setTimeout(() => ctl.abort(), (options && options.timeoutMs) || 20000);   // uploads of big music files ask for longer
     try {
       const headers = { apikey: KEY, "Content-Type": "application/json", ...((options && options.headers) || {}) };
       if (token) headers.Authorization = "Bearer " + token;
@@ -162,6 +162,7 @@
   // pictures you upload live in a public storage bucket called "moodboard" (see supabase-moodboards.sql)
   const BUCKET = "moodboard";
   const PUBLIC = "/storage/v1/object/public/" + BUCKET + "/";
+  const MUSIC_PUBLIC = "/storage/v1/object/public/music/";
 
   // when a box with an uploaded picture is removed, its file goes too (pictures from web addresses are left alone)
   async function dropFile(src) {
@@ -227,6 +228,28 @@
     // how a moodboard's boxes are arranged, for everyone (rows of box ids); null puts it back to the default
     async saveLayout(name, rows, at) {
       await upsertMeta([{ board_name: name, layout: rows, layout_at: at }]);
+    },
+    // music for the music page (see supabase-music.sql): the file goes in the public "music" bucket
+    async uploadAudio(file) {
+      const ext = (String(file.name || "").split(".").pop() || "mp3").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5) || "mp3";
+      const name = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8) + "." + ext;
+      await asOwner("/storage/v1/object/music/" + name, {
+        method: "POST",
+        headers: { "Content-Type": file.type || "audio/mpeg" },
+        body: file,
+        timeoutMs: 5 * 60 * 1000,
+      });
+      return BASE + MUSIC_PUBLIC + name;
+    },
+    async addSong(row) {
+      await asOwner("/rest/v1/songs", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(row) });
+    },
+    async removeSong(id, src) {
+      await asOwner("/rest/v1/songs?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+      const s = String(src || "");
+      if (s.startsWith(BASE + MUSIC_PUBLIC)) {
+        try { await asOwner("/storage/v1/object/music/" + s.slice((BASE + MUSIC_PUBLIC).length), { method: "DELETE" }); } catch (e) { /* a leftover file is harmless */ }
+      }
     },
     // idols for the "guess the k-pop idol" game (see supabase-idols.sql)
     async addIdol(row) {
