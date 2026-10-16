@@ -342,7 +342,7 @@
           <li class="arcade-item"><button type="button" class="arcade-card" data-href="#idol"><span class="arcade-name">guess the k-pop idol</span></button></li>
           <li class="arcade-item"><button type="button" class="arcade-card" data-href="#scattergories"><span class="arcade-name">scattergories</span><span class="arcade-tag">multiplayer</span></button></li>
           <li class="arcade-item"><button type="button" class="arcade-card"><span class="arcade-name">pictionary</span><span class="arcade-tag">multiplayer</span></button></li>
-          <li class="arcade-item"><button type="button" class="arcade-card"><span class="arcade-name">yeon's trivia</span></button></li>
+          <li class="arcade-item"><button type="button" class="arcade-card" data-href="#casino"><span class="arcade-name">casino de yeon</span></button></li>
           <li class="arcade-item"><button type="button" class="arcade-card" data-href="#hyrax"><span class="arcade-name">help the hyrax</span></button></li>
         </ul>
         <p class="arcade-status" id="arcade-status" role="status"></p>
@@ -427,8 +427,10 @@
           <label class="gi-field">your name
             <input type="text" id="sg-name" maxlength="20" placeholder="yeon" autocomplete="off">
           </label>
-          <p class="sg-row"><button type="button" class="hy-btn" id="sg-create">make a room</button></p>
-          <p class="sg-or">or join one</p>
+          <p class="sg-invite" id="sg-invite" hidden>you're invited to room <strong id="sg-invite-code"></strong>. type your name to join!</p>
+          <p class="sg-row" id="sg-invite-row" hidden><button type="button" class="hy-btn sg-start" id="sg-invite-join">join room</button> <button type="button" class="hy-btn" id="sg-invite-other">use a different room</button></p>
+          <p class="sg-row" id="sg-make"><button type="button" class="hy-btn" id="sg-create">make a room</button></p>
+          <p class="sg-or" id="sg-or">or join one</p>
           <form class="sg-row" id="sg-joinform" autocomplete="off">
             <input class="gi-input sg-code" id="sg-code" type="text" maxlength="6" placeholder="CODE" aria-label="room code" autocapitalize="characters" spellcheck="false">
             <button type="submit" class="hy-btn">join</button>
@@ -488,6 +490,54 @@
         </div>
       </div>
     </section>
+
+    <section class="page" data-page="casino">
+      <a href="#arcade" class="hy-back cz-back">&larr; back to the arcade</a>
+      <div class="cz-wrap">
+        <div class="cz-group">
+          <p class="cz-welcome">welcome to the</p>
+          <h1 class="cz-title">casino de yeon!</h1>
+        </div>
+
+        <div class="cz-group">
+          <p class="cz-bal"><strong id="cz-bal">500</strong><span class="cz-cur">yeonbucks</span></p>
+          <p class="cz-earn">+50 in <span id="cz-next">0:30</span></p>
+          <p class="cz-top"><button type="button" class="hy-btn" id="cz-how-btn">how it works</button></p>
+        </div>
+
+        <div class="cz-group">
+          <div class="cz-grid" id="cz-grid" aria-label="slot machine"></div>
+          <p class="cz-msg" id="cz-msg" role="status">place your bet and spin!</p>
+        </div>
+
+        <div class="cz-group">
+          <input class="cz-bet" id="cz-bet" type="number" min="10" step="10" value="10" inputmode="numeric" aria-label="your bet in yeonbucks">
+          <span class="cz-cur">yeonbucks</span>
+          <p class="cz-quick" id="cz-quick">
+            <button type="button" data-bet="50">50</button>
+            <button type="button" data-bet="100">100</button>
+            <button type="button" data-bet="500">500</button>
+            <button type="button" data-bet="max">max</button>
+          </p>
+        </div>
+
+        <div class="cz-spinwrap"><button type="button" class="cz-spin" id="cz-spin">spin the wheel</button></div>
+      </div>
+    </section>
+
+    <!-- casino: how it works -->
+    <div class="gi-dialog" id="cz-how" hidden role="dialog" aria-modal="true" aria-labelledby="cz-how-title">
+      <div class="gi-dialog-backdrop" id="cz-how-backdrop"></div>
+      <div class="gi-dialog-card sg-rules-card">
+        <h2 id="cz-how-title">how it works</h2>
+        <p>you start with 500 yeonbucks, and you get 50 more for every 30 seconds you spend on the website.</p>
+        <p>pick a bet and spin. line up matching pictures to win. rows, columns and diagonals all count. the filled boxes below show some examples of what needs to match:</p>
+        <ul class="cz-pay" id="cz-pay"></ul>
+        <p class="cz-jp" id="cz-jp"></p>
+        <p class="cz-credits" id="cz-credits"></p>
+        <div class="gi-dialog-actions"><button type="button" class="hy-btn" id="cz-how-close">got it</button></div>
+      </div>
+    </div>
 
     <!-- how to play -->
     <div class="gi-dialog" id="sg-rules" hidden role="dialog" aria-modal="true" aria-labelledby="sg-rules-title">
@@ -713,6 +763,7 @@
   <script src="home.js"></script>
   <script src="arcade.js"></script>
   <script src="hyrax.js"></script>
+  <script src="casino.js"></script>
   <script src="idols.js"></script>
   <script src="idol.js"></script>
   <script src="music.js"></script>

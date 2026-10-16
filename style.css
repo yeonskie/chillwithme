@@ -2052,3 +2052,61 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .sg-rules-card p, .sg-rules-card li { font-size: 0.78rem; line-height: 1.5; margin: 0 0 0.4rem; }
 .sg-rules-card ol, .sg-rules-card ul { margin: 0 0 0.4rem; padding-left: 1.2rem; }
 .sg-rules-card .gi-dialog-actions { margin-top: 1rem; }
+.sg-invite { font-size: 0.85rem; margin: 0.6rem 0; }
+.sg-invite strong { letter-spacing: 0.2em; }
+
+/* ---------- Casino de yeon ---------- */
+/* Everything on this page is sized in "em", and the page's font size shrinks on short screens,
+   so the whole thing fits without scrolling. To make it all bigger or smaller, change 46 below
+   (a smaller number = bigger page, a bigger number = smaller page). */
+/* the back link stays at the top, and everything else sits in the middle of the screen */
+.page[data-page="casino"] { padding-top: 0.5rem; padding-bottom: 0.5rem; text-align: center; }
+.page[data-page="casino"].active { display: flex; flex-direction: column; min-height: 100%; box-sizing: border-box; }
+.page[data-page="casino"] .cz-back { align-self: center; margin-bottom: 0; }
+.cz-wrap { font-size: min(1rem, calc((100vh - 9rem) / 46)); font-size: min(1rem, calc((100dvh - 9rem) / 46)); width: min(24em, 100%); margin: 0 auto; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; }
+.cz-group { display: flex; flex-direction: column; align-items: center; }
+.cz-wrap .hy-back { font-size: 0.75em; margin-bottom: 0.2em; }
+.cz-welcome { font-size: 1.05em; margin: 0; }
+.cz-title { font-size: 1.7em; font-weight: 700; line-height: 1.15; margin: 0; }
+.cz-bal { margin: 0; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+.cz-bal strong { font-size: 2em; font-variant-numeric: tabular-nums; }
+.cz-cur { font-size: 0.8em; text-transform: uppercase; }
+.cz-earn { font-size: 0.8em; font-weight: 700; opacity: 0.3; font-variant-numeric: tabular-nums; margin: 0.1em 0 0.4em; }
+.cz-top { margin: 0; }
+.cz-wrap .hy-btn { font-size: 0.75em; }
+.cz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; padding: 0.6em; box-sizing: border-box; border: 1px solid var(--text); border-radius: var(--radius); width: min(20em, 100%); margin: 0; }
+.cz-cell { aspect-ratio: 1.3 / 1; display: flex; align-items: center; justify-content: center; padding: 0.3em; box-sizing: border-box; }
+.cz-cell img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
+:root[data-theme="dark"] .cz-cell img { filter: invert(1); }
+.cz-spinning img { opacity: 0.6; }
+.cz-win { background: var(--text); }
+.cz-win img { filter: invert(1); }
+:root[data-theme="dark"] .cz-win img { filter: none; }
+/* jackpot (10x): the whole machine inverts */
+.cz-jackpot { background: var(--text); }
+.cz-jackpot .cz-cell img { filter: invert(1); }
+:root[data-theme="dark"] .cz-jackpot .cz-cell img { filter: none; }
+/* 0.5x: the two matching pictures get a dashed outline */
+.cz-pair { outline: 1px dashed var(--text); outline-offset: -0.35em; }
+.cz-msg { min-height: 1.3em; font-size: 0.85em; font-weight: 700; margin: 0.6em 0 0; }
+.cz-msg.cz-bad { opacity: 0.7; }
+.cz-controls { display: flex; flex-direction: column; align-items: center; gap: 0.1em; }
+.cz-bet { width: 3.4em; height: 3.4em; box-sizing: border-box; text-align: center; font: inherit; font-size: 1.6em; font-weight: 700; color: inherit; background: none; border: 1px solid var(--text); border-radius: var(--radius); padding: 0; -moz-appearance: textfield; appearance: textfield; }
+.cz-bet::-webkit-outer-spin-button, .cz-bet::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.cz-bet:focus { outline: none; box-shadow: 0 0 0 2px var(--line); }
+.cz-quick { display: flex; gap: 0.9em; margin: 0.2em 0 0; }
+.cz-quick button { font: inherit; font-size: 0.75em; color: inherit; background: none; border: none; padding: 0; opacity: 0.55; cursor: pointer; text-decoration: underline; }
+.cz-quick button:hover, .cz-quick button:focus-visible { opacity: 1; outline: none; }
+.cz-spinwrap { width: min(18em, 100%); flex: none; box-sizing: border-box; padding: 0.3em; border: 1px solid var(--text); border-radius: var(--radius); }
+.cz-spin { display: block; width: 100%; font: inherit; font-size: 0.9em; color: inherit; background: none; border: 1px solid var(--text); border-radius: var(--radius); padding: 0.4em 1em; cursor: pointer; }
+.cz-spin:hover:not(:disabled), .cz-spin:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.cz-spin:disabled { opacity: 0.45; cursor: default; }
+/* the pop-up lives outside the page, so it keeps normal sizes */
+.cz-pay { list-style: none; margin: 0.6rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
+.cz-pay-item { display: flex; align-items: center; gap: 0.8rem; font-size: 0.78rem; text-align: left; }
+.cz-pay-row { display: flex; gap: 0.35rem; flex: none; width: 6.6rem; align-items: center; }
+:root[data-theme="dark"] .sg-rules-card .cz-credits { font-size: 0.65rem; opacity: 0.6; }
+.cz-mini { display: grid; grid-template-columns: repeat(3, 0.5rem); gap: 1px; }
+.cz-mini span { width: 0.5rem; height: 0.5rem; box-sizing: border-box; border: 1px solid color-mix(in srgb, var(--text) 35%, transparent); border-radius: 1px; }
+.cz-mini span.on { background: var(--text); border-color: var(--text); }
+.sg-rules-card .cz-jp { font-size: 0.72rem; opacity: 0.75; margin: 0 0 0.6rem; }
