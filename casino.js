@@ -1,5 +1,5 @@
 // ---------- casino de yeon: yeonbucks and the slots ----------
-// YEONBUCKS: everyone starts with 500, and gets +50 for every 30 seconds they spend on the website
+// YEONBUCKS: everyone starts with 500, and gets +50 for every minute they spend on the website
 // (any page, as long as this tab is open and showing). The balance is saved in this browser, so it's
 // per device and it's still there when they come back.
 //
@@ -21,7 +21,7 @@
 (function () {
   const START = 500;                 // yeonbucks everyone starts with
   const EARN = 50;                   // yeonbucks earned...
-  const EVERY = 30;                  // ...every this many seconds on the site
+  const EVERY = 60;                  // ...every this many seconds on the site
   const BET_STEP = 10;               // bets go up in tens (so 0.5x always comes out as a whole number)
   const SPIN_MS = 1800;              // how long the pictures shuffle for
   const JACKPOT = 0.05;              // the jackpot chance at START yeonbucks or less
