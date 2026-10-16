@@ -418,6 +418,7 @@
       <div class="sg-wrap">
         <a href="#arcade" class="hy-back">&larr; back to the arcade</a>
         <h1 class="hy-title">scattergories</h1>
+        <p class="hy-bar sg-topbar"><button type="button" class="hy-btn" id="sg-rules-btn">rules</button> <button type="button" class="hy-btn" id="sg-leave" hidden>leave game</button></p>
         <p class="sg-note" id="sg-note" role="status"></p>
 
         <!-- 1. join or make a room -->
@@ -456,7 +457,6 @@
             <p class="sg-row"><button type="button" class="hy-btn sg-start" id="sg-start">start game</button></p>
           </div>
           <p class="sg-wait" id="sg-waithost" hidden>waiting for the host to start...</p>
-          <p class="sg-row"><button type="button" class="hy-btn" id="sg-leave">leave room</button></p>
         </div>
 
         <!-- 3. playing -->
@@ -483,11 +483,46 @@
         <div class="sg-panel" id="sg-done" hidden>
           <h2 class="gi-end-title">game over!</h2>
           <ol class="sg-scores" id="sg-done-scores"></ol>
-          <p class="sg-row"><button type="button" class="hy-btn" id="sg-again" hidden>play again</button> <button type="button" class="hy-btn" id="sg-done-leave">leave room</button></p>
+          <p class="sg-row"><button type="button" class="hy-btn" id="sg-again" hidden>play again</button></p>
           <p class="sg-wait" id="sg-waitagain" hidden>the host can start another game.</p>
         </div>
       </div>
     </section>
+
+    <!-- how to play -->
+    <div class="gi-dialog" id="sg-rules" hidden role="dialog" aria-modal="true" aria-labelledby="sg-rules-title">
+      <div class="gi-dialog-backdrop" id="sg-rules-backdrop"></div>
+      <div class="gi-dialog-card sg-rules-card">
+        <h2 id="sg-rules-title">how to play scattergories</h2>
+        <h3>the goal</h3>
+        <p>come up with an answer for every category that starts with the round's letter. the trick: you only get full points if nobody else thought of the same answer.</p>
+        <h3>getting started</h3>
+        <ol>
+          <li>one person types their name and makes a room. they're the host.</li>
+          <li>everyone else types their name and the 4-letter room code (or opens the invite link).</li>
+          <li>the host picks how many rounds and how long each one lasts, can change the categories, and hits start.</li>
+        </ol>
+        <h3>each round</h3>
+        <ol>
+          <li>everyone sees the same letter and the same list of categories.</li>
+          <li>type an answer for each category before the timer runs out. you don't have to fill them all in.</li>
+          <li>done early? press "i'm done!" and everyone else has 8 seconds left to finish.</li>
+          <li>when time's up, everyone's answers show side by side and get scored.</li>
+        </ol>
+        <h3>scoring</h3>
+        <ul>
+          <li><b>10 points</b> for an answer nobody else had</li>
+          <li><b>5 points</b> if someone else wrote the same answer</li>
+          <li><b>0 points</b> if it's blank or doesn't start with the letter</li>
+        </ul>
+        <p>spelling and capital letters don't matter when answers are compared, and "the", "a" and "an" at the start are ignored ("the beatles" and "beatles" count as the same).</p>
+        <h3>disagreements</h3>
+        <p>the host can tap any answer to throw it out (say, it isn't really a thing) or to let one through that the game rejected. tap it again to undo. everyone sees the change straight away.</p>
+        <h3>winning</h3>
+        <p>after the last round, the player with the most points wins. you can leave any time with "leave game", but your points will be lost.</p>
+        <div class="gi-dialog-actions"><button type="button" class="hy-btn" id="sg-rules-close">got it</button></div>
+      </div>
+    </div>
 
     <section class="page" data-page="hyrax">
       <div class="hy-wrap">

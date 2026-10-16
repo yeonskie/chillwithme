@@ -106,6 +106,7 @@
   }
   function show(id) {
     PANELS.forEach((p) => { $(p).hidden = p !== id; });
+    $("sg-leave").hidden = id === "sg-join";               // "leave game" shows whenever you're in a room
   }
   const serverNow = () => Date.now() + offset;
   function playerIsActive(p) { return Date.parse(st.now) - Date.parse(p.seen_at) < AWAY_MS; }
@@ -598,8 +599,23 @@
     } catch (e) { say(explain(e)); }
   });
 
-  $("sg-leave").addEventListener("click", leaveRoom);
-  $("sg-done-leave").addEventListener("click", leaveRoom);
+  $("sg-leave").addEventListener("click", async () => {
+    const midGame = st && st.room && (st.room.status === "playing" || st.room.status === "reveal");
+    if (midGame && typeof askConfirm === "function") {
+      const yes = await askConfirm("leave the game? your answers and points will be lost.", "leave");
+      if (!yes) return;
+    }
+    leaveRoom();
+  });
+
+  // the rules pop-up
+  const rules = $("sg-rules");
+  function openRules() { rules.hidden = false; rules.querySelector(".gi-dialog-card").scrollTop = 0; $("sg-rules-close").focus({ preventScroll: true }); }
+  function closeRules() { rules.hidden = true; $("sg-rules-btn").focus(); }
+  $("sg-rules-btn").addEventListener("click", openRules);
+  $("sg-rules-close").addEventListener("click", closeRules);
+  $("sg-rules-backdrop").addEventListener("click", closeRules);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !rules.hidden) closeRules(); });
 
   $("sg-copy").addEventListener("click", async () => {
     const link = location.origin + location.pathname + "?room=" + st.room.code + "#scattergories";

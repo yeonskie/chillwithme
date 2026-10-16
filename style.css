@@ -2044,3 +2044,11 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .sg-bad .sg-cell-pts { opacity: 0.75; }
 .sg-ruled { border-style: dashed; }
 .sg-score-pts { font-variant-numeric: tabular-nums; font-weight: 700; white-space: pre; }
+
+/* scattergories: rules pop-up and top buttons */
+.sg-topbar { margin: 0 0 0.6rem; }
+.sg-rules-card h3 { font-size: 0.8rem; margin: 1rem 0 0.3rem; }
+.sg-rules-card h2 + h3 { margin-top: 0; }
+.sg-rules-card p, .sg-rules-card li { font-size: 0.78rem; line-height: 1.5; margin: 0 0 0.4rem; }
+.sg-rules-card ol, .sg-rules-card ul { margin: 0 0 0.4rem; padding-left: 1.2rem; }
+.sg-rules-card .gi-dialog-actions { margin-top: 1rem; }
