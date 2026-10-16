@@ -2114,7 +2114,7 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-mini span.on { background: var(--text); border-color: var(--text); }
 .sg-rules-card .cz-jp { font-size: 0.72rem; opacity: 0.75; margin: 0 0 0.6rem; }
 
-/* casino: the little leaderboard box in the top left corner */
+/* casino: the little leaderboard box, centered underneath everything */
 .page[data-page="casino"] { position: relative; }
 .cz-lb { position: absolute; top: 6px; left: 6px; z-index: 5; width: 150px; font-size: 12px; line-height: 1.3; text-align: left; border: 1px solid var(--text); border-radius: var(--radius); padding: 7px 9px; background: var(--bg); box-sizing: border-box; }
 .cz-lb p { margin: 0; }
@@ -2135,13 +2135,31 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-lb-btns { display: flex; flex-wrap: wrap; }
 .cz-lb-note { opacity: 0.6; margin-top: 0.2rem !important; }
 .cz-lb-note:empty { display: none; }
-/* on phones there's no room beside the title, so the box sits above it instead (smaller, top 3 only) */
+/* the "___ yeonbucks earned" box, bottom left of every page except the casino and the shop */
+.yb-box { position: fixed; bottom: 48px; left: 6px; z-index: 1; font-size: 12px; line-height: 1.4; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.yb-box[hidden] { display: none; }
+.yb-box p { margin: 0; }
+.yb-row { display: flex; align-items: center; gap: 10px; }
+.yb-have { border: 1px solid var(--text); border-radius: var(--radius); padding: 5px 9px; background: var(--bg); }
+.yb-where, .yb-links a { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; opacity: 0.75; }
+.yb-where:hover, .yb-links a:hover { opacity: 1; }
+.yb-where::after { content: " \25B8"; }
+.yb-where[aria-expanded="true"]::after { content: " \25BE"; }
+.yb-links { display: flex; gap: 12px; padding: 2px 4px; background: var(--bg); }
+.yb-links[hidden] { display: none; }
+.yb-links a { text-decoration: none; opacity: 1; }
+.yb-links a:hover { text-decoration: underline; }
+
+/* every page (except the casino and shop) ends a little higher, so the box never sits on top of the last bit of content */
+body.has-yb .page { padding-bottom: 4.5rem; }
+
+/* on phones the leaderboard goes underneath everything instead of the top left corner */
 @media (max-width: 700px) {
-  .cz-lb { position: static; width: min(190px, calc(100% - 16px)); margin: 4px auto 0; font-size: 11px; padding: 6px 8px; }
-  .cz-lb-rank { width: 11px; }
-  .cz-lb-list li { gap: 4px; padding: 1px 0; }
-  .cz-lb-link { margin: 4px 8px 0 0; }
-  .cz-lb-form { margin-top: 4px; }
-  .cz-lb-form input { padding: 3px 5px; }
-  .cz-lb-list li:nth-child(n+4) { display: none; }
+  .cz-lb { position: static; width: min(220px, calc(100% - 16px)); margin: 1.5rem auto 0.5rem; }
+}
+
+/* on computers the casino page doesn't stretch to fill the whole screen, so everything sits a little closer together
+   (change 44.5em to spread it out more or less) */
+@media (min-width: 701px) {
+  .page[data-page="casino"].active .cz-wrap { flex: 0 0 auto; height: 44.5em; margin: auto; }
 }

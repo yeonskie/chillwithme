@@ -40,6 +40,12 @@
     </div>
   </header>
 
+  <!-- yeonbucks box (top left of every page except the casino and the shop) -->
+  <aside class="yb-box" id="yb-box" hidden aria-label="your yeonbucks">
+    <p class="yb-links" id="yb-links" hidden><a href="#casino">casino slots</a><a href="#shop">shop</a></p>
+    <p class="yb-row"><span class="yb-have"><strong id="yb-amt">500</strong> yeonbucks earned</span><button type="button" class="yb-where" id="yb-where" aria-expanded="false" aria-controls="yb-links">where to spend</button></p>
+  </aside>
+
   <!-- MIDDLE: only this part changes between pages -->
   <main id="main">
     <section class="page" data-page="home">
@@ -349,6 +355,16 @@
       </div>
     </section>
 
+    <!-- shop (a placeholder for now) -->
+    <section class="page" data-page="shop">
+      <div class="gi-wrap">
+        <a href="#arcade" class="hy-back">&larr; back to the arcade</a>
+        <h1 class="hy-title">the shop</h1>
+        <p class="yb-have-box">you have <strong data-yb>500</strong> yeonbucks</p>
+        <p class="hy-hint">the shop is coming soon!</p>
+      </div>
+    </section>
+
     <section class="page" data-page="idol">
       <div class="gi-wrap">
         <a href="#arcade" class="hy-back">&larr; back to the arcade</a>
@@ -492,21 +508,6 @@
     </section>
 
     <section class="page" data-page="casino">
-      <aside class="cz-lb" id="cz-lb" aria-label="leaderboard">
-        <p class="cz-lb-title">leaderboard</p>
-        <ol class="cz-lb-list" id="cz-lb-list"></ol>
-        <p class="cz-lb-me" id="cz-lb-me"></p>
-        <button type="button" class="cz-lb-link" id="cz-lb-edit">join</button>
-        <form class="cz-lb-form" id="cz-lb-form" autocomplete="off" hidden>
-          <input id="cz-lb-name" type="text" maxlength="20" placeholder="your name" aria-label="your name on the leaderboard">
-          <div class="cz-lb-btns">
-            <button type="submit" class="cz-lb-link" id="cz-lb-save">join</button>
-            <button type="button" class="cz-lb-link" id="cz-lb-remove" hidden>remove me</button>
-            <button type="button" class="cz-lb-link" id="cz-lb-cancel">cancel</button>
-          </div>
-        </form>
-        <p class="cz-lb-note" id="cz-lb-note" role="status"></p>
-      </aside>
       <a href="#arcade" class="hy-back cz-back">&larr; back to the arcade</a>
       <div class="cz-wrap">
         <div class="cz-group">
@@ -538,6 +539,21 @@
 
         <div class="cz-spinwrap"><button type="button" class="cz-spin" id="cz-spin">spin the wheel</button></div>
       </div>
+      <aside class="cz-lb" id="cz-lb" aria-label="leaderboard">
+        <p class="cz-lb-title">leaderboard</p>
+        <ol class="cz-lb-list" id="cz-lb-list"></ol>
+        <p class="cz-lb-me" id="cz-lb-me"></p>
+        <button type="button" class="cz-lb-link" id="cz-lb-edit">join</button>
+        <form class="cz-lb-form" id="cz-lb-form" autocomplete="off" hidden>
+          <input id="cz-lb-name" type="text" maxlength="20" placeholder="your name" aria-label="your name on the leaderboard">
+          <div class="cz-lb-btns">
+            <button type="submit" class="cz-lb-link" id="cz-lb-save">join</button>
+            <button type="button" class="cz-lb-link" id="cz-lb-remove" hidden>remove me</button>
+            <button type="button" class="cz-lb-link" id="cz-lb-cancel">cancel</button>
+          </div>
+        </form>
+        <p class="cz-lb-note" id="cz-lb-note" role="status"></p>
+      </aside>
     </section>
 
     <!-- casino: how it works -->

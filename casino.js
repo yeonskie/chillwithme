@@ -84,6 +84,32 @@
   function holdSet(amt) { write("yb-hold", JSON.stringify({ amt, until: Date.now() + SPIN_MS + 4000 })); }
   function holdClear() { write("yb-hold", ""); }
 
+  // ----- the "___ yeonbucks earned" box (everywhere except the casino and the shop) -----
+  const ybBox = document.getElementById("yb-box"), ybAmt = document.getElementById("yb-amt");
+  function updateBox() {
+    if (!ybBox) return;
+    const page = location.hash.replace("#", "");
+    const show = page !== "casino" && page !== "shop";
+    ybBox.hidden = !show;
+    document.body.classList.toggle("has-yb", show);
+    if (!show) return;
+    ybAmt.textContent = shown();
+    const bar = document.querySelector(".bar-bottom");                  // sit just above the bottom bar
+    if (bar) ybBox.style.bottom = Math.round(window.innerHeight - bar.getBoundingClientRect().top + 6) + "px";
+  }
+  const ybWhere = document.getElementById("yb-where"), ybLinks = document.getElementById("yb-links");
+  function ybOpen(on) { if (!ybLinks) return; ybLinks.hidden = !on; ybWhere.setAttribute("aria-expanded", on ? "true" : "false"); }
+  if (ybWhere) {
+    ybWhere.addEventListener("click", () => ybOpen(ybLinks.hidden));
+    document.addEventListener("click", (e) => { if (!ybBox.contains(e.target)) ybOpen(false); });
+    window.addEventListener("hashchange", () => ybOpen(false));
+  }
+  setInterval(updateBox, 1000);
+  window.addEventListener("hashchange", updateBox);
+  window.addEventListener("resize", updateBox);
+  window.addEventListener("storage", updateBox);
+  updateBox();
+
   // ----- the casino page -----
   const $ = (id) => document.getElementById(id);
   const grid = $("cz-grid");
@@ -216,6 +242,7 @@
 
   function refresh() {
     balEl.textContent = fmt(shown());
+    document.querySelectorAll("[data-yb]").forEach((el) => { el.textContent = fmt(shown()); });   // "you have ___ yeonbucks" boxes on other pages
     const left = Math.max(0, Math.ceil(EVERY - progress()));
     nextEl.textContent = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0");
     spinBtn.disabled = spinning || !!hold() || balance() < BET_STEP;
