@@ -75,6 +75,15 @@
   }
   setInterval(() => { earnTick(); refresh(); }, 1000);
 
+  // ----- a spin in progress (shared by every tab, so they all show the same number) -----
+  // while the pictures are spinning the prize is "held back" from what's shown, in every open tab,
+  // and no other tab can start a spin until it's over
+  function hold() { try { const h = JSON.parse(read("yb-hold")); if (h && h.until > Date.now()) return h; } catch (e) {} return null; }
+  const held = () => { const h = hold(); return h ? h.amt : 0; };
+  const shown = () => Math.max(0, balance() - held());
+  function holdSet(amt) { write("yb-hold", JSON.stringify({ amt, until: Date.now() + SPIN_MS + 4000 })); }
+  function holdClear() { write("yb-hold", ""); }
+
   // ----- the casino page -----
   const $ = (id) => document.getElementById(id);
   const grid = $("cz-grid");
@@ -82,7 +91,6 @@
 
   const balEl = $("cz-bal"), nextEl = $("cz-next"), msg = $("cz-msg"), betEl = $("cz-bet"), spinBtn = $("cz-spin");
   let spinning = false;
-  let shownBalance = balance();      // what the screen shows (it waits for the spin to finish)
 
   function say(text, cls) { msg.textContent = text; msg.className = "cz-msg" + (cls ? " " + cls : ""); }
 
@@ -207,11 +215,10 @@
   const fmt = (n) => String(n);
 
   function refresh() {
-    if (!spinning) shownBalance = balance();
-    balEl.textContent = fmt(shownBalance);
+    balEl.textContent = fmt(shown());
     const left = Math.max(0, Math.ceil(EVERY - progress()));
     nextEl.textContent = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0");
-    spinBtn.disabled = spinning || balance() < BET_STEP;
+    spinBtn.disabled = spinning || !!hold() || balance() < BET_STEP;
     if (!spinning && balance() < BET_STEP && !msg.dataset.broke) { msg.dataset.broke = "1"; say("you're out of yeonbucks. you'll get more soon!"); }
     if (balance() >= BET_STEP) delete msg.dataset.broke;
   }
@@ -239,6 +246,7 @@
 
   async function spin() {
     if (spinning) return;
+    if (hold()) { say("another tab is spinning. wait a sec!"); return; }
     const bet = readBet();
     betEl.value = bet;
     if (bet > balance()) { say("you only have " + fmt(balance()) + " yeonbucks. try a smaller bet.", "cz-bad"); return; }
@@ -249,7 +257,7 @@
     spinning = true;
     spinBtn.disabled = true;
     setBalance(balance() - bet + win);
-    shownBalance = balance() - win;                           // the screen shows the balance after the bet, before the prize arrives
+    holdSet(win);                                             // every tab shows the balance after the bet, before the prize arrives
     refresh();
     say("spinning...");
     cells.forEach((c) => c.classList.remove("cz-win", "cz-pair"));
@@ -279,7 +287,7 @@
       }
     }
 
-    shownBalance = balance();                                 // the prize arrives on screen (the button stays off until the light show is over)
+    holdClear();                                              // the prize arrives on screen (the button stays off until the light show is over)
     const won = evaluate(final).cells.map((i) => cells[i]);
     if (result === 10) {
       // jackpot: the whole machine flashes, then stays lit
@@ -345,7 +353,7 @@
   // send my balance (only if I joined, and only when it changed; at most every 8 seconds)
   async function sendScore(force) {
     if (sending || !myName()) return;
-    const bal = balance();
+    const bal = shown();
     if (!force && (bal === lastSent || Date.now() - lastSentAt < 8000)) return;
     sending = true;
     try {
