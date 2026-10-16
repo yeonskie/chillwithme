@@ -2066,7 +2066,7 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-wrap { font-size: 1rem; font-size: clamp(11px, min(1rem, calc((100vh - 9rem) / 46)), 1rem); font-size: clamp(11px, min(1rem, calc((100svh - 9rem) / 46)), 1rem); width: min(24em, 100%); margin: 0 auto; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; }
 /* spare height is shared out between the blocks with auto margins. if the screen is too short for everything, the margins just shrink to 0 and the page scrolls normally from the top (nothing gets cut off) */
 .cz-wrap > * { margin-top: auto; margin-bottom: auto; }
-.cz-group { display: flex; flex-direction: column; align-items: center; }
+.cz-group { display: flex; flex-direction: column; align-items: center; width: 100%; }
 .cz-wrap .hy-back { font-size: 0.75em; margin-bottom: 0.2em; }
 .cz-welcome { font-size: 1.05em; margin: 0; }
 .cz-title { font-size: 1.7em; font-weight: 700; line-height: 1.15; margin: 0; }
@@ -2076,9 +2076,10 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-earn { font-size: 0.8em; font-weight: 700; opacity: 0.3; font-variant-numeric: tabular-nums; margin: 0.1em 0 0.4em; }
 .cz-top { margin: 0; }
 .cz-wrap .hy-btn { font-size: 0.75em; }
-.cz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; padding: 0.6em; box-sizing: border-box; border: 1px solid var(--text); border-radius: var(--radius); width: min(20em, 100%); margin: 0; }
-.cz-cell { aspect-ratio: 1.3 / 1; display: flex; align-items: center; justify-content: center; padding: 0.3em; box-sizing: border-box; }
-.cz-cell img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
+.cz-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0.6em; box-sizing: border-box; border: 1px solid var(--text); border-radius: var(--radius); width: min(20em, 100%); margin: 0; }
+/* the picture is pinned inside its cell (absolute) because iPhone Safari ignores height:100% on a box sized by aspect-ratio, which let the pictures spill out of the grid */
+.cz-cell { position: relative; aspect-ratio: 1.3 / 1; min-width: 0; box-sizing: border-box; }
+.cz-cell img { position: absolute; top: 0.3em; left: 0.3em; width: calc(100% - 0.6em); height: calc(100% - 0.6em); object-fit: contain; pointer-events: none; user-select: none; }
 :root[data-theme="dark"] .cz-cell img { filter: invert(1); }
 .cz-spinning img { opacity: 0.6; }
 .cz-win { background: var(--text); }
