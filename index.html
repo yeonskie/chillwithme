@@ -340,7 +340,7 @@
              Put <span class="arcade-tag">multiplayer</span> under the name for the ones you play with other people. -->
         <ul class="arcade-ring" id="arcade-ring">
           <li class="arcade-item"><button type="button" class="arcade-card" data-href="#idol"><span class="arcade-name">guess the k-pop idol</span></button></li>
-          <li class="arcade-item"><button type="button" class="arcade-card"><span class="arcade-name">scattergories</span><span class="arcade-tag">multiplayer</span></button></li>
+          <li class="arcade-item"><button type="button" class="arcade-card" data-href="#scattergories"><span class="arcade-name">scattergories</span><span class="arcade-tag">multiplayer</span></button></li>
           <li class="arcade-item"><button type="button" class="arcade-card"><span class="arcade-name">pictionary</span><span class="arcade-tag">multiplayer</span></button></li>
           <li class="arcade-item"><button type="button" class="arcade-card"><span class="arcade-name">yeon's trivia</span></button></li>
           <li class="arcade-item"><button type="button" class="arcade-card" data-href="#hyrax"><span class="arcade-name">help the hyrax</span></button></li>
@@ -413,6 +413,81 @@
         </div>
       </form>
     </div>
+
+    <section class="page" data-page="scattergories">
+      <div class="sg-wrap">
+        <a href="#arcade" class="hy-back">&larr; back to the arcade</a>
+        <h1 class="hy-title">scattergories</h1>
+        <p class="sg-note" id="sg-note" role="status"></p>
+
+        <!-- 1. join or make a room -->
+        <div class="sg-panel" id="sg-join">
+          <p class="hy-hint">play with friends. make a room, then share the code.</p>
+          <label class="gi-field">your name
+            <input type="text" id="sg-name" maxlength="20" placeholder="yeon" autocomplete="off">
+          </label>
+          <p class="sg-row"><button type="button" class="hy-btn" id="sg-create">make a room</button></p>
+          <p class="sg-or">or join one</p>
+          <form class="sg-row" id="sg-joinform" autocomplete="off">
+            <input class="gi-input sg-code" id="sg-code" type="text" maxlength="6" placeholder="CODE" aria-label="room code" autocapitalize="characters" spellcheck="false">
+            <button type="submit" class="hy-btn">join</button>
+          </form>
+        </div>
+
+        <!-- 2. waiting room -->
+        <div class="sg-panel" id="sg-lobby" hidden>
+          <p class="sg-codebox">room code <strong id="sg-lobby-code"></strong></p>
+          <button type="button" class="hy-btn" id="sg-copy">copy invite link</button>
+          <h2 class="sg-h">players</h2>
+          <ul class="sg-players" id="sg-lobby-players"></ul>
+          <div id="sg-settings">
+            <h2 class="sg-h">settings</h2>
+            <p class="sg-row">
+              <label>rounds <select id="sg-rounds"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></label>
+              <label>time <select id="sg-secs"><option value="45">45s</option><option value="60">60s</option><option value="90" selected>90s</option><option value="120">2 min</option><option value="180">3 min</option></select></label>
+            </p>
+            <h2 class="sg-h">categories</h2>
+            <ul class="sg-cats" id="sg-cats"></ul>
+            <form class="sg-row" id="sg-addcat" autocomplete="off">
+              <input class="gi-input" id="sg-newcat" type="text" maxlength="40" placeholder="add your own" aria-label="add a category">
+              <button type="submit" class="hy-btn">add</button>
+            </form>
+            <p class="sg-row"><button type="button" class="hy-btn" id="sg-shuffle">shuffle categories</button></p>
+            <p class="sg-row"><button type="button" class="hy-btn sg-start" id="sg-start">start game</button></p>
+          </div>
+          <p class="sg-wait" id="sg-waithost" hidden>waiting for the host to start...</p>
+          <p class="sg-row"><button type="button" class="hy-btn" id="sg-leave">leave room</button></p>
+        </div>
+
+        <!-- 3. playing -->
+        <div class="sg-panel" id="sg-play" hidden>
+          <p class="sg-bar"><span id="sg-roundlabel">round 1 / 3</span> <span id="sg-timer">0:00</span></p>
+          <div class="sg-letter" id="sg-letter">A</div>
+          <form id="sg-answers" autocomplete="off"></form>
+          <p class="sg-row"><button type="button" class="hy-btn" id="sg-stop">i'm done!</button></p>
+          <p class="sg-wait" id="sg-stopnote" hidden></p>
+        </div>
+
+        <!-- 4. checking the answers -->
+        <div class="sg-panel" id="sg-reveal" hidden>
+          <p class="sg-bar"><span id="sg-reveal-label">round 1 / 3</span> <span>letter <strong id="sg-reveal-letter">A</strong></span></p>
+          <p class="sg-help" id="sg-reveal-help">same answer as someone else = 5 points, a different one = 10. the host can tap an answer to throw it out.</p>
+          <div id="sg-reveal-body"></div>
+          <h2 class="sg-h">scores</h2>
+          <ol class="sg-scores" id="sg-reveal-scores"></ol>
+          <p class="sg-row"><button type="button" class="hy-btn sg-start" id="sg-next" hidden>next round</button></p>
+          <p class="sg-wait" id="sg-waitnext" hidden>waiting for the host...</p>
+        </div>
+
+        <!-- 5. the end -->
+        <div class="sg-panel" id="sg-done" hidden>
+          <h2 class="gi-end-title">game over!</h2>
+          <ol class="sg-scores" id="sg-done-scores"></ol>
+          <p class="sg-row"><button type="button" class="hy-btn" id="sg-again" hidden>play again</button> <button type="button" class="hy-btn" id="sg-done-leave">leave room</button></p>
+          <p class="sg-wait" id="sg-waitagain" hidden>the host can start another game.</p>
+        </div>
+      </div>
+    </section>
 
     <section class="page" data-page="hyrax">
       <div class="hy-wrap">
@@ -610,5 +685,6 @@
   <script src="community.js"></script>
   <script src="secrets.js"></script>
   <script src="journal.js"></script>
+  <script src="scattergories.js"></script>
 </body>
 </html>
