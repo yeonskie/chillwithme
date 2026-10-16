@@ -2056,14 +2056,16 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .sg-invite strong { letter-spacing: 0.2em; }
 
 /* ---------- Casino de yeon ---------- */
-/* Everything on this page is sized in "em", and the page's font size shrinks on short screens,
-   so the whole thing fits without scrolling. To make it all bigger or smaller, change 46 below
+/* Everything on this page is sized in "em", and the page's font size shrinks on short screens (but never
+   below 11px), so the whole thing fits without scrolling on a normal phone or laptop. To make it all bigger or smaller, change 46 below
    (a smaller number = bigger page, a bigger number = smaller page). */
 /* the back link stays at the top, and everything else sits in the middle of the screen */
 .page[data-page="casino"] { padding-top: 0.5rem; padding-bottom: 0.5rem; text-align: center; }
 .page[data-page="casino"].active { display: flex; flex-direction: column; min-height: 100%; box-sizing: border-box; }
 .page[data-page="casino"] .cz-back { align-self: center; margin-bottom: 0; }
-.cz-wrap { font-size: min(1rem, calc((100vh - 9rem) / 46)); font-size: min(1rem, calc((100dvh - 9rem) / 46)); width: min(24em, 100%); margin: 0 auto; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; align-items: center; }
+.cz-wrap { font-size: 1rem; font-size: clamp(11px, min(1rem, calc((100vh - 9rem) / 46)), 1rem); font-size: clamp(11px, min(1rem, calc((100svh - 9rem) / 46)), 1rem); width: min(24em, 100%); margin: 0 auto; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; }
+/* spare height is shared out between the blocks with auto margins. if the screen is too short for everything, the margins just shrink to 0 and the page scrolls normally from the top (nothing gets cut off) */
+.cz-wrap > * { margin-top: auto; margin-bottom: auto; }
 .cz-group { display: flex; flex-direction: column; align-items: center; }
 .cz-wrap .hy-back { font-size: 0.75em; margin-bottom: 0.2em; }
 .cz-welcome { font-size: 1.05em; margin: 0; }
