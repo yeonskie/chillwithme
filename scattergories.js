@@ -31,6 +31,9 @@
   ];
   const LETTERS = "ABCDEFGHIJKLMNOPRSTW";
   const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";      // no I or O, they look like 1 and 0
+  // The address of your live site, used for invite links, e.g. "https://yeonskie.github.io/chillwithme/"
+  // Leave it as "" to use whatever address the page is on.
+  const SITE_URL = "https://yeonskie.github.io/chillwithme/";
   const START_CATEGORIES = 8;
   const POINTS_ALONE = 10, POINTS_SHARED = 5;
   const POLL_MS = 1500;
@@ -618,7 +621,10 @@
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !rules.hidden) closeRules(); });
 
   $("sg-copy").addEventListener("click", async () => {
-    const link = location.origin + location.pathname + "?room=" + st.room.code + "#scattergories";
+    // invite links use SITE_URL if you set it. otherwise they use the address you're on right now,
+    // which is a 127.0.0.1 number when you're testing on your own computer (that only works for you)
+    const home = (SITE_URL || (location.origin + location.pathname)).replace(/index\.html$/, "").replace(/[?#].*$/, "");
+    const link = home + (home.endsWith("/") ? "" : "/") + "?room=" + st.room.code + "#scattergories";
     try { await navigator.clipboard.writeText(link); say("invite link copied!"); }
     catch (e) { say("share this code: " + st.room.code); }
   });
