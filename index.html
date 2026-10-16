@@ -492,6 +492,21 @@
     </section>
 
     <section class="page" data-page="casino">
+      <aside class="cz-lb" id="cz-lb" aria-label="leaderboard">
+        <p class="cz-lb-title">leaderboard</p>
+        <ol class="cz-lb-list" id="cz-lb-list"></ol>
+        <p class="cz-lb-me" id="cz-lb-me"></p>
+        <button type="button" class="cz-lb-link" id="cz-lb-edit">join</button>
+        <form class="cz-lb-form" id="cz-lb-form" autocomplete="off" hidden>
+          <input id="cz-lb-name" type="text" maxlength="20" placeholder="your name" aria-label="your name on the leaderboard">
+          <div class="cz-lb-btns">
+            <button type="submit" class="cz-lb-link" id="cz-lb-save">join</button>
+            <button type="button" class="cz-lb-link" id="cz-lb-remove" hidden>remove me</button>
+            <button type="button" class="cz-lb-link" id="cz-lb-cancel">cancel</button>
+          </div>
+        </form>
+        <p class="cz-lb-note" id="cz-lb-note" role="status"></p>
+      </aside>
       <a href="#arcade" class="hy-back cz-back">&larr; back to the arcade</a>
       <div class="cz-wrap">
         <div class="cz-group">

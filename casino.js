@@ -15,6 +15,9 @@
 // minimum of 0.25%). The other four results share everything that's left equally.
 // To change the odds, the prizes, or how much you earn, edit the numbers just below.
 //
+// THE LEADERBOARD: people who press "join" in the little leaderboard box (top left) get their balance sent to Supabase
+// (run supabase-casino.sql once). Nobody is on it unless they join.
+//
 // THE PICTURES: games/casino/slot-1.svg ... slot-9.svg. To use fewer, delete lines from PICTURES (and
 // the files). "by" is the artist's name, shown in the "how it works" pop-up (Noun Project credit).
 
@@ -311,6 +314,98 @@
   $("cz-how-close").addEventListener("click", closeHow);
   $("cz-how-backdrop").addEventListener("click", closeHow);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !how.hidden) closeHow(); });
+
+
+  // ----- the leaderboard (small box in the top left; needs supabase-casino.sql, and community-config.js for the address) -----
+  const lbList = $("cz-lb-list"), lbMe = $("cz-lb-me"), lbNote = $("cz-lb-note"), lbName = $("cz-lb-name");
+  const lbForm = $("cz-lb-form"), lbRemove = $("cz-lb-remove"), lbEdit = $("cz-lb-edit"), lbSave = $("cz-lb-save");
+  const LB_ROWS = 5;                                   // how many people the little box shows
+  let lastSent = null, lastSentAt = 0, sending = false, joined = false;
+
+  function myId() {
+    let id = read("yb-id");
+    if (!id) { id = "y" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); write("yb-id", id); }
+    return id;
+  }
+  const myName = () => (read("yb-name") || "").trim();
+  function lbApi(name, args) {
+    const cfg = typeof COMMUNITY !== "undefined" ? COMMUNITY : {};
+    const base = String(cfg.url || "").trim().replace(/\/+$/, "");
+    const key = String(cfg.key || "").trim();
+    if (!/^https:\/\/[^\s/]+/i.test(base) || key.length < 20) return Promise.reject(new Error("not configured"));
+    const headers = { apikey: key, "Content-Type": "application/json" };
+    if (/^eyJ/.test(key)) headers.Authorization = "Bearer " + key;
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 12000);
+    return fetch(base + "/rest/v1/rpc/" + name, { method: "POST", headers, body: JSON.stringify(args), signal: ctl.signal })
+      .then((res) => { if (!res.ok) throw new Error(String(res.status)); return res.text(); })
+      .then((t) => (t ? JSON.parse(t) : null))
+      .finally(() => clearTimeout(timer));
+  }
+  // send my balance (only if I joined, and only when it changed; at most every 8 seconds)
+  async function sendScore(force) {
+    if (sending || !myName()) return;
+    const bal = balance();
+    if (!force && (bal === lastSent || Date.now() - lastSentAt < 8000)) return;
+    sending = true;
+    try {
+      await lbApi("cz_submit", { p_id: myId(), p_name: myName(), p_balance: bal });
+      lastSent = bal; lastSentAt = Date.now();
+    } catch (e) { lastSentAt = Date.now(); } finally { sending = false; }
+  }
+  setInterval(() => { if (!spinning) sendScore(false); }, 3000);
+
+  function drawBoard(data) {
+    lbList.innerHTML = "";
+    const top = ((data && data.top) || []).slice(0, LB_ROWS);
+    top.forEach((p, i) => {
+      const li = document.createElement("li");
+      if (p.me) li.className = "cz-lb-you";
+      const rank = document.createElement("span"); rank.className = "cz-lb-rank"; rank.textContent = i + 1;
+      const nm = document.createElement("span"); nm.className = "cz-lb-name"; nm.textContent = p.name;
+      const bl = document.createElement("span"); bl.className = "cz-lb-bal"; bl.textContent = p.balance;
+      li.append(rank, nm, bl);
+      lbList.appendChild(li);
+    });
+    if (!top.length) { const li = document.createElement("li"); li.className = "cz-lb-empty"; li.textContent = "nobody yet!"; lbList.appendChild(li); }
+    const me = data && data.me;
+    joined = !!me;
+    lbMe.textContent = me && !top.some((p) => p.me) ? "you: #" + me.rank + " (" + me.balance + ")" : "";
+    lbEdit.textContent = me ? "edit" : "join";
+    lbSave.textContent = me ? "save" : "join";
+    lbRemove.hidden = !me;
+  }
+  async function loadBoard() {
+    try { drawBoard(await lbApi("cz_board", { p_id: myId() })); lbNote.textContent = ""; }
+    catch (e) { lbNote.textContent = /not configured/.test(String(e.message)) ? "not connected yet" : "can't load. did you run supabase-casino.sql?"; }
+  }
+  const page = document.querySelector('.page[data-page="casino"]');
+  function lbTick() { if (page && page.classList.contains("active") && document.visibilityState === "visible") loadBoard(); }
+  setInterval(lbTick, 10000);
+  window.addEventListener("hashchange", () => setTimeout(lbTick, 50));
+  document.addEventListener("visibilitychange", lbTick);
+
+  function showForm(on) { lbForm.hidden = !on; lbEdit.hidden = on; if (on) { lbName.value = myName(); lbName.focus({ preventScroll: true }); } }
+  lbEdit.addEventListener("click", () => showForm(true));
+  $("cz-lb-cancel").addEventListener("click", () => { showForm(false); lbNote.textContent = ""; });
+  lbForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const n = lbName.value.trim().slice(0, 20);
+    if (!n) { lbNote.textContent = "type a name first"; return; }
+    write("yb-name", n);
+    lbNote.textContent = "saving...";
+    await sendScore(true);
+    await loadBoard();
+    showForm(false);
+  });
+  lbRemove.addEventListener("click", async () => {
+    try { await lbApi("cz_remove", { p_id: myId() }); } catch (e) {}
+    write("yb-name", ""); lastSent = null;
+    await loadBoard();
+    showForm(false);
+    lbNote.textContent = "you're off the board";
+  });
+  lbTick();
 
   spinBtn.addEventListener("click", spin);
   betEl.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); spin(); } });
