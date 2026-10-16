@@ -376,8 +376,14 @@
     lbRemove.hidden = !me;
   }
   async function loadBoard() {
-    try { drawBoard(await lbApi("cz_board", { p_id: myId() })); lbNote.textContent = ""; }
-    catch (e) { lbNote.textContent = /not configured/.test(String(e.message)) ? "not connected yet" : "can't load. did you run supabase-casino.sql?"; }
+    try {
+      const data = await lbApi("cz_board", { p_id: myId() });
+      drawBoard(data); lbNote.textContent = "";
+      write("yb-board", JSON.stringify(data));          // remembered, so next time the box fills in instantly
+    } catch (e) {
+      if (lbList.children.length) return;               // keep showing the last list if the internet blips
+      lbNote.textContent = /not configured/.test(String(e.message)) ? "not connected yet" : "can't load. did you run supabase-casino.sql?";
+    }
   }
   const page = document.querySelector('.page[data-page="casino"]');
   function lbTick() { if (page && page.classList.contains("active") && document.visibilityState === "visible") loadBoard(); }
@@ -405,7 +411,11 @@
     showForm(false);
     lbNote.textContent = "you're off the board";
   });
-  lbTick();
+  // show the last list we saved straight away, then fetch a fresh one as soon as every script has loaded
+  // (the address in community-config.js loads after this file, so asking any sooner says "not connected")
+  try { const saved = JSON.parse(read("yb-board")); if (saved && saved.top) drawBoard(saved); } catch (e) {}
+  if (!lbList.children.length) lbNote.textContent = "loading...";
+  if (document.readyState === "complete") lbTick(); else window.addEventListener("load", lbTick);
 
   spinBtn.addEventListener("click", spin);
   betEl.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); spin(); } });
