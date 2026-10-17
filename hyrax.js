@@ -21,6 +21,7 @@
   const MONCH_STYLE = "crunch";     // the built-in sound: "crunch" (crispy), "chomp" (low and thumpy) or "squeak" (cute)
   const MONCH_TEXT = "monch!";      // the word that pops up when it eats ("" for none)
   const HYRAX_SIZE = 1.8;           // how tall the hyrax is, in boxes (it was 2.6; smaller number = smaller hyrax)
+  const FINISH_PRIZE = 3000;        // yeonbucks for finding all the food
   const EAT_MS = 800;               // how long the eating picture shows
   const PICS = { wait: 2, move: 4, eat: 1, done: 3 };
   const PLANT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-9"/><path d="M12 12c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 14c0-3 2-5 6-5 0 3-2 5-6 5z"/></svg>';
@@ -161,6 +162,10 @@
     eatTimer = null;
     setPic("done");
     hint.textContent = "the hyrax is full. thank you!";
+    if (window.YB && window.YB.add) {
+      window.YB.add(FINISH_PRIZE);
+      hint.textContent += " you won " + FINISH_PRIZE.toLocaleString("en-US") + " yeonbucks!";
+    }
     againBtn.hidden = false;
     if (restartBtn) restartBtn.hidden = true;   // "play again" takes its place
     cells.forEach((c) => { c.seen = true; c.el.classList.add("seen"); });

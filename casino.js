@@ -276,6 +276,7 @@
     have: () => shown(),
     spend: (n) => { if (shown() < n) return false; setBalance(balance() - n); refresh(); updateBox(); return true; },
     redraw: () => { refresh(); updateBox(); },
+    add: (n) => { setBalance(balance() + Math.max(0, Math.floor(n))); refresh(); updateBox(); },   // prizes from the other games
   };
 
   function readBet() {

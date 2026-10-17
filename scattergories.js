@@ -12,6 +12,7 @@
 //   CATEGORY_POOL = the categories the shuffle picks from
 //   LETTERS       = the letters that can come up (no Q, U, V, X, Y, Z: too hard)
 //   POINTS_ALONE / POINTS_SHARED = the scoring
+//   WIN_PRIZE     = yeonbucks the winner gets (a tie: everyone tied gets it). Needs 2 or more players, so you can't win alone.
 
 (function () {
   const $ = (id) => document.getElementById(id);
@@ -36,6 +37,7 @@
   const SITE_URL = "https://yeonskie.github.io/chillwithme/";
   const START_CATEGORIES = 8;
   const POINTS_ALONE = 10, POINTS_SHARED = 5;
+  const WIN_PRIZE = 5000;                              // yeonbucks for winning a game
   const POLL_MS = 1500;
   const STOP_SECS = 8;                                 // after someone hits "i'm done", everyone gets this long
   const AWAY_MS = 30000;                               // quiet for this long = shown as "away"
@@ -300,6 +302,7 @@
   function render() {
     const room = st.room;
     if (note.textContent && !/^(type|can't|that|you're)/.test(note.textContent)) say("");
+    if (room.status !== "done") { try { localStorage.removeItem("yb-sg-paid"); } catch (e) {} }   // a new game can pay out again
     if (room.status === "lobby") renderLobby();
     else if (room.status === "playing") renderPlay();
     else if (room.status === "reveal") renderReveal();
@@ -535,7 +538,20 @@
     $("sg-waitagain").hidden = host;
     if (res) {
       const names = res.tie.map((p) => p.name).join(" and ");
-      say(res.tie.length > 1 ? "it's a tie: " + names + "!" : names + " wins!");
+      let text = res.tie.length > 1 ? "it's a tie: " + names + "!" : names + " wins!";
+      // the prize: paid once per game, only to the people who won, and only if someone else was playing
+      const iWon = res.tie.some((p) => p.id === me.id);
+      const t = totals(st.room, st.players);
+      if (iWon && st.players.length >= 2 && t[res.top.id].total > 0 && window.YB && window.YB.add) {
+        const gameKey = code + ":" + st.room.used;
+        let paid = ""; try { paid = localStorage.getItem("yb-sg-paid") || ""; } catch (e) {}
+        if (paid !== gameKey) {
+          window.YB.add(WIN_PRIZE);
+          try { localStorage.setItem("yb-sg-paid", gameKey); } catch (e) {}
+        }
+        text += " you won " + WIN_PRIZE.toLocaleString("en-US") + " yeonbucks!";
+      }
+      say(text);
     }
   }
 
@@ -635,11 +651,33 @@
   $("sg-code").addEventListener("input", () => { $("sg-code").value = $("sg-code").value.toUpperCase().replace(/[^A-Z0-9]/g, ""); });
   $("sg-name").value = me.name || "";
 
-  // opened from an invite link (?room=ABCD): fill in the code
+  // opened from an invite link (?room=ABCD): ask for a name, then join that room straight away
+  let invited = "";
   try {
-    const invited = new URLSearchParams(location.search).get("room");
-    if (invited) $("sg-code").value = invited.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
+    invited = (new URLSearchParams(location.search).get("room") || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6);
   } catch (e) {}
+
+  function inviteMode(on) {
+    $("sg-invite").hidden = $("sg-invite-row").hidden = !on;
+    $("sg-make").hidden = $("sg-or").hidden = $("sg-joinform").hidden = on;
+    if (on) { $("sg-invite-code").textContent = invited; $("sg-name").focus(); }
+  }
+  function dropInviteFromAddress() {
+    try { history.replaceState(null, "", location.pathname + "#scattergories"); } catch (e) {}
+  }
+  $("sg-invite-join").addEventListener("click", async () => {
+    $("sg-invite-join").disabled = true;
+    await joinRoom(invited);
+    $("sg-invite-join").disabled = false;
+    if (code) { inviteMode(false); dropInviteFromAddress(); invited = ""; }
+  });
+  $("sg-invite-other").addEventListener("click", () => {
+    inviteMode(false); dropInviteFromAddress(); invited = ""; say("");
+    $("sg-code").value = "";
+  });
+  $("sg-name").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && invited) { e.preventDefault(); $("sg-invite-join").click(); }
+  });
 
   if (!configured) {
     say("the online part isn't set up yet, so rooms can't be made. (see community-config.js)");
@@ -651,5 +689,15 @@
     try { back = sessionStorage.getItem("sg-room"); } catch (e) {}
     if (back) { code = back; poll(); }
     show("sg-join");
+    if (invited && invited !== back) {
+      inviteMode(true);
+      // tell them now if the room can't be joined, instead of after they type a name
+      rpc("sg_state", { p_code: invited }).then((r) => {
+        if (!invited) return;
+        const known = r && r.room && r.players.some((p) => p.id === me.id);
+        if (!r || !r.room) { inviteMode(false); invited = ""; say("that room doesn't exist anymore. make a new one or ask for a new link."); }
+        else if (r.room.status !== "lobby" && !known) { inviteMode(false); invited = ""; say("that game has already started."); }
+      }).catch(() => {});
+    } else if (invited) { dropInviteFromAddress(); invited = ""; }
   }
 })();

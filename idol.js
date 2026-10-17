@@ -64,7 +64,15 @@
   const ready = loadOnline().then(() => { readyDone = true; });
 
   let queue = [], current = null, roundNo = 0, total = 0, score = 0;
-  let wrong = 0, hintUsed = false, over = false, roundPts = 0;
+  let wrong = 0, hintUsed = false, over = false, roundPts = 0, paidOut = false;
+  // The prize goes up with your score: MIN_PRIZE for finishing with 0, MAX_PRIZE for a perfect score
+  // (every one right on the first try, no hints), and in between it's spread evenly (rounded to the nearest 50).
+  // A score below 0 wins nothing.
+  const MIN_PRIZE = 500, MAX_PRIZE = 3500;
+  function prizeFor(score, best) {
+    if (best <= 0 || score < 0) return 0;
+    return Math.round((MIN_PRIZE + (MAX_PRIZE - MIN_PRIZE) * Math.min(1, score / best)) / 50) * 50;
+  }
 
   function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
@@ -76,7 +84,7 @@
     firstMissing = "";
     queue = shuffle(ALL.slice());
     total = Math.min(ROUNDS, queue.length);
-    roundNo = 0; score = 0;
+    roundNo = 0; score = 0; paidOut = false;
     gameEl.hidden = false; endEl.hidden = true; restartBtn.hidden = false;
     nextRound();
   }
@@ -178,6 +186,12 @@
     gameEl.hidden = true; endEl.hidden = false; restartBtn.hidden = true;
     const best = total * MAX_POINTS;
     endScore.textContent = "you scored " + score + " out of " + best + ".";
+    const prize = prizeFor(score, best);
+    if (prize > 0 && !paidOut && window.YB && window.YB.add) {
+      paidOut = true;
+      window.YB.add(prize);
+      endScore.textContent += (score === best ? " perfect! " : " ") + "you won " + prize.toLocaleString("en-US") + " yeonbucks!";
+    }
   }
 
   restartBtn.addEventListener("click", newGame);
