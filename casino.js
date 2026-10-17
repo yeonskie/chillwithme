@@ -281,6 +281,10 @@
     },
   };
 
+  // the bet box grows with the number, so big bets (like 100000) never get cut off
+  function fitBet() { betEl.style.width = Math.max(5.7, String(betEl.value).length + 2.5) + "ch"; }
+  betEl.addEventListener("input", fitBet);
+  fitBet();
   function readBet() {
     let b = Math.floor(Number(betEl.value) / BET_STEP) * BET_STEP;
     if (!Number.isFinite(b) || b < BET_STEP) b = BET_STEP;
@@ -291,6 +295,7 @@
     if (!b) return;
     const v = b.dataset.bet === "max" ? Math.floor(balance() / BET_STEP) * BET_STEP : Number(b.dataset.bet);
     betEl.value = Math.max(BET_STEP, v);
+    fitBet();
   });
 
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -306,6 +311,7 @@
     if (hold()) { say("another tab is spinning. wait a sec!"); return; }
     const bet = readBet();
     betEl.value = bet;
+    fitBet();
     if (bet > balance()) { say("you only have " + fmt(balance()) + " yeonbucks. try a smaller bet.", "cz-bad"); return; }
 
     // decide the result first, and settle the money straight away (so refreshing can't cheat)
