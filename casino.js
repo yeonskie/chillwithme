@@ -28,6 +28,8 @@
   const BET_STEP = 1;                // bets go up by this much (1 = you can bet down to the last yeonbuck)
   const SPIN_MS = 1800;              // how long the pictures shuffle for
   const JACKPOT = 0.05;              // the jackpot chance at START yeonbucks or less
+  const CHARM_BONUS = 0.05;          // the lucky charm adds this much to the jackpot chance (0.05 = 5 percentage points)
+  const PRIZE_BONUS = 0.10;          // the prize bonus adds this much to every game prize (0.10 = +10%)
   const JACKPOT_MIN = 0.0025;        // ...and it never goes below this
 
   const PICTURES = [
@@ -114,13 +116,6 @@
   }
   const miniEl = document.getElementById("mini");
   if (miniEl && window.MutationObserver) new MutationObserver(updateBox).observe(miniEl, { attributes: true, attributeFilter: ["hidden"] });
-  const ybWhere = document.getElementById("yb-where"), ybLinks = document.getElementById("yb-links");
-  function ybOpen(on) { if (!ybLinks) return; ybLinks.hidden = !on; ybWhere.setAttribute("aria-expanded", on ? "true" : "false"); }
-  if (ybWhere) {
-    ybWhere.addEventListener("click", () => ybOpen(ybLinks.hidden));
-    document.addEventListener("click", (e) => { if (!ybBox.contains(e.target)) ybOpen(false); });
-    window.addEventListener("hashchange", () => ybOpen(false));
-  }
   setInterval(updateBox, 500);
   document.addEventListener("visibilitychange", updateBox);   // phones: catch up the moment the tab comes back
   window.addEventListener("pageshow", updateBox);
@@ -175,7 +170,8 @@
   const rnd = (n) => Math.floor(Math.random() * n);
   const N = PICTURES.length;
   function jackpotChance(bal) {
-    return Math.max(JACKPOT_MIN, JACKPOT * Math.min(1, START / Math.max(bal, 1)));
+    const base = Math.max(JACKPOT_MIN, JACKPOT * Math.min(1, START / Math.max(bal, 1)));
+    return Math.min(1, base + (owns("charm") ? CHARM_BONUS : 0));       // the lucky charm (prize shop) adds 5 percentage points
   }
   function pickResult() {
     if (Math.random() < jackpotChance(balance())) return 10;
@@ -254,7 +250,7 @@
   $("cz-credits").textContent = "icons by " + artists.join(", ") + ", from the Noun Project.";
   function pct(x) { return (Math.round(x * 10000) / 100) + "%"; }
   function updateJackpotNote() {
-    $("cz-jp").textContent = "the jackpot starts at " + pct(JACKPOT) + " and gets less likely the more yeonbucks you have. right now it's " + pct(jackpotChance(balance())) + ".";
+    $("cz-jp").textContent = "the jackpot starts at " + pct(JACKPOT) + " and gets less likely the more yeonbucks you have. right now it's " + pct(jackpotChance(balance())) + "." + (owns("charm") ? " (your lucky charm is helping!)" : "");
   }
 
   const fmt = (n) => String(n);
@@ -276,7 +272,13 @@
     have: () => shown(),
     spend: (n) => { if (shown() < n) return false; setBalance(balance() - n); refresh(); updateBox(); return true; },
     redraw: () => { refresh(); updateBox(); },
-    add: (n) => { setBalance(balance() + Math.max(0, Math.floor(n))); refresh(); updateBox(); },   // prizes from the other games
+    add: (n) => { setBalance(balance() + Math.max(0, Math.floor(n))); refresh(); updateBox(); },
+    // a prize from one of the games: +10% with the prize bonus. Gives back how much was paid, so the game can say so
+    prize: (n) => {
+      const paid = Math.max(0, Math.round(n * (owns("bonus") ? 1 + PRIZE_BONUS : 1)));
+      setBalance(balance() + paid); refresh(); updateBox();
+      return paid;
+    },
   };
 
   function readBet() {
@@ -405,18 +407,21 @@
       .then((t) => (t ? JSON.parse(t) : null))
       .finally(() => clearTimeout(timer));
   }
-  // send my balance (only if I joined, and only when it changed; at most every 8 seconds)
+  // send my balance (only if I joined, and only when it changed; at most once a second)
   async function sendScore(force) {
     if (sending || !myName()) return;
     const bal = shown();
-    if (!force && (bal === lastSent || Date.now() - lastSentAt < 8000)) return;
+    if (!force && (bal === lastSent || Date.now() - lastSentAt < 1000)) return;
     sending = true;
     try {
       await lbApi("cz_submit", { p_id: myId(), p_name: myName(), p_balance: bal });
       lastSent = bal; lastSentAt = Date.now();
+      lbTick();                                          // and look at the board right away, so my own change shows up too
     } catch (e) { lastSentAt = Date.now(); } finally { sending = false; }
   }
-  setInterval(() => { if (!spinning) sendScore(false); }, 3000);
+  // (my balance goes out within about a second of changing, and the board is re-read every 1.5 seconds,
+  //  so a change shows up for everyone looking at the board in under 3 seconds)
+  setInterval(() => { if (!spinning) sendScore(false); }, 500);
 
   function drawBoard(data) {
     lbList.innerHTML = "";
@@ -438,7 +443,10 @@
     lbSave.textContent = me ? "save" : "join";
     lbRemove.hidden = !me;
   }
+  let loading = false;
   async function loadBoard() {
+    if (loading) return;
+    loading = true;
     try {
       const data = await lbApi("cz_board", { p_id: myId() });
       drawBoard(data); lbNote.textContent = "";
@@ -446,11 +454,11 @@
     } catch (e) {
       if (lbList.children.length) return;               // keep showing the last list if the internet blips
       lbNote.textContent = /not configured/.test(String(e.message)) ? "not connected yet" : "can't load. did you run supabase-casino.sql?";
-    }
+    } finally { loading = false; }
   }
   const page = document.querySelector('.page[data-page="casino"]');
   function lbTick() { if (page && page.classList.contains("active") && document.visibilityState === "visible") loadBoard(); }
-  setInterval(lbTick, 10000);
+  setInterval(lbTick, 1500);
   window.addEventListener("hashchange", () => setTimeout(lbTick, 50));
   document.addEventListener("visibilitychange", lbTick);
 

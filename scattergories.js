@@ -542,14 +542,16 @@
       // the prize: paid once per game, only to the people who won, and only if someone else was playing
       const iWon = res.tie.some((p) => p.id === me.id);
       const t = totals(st.room, st.players);
-      if (iWon && st.players.length >= 2 && t[res.top.id].total > 0 && window.YB && window.YB.add) {
+      if (iWon && st.players.length >= 2 && t[res.top.id].total > 0 && window.YB && window.YB.prize) {
         const gameKey = code + ":" + st.room.used;
         let paid = ""; try { paid = localStorage.getItem("yb-sg-paid") || ""; } catch (e) {}
-        if (paid !== gameKey) {
-          window.YB.add(WIN_PRIZE);
-          try { localStorage.setItem("yb-sg-paid", gameKey); } catch (e) {}
+        let amount = 0;
+        if (paid.indexOf(gameKey + "=") === 0) amount = Number(paid.slice(gameKey.length + 1)) || WIN_PRIZE;   // already paid: just remember how much
+        else {
+          amount = window.YB.prize(WIN_PRIZE);                  // (a bit more with the prize bonus)
+          try { localStorage.setItem("yb-sg-paid", gameKey + "=" + amount); } catch (e) {}
         }
-        text += " you won " + WIN_PRIZE.toLocaleString("en-US") + " yeonbucks!";
+        text += " you won " + amount.toLocaleString("en-US") + " yeonbucks!";
       }
       say(text);
     }

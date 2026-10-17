@@ -187,10 +187,10 @@
     const best = total * MAX_POINTS;
     endScore.textContent = "you scored " + score + " out of " + best + ".";
     const prize = prizeFor(score, best);
-    if (prize > 0 && !paidOut && window.YB && window.YB.add) {
+    if (prize > 0 && !paidOut && window.YB && window.YB.prize) {
       paidOut = true;
-      window.YB.add(prize);
-      endScore.textContent += (score === best ? " perfect! " : " ") + "you won " + prize.toLocaleString("en-US") + " yeonbucks!";
+      const paid = window.YB.prize(prize);                 // (a bit more with the prize bonus)
+      endScore.textContent += (score === best ? " perfect! " : " ") + "you won " + paid.toLocaleString("en-US") + " yeonbucks!";
     }
   }
 

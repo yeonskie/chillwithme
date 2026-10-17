@@ -79,29 +79,44 @@
   });
   list.addEventListener("pointercancel", () => { startX = null; });
 
-  // a random page: one of the pages in the boxes, and every moodboard counts as its own page, so a
-  // random pick can land on any of them. Never the same one twice in a row, and never the one you're on now.
+  // a random page: one of the pages in the boxes, plus the arcade games. It works like a shuffled deck: every page
+  // gets dealt once before any page comes round again, so it doesn't repeat itself. Never the one you're on now,
+  // and never the same one twice in a row. The braindump counts as ONE page (then a random moodboard is shown),
+  // so it doesn't come up more than anywhere else.
   // Used by "randomize my stay" and by "surprise me" in the bottom bar.
   let lastPick = "";
+  let deck = [];
   // pages that are in the random pool but not in the carousel: add a game here once it's finished
-  const EXTRA_RANDOM = ["#hyrax"];
+  const EXTRA_RANDOM = ["#hyrax", "#casino", "#idol", "#scattergories"];   // the arcade games (the arcade page and the prize shop are in the carousel)
+
+  function shuffled(a) {
+    a = a.slice();
+    for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
 
   function goRandom() {
     const pages = slides.map((s) => s.querySelector("a")).filter(Boolean).map((a) => a.getAttribute("href"));
-    const count = typeof boards !== "undefined" ? boards.length : 0;           // the moodboards (from script.js)
-    const keys = [];
-    pages.concat(EXTRA_RANDOM).forEach((p) => {
-      if (p === "#braindump" && count > 0) for (let n = 0; n < count; n++) keys.push("#braindump:" + n);
-      else keys.push(p);
-    });
-    const hereKey = location.hash === "#braindump" && count > 0 && typeof currentBoard !== "undefined"
-      ? "#braindump:" + currentBoard : location.hash;
-    const options = keys.filter((k) => k !== lastPick && k !== hereKey);
-    const pool = options.length ? options : keys;
-    if (!pool.length) return;
-    lastPick = pool[Math.floor(Math.random() * pool.length)];
-    const [page, board] = lastPick.split(":");
-    if (board !== undefined && typeof showBoard === "function") showBoard(Number(board));
+    const all = pages.concat(EXTRA_RANDOM).filter((p, i, arr) => arr.indexOf(p) === i);
+    const here = location.hash || "#home";
+    deck = deck.filter((p) => all.indexOf(p) !== -1);                 // (in case the pages changed)
+    const ok = (p) => p !== here && p !== lastPick;
+    let page = null;
+    for (let tries = 0; tries < 2 && !page; tries++) {
+      if (!deck.length) deck = shuffled(all);                         // a fresh deck once every page has had a turn
+      const i = deck.findIndex(ok);
+      if (i !== -1) { page = deck[i]; deck.splice(i, 1); }
+      else if (tries === 0) deck = shuffled(all);                     // only the pages you just saw were left: reshuffle
+    }
+    if (!page) page = all.find((p) => p !== here) || all[0];
+    if (!page) return;
+    lastPick = page;
+    if (page === "#braindump" && typeof boards !== "undefined" && boards.length > 0 && typeof showBoard === "function") {
+      const now = typeof currentBoard !== "undefined" ? currentBoard : -1;
+      const choices = boards.map((_, n) => n).filter((n) => n !== now);
+      const n = (choices.length ? choices : [0])[Math.floor(Math.random() * (choices.length || 1))];
+      showBoard(n);
+    }
     location.hash = page;
   }
 

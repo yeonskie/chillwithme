@@ -162,9 +162,9 @@
     eatTimer = null;
     setPic("done");
     hint.textContent = "the hyrax is full. thank you!";
-    if (window.YB && window.YB.add) {
-      window.YB.add(FINISH_PRIZE);
-      hint.textContent += " you won " + FINISH_PRIZE.toLocaleString("en-US") + " yeonbucks!";
+    if (window.YB && window.YB.prize) {
+      const paid = window.YB.prize(FINISH_PRIZE);          // (a bit more with the prize bonus)
+      hint.textContent += " you won " + paid.toLocaleString("en-US") + " yeonbucks!";
     }
     againBtn.hidden = false;
     if (restartBtn) restartBtn.hidden = true;   // "play again" takes its place

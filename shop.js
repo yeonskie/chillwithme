@@ -7,11 +7,14 @@
 //   desc   - the little line under the name
 //   price  - cost in yeonbucks
 //   (the shop shows 9 at a time with an arrow to the next page, so just keep adding to the list. Keep the secret room key last.)
-//   kind   - "perk"   : you just own it (the earn boosts are switched on in casino.js; "tag" is the little label in the box)
+//   kind   - "perk"   : you just own it (the earn boosts, lucky charm and prize bonus are switched on in casino.js; "tag" is the little label in the box)
 //            "cursor" : a trail that follows the mouse. "value" is "sparkle" or "heart"
+//            "tap"    : little stars pop where you tap or click. "value" is "sparkle"
 //            "bg"     : a page background. "value" is "dots", "grid" or "stars"
-//            "pet"    : a little pet in the bottom right corner. "value" is "dog" or "cat" (what they say is at the bottom of this file)
+//            "accent" : tints the whole site a color. "value" is "pink", "blue", "green" or "lavender" (the colors are in style.css, search "data-accent")
+//            "pet"    : a little pet in the bottom right corner. "value" is "dog", "cat" or "bunny" (what they say is at the bottom of this file)
 //            "soon"   : shows in the shop but can't be bought yet
+//   desktop - (optional) true = the card says "(desktop only)", for things that need a mouse
 //
 // What a visitor owns is saved in this browser ("yb-own"), and so is what they have switched on ("yb-eq").
 // The cursor trails are drawn at the bottom of this file, the backgrounds are in style.css (search "html[data-bg").
@@ -20,13 +23,21 @@
   const ITEMS = [
     { id: "boost",      group: "boosts",       name: "earn boost",      desc: "+75 every 30 seconds instead of +50", price: 10000, kind: "perk", tag: "+75" },
     { id: "boost2",     group: "boosts",       name: "super earn boost", desc: "+100 every 30 seconds instead of +50", price: 35000, kind: "perk", tag: "+100" },
-    { id: "cur-sparkle", group: "cursor trails", name: "sparkle trail",  desc: "stars follow your cursor",            price: 2000,  kind: "cursor", value: "sparkle" },
-    { id: "cur-heart",   group: "cursor trails", name: "heart trail",    desc: "hearts follow your cursor",           price: 1500,  kind: "cursor", value: "heart" },
+    { id: "charm",      group: "boosts",       name: "lucky charm",     desc: "+5% chance of the casino jackpot",    price: 20000, kind: "perk", tag: "+5%" },
+    { id: "bonus",      group: "boosts",       name: "prize bonus",     desc: "+10% on every game prize",            price: 25000, kind: "perk", tag: "+10%" },
     { id: "bg-dots",     group: "backgrounds",   name: "faint dots",     desc: "a soft dotted page",                  price: 500,   kind: "bg", value: "dots" },
     { id: "bg-grid",     group: "backgrounds",   name: "grid paper",     desc: "notebook grid lines",                 price: 500,   kind: "bg", value: "grid" },
     { id: "bg-stars",    group: "backgrounds",   name: "star background", desc: "tiny stars scattered around",        price: 750,   kind: "bg", value: "stars" },
+    { id: "cur-sparkle", group: "cursor trails", name: "sparkle trail",  desc: "stars follow your cursor",            price: 2000,  kind: "cursor", value: "sparkle", desktop: true },
+    { id: "cur-heart",   group: "cursor trails", name: "heart trail",    desc: "hearts follow your cursor",           price: 1500,  kind: "cursor", value: "heart", desktop: true },
+    { id: "tap-sparkle", group: "tap",           name: "tap sparkles",   desc: "stars pop where you tap or click",    price: 2500,  kind: "tap", value: "sparkle" },
+    { id: "acc-pink",     group: "accents",      name: "light pink",     desc: "a soft pink tint over the site",      price: 2500,  kind: "accent", value: "pink" },
+    { id: "acc-blue",     group: "accents",      name: "blue",           desc: "a cool blue tint over the site",      price: 2500,  kind: "accent", value: "blue" },
+    { id: "acc-green",    group: "accents",      name: "neon green",     desc: "a fresh green tint over the site",    price: 2500,  kind: "accent", value: "green" },
+    { id: "acc-lavender", group: "accents",      name: "lavender",       desc: "a dreamy purple tint over the site",  price: 2500,  kind: "accent", value: "lavender" },
     { id: "pet-dog",     group: "pets",          name: "dog",            desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "dog" },
     { id: "pet-cat",     group: "pets",          name: "cat",            desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "cat" },
+    { id: "pet-bunny",   group: "pets",          name: "bunny",          desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "bunny" },
     { id: "key",         group: "secret",        name: "secret room key", desc: "opens something... (coming soon)",    price: 50000, kind: "soon" },
   ];
 
@@ -34,11 +45,12 @@
   function load(k, fallback) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fallback : v; } catch (e) { return fallback; } }
   function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   let own = load("yb-own", []);
-  let eq = load("yb-eq", { cursor: "", bg: "", pet: "" });
-  const EQKEY = { cursor: "cursor", bg: "bg", pet: "pet" };   // which slot each kind of item goes in
+  let eq = load("yb-eq", { cursor: "", bg: "", pet: "", accent: "", tap: "" });
+  const EQKEY = { cursor: "cursor", bg: "bg", pet: "pet", accent: "accent", tap: "tap" };   // which slot each kind of item goes in
   let petNames = load("yb-petnames", {});                       // each pet has its own name
   if (!petNames.dog && load("yb-petname", "")) petNames.dog = load("yb-petname", "");   // (an older single name, if there was one)
-  const nameOf = (kind) => petNames[kind] || (kind === "cat" ? "kitty" : "buddy");
+  const PETS = ["dog", "cat", "bunny"];
+  const nameOf = (kind) => petNames[kind] || (kind === "cat" ? "kitty" : kind === "bunny" ? "bun" : "buddy");
   const owns = (id) => own.indexOf(id) !== -1;
   const find = (id) => ITEMS.filter((i) => i.id === id)[0];
   const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -47,8 +59,9 @@
   function applyLook() {
     const root = document.documentElement;
     if (eq.bg) root.dataset.bg = eq.bg; else delete root.dataset.bg;
+    if (eq.accent) root.dataset.accent = eq.accent; else delete root.dataset.accent;
     const pet = document.getElementById("pet");
-    if (pet) { pet.hidden = eq.pet !== "dog" && eq.pet !== "cat"; pet.dataset.kind = eq.pet || ""; }
+    if (pet) { pet.hidden = PETS.indexOf(eq.pet) === -1; pet.dataset.kind = eq.pet || ""; }
   }
 
   // ----- the shop page -----
@@ -74,6 +87,8 @@
 
   function preview(item) {
     if (item.kind === "bg") return '<span class="shop-prev" data-p="' + item.value + '"></span>';
+    if (item.kind === "accent") return '<span class="shop-prev shop-prev-accent" data-a="' + item.value + '"></span>';
+    if (item.kind === "tap") return '<span class="shop-prev shop-prev-glyph" data-g="sparkle">\u2726 \u2727 \u2726</span>';
     if (item.kind === "cursor") return '<span class="shop-prev shop-prev-glyph" data-g="' + item.value + '">' + (item.value === "heart" ? "♥ ♥ ♥" : "✦ ✧ ✦") + "</span>";
     if (item.kind === "pet") { const a = document.querySelector('#pet .pet-art[data-pet="' + item.value + '"] .pet-a'); return '<span class="shop-prev shop-prev-pet">' + (a ? a.outerHTML : "") + "</span>"; }
     if (item.kind === "soon") return '<span class="shop-prev shop-prev-glyph">?</span>';
@@ -100,6 +115,12 @@
         '<span class="shop-name"></span><span class="shop-desc"></span><span class="shop-price"></span>' +
         '<button type="button" class="hy-btn shop-buy"></button>';
       card.querySelector(".shop-name").textContent = item.name;
+      if (item.desktop) {                                          // "(desktop only)" under the name
+        const note = document.createElement("small");
+        note.className = "shop-note";
+        note.textContent = "(desktop only)";
+        card.querySelector(".shop-name").appendChild(note);
+      }
       card.querySelector(".shop-desc").textContent = item.desc;
       card.querySelector(".shop-price").textContent = fmt(item.price) + " yeonbucks";
       card.querySelector(".shop-buy").addEventListener("click", () => act(item));
@@ -162,7 +183,7 @@
   window.addEventListener("storage", (e) => {
     if (e.key === "yb-own" || e.key === "yb-eq" || e.key === null) {
       own = load("yb-own", []);
-      eq = load("yb-eq", { cursor: "", bg: "", pet: "" });
+      eq = load("yb-eq", { cursor: "", bg: "", pet: "", accent: "", tap: "" });
       petNames = load("yb-petnames", {});
       applyLook();
       update();
@@ -213,11 +234,13 @@
   function drawInv() {
     if (!invBody) return;
     invBody.innerHTML = "";
-    invBody.appendChild(group("cursor trail", "cursor", "no trail"));
+    invBody.appendChild(group("cursor trail (desktop only)", "cursor", "no trail"));
     invBody.appendChild(group("background", "bg", "plain"));
+    invBody.appendChild(group("color accent", "accent", "none"));
+    invBody.appendChild(group("tap effect", "tap", "none"));
     const pets = group("pet", "pet", "no pet");
     const kind = eq.pet;                                     // the name box is for the pet that's out
-    if ((kind === "dog" || kind === "cat") && owns("pet-" + kind)) {
+    if (PETS.indexOf(kind) !== -1 && owns("pet-" + kind)) {
       const lab = document.createElement("label");
       lab.className = "inv-name";
       lab.textContent = "name ";
@@ -270,6 +293,31 @@
   }
   window.addEventListener("storage", () => { if (invEl && !invEl.hidden) drawInv(); });
 
+  // ----- the "how it works" pop-up (from the bottom-left box or the shop page) -----
+  const howEl = document.getElementById("how");
+  let howFrom = null;
+  function openHow(from) {
+    if (!howEl) return;
+    howFrom = from || null;
+    if (window.YB) window.YB.redraw();                       // so the "+50" in the text is right
+    howEl.hidden = false;
+    const c = document.getElementById("how-close");
+    if (c) c.focus();
+  }
+  function closeHow(restore) {
+    if (!howEl || howEl.hidden) return;
+    howEl.hidden = true;
+    if (restore !== false && howFrom && document.contains(howFrom)) howFrom.focus();
+    howFrom = null;
+  }
+  document.querySelectorAll("[data-how-open]").forEach((b) => b.addEventListener("click", () => openHow(b)));
+  if (howEl) {
+    document.getElementById("how-close").addEventListener("click", () => closeHow());
+    howEl.addEventListener("click", (e) => { if (e.target === howEl || e.target.closest(".how-links a")) closeHow(false); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeHow(); });
+    window.addEventListener("hashchange", () => closeHow(false));
+  }
+
   applyLook();
   build();
 
@@ -295,12 +343,35 @@
     bit.addEventListener("animationend", () => { bit.remove(); alive--; });
   }, { passive: true });
 
+  // ----- tap sparkles: a little burst of stars where you tap or click (phones too) -----
+  let tapAlive = 0;
+  window.addEventListener("pointerdown", (e) => {
+    if (reduce || eq.tap !== "sparkle" || tapAlive > 60) return;
+    const glyphs = ["\u2726", "\u2727", "\u2736"];
+    for (let i = 0; i < 6; i++) {
+      const bit = document.createElement("span");
+      bit.className = "tap-bit";
+      bit.textContent = glyphs[i % glyphs.length];
+      const ang = (Math.PI * 2 * i) / 6 + Math.random() * 0.6;
+      const dist = 22 + Math.random() * 20;
+      bit.style.left = e.clientX + "px";
+      bit.style.top = e.clientY + "px";
+      bit.style.setProperty("--tx", (Math.cos(ang) * dist).toFixed(1) + "px");
+      bit.style.setProperty("--ty", (Math.sin(ang) * dist).toFixed(1) + "px");
+      bit.style.setProperty("--s", (0.7 + Math.random() * 0.6).toFixed(2));
+      document.body.appendChild(bit);
+      tapAlive++;
+      bit.addEventListener("animationend", () => { bit.remove(); tapAlive--; });
+    }
+  }, { passive: true });
+
   // ----- the pet: sits in the bottom right corner, waves and talks when you point at it -----
   const petEl = document.getElementById("pet"), petBtn = document.getElementById("pet-btn"), petBubble = document.getElementById("pet-bubble");
   let petTimer = null, lastSaid = -1;
   const PET_LINES = {                                   // <- what each pet says (one at random); {name} becomes its name
     dog: ["buwark!", "woof!", "hello i'm {name}!"],
     cat: ["mrow", "hiss!", "hello i'm {name}!"],
+    bunny: ["squeak!", "*thump thump*", "hello i'm {name}!"],
   };
   function petSay() {
     const kind = eq.pet;
