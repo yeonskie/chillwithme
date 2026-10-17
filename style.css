@@ -2503,3 +2503,17 @@ html[data-bg="stars"] body, .shop-prev[data-p="stars"] {
 
 /* a link that looks like one of the little buttons (the casino's "prize shop") */
 a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
+
+/* music page: every box has a solid background, so a page background (dots, grid, stars) doesn't show through */
+.music .music-now, .music .music-list, .music .mb-tabs, .music .mb-plus { background: var(--bg); }
+
+/* braindump: the moodboard tabs (the titles) and the little + buttons have a solid background */
+.mb .mb-tabs, .mb .mb-plus { background: var(--bg); }
+
+/* confession booth: the button and the places on the map have a solid background */
+.confession-go, .fair-place { background: var(--bg); }
+.confession-go:hover, .confession-go:focus-visible, .fair-place:hover, .fair-place:focus-visible { background: var(--text); }
+
+/* the places in the confession booth: the typing box, its button, the secrets and "show more" all have a solid background */
+.place-form textarea, .place-form input, .place-form button, .place .cm-card, .place-more { background: var(--bg); }
+.place-form button:hover, .place-form button:focus-visible { background: var(--text); }
