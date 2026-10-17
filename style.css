@@ -2314,3 +2314,9 @@ body.has-yb .page { padding-bottom: 4.5rem; }
   .id-q .qm-fill { fill: none; }
   .id-q .qm-line { fill: var(--bg); }   /* the box turns dark on hover, so the icon takes the page colour */
 }
+
+/* phones: no decorations on the arcade boxes, and the boxes are evenly spaced */
+@media (max-width: 40rem) {
+  .slot-lever, .sg-pencil, .hy-lf, .id-q, .arcade-item-prize::before { display: none; }
+  .arcade-item-prize, .arcade-item-hy { margin-top: 0; margin-bottom: 0; }
+}
