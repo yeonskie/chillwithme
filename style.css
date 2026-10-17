@@ -2086,8 +2086,9 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-win img { filter: invert(1); }
 :root[data-theme="dark"] .cz-win img { filter: none; }
 /* jackpot (10x): the whole machine inverts */
-.cz-jackpot { background: var(--text); }
-.cz-jackpot .cz-cell img { filter: invert(1); }
+/* jackpot: the whole grid flashes baby pink (the pictures stay black so they show up on it) */
+.cz-jackpot { background: #f8c8dc; }
+.cz-jackpot .cz-cell img { filter: none; }
 :root[data-theme="dark"] .cz-jackpot .cz-cell img { filter: none; }
 /* 0.5x: the two matching pictures get a dashed outline */
 .cz-pair { outline: 1px dashed var(--text); outline-offset: -0.35em; }
@@ -2162,4 +2163,9 @@ body.has-yb .page { padding-bottom: 4.5rem; }
    (change 44.5em to spread it out more or less) */
 @media (min-width: 701px) {
   .page[data-page="casino"].active .cz-wrap { flex: 0 0 auto; height: 44.5em; margin: auto; }
+}
+
+/* on phones the casino is bigger and the page just scrolls (change 17px to make it bigger or smaller) */
+@media (max-width: 700px) {
+  .page[data-page="casino"] .cz-wrap { font-size: 17px; gap: 1.2em; }
 }
