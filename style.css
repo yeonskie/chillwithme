@@ -2264,25 +2264,30 @@ body.has-yb .page { padding-bottom: 4.5rem; }
   .sg-pencil .pn-line { fill: currentColor; }
 }
 
-/* leaf on top of the "help the hyrax" box: only shows when you point at the box, solid back so nothing shows through */
+/* leaf tucked behind "help the hyrax": grows up out of the top of the box on hover, solid back so nothing shows through */
 .arcade-item-hy { z-index: 0; }
-.hy-leaf {
-  position: absolute; left: 50%; bottom: calc(100% - 1px); translate: -50% 0.7rem;   /* starts a bit low, rises as it fades in */
-  width: 2.4rem; height: auto;
-  opacity: 0; transition: opacity 0.3s ease, translate 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
-  pointer-events: none;
+.arcade-item-hy .hy-lf {
+  position: absolute; left: 0; top: 0; width: 0; height: 0;       /* middle of the box; turns the opposite way to the circle, like the box */
+  z-index: -1; pointer-events: none;
+  transform: rotate(calc(var(--a) * -1));
+  animation: arcade-unspin 45s linear infinite;
 }
-.arcade-item-hy .arcade-card:hover .hy-leaf, .arcade-item-hy .arcade-card:focus-visible .hy-leaf { opacity: 1; translate: -50% 0; }
-.hy-leaf .lf-fill { fill: var(--bg); }
-.hy-leaf .lf-line { fill: var(--text); }
-@media (max-width: 40rem) {   /* phones: sits inside the box, in the box's own colours */
-  .arcade-item-hy .arcade-card { position: relative; left: auto; top: auto; }
-  .hy-leaf { left: auto; right: 0.9rem; bottom: auto; top: 50%; translate: 0 calc(-50% + 0.5rem); width: 1.7rem; }
-  .arcade-item-hy .arcade-card:hover .hy-leaf, .arcade-item-hy .arcade-card:focus-visible .hy-leaf { translate: 0 -50%; }
-  .hy-leaf .lf-fill { fill: none; }
-  .hy-leaf .lf-line { fill: currentColor; }
+.arcade-ring:hover .arcade-item-hy .hy-lf, .arcade-ring:focus-within .arcade-item-hy .hy-lf { animation-play-state: paused; }
+.hy-lf svg {
+  position: absolute; left: 0; top: 0; width: 2.4rem; height: auto; overflow: visible;
+  translate: -50% -50%;                                            /* resting: hidden behind the box */
+  transition: translate 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);
 }
-@media (prefers-reduced-motion: reduce) { .hy-leaf { transition: opacity 0.2s ease; } }
+.arcade-item-hy:hover .hy-lf svg, .arcade-item-hy:focus-within .hy-lf svg { translate: -50% calc(var(--card-h) / -2 - 100% + 0.5rem); }   /* + = ends lower, tucked a bit behind the box */
+.hy-lf .lf-fill { fill: var(--bg); }
+.hy-lf .lf-line { fill: var(--text); }
+@media (prefers-reduced-motion: reduce) { .arcade-item-hy .hy-lf { animation: none; } .hy-lf svg { transition: none; } }
+@media (max-width: 40rem) {   /* phones: same idea, rising out of the top of the box near its right end */
+  .arcade-item-hy { position: relative; left: auto; top: auto; margin-top: 1.6rem; }
+  .arcade-item-hy .hy-lf { position: static; width: auto; height: auto; transform: none; animation: none; }
+  .hy-lf svg { left: calc(50% + min(9rem, 50%) - 3.2rem); top: 0; width: 1.8rem; translate: 0 0; }
+  .arcade-item-hy:hover .hy-lf svg, .arcade-item-hy:focus-within .hy-lf svg { translate: 0 calc(-100% + 0.5rem); }
+}
 
 /* question mark tucked behind "guess the k-pop idol": slides out from behind the box to the right on hover */
 .arcade-item-idol .id-q {
