@@ -7,13 +7,14 @@
 //   desc   - the little line under the name
 //   price  - cost in yeonbucks
 //   wheel  - (optional) true = not sold in the shop, it's a prize from the secret room wheel
+//   rare   - (optional) true = sold in the RARE ITEMS SHOP in the secret room instead (see "THE RARE ITEMS SHOP" lower down)
 //   (the shop shows the items in this order, 9 at a time with an arrow to the next page, so just keep adding to the list. Keep the secret room key last.)
 //   kind   - "perk"   : you just own it (the earn boosts, lucky charm and prize bonus are switched on in casino.js, the secret room key in secretroom.js; "tag" is the little label in the box)
 //            "cursor" : a trail that follows the mouse. "value" is "sparkle" or "heart"
 //            "tap"    : little stars or hearts pop where you tap or click. "value" is "sparkle" or "heart"
 //            "bg"     : a page background. "value" is "dots", "grid" or "stars"
 //            "accent" : tints the whole site a color. "value" is "pink", "blue", "green" or "lavender" (the colors are in style.css, search "data-accent")
-//            "pet"    : a little pet in the bottom right corner. "value" is "dog", "cat", "bunny", "koala", "frog" or "panda" (what they say is at the bottom of this file)
+//            "pet"    : a little pet in the bottom right corner. "value" is the animal's name, e.g. "dog" or "koala" (what they say is at the bottom of this file)
 //            "soon"   : shows in the shop but can't be bought yet
 //   desktop - (optional) true = the card says "(desktop only)", for things that need a mouse
 //
@@ -21,6 +22,7 @@
 // The cursor trails are drawn at the bottom of this file, the backgrounds are in style.css (search "html[data-bg").
 
 (function () {
+  const RARE_PRICE = 45000;                                      // what every pet in the rare items shop costs
   const ITEMS = [
     { id: "bg-dots",     group: "backgrounds",   name: "faint dots",     desc: "a soft dotted page",                  price: 500,   kind: "bg", value: "dots" },
     { id: "bg-grid",     group: "backgrounds",   name: "grid paper",     desc: "notebook grid lines",                 price: 500,   kind: "bg", value: "grid" },
@@ -41,13 +43,24 @@
     { id: "pet-cat",     group: "pets",          name: "cat",            desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "cat" },
     { id: "pet-bunny",   group: "pets",          name: "bunny",          desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "bunny" },
     { id: "key",         group: "secret",        name: "secret room key", desc: "opens the secret room at the back of the fair", price: 50000, kind: "perk", tag: "?" },
-    // wheel: true = never sold in the shop, only won on the secret room's wheel (it still shows up in the inventory once you have it)
-    { id: "pet-koala",   group: "pets", name: "koala", desc: "a mystery pet", price: 0, kind: "pet", value: "koala", wheel: true },
-    { id: "pet-frog",    group: "pets", name: "frog",  desc: "a mystery pet", price: 0, kind: "pet", value: "frog", wheel: true },
-    { id: "pet-panda",   group: "pets", name: "panda", desc: "a mystery pet", price: 0, kind: "pet", value: "panda", wheel: true },
+    // rare: true = sold in the rare items shop (secret room), not the prize shop. koala, frog and panda are also wheel prizes.
+    // soon: true on a "kind: soon" item keeps it on the shelf as "coming soon" (the rat is on its way).
+    { id: "pet-koala",    group: "pets", name: "koala",    desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "koala", rare: true },
+    { id: "pet-frog",     group: "pets", name: "frog",     desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "frog", rare: true },
+    { id: "pet-panda",    group: "pets", name: "panda",    desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "panda", rare: true },
+    { id: "pet-fish",     group: "pets", name: "fish",     desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "fish", rare: true },
+    { id: "pet-chicken",  group: "pets", name: "chicken",  desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "chicken", rare: true },
+    { id: "pet-elephant", group: "pets", name: "elephant", desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "elephant", rare: true },
+    { id: "pet-goat",     group: "pets", name: "goat",     desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "goat", rare: true },
+    { id: "pet-hamster",  group: "pets", name: "hamster",  desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "hamster", rare: true },
+    { id: "pet-hedgehog", group: "pets", name: "hedgehog", desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "hedgehog", rare: true },
+    { id: "pet-mouse",    group: "pets", name: "mouse",    desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "mouse", rare: true },
+    { id: "pet-turtle",   group: "pets", name: "turtle",   desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "turtle", rare: true },
+    { id: "pet-rat",      group: "pets", name: "rat",      desc: "a pet with moods. on its way!", price: RARE_PRICE, kind: "soon", rare: true },
+    // wheel: true = never sold in a shop, only won on the secret room's wheel (it still shows up in the inventory once you have it)
     { id: "tap-rainbow", group: "tap",           name: "rainbow sparkle tap", desc: "rainbow stars pop where you tap or click", price: 0, kind: "tap", value: "rainbow", wheel: true },
   ];
-  const SHOP = ITEMS.filter((i) => !i.wheel);                    // what the shop sells
+  const SHOP = ITEMS.filter((i) => !i.wheel && !i.rare);         // what the prize shop sells
 
   // ----- what's owned / switched on (saved in this browser) -----
   function load(k, fallback) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fallback : v; } catch (e) { return fallback; } }
@@ -57,8 +70,8 @@
   const EQKEY = { cursor: "cursor", bg: "bg", pet: "pet", accent: "accent", tap: "tap" };   // which slot each kind of item goes in
   let petNames = load("yb-petnames", {});                       // each pet has its own name
   if (!petNames.dog && load("yb-petname", "")) petNames.dog = load("yb-petname", "");   // (an older single name, if there was one)
-  const PETS = ["dog", "cat", "bunny", "koala", "frog", "panda"];
-  const nameOf = (kind) => petNames[kind] || ({ cat: "kitty", bunny: "bun", koala: "koko", frog: "froggy", panda: "bao" }[kind] || "buddy");
+  const PETS = ["dog", "cat", "bunny", "koala", "frog", "panda", "fish", "chicken", "elephant", "goat", "hamster", "hedgehog", "mouse", "turtle"];
+  const nameOf = (kind) => petNames[kind] || ({ cat: "kitty", bunny: "bun", koala: "koko", frog: "froggy", panda: "bao", fish: "bubbles", chicken: "peep", elephant: "ellie", goat: "billy", hamster: "hammy", hedgehog: "spike", mouse: "mimi", turtle: "shelly" }[kind] || "buddy");
   const owns = (id) => own.indexOf(id) !== -1;
   const find = (id) => ITEMS.filter((i) => i.id === id)[0];
   const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -74,14 +87,12 @@
   }
 
   // ----- the shop page -----
-  const box = document.getElementById("shop-items");
-  const msg = document.getElementById("shop-msg");
   let msgTimer = null;
-  function say(t) {
-    if (!msg) return;
-    msg.textContent = t;
+  function say(t) {                                              // (the prize shop and the rare items shop each have a .shop-msg line)
+    const lines = document.querySelectorAll(".shop-msg");
+    lines.forEach((m) => { m.textContent = t; });
     clearTimeout(msgTimer);
-    msgTimer = setTimeout(() => { msg.textContent = ""; }, 3500);
+    msgTimer = setTimeout(() => { lines.forEach((m) => { m.textContent = ""; }); }, 3500);
   }
   const have = () => (window.YB ? window.YB.have() : 0);
 
@@ -104,71 +115,109 @@
     return '<span class="shop-prev shop-prev-glyph">' + (item.tag || "") + "</span>";
   }
 
-  // the shop shows 9 at a time (3 x 3), or 6 on a phone, with arrows to the other pages
+  // a "shelf" is one shop's grid of cards. It shows 9 at a time (3 x 3), or 6 on a phone, with arrows to the other pages.
+  // list() says what's on it right now. The prize shop and the rare items shop each have one.
   const phone = window.matchMedia ? window.matchMedia("(max-width: 40rem)") : { matches: false };
   const perPage = () => (phone.matches ? 6 : 9);
-  let page = 0;
-  function build() {
-    if (!box) return;
-    const pages = Math.max(1, Math.ceil(SHOP.length / perPage()));
-    page = Math.min(Math.max(page, 0), pages - 1);
-    box.innerHTML = "";
-    const grid = document.createElement("div");   // everything in one set of rows
-    grid.className = "shop-grid";
-    box.appendChild(grid);
-    SHOP.slice(page * perPage(), page * perPage() + perPage()).forEach((item) => {
-      const card = document.createElement("div");
-      card.className = "shop-item";
-      card.dataset.id = item.id;
-      card.innerHTML = preview(item) +
-        '<span class="shop-name"></span><span class="shop-desc"></span><span class="shop-price"></span>' +
-        '<button type="button" class="hy-btn shop-buy"></button>';
-      card.querySelector(".shop-name").textContent = item.name;
-      if (item.desktop) {                                          // "(desktop only)" under the name
-        const note = document.createElement("small");
-        note.className = "shop-note";
-        note.textContent = "(desktop only)";
-        card.querySelector(".shop-name").appendChild(note);
+  function makeShelf(box, list) {
+    let page = 0;
+    function build() {
+      if (!box) return;
+      const items = list();
+      const pages = Math.max(1, Math.ceil(items.length / perPage()));
+      page = Math.min(Math.max(page, 0), pages - 1);
+      box.innerHTML = "";
+      const grid = document.createElement("div");   // everything in one set of rows
+      grid.className = "shop-grid";
+      box.appendChild(grid);
+      items.slice(page * perPage(), page * perPage() + perPage()).forEach((item) => {
+        const card = document.createElement("div");
+        card.className = "shop-item";
+        card.dataset.id = item.id;
+        card.innerHTML = preview(item) +
+          '<span class="shop-name"></span><span class="shop-desc"></span><span class="shop-price"></span>' +
+          '<button type="button" class="hy-btn shop-buy"></button>';
+        card.querySelector(".shop-name").textContent = item.name;
+        if (item.desktop) {                                          // "(desktop only)" under the name
+          const note = document.createElement("small");
+          note.className = "shop-note";
+          note.textContent = "(desktop only)";
+          card.querySelector(".shop-name").appendChild(note);
+        }
+        card.querySelector(".shop-desc").textContent = item.desc;
+        card.querySelector(".shop-price").textContent = item.kind === "soon" ? "? yeonbucks" : fmt(item.price) + " yeonbucks";
+        card.querySelector(".shop-buy").addEventListener("click", () => act(item));
+        grid.appendChild(card);
+      });
+      if (pages > 1) {                                // the arrows
+        const nav = document.createElement("div");
+        nav.className = "shop-pager";
+        const prev = document.createElement("button");
+        prev.type = "button"; prev.className = "hy-btn shop-arrow"; prev.textContent = "\u2190"; prev.setAttribute("aria-label", "previous page");
+        prev.disabled = page === 0;
+        prev.addEventListener("click", () => { page--; build(); });
+        const next = document.createElement("button");
+        next.type = "button"; next.className = "hy-btn shop-arrow"; next.textContent = "\u2192"; next.setAttribute("aria-label", "next page");
+        next.disabled = page === pages - 1;
+        next.addEventListener("click", () => { page++; build(); });
+        const lab = document.createElement("span");
+        lab.className = "shop-page";
+        lab.textContent = (page + 1) + " / " + pages;
+        nav.appendChild(prev); nav.appendChild(lab); nav.appendChild(next);
+        box.appendChild(nav);
       }
-      card.querySelector(".shop-desc").textContent = item.desc;
-      card.querySelector(".shop-price").textContent = fmt(item.price) + " yeonbucks";
-      card.querySelector(".shop-buy").addEventListener("click", () => act(item));
-      grid.appendChild(card);
-    });
-    if (pages > 1) {                                // the arrows
-      const nav = document.createElement("div");
-      nav.className = "shop-pager";
-      const prev = document.createElement("button");
-      prev.type = "button"; prev.className = "hy-btn shop-arrow"; prev.textContent = "\u2190"; prev.setAttribute("aria-label", "previous page");
-      prev.disabled = page === 0;
-      prev.addEventListener("click", () => { page--; build(); });
-      const next = document.createElement("button");
-      next.type = "button"; next.className = "hy-btn shop-arrow"; next.textContent = "\u2192"; next.setAttribute("aria-label", "next page");
-      next.disabled = page === pages - 1;
-      next.addEventListener("click", () => { page++; build(); });
-      const label = document.createElement("span");
-      label.className = "shop-page";
-      label.textContent = (page + 1) + " / " + pages;
-      nav.appendChild(prev); nav.appendChild(label); nav.appendChild(next);
-      box.appendChild(nav);
+      update();
     }
-    update();
+    function update() {
+      if (!box) return;
+      box.querySelectorAll(".shop-item").forEach((card) => {
+        const item = find(card.dataset.id);
+        const l = label(item);
+        const b = card.querySelector(".shop-buy");
+        b.textContent = l.text;
+        b.disabled = l.disabled;
+        card.classList.toggle("is-owned", owns(item.id));
+        card.classList.toggle("is-on", isOn(item));
+        card.classList.toggle("is-short", !owns(item.id) && item.kind !== "soon" && have() < item.price);
+      });
+    }
+    return { build: build, update: update };
   }
-  if (phone.addEventListener) phone.addEventListener("change", build);
+  const prizeShelf = makeShelf(document.getElementById("shop-items"), () => SHOP);
 
-  function update() {
-    if (!box) return;
-    box.querySelectorAll(".shop-item").forEach((card) => {
-      const item = find(card.dataset.id);
-      const l = label(item);
-      const b = card.querySelector(".shop-buy");
-      b.textContent = l.text;
-      b.disabled = l.disabled;
-      card.classList.toggle("is-owned", owns(item.id));
-      card.classList.toggle("is-on", isOn(item));
-      card.classList.toggle("is-short", !owns(item.id) && item.kind !== "soon" && have() < item.price);
-    });
+  // ----- THE RARE ITEMS SHOP (the secret room, room 4) -----
+  // Same look as the prize shop. It only stocks RARE_SLOTS things at a time and the stock changes every other day,
+  // the same for every visitor (it's worked out from the date, nothing is saved). The spots are picked at random from
+  // everything marked rare: true in ITEMS. "soon" items (the rat) stay off the shelf; change its kind to "pet" when it is ready.
+  const RARE_SLOTS = 4;
+  const dayNumber = () => { const d = new Date(); return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); };   // today, counted in the visitor's own time zone
+  const stockWindow = () => Math.floor(dayNumber() / 2) + (parseInt(localStorage.getItem("yb-rare-shift"), 10) || 0);   // (the shift is only used by test mode)
+  function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  function rareStock() {
+    const rare = ITEMS.filter((i) => i.rare);
+    const pool = rare.filter((i) => i.kind !== "soon");
+    const rand = rng(stockWindow() * 2654435761 + 12345);
+    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
+    return pool.slice(0, RARE_SLOTS);                            // (the "coming soon" rat stays off the shelf until it is ready)
   }
+  let rareShown = -1;
+  const rareShelf = makeShelf(document.getElementById("rare-items"), rareStock);
+  const restockEl = document.getElementById("rare-restock");
+  function restockText() {
+    const d = new Date();
+    const next = new Date(d.getFullYear(), d.getMonth(), d.getDate() + (2 - (dayNumber() % 2)));   // the next even day's midnight
+    const mins = Math.max(1, Math.ceil((next - d) / 60000));
+    const days = Math.floor(mins / 1440), hrs = Math.floor((mins % 1440) / 60), m = mins % 60;
+    return "new stock in " + (days ? days + " day " : "") + (hrs ? hrs + " hr " : "") + (days ? "" : m + " min");
+  }
+  function rareTick() {                                          // rebuild when the stock changes, keep the timer fresh
+    if (rareShown !== stockWindow()) { rareShown = stockWindow(); rareShelf.build(); }
+    if (restockEl) restockEl.textContent = restockText().trim();
+  }
+  function build() { prizeShelf.build(); rareShelf.build(); rareShown = stockWindow(); if (restockEl) restockEl.textContent = restockText().trim(); }
+  function update() { prizeShelf.update(); rareShelf.update(); }
+  window.addEventListener("storage", (e) => { if (e.key === "yb-rare-shift") rareTick(); });
+  if (phone.addEventListener) phone.addEventListener("change", build);
 
   function act(item) {
     if (item.kind === "soon") return;
@@ -198,7 +247,7 @@
       update();
     }
   });
-  setInterval(update, 1000);   // so "buy" lights up as soon as you can afford it
+  setInterval(() => { update(); rareTick(); }, 1000);   // so "buy" lights up as soon as you can afford it
 
   // ----- the inventory pop-up (from the shop page or the bottom-left box): choose what's switched on -----
   const invEl = document.getElementById("inv"), invBody = document.getElementById("inv-body");
@@ -386,6 +435,14 @@
     koala: ["*munch munch*", "zzz...", "hello i'm {name}!"],
     frog: ["ribbit!", "*splash*", "hello i'm {name}!"],
     panda: ["*munches bamboo*", "rawr? (not scary)", "hello i'm {name}!"],
+    fish: ["blub blub", "*bubbles*", "hello i'm {name}!"],
+    chicken: ["bawk bawk!", "*flaps wings*", "hello i'm {name}!"],
+    elephant: ["*toot!*", "*trumpets softly*", "hello i'm {name}!"],
+    goat: ["baaaa!", "*headbutt* (gently)", "hello i'm {name}!"],
+    hamster: ["*stuffs cheeks*", "squeak squeak", "hello i'm {name}!"],
+    hedgehog: ["*curls up*", "snuffle snuffle", "hello i'm {name}!"],
+    mouse: ["squeak!", "*nibbles cheese*", "hello i'm {name}!"],
+    turtle: ["...hi. (slowly)", "*hides in shell*", "hello i'm {name}!"],
   };
   function petSay() {
     const kind = eq.pet;

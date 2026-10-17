@@ -10,7 +10,7 @@
   const local = location.protocol === "file:" || h === "localhost" || h === "127.0.0.1" || h === "[::1]" || h === "";
   if (!local) return;
 
-  const KEYS = ["yb-own", "yb-eq", "yb-petnames", "yb-petname", "yb-room-seen", "yb-daily", "yb-wheel", "yb-boost-until", "yb-pet-pending"];   // the shop's saved stuff
+  const KEYS = ["yb-own", "yb-eq", "yb-petnames", "yb-petname", "yb-room-seen", "yb-daily", "yb-wheel", "yb-boost-until", "yb-pet-pending", "yb-rare-shift"];   // the shop's saved stuff
   const bal = () => { const v = parseInt(localStorage.getItem("yeonbucks"), 10); return Number.isFinite(v) ? v : 0; };
   const redraw = () => { if (window.YB) window.YB.redraw(); };
   const setBal = (n) => { try { localStorage.setItem("yeonbucks", String(Math.max(0, Math.floor(n)))); } catch (e) {} redraw(); };
@@ -52,10 +52,20 @@
         '<button type="button" data-id="pet-koala">koala</button>' +
         '<button type="button" data-id="pet-frog">frog</button>' +
         '<button type="button" data-id="pet-panda">panda</button>' +
+        '<button type="button" data-id="pet-fish">fish</button>' +
+        '<button type="button" data-id="pet-chicken">chicken</button>' +
+        '<button type="button" data-id="pet-elephant">elephant</button>' +
+        '<button type="button" data-id="pet-goat">goat</button>' +
+        '<button type="button" data-id="pet-hamster">hamster</button>' +
+        '<button type="button" data-id="pet-hedgehog">hedgehog</button>' +
+        '<button type="button" data-id="pet-mouse">mouse</button>' +
+        '<button type="button" data-id="pet-turtle">turtle</button>' +
         '<button type="button" data-id="tap-rainbow">rainbow tap</button>' +
       "</div>" +
       "<h3>start a new day</h3>" +
       '<div class="tm-row"><button type="button" id="tm-day">new day (daily prize + wheel)</button></div>' +
+      "<h3>rare items shop</h3>" +
+      '<div class="tm-row"><button type="button" id="tm-stock">show the next stock</button></div>' +
       "<h3>try things</h3>" +
       '<div class="tm-row">' +
         '<button type="button" id="tm-earn">earn in 2s</button>' +
@@ -95,6 +105,10 @@
   wrap.querySelector("#tm-day").addEventListener("click", () => {        // forget today's daily prize and wheel spins
     try { localStorage.removeItem("yb-daily"); localStorage.removeItem("yb-wheel"); } catch (e) {}
     wrap.querySelector("#tm-day").textContent = "done!";
+  });
+  wrap.querySelector("#tm-stock").addEventListener("click", () => {      // the rare shop changes every other day: jump ahead to the next stock
+    try { localStorage.setItem("yb-rare-shift", String((parseInt(localStorage.getItem("yb-rare-shift"), 10) || 0) + 1)); } catch (e) {}
+    location.reload();
   });
   wrap.querySelector("#tm-earn").addEventListener("click", () => {      // jump the 30-second clock to 2 seconds before an earn
     try { localStorage.setItem("yb-prog", "28"); } catch (e) {}

@@ -2318,8 +2318,8 @@ body.has-yb .page { padding-bottom: 4.5rem; }
 }
 
 /* ---------- Prize shop ---------- */
-.page[data-page="shop"] { position: absolute; inset: 0; padding: 0.5rem 1rem 1.2rem; overflow: auto; }
-.page[data-page="shop"].active { display: flex; flex-direction: column; align-items: center; }
+.page[data-page="shop"], .page[data-page="rare-shop"] { position: absolute; inset: 0; padding: 0.5rem 1rem 1.2rem; overflow: auto; }
+.page[data-page="shop"].active, .page[data-page="rare-shop"].active { display: flex; flex-direction: column; align-items: center; }
 .shop-wrap { width: min(60rem, 100%); text-align: center; }
 .shop-wrap .hy-back { margin-bottom: 0; }
 
@@ -2728,3 +2728,19 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .sw-pet-opt[aria-pressed="true"] .pf { fill: var(--text); }
 .sw-pet-opt[aria-pressed="true"] .pl { fill: var(--bg); }
 .sw-pick[hidden], #sw-controls[hidden] { display: none; }
+
+/* rare items shop animals: drawn once in the page (see .pet-defs), shown like the other single-picture pets */
+.pet-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+.pet-defs .pf { fill: var(--bg); }
+.pet-defs .pl { fill: var(--text); }
+.pet[data-kind="fish"] .pet-art[data-pet="fish"], .pet[data-kind="chicken"] .pet-art[data-pet="chicken"], .pet[data-kind="elephant"] .pet-art[data-pet="elephant"], .pet[data-kind="goat"] .pet-art[data-pet="goat"], .pet[data-kind="hamster"] .pet-art[data-pet="hamster"], .pet[data-kind="hedgehog"] .pet-art[data-pet="hedgehog"], .pet[data-kind="mouse"] .pet-art[data-pet="mouse"], .pet[data-kind="turtle"] .pet-art[data-pet="turtle"] { display: block; }
+/* the drawings come with different line weights, nudged here so they all land on the same weight on screen */
+
+/* the rare items shop ("new stock in ...") */
+.shop-restock { font-size: 0.7rem; opacity: 0.8; margin: 0.15rem 0 0; }
+
+/* the rare items shop shows 4 at a time, stacked 2 x 2 */
+#rare-items .shop-item { flex-basis: calc((100% - 0.6rem) / 2); }
+
+/* a little more room between the rare items shop title and the yeonbucks count */
+.page[data-page="rare-shop"] .shop-have { margin-top: 1.4rem; }

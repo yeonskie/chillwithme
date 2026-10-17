@@ -36,7 +36,7 @@
     if (tab) tab.hidden = !has;
     door.hidden = !(has && pageName() === "home");
     if (!door.hidden) placeDoor();
-    if (!has && pageName() === "secret-room") location.hash = "#home";   // no key, no room
+    if (!has && (pageName() === "secret-room" || pageName() === "rare-shop")) location.hash = "#home";   // no key, no room
   }
   window.SR = { sync: sync };
   sync();
@@ -116,6 +116,7 @@
   function openPlace(n) {
     if (n === 2) return daily();
     if (n === 3) return openWheel();
+    if (n === 4) { location.hash = "#rare-shop"; return; }
     say((ROOMS[n] || "this place") + " isn't open yet. check back soon!");
   }
 
