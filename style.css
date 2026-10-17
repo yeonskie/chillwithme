@@ -2109,7 +2109,8 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-earn { font-size: 0.8em; font-weight: 700; opacity: 0.3; font-variant-numeric: tabular-nums; margin: 0.1em 0 0.4em; }
 .cz-top { margin: 0; }
 .cz-wrap .hy-btn { font-size: 0.75em; }
-.cz-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0.6em; box-sizing: border-box; border: 1px solid var(--text); border-radius: var(--radius); width: min(20em, 100%); margin: 0; }
+.cz-wrap .hy-btn:not(:hover):not(:focus-visible) { background: var(--bg); }   /* solid, so patterned backgrounds don't show through */
+.cz-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0.6em; box-sizing: border-box; background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); width: min(20em, 100%); margin: 0; }
 /* the picture is pinned inside its cell (absolute) because iPhone Safari ignores height:100% on a box sized by aspect-ratio, which let the pictures spill out of the grid */
 .cz-cell { position: relative; aspect-ratio: 1.3 / 1; min-width: 0; box-sizing: border-box; }
 .cz-cell img { position: absolute; top: 0.3em; left: 0.3em; width: calc(100% - 0.6em); height: calc(100% - 0.6em); object-fit: contain; pointer-events: none; user-select: none; }
@@ -2128,14 +2129,14 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-msg { min-height: 1.3em; font-size: 0.85em; font-weight: 700; margin: 0.6em 0 0; }
 .cz-msg.cz-bad { opacity: 0.7; }
 .cz-controls { display: flex; flex-direction: column; align-items: center; gap: 0.1em; }
-.cz-bet { width: 3.4em; height: 3.4em; box-sizing: border-box; text-align: center; font: inherit; font-size: 1.6em; font-weight: 700; color: inherit; background: none; border: 1px solid var(--text); border-radius: var(--radius); padding: 0; -moz-appearance: textfield; appearance: textfield; }
+.cz-bet { width: 3.4em; height: 3.4em; box-sizing: border-box; text-align: center; font: inherit; font-size: 1.6em; font-weight: 700; color: inherit; background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); padding: 0; -moz-appearance: textfield; appearance: textfield; }
 .cz-bet::-webkit-outer-spin-button, .cz-bet::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .cz-bet:focus { outline: none; box-shadow: 0 0 0 2px var(--line); }
 .cz-quick { display: flex; gap: 0.9em; margin: 0.2em 0 0; }
 .cz-quick button { font: inherit; font-size: 0.75em; color: inherit; background: none; border: none; padding: 0; opacity: 0.55; cursor: pointer; text-decoration: underline; }
 .cz-quick button:hover, .cz-quick button:focus-visible { opacity: 1; outline: none; }
-.cz-spinwrap { width: min(18em, 100%); flex: none; box-sizing: border-box; padding: 0.3em; border: 1px solid var(--text); border-radius: var(--radius); }
-.cz-spin { display: block; width: 100%; font: inherit; font-size: 0.9em; color: inherit; background: none; border: 1px solid var(--text); border-radius: var(--radius); padding: 0.4em 1em; cursor: pointer; }
+.cz-spinwrap { width: min(18em, 100%); flex: none; box-sizing: border-box; padding: 0.3em; background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); }
+.cz-spin { display: block; width: 100%; font: inherit; font-size: 0.9em; color: inherit; background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); padding: 0.4em 1em; cursor: pointer; }
 .cz-spin:hover:not(:disabled), .cz-spin:focus-visible { background: var(--text); color: var(--bg); outline: none; }
 .cz-spin:disabled { opacity: 0.45; cursor: default; }
 /* the pop-up lives outside the page, so it keeps normal sizes */
@@ -2320,3 +2321,148 @@ body.has-yb .page { padding-bottom: 4.5rem; }
   .slot-lever, .sg-pencil, .hy-lf, .id-q, .arcade-item-prize::before { display: none; }
   .arcade-item-prize, .arcade-item-hy { margin-top: 0; margin-bottom: 0; }
 }
+
+/* ---------- Prize shop ---------- */
+.page[data-page="shop"] { position: absolute; inset: 0; padding: 0.5rem 1rem 1.2rem; overflow: auto; }
+.page[data-page="shop"].active { display: flex; flex-direction: column; align-items: center; }
+.shop-wrap { width: min(60rem, 100%); text-align: center; }
+.shop-wrap .hy-back { margin-bottom: 0; }
+
+/* the title wrapped like a present: a bow on top, ribbon ends underneath */
+.shop-head { display: flex; flex-direction: column; align-items: center; margin: 0.2rem 0 0; }
+.shop-title { font-size: clamp(1.3rem, 5vw, 1.7rem); margin: -0.1rem 0 0; line-height: 1.1; }
+.shop-ribbon { width: 5.4rem; height: auto; overflow: visible; fill: none; stroke: var(--line); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.shop-ribbon .loop path:first-child, .shop-ribbon circle { fill: var(--bg); }
+.shop-ribbon-bottom { width: 4.7rem; margin-top: 0.1rem; }
+
+.shop-have { display: flex; flex-direction: column; align-items: center; margin: 0.5rem 0 0; line-height: 1.1; }
+.shop-have strong { font-size: clamp(1.4rem, 5vw, 1.8rem); }
+.shop-have span { font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.shop-msg { min-height: 1.2em; font-size: 0.7rem; opacity: 0.8; margin: 0.1rem 0 0.3rem; }
+
+/* the shop front: a striped awning over a big box */
+.shop-store { width: 100%; }
+.shop-awning { display: block; width: 100%; height: clamp(2.2rem, 7vw, 3.8rem); overflow: visible; fill: none; stroke: var(--line); stroke-width: 1.5; stroke-linejoin: round; }
+.shop-awning path { vector-effect: non-scaling-stroke; }
+.shop-awning .awn { fill: var(--bg); }
+.shop-body {
+  width: 90%; margin: 0 auto; box-sizing: border-box;
+  background: var(--bg); border: 1.5px solid var(--line); border-top: none; border-radius: 0 0 var(--radius) var(--radius);
+  padding: 0.9rem 1rem 1rem; text-align: left;
+}
+/* three across; a short last row sits in the middle */
+.shop-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; }
+.shop-item { flex: 0 0 calc((100% - 2 * 0.6rem) / 3); display: flex; flex-direction: column; align-items: center; gap: 0.15rem; text-align: center; padding: 0.5rem 0.5rem 0.55rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); box-sizing: border-box; }
+.shop-item.is-short .shop-price { opacity: 0.55; }
+.shop-item.is-on { background: #F8DE7E; color: #1a1a1a; border-color: #1a1a1a; }
+.shop-item.is-on .hy-btn { color: #1a1a1a; border-color: #1a1a1a; }
+.shop-item.is-on .hy-btn:hover:not(:disabled), .shop-item.is-on .hy-btn:focus-visible { background: #1a1a1a; color: #F8DE7E; }
+.shop-name { font-size: 0.8rem; font-weight: 700; }
+.shop-desc { font-size: 0.65rem; opacity: 0.75; min-height: 2.2em; line-height: 1.1rem; }
+.shop-price { font-size: 0.7rem; }
+.shop-buy { margin-top: 0.2rem; }
+.shop-buy:disabled { opacity: 0.45; cursor: default; background: none; color: inherit; }
+.shop-prev { width: 100%; height: 2.4rem; border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 0.2rem; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+.shop-prev-glyph[data-g="heart"] { color: #f48fb1; }
+.shop-prev-glyph[data-g="sparkle"] { color: #e0a82e; }
+.shop-credit { margin-top: 0.8rem; }
+@media (max-width: 40rem) {
+  .shop-body { width: 96%; padding: 0.7rem 0.6rem 0.8rem; }
+  .shop-item { flex-basis: calc((100% - 0.6rem) / 2); }   /* two across on phones */
+}
+
+/* ---------- Page backgrounds (bought in the prize shop; shop.js sets data-bg on <html>) ---------- */
+html[data-bg="dots"] body, .shop-prev[data-p="dots"] {
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--text) 24%, transparent) 1px, transparent 1.6px);
+  background-size: 20px 20px;
+}
+html[data-bg="grid"] body, .shop-prev[data-p="grid"] {
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--text) 11%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--text) 11%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+html[data-bg="stars"] body, .shop-prev[data-p="stars"] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cg fill='%23999' fill-opacity='.45'%3E%3Cpath d='M20 18l1.6 4.4L26 24l-4.4 1.6L20 30l-1.6-4.4L14 24l4.4-1.6z'/%3E%3Cpath d='M92 40l1.2 3.3L96.5 44.5l-3.3 1.2L92 49l-1.2-3.3L87.5 44.5l3.3-1.2z'/%3E%3Cpath d='M58 100l1.6 4.4L64 106l-4.4 1.6L58 112l-1.6-4.4L52 106l4.4-1.6z'/%3E%3Cpath d='M120 112l1 2.7 2.7 1-2.7 1-1 2.7-1-2.7-2.7-1 2.7-1z'/%3E%3Ccircle cx='38' cy='66' r='1.2'/%3E%3Ccircle cx='108' cy='84' r='1.2'/%3E%3Ccircle cx='72' cy='14' r='1'/%3E%3Ccircle cx='8' cy='120' r='1'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+/* ---------- Cursor trails (bought in the prize shop; drawn by shop.js) ---------- */
+.trail-bit {
+  position: fixed; z-index: 9999; pointer-events: none; user-select: none;
+  translate: -50% -50%; line-height: 1; font-size: 0.9rem;
+  animation: trail-fade 0.9s ease-out forwards;
+}
+.trail-sparkle { color: #e0a82e; }
+.trail-heart { color: #f48fb1; }
+@keyframes trail-fade {
+  from { opacity: 1; transform: translate(0, 0) scale(var(--s, 1)); }
+  to   { opacity: 0; transform: translate(var(--dx, 0), 22px) scale(calc(var(--s, 1) * 0.3)); }
+}
+
+/* ---------- Inventory ---------- */
+.yb-inv { font: inherit; font-size: 12px; color: inherit; background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); padding: 4px 9px; cursor: pointer; }
+.yb-inv:hover, .yb-inv:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.yb-row { flex-wrap: wrap; row-gap: 4px; }
+.shop-inv-row { margin: 0.8rem 0 0; }
+
+.inv-overlay { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 1rem; background: color-mix(in srgb, var(--bg) 70%, transparent); }
+.inv-overlay[hidden] { display: none; }
+.inv-panel { position: relative; width: min(24rem, 100%); max-height: 100%; overflow: auto; background: var(--bg); border: 1.5px solid var(--line); border-radius: var(--radius); padding: 1.1rem 1.2rem 1.2rem; text-align: left; }
+.inv-close { position: absolute; top: 0.4rem; right: 0.5rem; font: inherit; font-size: 1.3rem; line-height: 1; color: inherit; background: none; border: 0; cursor: pointer; padding: 0.1rem 0.4rem; }
+.inv-close:hover, .inv-close:focus-visible { opacity: 0.6; outline: none; }
+.inv-title { font-size: 1.1rem; margin: 0 0 0.6rem; }
+.inv-group { margin-top: 0.8rem; }
+.inv-group h3 { font-size: 0.7rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7; margin: 0 0 0.35rem; }
+.inv-opts { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.inv-opt { font: inherit; font-size: 0.78rem; color: inherit; background: none; border: 1px solid var(--line); border-radius: var(--radius); padding: 0.25rem 0.65rem; cursor: pointer; }
+.inv-opt:hover, .inv-opt:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.inv-opt.is-on { background: #F8DE7E; color: #1a1a1a; border-color: #1a1a1a; }
+.inv-empty, .inv-perks { font-size: 0.78rem; margin: 0; }
+.inv-empty { opacity: 0.65; }
+.inv-shoplink { display: inline-block; margin-top: 1rem; font-size: 0.75rem; text-decoration: underline; opacity: 0.75; }
+.inv-shoplink:hover { opacity: 1; }
+
+/* ---------- The pet (bought in the prize shop; shop.js shows it and makes it talk) ---------- */
+.pet { position: fixed; right: 1rem; bottom: calc(var(--bar-height) + 0.2rem); z-index: 3; display: flex; flex-direction: column; align-items: center; }
+.pet[hidden] { display: none; }
+.pet-btn { display: block; position: relative; width: 4.2rem; height: 4.2rem; padding: 0; margin: 0; font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.pet-btn:focus-visible { outline: 1px dashed var(--text); outline-offset: 2px; border-radius: var(--radius); }
+.pet-btn svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.pet .pf { fill: var(--bg); }
+.pet .pl, .shop-prev-pet .pl { fill: var(--text); }
+.shop-prev-pet .pf { fill: var(--bg); }
+.pet-b { display: none; }
+.pet.is-up .pet-a, .pet-btn:hover .pet-a { display: none; }
+.pet.is-up .pet-b, .pet-btn:hover .pet-b { display: block; }
+.pet-a { animation: pet-bob 3.2s ease-in-out infinite; }
+@keyframes pet-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .pet-a { animation: none; } }
+.pet-bubble {
+  position: absolute; bottom: calc(100% - 0.1rem); right: 0; white-space: nowrap;
+  font-size: 0.75rem; line-height: 1.2; padding: 0.3rem 0.55rem; background: var(--bg); color: var(--text);
+  border: 1px solid var(--line); border-radius: var(--radius); pointer-events: none;
+  opacity: 0; transform: translateY(4px); transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.pet.is-up .pet-bubble { opacity: 1; transform: none; }
+.shop-prev-pet { height: 3.4rem; padding: 0.15rem 0; }
+.shop-prev-pet svg { height: 100%; width: auto; }
+.inv-name { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.55rem; font-size: 0.78rem; }
+.inv-name input { flex: 1; min-width: 0; font: inherit; font-size: 0.78rem; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.25rem 0.5rem; }
+.inv-name input:focus { outline: none; box-shadow: 0 0 0 2px var(--line); }
+@media (max-width: 40rem) {
+  .pet-btn { width: 3.4rem; height: 3.4rem; }
+  body.has-mini .pet { bottom: calc(var(--bar-height) + 4.4rem); }   /* the music player sits along the bottom on phones */
+}
+
+/* a second pet, and the shop's page arrows */
+.pet-art { display: none; position: absolute; inset: 0; }
+.pet[data-kind="dog"] .pet-art[data-pet="dog"], .pet[data-kind="cat"] .pet-art[data-pet="cat"] { display: block; }
+.shop-pager { display: flex; align-items: center; justify-content: center; gap: 0.9rem; margin-top: 0.8rem; font-size: 0.75rem; }
+.shop-arrow { font-size: 0.95rem; line-height: 1; padding: 0.15rem 0.8rem; }
+.shop-arrow:disabled { opacity: 0.35; cursor: default; background: none; color: inherit; }
+
+/* the dog and cat drawings come with different line weights, so the dog's lines are thinned in the
+   artwork itself and the cat's are thickened here, to land on the same weight on screen */
+.cat-line-a .pl { stroke: var(--text); stroke-width: 1.125; stroke-linejoin: round; }
+.cat-line-b .pl { stroke: var(--text); stroke-width: 1.83; stroke-linejoin: round; }

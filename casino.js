@@ -23,7 +23,7 @@
 
 (function () {
   const START = 500;                 // yeonbucks everyone starts with
-  const EARN = 50;                   // yeonbucks earned...
+  const EARN = 50;                   // yeonbucks earned...  (75 or 100 once an earn boost is bought in the prize shop)
   const EVERY = 30;                  // ...every this many seconds on the site
   const BET_STEP = 1;                // bets go up by this much (1 = you can bet down to the last yeonbuck)
   const SPIN_MS = 1800;              // how long the pictures shuffle for
@@ -53,6 +53,9 @@
     write("yeonbucks", START);
     return START;
   }
+  // the earn boost (bought in the prize shop) is remembered in "yb-own"
+  function owns(id) { try { return JSON.parse(read("yb-own") || "[]").indexOf(id) !== -1; } catch (e) { return false; } }
+  const earnAmt = () => (owns("boost2") ? 100 : owns("boost") ? 75 : EARN);   // the best boost you own
   function setBalance(n) { write("yeonbucks", Math.max(0, Math.floor(n))); }
 
   // ----- earning: counts the seconds this tab is showing -----
@@ -69,10 +72,10 @@
     if (prog >= EVERY) {
       const times = Math.floor(prog / EVERY);
       prog -= times * EVERY;
-      setBalance(balance() + times * EARN);
+      setBalance(balance() + times * earnAmt());
       updateBox();                                        // show the new total right away, together with the "+50!"
       refresh();
-      popEarn(times * EARN);
+      popEarn(times * earnAmt());
     }
     write("yb-prog", prog);
   }
@@ -258,6 +261,7 @@
 
   function refresh() {
     balEl.textContent = fmt(shown());
+    document.querySelectorAll("[data-earn]").forEach((el) => { el.textContent = earnAmt(); });   // the "+50" in the text (75 with the boost)
     document.querySelectorAll("[data-yb]").forEach((el) => { el.textContent = fmt(shown()); });   // "you have ___ yeonbucks" boxes on other pages
     const left = Math.max(0, Math.ceil(EVERY - progress()));
     nextEl.textContent = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0");
@@ -266,6 +270,13 @@
     if (balance() >= BET_STEP) delete msg.dataset.broke;
   }
   window.addEventListener("storage", refresh);
+
+  // a small door for the prize shop (shop.js): see what you have, spend it, redraw the numbers
+  window.YB = {
+    have: () => shown(),
+    spend: (n) => { if (shown() < n) return false; setBalance(balance() - n); refresh(); updateBox(); return true; },
+    redraw: () => { refresh(); updateBox(); },
+  };
 
   function readBet() {
     let b = Math.floor(Number(betEl.value) / BET_STEP) * BET_STEP;
