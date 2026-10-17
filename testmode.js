@@ -10,7 +10,7 @@
   const local = location.protocol === "file:" || h === "localhost" || h === "127.0.0.1" || h === "[::1]" || h === "";
   if (!local) return;
 
-  const KEYS = ["yb-own", "yb-eq", "yb-petnames", "yb-petname"];   // the shop's saved stuff
+  const KEYS = ["yb-own", "yb-eq", "yb-petnames", "yb-petname", "yb-room-seen", "yb-daily", "yb-wheel", "yb-boost-until", "yb-pet-pending"];   // the shop's saved stuff
   const bal = () => { const v = parseInt(localStorage.getItem("yeonbucks"), 10); return Number.isFinite(v) ? v : 0; };
   const redraw = () => { if (window.YB) window.YB.redraw(); };
   const setBal = (n) => { try { localStorage.setItem("yeonbucks", String(Math.max(0, Math.floor(n)))); } catch (e) {} redraw(); };
@@ -46,6 +46,16 @@
       "</div>" +
       "<h3>set an exact amount</h3>" +
       '<div class="tm-row"><input id="tm-amt" type="number" min="0" step="1" placeholder="e.g. 30000"><button type="button" id="tm-set">set</button></div>' +
+      "<h3>give me (free)</h3>" +
+      '<div class="tm-row" data-give>' +
+        '<button type="button" data-id="key">secret room key</button>' +
+        '<button type="button" data-id="pet-koala">koala</button>' +
+        '<button type="button" data-id="pet-frog">frog</button>' +
+        '<button type="button" data-id="pet-panda">panda</button>' +
+        '<button type="button" data-id="tap-rainbow">rainbow tap</button>' +
+      "</div>" +
+      "<h3>start a new day</h3>" +
+      '<div class="tm-row"><button type="button" id="tm-day">new day (daily prize + wheel)</button></div>' +
       "<h3>try things</h3>" +
       '<div class="tm-row">' +
         '<button type="button" id="tm-earn">earn in 2s</button>' +
@@ -74,6 +84,17 @@
   wrap.querySelector("#tm-set").addEventListener("click", () => {
     const n = Number(wrap.querySelector("#tm-amt").value);
     if (Number.isFinite(n) && n >= 0) { setBal(n); show(); }
+  });
+  wrap.querySelector("[data-give]").addEventListener("click", (e) => {   // hand over a shop or wheel item (pets come out right away if none is out)
+    const b = e.target.closest("button");
+    if (!b || !window.YBShop) return;
+    const ok = window.YBShop.give(b.dataset.id, true);
+    b.textContent = ok ? "got it!" : "already have";
+    setTimeout(() => location.reload(), 600);
+  });
+  wrap.querySelector("#tm-day").addEventListener("click", () => {        // forget today's daily prize and wheel spins
+    try { localStorage.removeItem("yb-daily"); localStorage.removeItem("yb-wheel"); } catch (e) {}
+    wrap.querySelector("#tm-day").textContent = "done!";
   });
   wrap.querySelector("#tm-earn").addEventListener("click", () => {      // jump the 30-second clock to 2 seconds before an earn
     try { localStorage.setItem("yb-prog", "28"); } catch (e) {}

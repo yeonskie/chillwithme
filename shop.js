@@ -6,13 +6,14 @@
 //   name   - what the box says
 //   desc   - the little line under the name
 //   price  - cost in yeonbucks
+//   wheel  - (optional) true = not sold in the shop, it's a prize from the secret room wheel
 //   (the shop shows the items in this order, 9 at a time with an arrow to the next page, so just keep adding to the list. Keep the secret room key last.)
-//   kind   - "perk"   : you just own it (the earn boosts, lucky charm and prize bonus are switched on in casino.js; "tag" is the little label in the box)
+//   kind   - "perk"   : you just own it (the earn boosts, lucky charm and prize bonus are switched on in casino.js, the secret room key in secretroom.js; "tag" is the little label in the box)
 //            "cursor" : a trail that follows the mouse. "value" is "sparkle" or "heart"
 //            "tap"    : little stars or hearts pop where you tap or click. "value" is "sparkle" or "heart"
 //            "bg"     : a page background. "value" is "dots", "grid" or "stars"
 //            "accent" : tints the whole site a color. "value" is "pink", "blue", "green" or "lavender" (the colors are in style.css, search "data-accent")
-//            "pet"    : a little pet in the bottom right corner. "value" is "dog", "cat" or "bunny" (what they say is at the bottom of this file)
+//            "pet"    : a little pet in the bottom right corner. "value" is "dog", "cat", "bunny", "koala", "frog" or "panda" (what they say is at the bottom of this file)
 //            "soon"   : shows in the shop but can't be bought yet
 //   desktop - (optional) true = the card says "(desktop only)", for things that need a mouse
 //
@@ -39,8 +40,14 @@
     { id: "pet-dog",     group: "pets",          name: "dog",            desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "dog" },
     { id: "pet-cat",     group: "pets",          name: "cat",            desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "cat" },
     { id: "pet-bunny",   group: "pets",          name: "bunny",          desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "bunny" },
-    { id: "key",         group: "secret",        name: "secret room key", desc: "opens something... (coming soon)",    price: 50000, kind: "soon" },
+    { id: "key",         group: "secret",        name: "secret room key", desc: "opens the secret room at the back of the fair", price: 50000, kind: "perk", tag: "?" },
+    // wheel: true = never sold in the shop, only won on the secret room's wheel (it still shows up in the inventory once you have it)
+    { id: "pet-koala",   group: "pets", name: "koala", desc: "a mystery pet", price: 0, kind: "pet", value: "koala", wheel: true },
+    { id: "pet-frog",    group: "pets", name: "frog",  desc: "a mystery pet", price: 0, kind: "pet", value: "frog", wheel: true },
+    { id: "pet-panda",   group: "pets", name: "panda", desc: "a mystery pet", price: 0, kind: "pet", value: "panda", wheel: true },
+    { id: "tap-rainbow", group: "tap",           name: "rainbow sparkle tap", desc: "rainbow stars pop where you tap or click", price: 0, kind: "tap", value: "rainbow", wheel: true },
   ];
+  const SHOP = ITEMS.filter((i) => !i.wheel);                    // what the shop sells
 
   // ----- what's owned / switched on (saved in this browser) -----
   function load(k, fallback) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fallback : v; } catch (e) { return fallback; } }
@@ -50,8 +57,8 @@
   const EQKEY = { cursor: "cursor", bg: "bg", pet: "pet", accent: "accent", tap: "tap" };   // which slot each kind of item goes in
   let petNames = load("yb-petnames", {});                       // each pet has its own name
   if (!petNames.dog && load("yb-petname", "")) petNames.dog = load("yb-petname", "");   // (an older single name, if there was one)
-  const PETS = ["dog", "cat", "bunny"];
-  const nameOf = (kind) => petNames[kind] || (kind === "cat" ? "kitty" : kind === "bunny" ? "bun" : "buddy");
+  const PETS = ["dog", "cat", "bunny", "koala", "frog", "panda"];
+  const nameOf = (kind) => petNames[kind] || ({ cat: "kitty", bunny: "bun", koala: "koko", frog: "froggy", panda: "bao" }[kind] || "buddy");
   const owns = (id) => own.indexOf(id) !== -1;
   const find = (id) => ITEMS.filter((i) => i.id === id)[0];
   const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -63,6 +70,7 @@
     if (eq.accent) root.dataset.accent = eq.accent; else delete root.dataset.accent;
     const pet = document.getElementById("pet");
     if (pet) { pet.hidden = PETS.indexOf(eq.pet) === -1; pet.dataset.kind = eq.pet || ""; }
+    if (window.SR) window.SR.sync();                           // (the secret room's menu button and door)
   }
 
   // ----- the shop page -----
@@ -102,13 +110,13 @@
   let page = 0;
   function build() {
     if (!box) return;
-    const pages = Math.max(1, Math.ceil(ITEMS.length / perPage()));
+    const pages = Math.max(1, Math.ceil(SHOP.length / perPage()));
     page = Math.min(Math.max(page, 0), pages - 1);
     box.innerHTML = "";
     const grid = document.createElement("div");   // everything in one set of rows
     grid.className = "shop-grid";
     box.appendChild(grid);
-    ITEMS.slice(page * perPage(), page * perPage() + perPage()).forEach((item) => {
+    SHOP.slice(page * perPage(), page * perPage() + perPage()).forEach((item) => {
       const card = document.createElement("div");
       card.className = "shop-item";
       card.dataset.id = item.id;
@@ -346,7 +354,7 @@
 
   // ----- tap sparkles: a little burst of stars where you tap or click (phones too) -----
   let tapAlive = 0;
-  const TAP_GLYPHS = { sparkle: ["\u2726", "\u2727", "\u2736"], heart: ["\u2665"] };
+  const TAP_GLYPHS = { sparkle: ["\u2726", "\u2727", "\u2736"], heart: ["\u2665"], rainbow: ["\u2726", "\u2727", "\u2736"] };
   window.addEventListener("pointerdown", (e) => {
     if (reduce || !TAP_GLYPHS[eq.tap] || tapAlive > 60) return;
     const glyphs = TAP_GLYPHS[eq.tap];
@@ -354,6 +362,7 @@
       const bit = document.createElement("span");
       bit.className = "tap-bit tap-" + eq.tap;
       bit.textContent = glyphs[i % glyphs.length];
+      if (eq.tap === "rainbow") bit.style.color = "hsl(" + Math.round((i * 60 + Math.random() * 30) % 360) + " 90% 60%)";   // each star a different color
       const ang = (Math.PI * 2 * i) / 6 + Math.random() * 0.6;
       const dist = 22 + Math.random() * 20;
       bit.style.left = e.clientX + "px";
@@ -374,6 +383,9 @@
     dog: ["buwark!", "woof!", "hello i'm {name}!"],
     cat: ["mrow", "hiss!", "hello i'm {name}!"],
     bunny: ["squeak!", "*thump thump*", "hello i'm {name}!"],
+    koala: ["*munch munch*", "zzz...", "hello i'm {name}!"],
+    frog: ["ribbit!", "*splash*", "hello i'm {name}!"],
+    panda: ["*munches bamboo*", "rawr? (not scary)", "hello i'm {name}!"],
   };
   function petSay() {
     const kind = eq.pet;
@@ -398,4 +410,18 @@
       else petTimer = setTimeout(petHush, 2600);                              // (a finger lifts right away, so give it a moment)
     });
   }
+
+  // the secret room wheel hands out wheel prizes through this (returns false if you already own it)
+  window.YBShop = {
+    give: function (id, equipPet) {
+      if (!find(id) || owns(id)) return false;
+      own.push(id);
+      save("yb-own", own);
+      const it = find(id);
+      if (equipPet && it.kind === "pet" && !eq.pet) { eq.pet = it.value; save("yb-eq", eq); applyLook(); }   // a new pet comes out right away if none is out
+      update(); drawInv();
+      return true;
+    },
+    owns: owns,
+  };
 })();

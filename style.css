@@ -2518,3 +2518,213 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 /* the places in the confession booth: the typing box, its button, the secrets and "show more" all have a solid background */
 .place-form textarea, .place-form input, .place-form button, .place .cm-card, .place-more { background: var(--bg); }
 .place-form button:hover, .place-form button:focus-visible { background: var(--text); }
+
+/* ---------- the secret room ---------- */
+.menu-card a[hidden] { display: none; }
+
+/* the little door on the home page (shows once you own the key) */
+.sr-door {
+  position: fixed; left: 50%; bottom: 3rem; transform: translateX(-50%); z-index: 30;
+  height: 6rem; width: auto; padding: 0; border: 0; background: none; cursor: pointer;
+  color: var(--text); opacity: .7; transition: opacity .2s, transform .2s;
+}
+.sr-door[hidden] { display: none; }
+.sr-door svg { display: block; height: 100%; width: auto; }
+.sr-door-back { fill: var(--bg); }
+.sr-door-art { fill: var(--text); }
+.sr-door:hover, .sr-door:focus-visible { opacity: 1; transform: translateX(-50%) translateY(-2px); }
+.sr-door:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; border-radius: var(--radius); }
+@media (max-width: 40rem) { .sr-door { height: 5.2rem; } }
+
+/* the question */
+.sr-ask-panel { text-align: center; }
+.sr-ask-btns { display: flex; gap: .6rem; justify-content: center; margin-top: 1rem; }
+
+/* the loading screen */
+.sr-load {
+  position: fixed; inset: 0; z-index: 10001; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: .9rem; padding: 2rem; text-align: center;
+  background: var(--bg); color: var(--text); cursor: pointer;
+}
+.sr-load[hidden] { display: none; }
+.sr-load.go { animation: sr-fade .6s ease both; }
+.sr-load-title { font-weight: 700; font-size: 1.05rem; max-width: 40rem; }
+.sr-load-sub { font-size: .8rem; opacity: .55; max-width: 34rem; }
+.sr-load-trail { width: 12rem; max-width: 70vw; margin-top: 1rem; fill: none; stroke: var(--line); stroke-width: 1.5; }
+.sr-load-trail path { stroke-dasharray: 6 6; animation: sr-march 1s linear infinite; }
+.sr-load-trail circle { fill: var(--bg); }
+@keyframes sr-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sr-march { to { stroke-dashoffset: -12; } }
+
+/* the page */
+.sr { padding: 1.5rem 1rem 3rem; display: flex; flex-direction: column; align-items: center; }
+.sr-canvas { width: 100%; max-width: 90rem; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
+.sr-map { display: block; width: 100%; height: auto; overflow: visible; }
+.sr-title { position: relative; display: flex; flex-direction: column; align-items: center; margin: 2.6rem auto 1.5rem; }
+.sr-welcome { font-weight: 700; font-size: 1rem; color: var(--text); opacity: .5; margin-bottom: .45rem; text-align: center; }
+.sr-name {
+  display: block; white-space: nowrap; text-align: center; font-weight: 700; line-height: 1.2; font-size: 1.9rem;
+  padding: .35em 1.1em; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg);
+}
+.sr-bang { position: absolute; right: -2.6rem; top: -1.6rem; width: 4rem; fill: var(--text); }
+.sr-bang-mark { fill: var(--bg); }
+.sr-trail { fill: none; stroke: var(--line); stroke-width: 1.3; stroke-dasharray: 6 6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.sr-ring { fill: var(--bg); stroke: var(--line); stroke-width: 2; r: 15; transition: fill .2s; }
+.sr-hit { fill: transparent; r: 32; }
+.sr-dot { cursor: pointer; outline: none; }
+.sr-dot:hover .sr-ring, .sr-dot:focus-visible .sr-ring { fill: var(--text); }
+.sr-status { min-height: 1.4em; margin-top: .8rem; text-align: center; font-size: .85rem; }
+.sr-credit { position: fixed; left: 0; right: 0; bottom: calc(var(--bar-height) + .4rem); text-align: center; font-size: .65rem; opacity: .45; pointer-events: none; }
+
+@media (max-width: 44rem) {
+  .sr-welcome { font-size: .8rem; }
+  .sr-name { font-size: 1.1rem; }
+  .sr-bang { right: -1.8rem; top: -1.3rem; width: 3rem; }
+  .sr-ring { r: 44; stroke-width: 5; }
+  .sr-hit { r: 70; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sr-load.go, .sr-load-trail path { animation: none; }
+  .sr-door { transition: none; }
+}
+
+/* secret room: smaller map, credit pinned at the bottom */
+.sr-canvas { max-width: 52rem; }
+.sr-credit { position: fixed; left: 0; right: 0; bottom: calc(var(--bar-height) + .35rem); margin: 0; z-index: 5; pointer-events: none; }
+@media (max-width: 44rem) {
+  .sr-canvas { max-width: 24rem; }
+  .sr-credit { bottom: calc(var(--bar-height) + 3.2rem); }
+}
+
+/* secret room title: sits on the map like the design (desktop), centered above it on phones; a bit smaller */
+.sr-canvas { position: relative; container-type: inline-size; }
+@media (min-width: 44.01rem) {
+  .sr-title { position: absolute; left: 65.4%; top: 16.8%; transform: translateX(-50%); margin: 0; z-index: 2; }
+  .sr-welcome { font-size: clamp(.62rem, 1.15cqw, 1rem); margin-bottom: .4em; }
+  .sr-name { font-size: clamp(.85rem, 2.1cqw, 1.8rem); padding: .3em 1em; }
+  .sr-bang { width: 3.4cqw; min-width: 2rem; right: -2.4cqw; top: -2.4cqw; }
+}
+@media (max-width: 44rem) {
+  .sr-welcome { font-size: .72rem; }
+  .sr-name { font-size: .95rem; }
+  .sr-bang { width: 2.6rem; right: -1.6rem; top: -1.2rem; }
+}
+
+/* secret room: everything centered in the space between the top and bottom bars */
+.page[data-page="secret-room"].active {
+  display: flex; align-items: center; justify-content: center;
+  min-height: calc(100vh - var(--bar-height) * 2); min-height: calc(100dvh - var(--bar-height) * 2);
+}
+.page[data-page="secret-room"] .sr { width: 100%; padding: 1rem 1rem 2.5rem; }
+.sr-status { min-height: 0; margin-top: .4rem; }
+
+/* secret room: two maps, the wide one for desktop and the tall one for phones */
+.sr-map-m { display: none; }
+.sr-map-m .sr-ring { r: 14; stroke-width: 1.5; }
+.sr-map-m .sr-hit { r: 30; }
+.sr-map-m .sr-trail { stroke-width: 1.3; stroke-dasharray: 6 6; }
+.sr-name { font-size: clamp(.95rem, 2.4cqw, 2.1rem); }
+@media (min-width: 44.01rem) {
+  .sr-welcome { font-size: clamp(.7rem, 1.35cqw, 1.15rem); }
+  .sr-name { font-size: clamp(.95rem, 2.4cqw, 2.1rem); }
+  .sr-bang { width: 3.9cqw; right: -2.7cqw; top: -2.7cqw; }
+}
+@media (max-width: 44rem) {
+  .sr-map-d { display: none; }
+  .sr-map-m { display: block; }
+  .sr-canvas { max-width: 26rem; }
+  .sr-welcome { font-size: .85rem; }
+  .sr-name { font-size: 1.2rem; }
+  .sr-bang { width: 3rem; right: -1.9rem; top: -1.4rem; }
+  .sr-title { margin: 1rem auto .5rem; }
+}
+
+/* phones: bigger map, more room at the top (scroll for the rest) */
+@media (max-width: 44rem) {
+  .page[data-page="secret-room"] .sr { padding-top: 3.5rem; padding-bottom: 5rem; }
+  .sr-title { margin: 1.5rem auto 1rem; }
+}
+
+/* phones: start near the top instead of centering */
+@media (max-width: 44rem) {
+  .page[data-page="secret-room"].active { align-items: flex-start; }
+  .page[data-page="secret-room"] .sr { padding-top: .5rem; }
+  .sr-title { margin: 1.4rem auto .6rem; }
+}
+
+/* the door replaces the first dot on the map; every door's lines match the dashed trail (1.3px) */
+.sr-door-icon { overflow: visible; fill: var(--text); }
+.sr-door-icon .sr-door-art { fill: var(--text); stroke: var(--text); stroke-width: .35px; }
+.sr-door-icon .sr-door-art path { vector-effect: non-scaling-stroke; }
+.sr-door-icon .sr-door-back { fill: var(--bg); stroke: none; }
+.sr-dot:hover .sr-door-icon, .sr-dot:focus-visible .sr-door-icon { opacity: .6; }
+.sr-map-m .sr-door-icon .sr-door-art { stroke-width: .16px; }
+/* home page door: thinned down to match */
+.sr-door-art { stroke: var(--bg); stroke-width: .95px; }
+.sr-door-art path { vector-effect: non-scaling-stroke; }
+@media (max-width: 40rem) { .sr-door-art { stroke-width: .64px; } }
+.sr-door-icon .sr-door-art { stroke: var(--text); stroke-width: .35px; }
+.sr-map-m .sr-door-icon .sr-door-art { stroke-width: .16px; }
+
+/* map doors are bigger now, so their own lines already come out near 1.3px */
+.sr-door-icon .sr-door-art { stroke: var(--text); stroke-width: 0px; }
+.sr-map-m .sr-door-icon .sr-door-art { stroke: var(--bg); stroke-width: .2px; }
+@media (max-width: 44rem) { .sr-title { margin-bottom: 1.8rem; } }
+
+/* room names on the map */
+.sr-label { fill: var(--text); pointer-events: none; }
+.sr-label-name { font-weight: 700; }
+.sr-label-sub { font-weight: 400; opacity: .55; }
+.sr-entry { pointer-events: none; }
+
+/* phones: credit goes at the end of the page, and the "not open yet" note floats above the bottom bar */
+@media (max-width: 44rem) {
+  .sr-credit { position: static; margin: 1.5rem 0 0; pointer-events: auto; }
+  .page[data-page="secret-room"] .sr { padding-bottom: 6rem; }
+  .sr-status { position: fixed; left: 1rem; right: 1rem; bottom: calc(var(--bar-height) + .8rem); z-index: 6; margin: 0; padding: .45rem .6rem; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); width: fit-content; margin-inline: auto; }
+  .sr-status:empty { display: none; }
+}
+@media (max-width: 44rem) { .sr-status { bottom: calc(var(--bar-height) + 4.4rem); font-size: .72rem; text-align: center; } }
+
+.sr-label-sub { opacity: .72; }
+
+/* daily prize pop up */
+.sr-daily-amt { margin-top: .8rem; font-weight: 700; font-size: 1.5rem; }
+.sr-daily-note { margin-top: .5rem; font-size: .8rem; opacity: .7; }
+
+/* the wheel */
+.sw-panel { width: min(34rem, 100%); text-align: center; }
+.sw-svg { display: block; width: min(100%, 27rem); height: auto; margin: 0 auto; overflow: visible; }
+#sw-wheel { transform-origin: 819.4px 505.6px; transition: transform 4.6s cubic-bezier(.15,.7,.1,1); }
+.sw-ring { fill: var(--bg); stroke: var(--line); stroke-width: 2.2; }
+.sw-line { fill: none; stroke: var(--line); stroke-width: 2.2; }
+.sw-line.sw-gold { fill: #ffe48d; }
+.sw-text text { fill: var(--text); }
+.sw-text .sw-gold-text { fill: #1a1a1a; }
+.sw-b { font-weight: 700; }
+.sw-spoke { fill: var(--bg); stroke: var(--line); stroke-width: 2.2; }
+.sw-hub { fill: var(--bg); stroke: var(--line); stroke-width: 2.2; }
+.sw-pointer { fill: var(--text); }
+.sw-info { margin-top: .4rem; font-size: .75rem; opacity: .7; min-height: 1.2em; }
+.sw-result { margin-top: .5rem; min-height: 2.6em; font-weight: 700; font-size: .95rem; }
+.hy-btn:disabled { opacity: .45; cursor: default; }
+@media (prefers-reduced-motion: reduce) { #sw-wheel { transition-duration: .5s; } }
+
+/* the mystery pets (koala, frog, panda): one drawing each, so the "up" pose is a little hop */
+.pet[data-kind="koala"] .pet-art[data-pet="koala"], .pet[data-kind="frog"] .pet-art[data-pet="frog"], .pet[data-kind="panda"] .pet-art[data-pet="panda"] { display: block; }
+.pet-art[data-single] .pet-b { animation: pet-hop .55s ease-in-out infinite; }
+@keyframes pet-hop { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(-3deg); } }
+@media (prefers-reduced-motion: reduce) { .pet-art[data-single] .pet-b { animation: none; } }
+
+/* choosing a mystery pet on the wheel */
+.sw-pick { margin-top: .6rem; }
+.sw-pick-title { font-weight: 700; font-size: .95rem; margin-bottom: .6rem; }
+.sw-pick-opts { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; }
+.sw-pet-opt { font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: .5rem .7rem .4rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: .3rem; width: 6.4rem; }
+.sw-pet-opt .shop-prev-pet { height: 4.6rem; }
+.sw-pet-opt span.nm { font-size: .78rem; }
+.sw-pet-opt:hover, .sw-pet-opt:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--line); }
+.sw-pet-opt[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.sw-pet-opt[aria-pressed="true"] .pf { fill: var(--text); }
+.sw-pet-opt[aria-pressed="true"] .pl { fill: var(--bg); }
+.sw-pick[hidden], #sw-controls[hidden] { display: none; }

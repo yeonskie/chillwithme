@@ -57,7 +57,8 @@
   }
   // the earn boost (bought in the prize shop) is remembered in "yb-own"
   function owns(id) { try { return JSON.parse(read("yb-own") || "[]").indexOf(id) !== -1; } catch (e) { return false; } }
-  const earnAmt = () => (owns("boost2") ? 100 : owns("boost") ? 75 : EARN);   // the best boost you own
+  const boostOn = () => Number(read("yb-boost-until") || 0) > Date.now();   // the wheel's 24 hour boost
+  const earnAmt = () => (boostOn() ? 200 : owns("boost2") ? 100 : owns("boost") ? 75 : EARN);   // the best boost you have (the wheel's 24 hour boost is +200)
   function setBalance(n) { write("yeonbucks", Math.max(0, Math.floor(n))); }
 
   // ----- earning: counts the seconds this tab is showing -----
