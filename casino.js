@@ -70,11 +70,13 @@
       const times = Math.floor(prog / EVERY);
       prog -= times * EVERY;
       setBalance(balance() + times * EARN);
+      updateBox();                                        // show the new total right away, together with the "+50!"
+      refresh();
       popEarn(times * EARN);
     }
     write("yb-prog", prog);
   }
-  setInterval(() => { earnTick(); refresh(); }, 1000);
+  setInterval(() => { earnTick(); refresh(); updateBox(); }, 1000);   // the bottom-left number is redrawn every second too, not just when something happens
 
   // ----- a spin in progress (shared by every tab, so they all show the same number) -----
   // while the pictures are spinning the prize is "held back" from what's shown, in every open tab,
@@ -116,7 +118,9 @@
     document.addEventListener("click", (e) => { if (!ybBox.contains(e.target)) ybOpen(false); });
     window.addEventListener("hashchange", () => ybOpen(false));
   }
-  setInterval(updateBox, 1000);
+  setInterval(updateBox, 500);
+  document.addEventListener("visibilitychange", updateBox);   // phones: catch up the moment the tab comes back
+  window.addEventListener("pageshow", updateBox);
   window.addEventListener("hashchange", updateBox);
   window.addEventListener("resize", updateBox);
   window.addEventListener("storage", updateBox);
