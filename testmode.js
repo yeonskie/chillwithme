@@ -60,6 +60,7 @@
         '<button type="button" data-id="pet-hedgehog">hedgehog</button>' +
         '<button type="button" data-id="pet-mouse">mouse</button>' +
         '<button type="button" data-id="pet-turtle">turtle</button>' +
+        '<button type="button" data-id="pet-rat">rat (remy)</button>' +
         '<button type="button" data-id="tap-rainbow">rainbow tap</button>' +
       "</div>" +
       "<h3>start a new day</h3>" +

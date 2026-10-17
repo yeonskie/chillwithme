@@ -16,6 +16,7 @@
 //            "accent" : tints the whole site a color. "value" is "pink", "blue", "green" or "lavender" (the colors are in style.css, search "data-accent")
 //            "pet"    : a little pet in the bottom right corner. "value" is the animal's name, e.g. "dog" or "koala" (what they say is at the bottom of this file)
 //            "soon"   : shows in the shop but can't be bought yet
+//   short  - (optional) a shorter name for the small inventory buttons
 //   desktop - (optional) true = the card says "(desktop only)", for things that need a mouse
 //
 // What a visitor owns is saved in this browser ("yb-own"), and so is what they have switched on ("yb-eq").
@@ -56,7 +57,8 @@
     { id: "pet-hedgehog", group: "pets", name: "hedgehog", desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "hedgehog", rare: true },
     { id: "pet-mouse",    group: "pets", name: "mouse",    desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "mouse", rare: true },
     { id: "pet-turtle",   group: "pets", name: "turtle",   desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "turtle", rare: true },
-    { id: "pet-rat",      group: "pets", name: "rat",      desc: "a pet with moods. on its way!", price: RARE_PRICE, kind: "soon", rare: true },
+    // pinned: true = always on the rare shelf (first), the rest rotate. The rat is the interactive pet: clicking her opens her panel (remy.js).
+    { id: "pet-rat",      group: "pets", name: "the exclusive remy rat tomodachi", short: "rat", desc: "feed her, dress her up and play with her", price: RARE_PRICE, kind: "pet", value: "rat", rare: true, pinned: true },
     // wheel: true = never sold in a shop, only won on the secret room's wheel (it still shows up in the inventory once you have it)
     { id: "tap-rainbow", group: "tap",           name: "rainbow sparkle tap", desc: "rainbow stars pop where you tap or click", price: 0, kind: "tap", value: "rainbow", wheel: true },
   ];
@@ -70,8 +72,8 @@
   const EQKEY = { cursor: "cursor", bg: "bg", pet: "pet", accent: "accent", tap: "tap" };   // which slot each kind of item goes in
   let petNames = load("yb-petnames", {});                       // each pet has its own name
   if (!petNames.dog && load("yb-petname", "")) petNames.dog = load("yb-petname", "");   // (an older single name, if there was one)
-  const PETS = ["dog", "cat", "bunny", "koala", "frog", "panda", "fish", "chicken", "elephant", "goat", "hamster", "hedgehog", "mouse", "turtle"];
-  const nameOf = (kind) => petNames[kind] || ({ cat: "kitty", bunny: "bun", koala: "koko", frog: "froggy", panda: "bao", fish: "bubbles", chicken: "peep", elephant: "ellie", goat: "billy", hamster: "hammy", hedgehog: "spike", mouse: "mimi", turtle: "shelly" }[kind] || "buddy");
+  const PETS = ["dog", "cat", "bunny", "koala", "frog", "panda", "fish", "chicken", "elephant", "goat", "hamster", "hedgehog", "mouse", "turtle", "rat"];
+  const nameOf = (kind) => petNames[kind] || ({ cat: "kitty", bunny: "bun", koala: "koko", frog: "froggy", panda: "bao", fish: "bubbles", chicken: "peep", elephant: "ellie", goat: "billy", hamster: "hammy", hedgehog: "spike", mouse: "mimi", turtle: "shelly", rat: "remy" }[kind] || "buddy");
   const owns = (id) => own.indexOf(id) !== -1;
   const find = (id) => ITEMS.filter((i) => i.id === id)[0];
   const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -102,6 +104,7 @@
     if (item.kind === "soon") return { text: "coming soon", disabled: true };
     if (!owns(item.id)) return { text: "buy", disabled: have() < item.price };
     if (item.kind === "perk") return { text: "owned", disabled: true };
+    if (item.value === "rat" && isOn(item)) return { text: "play time", disabled: false };   // the rat opens her panel instead of "turn off" (turn her off in the inventory)
     return { text: isOn(item) ? "turn off" : "turn on", disabled: false };
   }
 
@@ -187,18 +190,19 @@
 
   // ----- THE RARE ITEMS SHOP (the secret room, room 4) -----
   // Same look as the prize shop. It only stocks RARE_SLOTS things at a time and the stock changes every other day,
-  // the same for every visitor (it's worked out from the date, nothing is saved). The spots are picked at random from
-  // everything marked rare: true in ITEMS. "soon" items (the rat) stay off the shelf; change its kind to "pet" when it is ready.
+  // the same for every visitor (it's worked out from the date, nothing is saved). Items marked pinned: true (the rat) are
+  // always on the shelf, and the rest of the spots are picked at random from everything else marked rare: true in ITEMS.
   const RARE_SLOTS = 4;
   const dayNumber = () => { const d = new Date(); return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 864e5); };   // today, counted in the visitor's own time zone
   const stockWindow = () => Math.floor(dayNumber() / 2) + (parseInt(localStorage.getItem("yb-rare-shift"), 10) || 0);   // (the shift is only used by test mode)
   function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   function rareStock() {
     const rare = ITEMS.filter((i) => i.rare);
-    const pool = rare.filter((i) => i.kind !== "soon");
+    const pinned = rare.filter((i) => i.pinned);                 // always there, first
+    const pool = rare.filter((i) => !i.pinned && i.kind !== "soon");
     const rand = rng(stockWindow() * 2654435761 + 12345);
     for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); const t = pool[i]; pool[i] = pool[j]; pool[j] = t; }
-    return pool.slice(0, RARE_SLOTS);                            // (the "coming soon" rat stays off the shelf until it is ready)
+    return pinned.concat(pool.slice(0, Math.max(0, RARE_SLOTS - pinned.length)));
   }
   let rareShown = -1;
   const rareShelf = makeShelf(document.getElementById("rare-items"), rareStock);
@@ -227,7 +231,10 @@
       save("yb-own", own);
       if (EQKEY[item.kind]) eq[EQKEY[item.kind]] = item.value;     // switch it on right away
       save("yb-eq", eq);
-      say(item.kind === "pet" ? "you got the " + item.name + "! give it a name in your inventory." : "you got the " + item.name + "!");
+      const nm = /^the /.test(item.name) ? item.name : "the " + item.name;
+      say(item.kind === "pet" ? "you got " + nm + "! give it a name in your inventory." : "you got " + nm + "!");
+    } else if (item.value === "rat" && isOn(item) && window.Remy) {
+      window.Remy.open(); return;
     } else if (EQKEY[item.kind]) {
       eq[EQKEY[item.kind]] = isOn(item) ? "" : item.value;
       save("yb-eq", eq);
@@ -275,7 +282,7 @@
     }
     const row = document.createElement("div");
     row.className = "inv-opts";
-    [{ name: none, value: "" }].concat(owned.map((i) => ({ name: i.name, value: i.value }))).forEach((o) => {
+    [{ name: none, value: "" }].concat(owned.map((i) => ({ name: i.short || i.name, value: i.value }))).forEach((o) => {
       const b = document.createElement("button");
       b.type = "button";
       b.className = "inv-opt";
@@ -308,6 +315,13 @@
       inp.addEventListener("input", () => { petNames[kind] = inp.value.trim().slice(0, 16); save("yb-petnames", petNames); });
       lab.appendChild(inp);
       pets.appendChild(lab);
+    }
+    if (owns("pet-rat") && window.Remy) {                    // the rat has her own panel
+      const play = document.createElement("button");
+      play.type = "button"; play.className = "hy-btn inv-play";
+      play.textContent = "play with " + nameOf("rat");
+      play.addEventListener("click", () => { closeInv(false); window.Remy.open(); });
+      pets.appendChild(play);
     }
     invBody.appendChild(pets);
     const perks = ITEMS.filter((i) => i.kind === "perk" && owns(i.id));
@@ -443,6 +457,7 @@
     hedgehog: ["*curls up*", "snuffle snuffle", "hello i'm {name}!"],
     mouse: ["squeak!", "*nibbles cheese*", "hello i'm {name}!"],
     turtle: ["...hi. (slowly)", "*hides in shell*", "hello i'm {name}!"],
+    rat: ["squeak!", "*nibbles cheese*", "click me to play!", "hello i'm {name}!"],
   };
   function petSay() {
     const kind = eq.pet;
@@ -458,7 +473,10 @@
   function petHush() { petEl.classList.remove("is-up"); }
   if (petEl && petBtn) {
     petBtn.addEventListener("pointerenter", petSay);
-    petBtn.addEventListener("click", () => { if (!petEl.classList.contains("is-up")) petSay(); });   // phones: tap (a mouse click doesn't change the line)
+    petBtn.addEventListener("click", () => {
+      if (eq.pet === "rat" && window.Remy) { window.Remy.open(petBtn); return; }   // the rat opens her panel (remy.js)
+      if (!petEl.classList.contains("is-up")) petSay();
+    });   // phones: tap (a mouse click doesn't change the line)
     petBtn.addEventListener("focus", () => { if (petBtn.matches(":focus-visible")) petSay(); });     // keyboard only
     petBtn.addEventListener("blur", () => { clearTimeout(petTimer); petHush(); });
     petBtn.addEventListener("pointerleave", (e) => {
@@ -480,5 +498,6 @@
       return true;
     },
     owns: owns,
+    nameOf: nameOf,
   };
 })();
