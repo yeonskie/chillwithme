@@ -43,7 +43,7 @@
   <!-- yeonbucks box (top left of every page except the casino and the shop) -->
   <aside class="yb-box" id="yb-box" hidden aria-label="your yeonbucks">
     <p class="yb-links" id="yb-links" hidden><a href="#casino">casino slots</a><a href="#shop">shop</a></p>
-    <p class="yb-row"><span class="yb-have"><strong id="yb-amt">500</strong> yeonbucks earned</span><button type="button" class="yb-where" id="yb-where" aria-expanded="false" aria-controls="yb-links">where to spend</button></p>
+    <p class="yb-row"><span class="yb-have"><span class="yb-num"><strong id="yb-amt">500</strong><span class="yb-pop" id="yb-pop" aria-hidden="true"></span></span> yeonbucks earned</span><button type="button" class="yb-where" id="yb-where" aria-expanded="false" aria-controls="yb-links">where to spend</button></p>
   </aside>
 
   <!-- MIDDLE: only this part changes between pages -->
@@ -68,7 +68,7 @@
           <button type="button" class="home-arrow" id="home-next" aria-label="next">&gt;</button>
         </div>
 
-        <p class="home-sub home-sub-below"><span class="home-ul">hear</span> my thoughts, <span class="home-ul">create</span> your own moodboard, <span class="home-ul">confess</span> your secrets</p>
+        <p class="home-sub home-sub-below"><span class="home-ul">hear</span> my thoughts, <span class="home-ul">create</span> your own moodboard,<br><span class="home-ul">confess</span> your secrets, <span class="home-ul">explore</span> the arcade</p>
         <button type="button" class="home-random" id="home-random">randomize my stay</button>
       </div>
     </section>
@@ -527,7 +527,7 @@
         </div>
 
         <div class="cz-group">
-          <input class="cz-bet" id="cz-bet" type="number" min="10" step="10" value="10" inputmode="numeric" aria-label="your bet in yeonbucks">
+          <input class="cz-bet" id="cz-bet" type="number" min="1" step="1" value="10" inputmode="numeric" aria-label="your bet in yeonbucks">
           <span class="cz-cur">yeonbucks</span>
           <p class="cz-quick" id="cz-quick">
             <button type="button" data-bet="50">50</button>

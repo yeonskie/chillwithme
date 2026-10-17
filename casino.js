@@ -25,7 +25,7 @@
   const START = 500;                 // yeonbucks everyone starts with
   const EARN = 50;                   // yeonbucks earned...
   const EVERY = 30;                  // ...every this many seconds on the site
-  const BET_STEP = 10;               // bets go up in tens (so 0.5x always comes out as a whole number)
+  const BET_STEP = 1;                // bets go up by this much (1 = you can bet down to the last yeonbuck)
   const SPIN_MS = 1800;              // how long the pictures shuffle for
   const JACKPOT = 0.05;              // the jackpot chance at START yeonbucks or less
   const JACKPOT_MIN = 0.0025;        // ...and it never goes below this
@@ -70,6 +70,7 @@
       const times = Math.floor(prog / EVERY);
       prog -= times * EVERY;
       setBalance(balance() + times * EARN);
+      popEarn(times * EARN);
     }
     write("yb-prog", prog);
   }
@@ -86,6 +87,15 @@
 
   // ----- the "___ yeonbucks earned" box (everywhere except the casino and the shop) -----
   const ybBox = document.getElementById("yb-box"), ybAmt = document.getElementById("yb-amt");
+  // a little "+50!" that floats up next to the number whenever you earn yeonbucks
+  const ybPop = document.getElementById("yb-pop");
+  function popEarn(n) {
+    if (!ybPop) return;
+    ybPop.textContent = "+" + n + "!";
+    ybPop.classList.remove("yb-pop-go");
+    void ybPop.offsetWidth;                                             // restart the animation if it's already running
+    ybPop.classList.add("yb-pop-go");
+  }
   function updateBox() {
     if (!ybBox) return;
     const page = location.hash.replace("#", "");
@@ -282,7 +292,7 @@
 
     // decide the result first, and settle the money straight away (so refreshing can't cheat)
     const result = pickResult();
-    const win = Math.floor(bet * result);
+    const win = Math.round(bet * result);                    // (0.5x of an odd bet rounds up, so 5 yeonbucks pays back 3)
     spinning = true;
     spinBtn.disabled = true;
     setBalance(balance() - bet + win);
