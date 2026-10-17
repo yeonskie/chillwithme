@@ -2495,6 +2495,7 @@ html[data-bg="stars"] body, .shop-prev[data-p="stars"] {
   translate: -50% -50%; line-height: 1; font-size: 0.95rem; color: #e0a82e;
   animation: tap-pop 0.7s ease-out forwards;
 }
+.tap-heart { color: #f48fb1; }
 @keyframes tap-pop {
   from { opacity: 1; transform: translate(0, 0) scale(calc(var(--s, 1) * 0.5)); }
   60%  { opacity: 1; }

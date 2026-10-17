@@ -6,10 +6,10 @@
 //   name   - what the box says
 //   desc   - the little line under the name
 //   price  - cost in yeonbucks
-//   (the shop shows 9 at a time with an arrow to the next page, so just keep adding to the list. Keep the secret room key last.)
+//   (the shop shows the items in this order, 9 at a time with an arrow to the next page, so just keep adding to the list. Keep the secret room key last.)
 //   kind   - "perk"   : you just own it (the earn boosts, lucky charm and prize bonus are switched on in casino.js; "tag" is the little label in the box)
 //            "cursor" : a trail that follows the mouse. "value" is "sparkle" or "heart"
-//            "tap"    : little stars pop where you tap or click. "value" is "sparkle"
+//            "tap"    : little stars or hearts pop where you tap or click. "value" is "sparkle" or "heart"
 //            "bg"     : a page background. "value" is "dots", "grid" or "stars"
 //            "accent" : tints the whole site a color. "value" is "pink", "blue", "green" or "lavender" (the colors are in style.css, search "data-accent")
 //            "pet"    : a little pet in the bottom right corner. "value" is "dog", "cat" or "bunny" (what they say is at the bottom of this file)
@@ -21,20 +21,21 @@
 
 (function () {
   const ITEMS = [
-    { id: "boost",      group: "boosts",       name: "earn boost",      desc: "+75 every 30 seconds instead of +50", price: 10000, kind: "perk", tag: "+75" },
-    { id: "boost2",     group: "boosts",       name: "super earn boost", desc: "+100 every 30 seconds instead of +50", price: 35000, kind: "perk", tag: "+100" },
-    { id: "charm",      group: "boosts",       name: "lucky charm",     desc: "+5% chance of the casino jackpot",    price: 20000, kind: "perk", tag: "+5%" },
-    { id: "bonus",      group: "boosts",       name: "prize bonus",     desc: "+10% on every game prize",            price: 25000, kind: "perk", tag: "+10%" },
     { id: "bg-dots",     group: "backgrounds",   name: "faint dots",     desc: "a soft dotted page",                  price: 500,   kind: "bg", value: "dots" },
     { id: "bg-grid",     group: "backgrounds",   name: "grid paper",     desc: "notebook grid lines",                 price: 500,   kind: "bg", value: "grid" },
     { id: "bg-stars",    group: "backgrounds",   name: "star background", desc: "tiny stars scattered around",        price: 750,   kind: "bg", value: "stars" },
     { id: "cur-sparkle", group: "cursor trails", name: "sparkle trail",  desc: "stars follow your cursor",            price: 2000,  kind: "cursor", value: "sparkle", desktop: true },
     { id: "cur-heart",   group: "cursor trails", name: "heart trail",    desc: "hearts follow your cursor",           price: 1500,  kind: "cursor", value: "heart", desktop: true },
     { id: "tap-sparkle", group: "tap",           name: "tap sparkles",   desc: "stars pop where you tap or click",    price: 2500,  kind: "tap", value: "sparkle" },
+    { id: "tap-heart",   group: "tap",           name: "tap hearts",     desc: "hearts pop where you tap or click",   price: 2500,  kind: "tap", value: "heart" },
     { id: "acc-pink",     group: "accents",      name: "light pink",     desc: "a soft pink tint over the site",      price: 2500,  kind: "accent", value: "pink" },
     { id: "acc-blue",     group: "accents",      name: "blue",           desc: "a cool blue tint over the site",      price: 2500,  kind: "accent", value: "blue" },
     { id: "acc-green",    group: "accents",      name: "neon green",     desc: "a fresh green tint over the site",    price: 2500,  kind: "accent", value: "green" },
     { id: "acc-lavender", group: "accents",      name: "lavender",       desc: "a dreamy purple tint over the site",  price: 2500,  kind: "accent", value: "lavender" },
+    { id: "boost",      group: "boosts",       name: "earn boost",      desc: "+75 every 30 seconds instead of +50", price: 10000, kind: "perk", tag: "+75" },
+    { id: "boost2",     group: "boosts",       name: "super earn boost", desc: "+100 every 30 seconds instead of +50", price: 35000, kind: "perk", tag: "+100" },
+    { id: "charm",      group: "boosts",       name: "lucky charm",     desc: "+5% chance of the casino jackpot",    price: 20000, kind: "perk", tag: "+5%" },
+    { id: "bonus",      group: "boosts",       name: "prize bonus",     desc: "+10% on every game prize",            price: 25000, kind: "perk", tag: "+10%" },
     { id: "pet-dog",     group: "pets",          name: "dog",            desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "dog" },
     { id: "pet-cat",     group: "pets",          name: "cat",            desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "cat" },
     { id: "pet-bunny",   group: "pets",          name: "bunny",          desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "bunny" },
@@ -88,7 +89,7 @@
   function preview(item) {
     if (item.kind === "bg") return '<span class="shop-prev" data-p="' + item.value + '"></span>';
     if (item.kind === "accent") return '<span class="shop-prev shop-prev-accent" data-a="' + item.value + '"></span>';
-    if (item.kind === "tap") return '<span class="shop-prev shop-prev-glyph" data-g="sparkle">\u2726 \u2727 \u2726</span>';
+    if (item.kind === "tap") return '<span class="shop-prev shop-prev-glyph" data-g="' + item.value + '">' + (item.value === "heart" ? "\u2665 \u2665 \u2665" : "\u2726 \u2727 \u2726") + "</span>";
     if (item.kind === "cursor") return '<span class="shop-prev shop-prev-glyph" data-g="' + item.value + '">' + (item.value === "heart" ? "♥ ♥ ♥" : "✦ ✧ ✦") + "</span>";
     if (item.kind === "pet") { const a = document.querySelector('#pet .pet-art[data-pet="' + item.value + '"] .pet-a'); return '<span class="shop-prev shop-prev-pet">' + (a ? a.outerHTML : "") + "</span>"; }
     if (item.kind === "soon") return '<span class="shop-prev shop-prev-glyph">?</span>';
@@ -345,12 +346,13 @@
 
   // ----- tap sparkles: a little burst of stars where you tap or click (phones too) -----
   let tapAlive = 0;
+  const TAP_GLYPHS = { sparkle: ["\u2726", "\u2727", "\u2736"], heart: ["\u2665"] };
   window.addEventListener("pointerdown", (e) => {
-    if (reduce || eq.tap !== "sparkle" || tapAlive > 60) return;
-    const glyphs = ["\u2726", "\u2727", "\u2736"];
+    if (reduce || !TAP_GLYPHS[eq.tap] || tapAlive > 60) return;
+    const glyphs = TAP_GLYPHS[eq.tap];
     for (let i = 0; i < 6; i++) {
       const bit = document.createElement("span");
-      bit.className = "tap-bit";
+      bit.className = "tap-bit tap-" + eq.tap;
       bit.textContent = glyphs[i % glyphs.length];
       const ang = (Math.PI * 2 * i) / 6 + Math.random() * 0.6;
       const dist = 22 + Math.random() * 20;
