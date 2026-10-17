@@ -2534,7 +2534,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .sr-door-art { fill: var(--text); }
 .sr-door:hover, .sr-door:focus-visible { opacity: 1; transform: translateX(-50%) translateY(-2px); }
 .sr-door:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; border-radius: var(--radius); }
-@media (max-width: 40rem) { .sr-door { height: 5.2rem; } }
+@media (max-width: 40rem) { .sr-door { height: 4.4rem; } }
 
 /* the question */
 .sr-ask-panel { text-align: center; }
@@ -2855,3 +2855,9 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .remy-cheese:focus-visible { outline: 1.5px dashed var(--text); outline-offset: 3px; }
 .remy-stage.hungry { outline: 1.5px dashed var(--text); outline-offset: -2px; border-radius: var(--radius); }
 .remy-hat { width: 5.2rem; height: 3.7rem; bottom: 0.6rem; }
+
+/* the door at the bottom of the prize shop: sits in the page (not fixed like the home one) */
+.sr-door.sr-door-inline { position: static; transform: none; display: block; margin: 1.4rem auto 0.4rem; height: 6rem; }
+.sr-door.sr-door-inline[hidden] { display: none; }
+.sr-door.sr-door-inline:hover, .sr-door.sr-door-inline:focus-visible { transform: translateY(-2px); }
+@media (max-width: 40rem) { .sr-door.sr-door-inline { height: 5.2rem; } }

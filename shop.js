@@ -58,7 +58,7 @@
     { id: "pet-mouse",    group: "pets", name: "mouse",    desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "mouse", rare: true },
     { id: "pet-turtle",   group: "pets", name: "turtle",   desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "turtle", rare: true },
     // pinned: true = always on the rare shelf (first), the rest rotate. The rat is the interactive pet: clicking her opens her panel (remy.js).
-    { id: "pet-rat",      group: "pets", name: "the exclusive remy rat tomodachi", short: "rat", desc: "feed her, dress her up and play with her", price: RARE_PRICE, kind: "pet", value: "rat", rare: true, pinned: true },
+    { id: "pet-rat",      group: "pets", name: "the exclusive remy rat tomodachi", short: "remy", desc: "feed her, dress her up and play with her", price: RARE_PRICE, kind: "pet", value: "rat", rare: true, pinned: true },
     // wheel: true = never sold in a shop, only won on the secret room's wheel (it still shows up in the inventory once you have it)
     { id: "tap-rainbow", group: "tap",           name: "rainbow sparkle tap", desc: "rainbow stars pop where you tap or click", price: 0, kind: "tap", value: "rainbow", wheel: true },
   ];
@@ -73,7 +73,7 @@
   let petNames = load("yb-petnames", {});                       // each pet has its own name
   if (!petNames.dog && load("yb-petname", "")) petNames.dog = load("yb-petname", "");   // (an older single name, if there was one)
   const PETS = ["dog", "cat", "bunny", "koala", "frog", "panda", "fish", "chicken", "elephant", "goat", "hamster", "hedgehog", "mouse", "turtle", "rat"];
-  const nameOf = (kind) => petNames[kind] || ({ cat: "kitty", bunny: "bun", koala: "koko", frog: "froggy", panda: "bao", fish: "bubbles", chicken: "peep", elephant: "ellie", goat: "billy", hamster: "hammy", hedgehog: "spike", mouse: "mimi", turtle: "shelly", rat: "remy" }[kind] || "buddy");
+  const nameOf = (kind) => kind === "rat" ? "remy" : petNames[kind] || ({ cat: "kitty", bunny: "bun", koala: "koko", frog: "froggy", panda: "bao", fish: "bubbles", chicken: "peep", elephant: "ellie", goat: "billy", hamster: "hammy", hedgehog: "spike", mouse: "mimi", turtle: "shelly", rat: "remy" }[kind] || "buddy");
   const owns = (id) => own.indexOf(id) !== -1;
   const find = (id) => ITEMS.filter((i) => i.id === id)[0];
   const fmt = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -305,7 +305,7 @@
     invBody.appendChild(group("tap effect", "tap", "none"));
     const pets = group("pet", "pet", "no pet");
     const kind = eq.pet;                                     // the name box is for the pet that's out
-    if (PETS.indexOf(kind) !== -1 && owns("pet-" + kind)) {
+    if (PETS.indexOf(kind) !== -1 && kind !== "rat" && owns("pet-" + kind)) {   // (remy keeps her name: no name box)
       const lab = document.createElement("label");
       lab.className = "inv-name";
       lab.textContent = "name ";

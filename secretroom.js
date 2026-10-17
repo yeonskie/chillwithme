@@ -17,7 +17,7 @@
 (function () {
   const LOAD_MS = 3200;
   const $ = (id) => document.getElementById(id);
-  const door = $("sr-door"), ask = $("sr-ask"), load = $("sr-load"), tab = $("menu-secret");
+  const door = $("sr-door"), doorShop = $("sr-door-shop"), ask = $("sr-ask"), load = $("sr-load"), tab = $("menu-secret");
   const status = $("sr-status");
   if (!door || !ask || !load) return;
 
@@ -29,12 +29,16 @@
   // ----- what shows: the menu button, the door (home page only) -----
   function placeDoor() {                                   // sits right on top of the bottom bar, whatever height it is
     const bar = document.querySelector(".bar-bottom");
-    door.style.bottom = (bar ? bar.offsetHeight : 40) + 2 + "px";
+    let b = (bar ? bar.offsetHeight : 40) + 2;
+    const yb = document.getElementById("yb-box");
+    if (yb && !yb.hidden && window.innerWidth <= 640) b += yb.offsetHeight + 14;   // phones: sits above the yeonbucks / inventory row instead of on top of it
+    door.style.bottom = b + "px";
   }
   function sync() {
     const has = owned();
     if (tab) tab.hidden = !has;
     door.hidden = !(has && pageName() === "home");
+    if (doorShop) doorShop.hidden = !has;                  // the one at the bottom of the prize shop
     if (!door.hidden) placeDoor();
     if (!has && (pageName() === "secret-room" || pageName() === "rare-shop")) location.hash = "#home";   // no key, no room
   }
@@ -88,6 +92,10 @@
     if (seen()) startLoading(); else openAsk(from);
   }
   door.addEventListener("click", () => enter(door));
+  if (doorShop) {                                          // a second door at the bottom of the prize shop (same picture, same click)
+    doorShop.innerHTML = door.innerHTML;
+    doorShop.addEventListener("click", () => enter(doorShop));
+  }
   document.addEventListener("click", (e) => {              // the menu button is a normal link, so catch it before the page changes
     const a = e.target.closest && e.target.closest('a[href="#secret-room"]');
     if (!a) return;
