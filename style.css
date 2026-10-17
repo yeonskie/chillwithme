@@ -1819,6 +1819,34 @@ main {
 .arcade-card:hover, .arcade-card:focus-visible { background: var(--text); color: var(--bg); outline: none; }
 .arcade-tag { font-size: 0.65rem; opacity: 0.7; }
 
+/* the prize shop box: confetti sits behind it (bigger than the box, so it pokes out all round). It's faint, and gets
+   darker when you point at the box, and the box itself goes yellow. The other boxes always sit on top of the confetti.
+   (the confetti icon is by Jooyun Lee, from Noun Project) */
+.arcade-item { z-index: 1; }
+.arcade-item-prize { z-index: 0; }
+.arcade-item-prize::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  width: calc(var(--card-w) + 5rem);
+  height: calc(var(--card-h) + 4rem);
+  translate: -50% -50%;
+  transform: rotate(calc(var(--a) * -1));           /* turns the opposite way to the circle, so it stays level with the box */
+  background: url("games/prize/confetti-soft.svg") center / contain no-repeat;
+  opacity: 0;                                       /* invisible until you point at the box */
+  scale: 0.85;                                     /* resting size (1 = full size, reached on hover) */
+  transition: opacity 0.25s ease, scale 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);
+  z-index: -1;
+  pointer-events: none;
+  animation: arcade-unspin 45s linear infinite;
+}
+:root[data-theme="dark"] .arcade-item-prize::before { background-image: url("games/prize/confetti-soft-light.svg"); }
+.arcade-item-prize:hover::before, .arcade-item-prize:focus-within::before { opacity: 1; scale: 1; }
+.arcade-ring:hover .arcade-item-prize::before, .arcade-ring:focus-within .arcade-item-prize::before { animation-play-state: paused; }
+.arcade-item-prize .arcade-card:hover, .arcade-item-prize .arcade-card:focus-visible { background: #F8DE7E; color: #1a1a1a; }
+@media (prefers-reduced-motion: reduce) { .arcade-item-prize::before { animation: none; } }
+.shop-credit { font-size: 0.65rem; opacity: 0.6; margin-top: 1.5rem; }
+
 /* pointing at a game (or tabbing to one) stops the turning so it's easy to click */
 .arcade-ring:hover, .arcade-ring:hover .arcade-card,
 .arcade-ring:focus-within, .arcade-ring:focus-within .arcade-card { animation-play-state: paused; }
@@ -1850,6 +1878,8 @@ main {
   }
   .arcade-item { position: static; width: 100%; height: auto; transform: none; }
   .arcade-card { position: static; width: min(18rem, 100%); height: auto; min-height: 4.5rem; transform: none; animation: none; margin: 0 auto; }
+  .arcade-item-prize { position: relative; left: auto; top: auto; margin: 1.3rem 0; }
+  .arcade-item-prize::before { left: 50%; top: 50%; width: min(24rem, 100%); height: calc(100% + 3.5rem); transform: none; animation: none; }
 }
 
 /* ---------- Help the hyrax ---------- */
@@ -2001,6 +2031,9 @@ main {
 
 /* ---------- Scattergories (multiplayer) ---------- */
 .sg-wrap { width: min(28rem, 100%); margin: auto; text-align: center; }
+/* the page is a column, so the "margin: auto" above centers the game up and down too (like the other pages) */
+.page[data-page="scattergories"] { position: absolute; inset: 0; padding: 0.75rem 1rem 1.5rem; overflow: auto; }   /* same as the idol game page */
+.page[data-page="scattergories"].active { display: flex; flex-direction: column; align-items: center; }
 .sg-wrap [hidden] { display: none !important; }
 .sg-note { min-height: 1.3em; font-size: 0.75rem; margin: 0 0 0.6rem; }
 .sg-panel { text-align: center; }
@@ -2190,4 +2223,89 @@ body.has-yb .page { padding-bottom: 4.5rem; }
 @media (max-width: 40rem) {
   body.has-mini .yb-box { bottom: calc(var(--bar-height) + 4.4rem); }
   body.has-mini.has-yb .page { padding-bottom: 8rem; }
+}
+
+/* slot-machine lever on the side of "casino de yeon": base stays put, arm + ball flip down on hover */
+.slot-lever {
+  position: absolute; left: calc(100% - 1px); top: 50%;
+  width: 1.6rem; height: 3.1rem; translate: 0 -78.7%;   /* base sits level with the middle of the card */
+  overflow: visible; fill: var(--text); pointer-events: none;   /* page text colour, so it stays visible when the card inverts */
+}
+.slot-lever .sl-fill { fill: var(--bg); }              /* solid back, so nothing shows through the outline */
+.arcade-item-casino { z-index: 0; }                    /* below the other boxes, so they cover the lever where they overlap */
+.slot-lever .sl-arm {
+  transform-origin: 14px 45.3px;                          /* hinge = the base's middle */
+  transition: transform 0.35s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.arcade-item-casino .arcade-card:hover .sl-arm,
+.arcade-item-casino .arcade-card:focus-visible .sl-arm { transform: scaleY(-1); }
+@media (max-width: 40rem) {
+  .arcade-item-casino .arcade-card { position: relative; left: auto; top: auto; }
+  .slot-lever { left: auto; right: 0.9rem; height: 2.4rem; width: 1.2rem; translate: 0 -50%; fill: currentColor; }
+  .slot-lever .sl-fill { fill: none; }   /* inside the card on phones */
+}
+@media (prefers-reduced-motion: reduce) { .slot-lever .sl-arm { transition: none; } }
+
+/* pencil on the bottom right corner of the "scattergories" arcade box: light until you point at the box, solid back so nothing shows through */
+.arcade-item-sg { z-index: 0; }   /* below the other boxes, so they cover the pencil where they overlap */
+.sg-pencil {
+  position: absolute; bottom: -1.3rem; right: -2rem;
+  width: 3.2rem; height: auto;
+  opacity: 0; transition: opacity 0.25s ease;   /* invisible until you point at the box */
+  pointer-events: none;
+}
+.arcade-item-sg .arcade-card:hover .sg-pencil, .arcade-item-sg .arcade-card:focus-visible .sg-pencil { opacity: 1; }
+.sg-pencil .pn-fill { fill: var(--bg); }
+.sg-pencil .pn-line { fill: var(--text); }
+@media (max-width: 40rem) {   /* phones: sits inside the box, in the box's own colours */
+  .arcade-item-sg .arcade-card { position: relative; left: auto; top: auto; }
+  .sg-pencil { bottom: 0.3rem; right: 0.7rem; width: 2.4rem; }
+  .sg-pencil .pn-fill { fill: none; }
+  .sg-pencil .pn-line { fill: currentColor; }
+}
+
+/* leaf on top of the "help the hyrax" box: only shows when you point at the box, solid back so nothing shows through */
+.arcade-item-hy { z-index: 0; }
+.hy-leaf {
+  position: absolute; left: 50%; bottom: calc(100% - 1px); translate: -50% 0.7rem;   /* starts a bit low, rises as it fades in */
+  width: 2.4rem; height: auto;
+  opacity: 0; transition: opacity 0.3s ease, translate 0.35s cubic-bezier(0.3, 1.4, 0.5, 1);
+  pointer-events: none;
+}
+.arcade-item-hy .arcade-card:hover .hy-leaf, .arcade-item-hy .arcade-card:focus-visible .hy-leaf { opacity: 1; translate: -50% 0; }
+.hy-leaf .lf-fill { fill: var(--bg); }
+.hy-leaf .lf-line { fill: var(--text); }
+@media (max-width: 40rem) {   /* phones: sits inside the box, in the box's own colours */
+  .arcade-item-hy .arcade-card { position: relative; left: auto; top: auto; }
+  .hy-leaf { left: auto; right: 0.9rem; bottom: auto; top: 50%; translate: 0 calc(-50% + 0.5rem); width: 1.7rem; }
+  .arcade-item-hy .arcade-card:hover .hy-leaf, .arcade-item-hy .arcade-card:focus-visible .hy-leaf { translate: 0 -50%; }
+  .hy-leaf .lf-fill { fill: none; }
+  .hy-leaf .lf-line { fill: currentColor; }
+}
+@media (prefers-reduced-motion: reduce) { .hy-leaf { transition: opacity 0.2s ease; } }
+
+/* question mark tucked behind "guess the k-pop idol": slides out from behind the box to the right on hover */
+.arcade-item-idol .id-q {
+  position: absolute; left: 0; top: 0; width: 0; height: 0;     /* sits at the middle of the box and turns the opposite way to the circle, like the box */
+  z-index: -1; pointer-events: none;
+  transform: rotate(calc(var(--a) * -1));
+  animation: arcade-unspin 45s linear infinite;
+}
+.arcade-ring:hover .arcade-item-idol .id-q, .arcade-ring:focus-within .arcade-item-idol .id-q { animation-play-state: paused; }
+.id-q svg {
+  position: absolute; left: 0; top: 0; width: 2.9rem; height: auto; overflow: visible;
+  translate: -50% -50%;                                          /* resting: hidden behind the box */
+  transition: translate 0.45s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.arcade-item-idol:hover .id-q svg, .arcade-item-idol:focus-within .id-q svg { translate: calc(var(--card-w) / 2 + 0.5rem) -50%; }
+.id-q .qm-fill { fill: var(--bg); }
+.id-q .qm-line { fill: var(--text); }
+@media (prefers-reduced-motion: reduce) { .arcade-item-idol .id-q { animation: none; } .id-q svg { transition: none; } }
+@media (max-width: 40rem) {   /* phones: no room beside the box, so it fades up inside the box's right end */
+  .arcade-item-idol { position: relative; left: auto; top: auto; }
+  .arcade-item-idol .id-q { position: static; width: auto; height: auto; transform: none; animation: none; z-index: auto; }
+  .id-q svg { left: calc(50% + min(9rem, 50%) - 3.4rem); top: 50%; width: 2rem; translate: 0 calc(-50% + 0.5rem); opacity: 0; transition: translate 0.35s ease, opacity 0.3s ease; z-index: 1; }
+  .arcade-item-idol:hover .id-q svg, .arcade-item-idol:focus-within .id-q svg { translate: 0 -50%; opacity: 1; }
+  .id-q .qm-fill { fill: none; }
+  .id-q .qm-line { fill: var(--bg); }   /* the box turns dark on hover, so the icon takes the page colour */
 }
