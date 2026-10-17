@@ -94,9 +94,11 @@
     document.body.classList.toggle("has-yb", show);
     if (!show) return;
     ybAmt.textContent = shown();
-    const bar = document.querySelector(".bar-bottom");                  // sit just above the bottom bar
-    if (bar) ybBox.style.bottom = Math.round(window.innerHeight - bar.getBoundingClientRect().top + 6) + "px";
+    const mini = document.getElementById("mini");                       // the music player (on phones it sits just above the bottom bar too)
+    document.body.classList.toggle("has-mini", !!mini && !mini.hidden);
   }
+  const miniEl = document.getElementById("mini");
+  if (miniEl && window.MutationObserver) new MutationObserver(updateBox).observe(miniEl, { attributes: true, attributeFilter: ["hidden"] });
   const ybWhere = document.getElementById("yb-where"), ybLinks = document.getElementById("yb-links");
   function ybOpen(on) { if (!ybLinks) return; ybLinks.hidden = !on; ybWhere.setAttribute("aria-expanded", on ? "true" : "false"); }
   if (ybWhere) {

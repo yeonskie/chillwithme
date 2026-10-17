@@ -2137,13 +2137,14 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-lb-note { opacity: 0.6; margin-top: 0.2rem !important; }
 .cz-lb-note:empty { display: none; }
 /* the "___ yeonbucks earned" box, bottom left of every page except the casino and the shop */
-.yb-box { position: fixed; bottom: 48px; left: 6px; z-index: 1; font-size: 12px; line-height: 1.4; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.yb-box { position: fixed; bottom: calc(var(--bar-height) + 0.6rem); left: 0.75rem; z-index: 1; font-size: 12px; line-height: 1.4; text-align: left; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
 .yb-box[hidden] { display: none; }
 .yb-box p { margin: 0; }
 .yb-row { display: flex; align-items: center; gap: 10px; }
 .yb-have { border: 1px solid var(--text); border-radius: var(--radius); padding: 5px 9px; background: var(--bg); }
 .yb-where, .yb-links a { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; opacity: 0.75; }
 .yb-where:hover, .yb-links a:hover { opacity: 1; }
+.yb-where { background: var(--bg); padding: 3px 4px; border-radius: var(--radius); }
 .yb-where::after { content: " \25B8"; }
 .yb-where[aria-expanded="true"]::after { content: " \25BE"; }
 .yb-links { display: flex; gap: 12px; padding: 2px 4px; background: var(--bg); }
@@ -2165,7 +2166,15 @@ body.has-yb .page { padding-bottom: 4.5rem; }
   .page[data-page="casino"].active .cz-wrap { flex: 0 0 auto; height: 44.5em; margin: auto; }
 }
 
-/* on phones the casino is bigger and the page just scrolls (change 17px to make it bigger or smaller) */
+/* on phones the casino is sized to the screen so "spin the wheel" shows without scrolling on most phones
+   (never smaller than 10.5px, never bigger than 17px; on a very short screen it scrolls instead).
+   To make it bigger overall, make 41.2 smaller. To make it smaller, make 41.2 bigger. */
 @media (max-width: 700px) {
-  .page[data-page="casino"] .cz-wrap { font-size: 17px; gap: 1.2em; }
+  .page[data-page="casino"] .cz-wrap { font-size: 13px; font-size: clamp(10.5px, calc((100vh - 126px) / 41.2), 17px); font-size: clamp(10.5px, calc((100svh - 126px) / 41.2), 17px); gap: 1.2em; }
+}
+
+/* on phones the music player sits just above the bottom bar, so while it's showing the yeonbucks box moves up above it */
+@media (max-width: 40rem) {
+  body.has-mini .yb-box { bottom: calc(var(--bar-height) + 4.4rem); }
+  body.has-mini.has-yb .page { padding-bottom: 8rem; }
 }
