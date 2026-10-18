@@ -62,6 +62,10 @@
         '<button type="button" data-id="pet-turtle">turtle</button>' +
         '<button type="button" data-id="pet-rat">rat (remy)</button>' +
         '<button type="button" data-id="tap-rainbow">rainbow tap</button>' +
+        '<button type="button" data-id="tap-petal">petal tap</button>' +
+        '<button type="button" data-id="tap-bubble">bubble tap</button>' +
+        '<button type="button" data-id="tap-ghost">ghost tap</button>' +
+        '<button type="button" data-id="tap-yb">yeonbucks tap</button>' +
       "</div>" +
       "<h3>start a new day</h3>" +
       '<div class="tm-row"><button type="button" id="tm-day">new day (daily prize + wheel)</button></div>' +
