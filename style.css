@@ -2990,3 +2990,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .cm-reply-dlg { z-index: 45; }
 #cm-replies-msg:empty { display: none; }
 #cm-replies-msg { text-align: center; margin: 0 0 0.8rem; }
+
+/* community: the add button says what it does */
+#cm-add { width: auto; height: auto; padding: 0.55rem 1rem; font-size: 0.8rem; line-height: 1.2; }
+#cm-add::after { display: none; }
