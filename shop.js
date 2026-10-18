@@ -54,10 +54,10 @@
     { id: "boost",      group: "boosts",       name: "earn boost",      desc: "+75 every 30 seconds instead of +50", price: 10000, kind: "perk", tag: "+75" },
     { id: "boost2",     group: "boosts",       name: "super earn boost", desc: "+100 every 30 seconds instead of +50", price: 35000, kind: "perk", tag: "+100" },
     { id: "charm",      group: "boosts",       name: "lucky charm",     desc: "+5% chance of the casino jackpot",    price: 20000, kind: "perk", tag: "+5%" },
-    { id: "bonus",      group: "boosts",       name: "prize bonus",     desc: "+10% on every game prize",            price: 25000, kind: "perk", tag: "+10%" },
-    { id: "pet-dog",     group: "pets",          name: "dog",            desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "dog" },
-    { id: "pet-cat",     group: "pets",          name: "cat",            desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "cat" },
-    { id: "pet-bunny",   group: "pets",          name: "bunny",          desc: "a little buddy for the corner of your screen", price: 30000, kind: "pet", value: "bunny" },
+    { id: "bonus",      group: "boosts",       name: "prize bonus",     desc: "+10% on every game prize",            price: 20000, kind: "perk", tag: "+10%" },
+    { id: "pet-dog",     group: "pets",          name: "dog",            desc: "a little buddy for the corner of your screen", price: 25000, kind: "pet", value: "dog" },
+    { id: "pet-cat",     group: "pets",          name: "cat",            desc: "a little buddy for the corner of your screen", price: 25000, kind: "pet", value: "cat" },
+    { id: "pet-bunny",   group: "pets",          name: "bunny",          desc: "a little buddy for the corner of your screen", price: 25000, kind: "pet", value: "bunny" },
     { id: "key",         group: "secret",        name: "secret room key", desc: "opens the secret room at the back of the fair", price: 50000, kind: "perk", tag: "?" },
     // rare: true = sold in the rare items shop (secret room), not the prize shop. koala, frog and panda are also wheel prizes.
     // soon: true on a "kind: soon" item keeps it on the shelf as "coming soon" (the rat is on its way).
