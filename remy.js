@@ -27,7 +27,7 @@
     hat:    { art: "pa-rat-hat",    ms: 0, say: "how do i look?" },
     rain:   { art: "pa-rat-rain",   ms: 0, say: "*splish splash*" },
   };
-  let timer = null, from = null, petting = false, sayTimer = null;
+  let timer = null, from = null, petting = false, sayTimer = null, curKey = null;
   const petBtn = el.querySelector('.remy-btn[data-act="pet"]');
 
   // a line under her picture
@@ -142,6 +142,7 @@
     const st = key ? STATES[key] : MAIN;
     art.setAttribute("href", "#" + st.art);
     card.dataset.state = key || "main";
+    curKey = key || null;
     sayEl.textContent = st.say;
     stage.classList.remove("pop");
     void stage.offsetWidth;                                       // (restarts the little bounce)
@@ -170,10 +171,10 @@
 
   el.querySelectorAll(".remy-btn").forEach((b) => b.addEventListener("click", () => {
     if (b.dataset.act === "pet") {                                // pet: switch the hand on or off
-      const on = !petting;
-      show(null);
+      const on = !petting;                                        // (her picture stays exactly as it is: eating, hat, rain...)
       setPetting(on);
-      sayEl.textContent = on ? "pet her!" : "";
+      hideItems();
+      sayEl.textContent = on ? "pet her!" : (STATES[curKey] ? STATES[curKey].say : "");
     } else if (b.dataset.act === "eat" || b.dataset.act === "hat") {   // feed / hat: the item appears, you drag it onto her
       const isEat = b.dataset.act === "eat";
       hideItems();
