@@ -7,6 +7,7 @@
 //   desc   - the little line under the name
 //   price  - cost in yeonbucks
 //   wheel  - (optional) true = not sold in the shop, it's a prize from the secret room wheel
+//   daily  - (optional) true = not sold anywhere, it is a gift in the daily reward (see the DAILY list in daily.js)
 //   rare   - (optional) true = sold in the RARE ITEMS SHOP in the secret room instead (see "THE RARE ITEMS SHOP" lower down)
 //   (the shop shows the items in this order, 9 at a time with an arrow to the next page, so just keep adding to the list. Keep the secret room key last.)
 //   kind   - "perk"   : you just own it (the earn boosts, lucky charm and prize bonus are switched on in casino.js, the secret room key in secretroom.js; "tag" is the little label in the box)
@@ -62,7 +63,7 @@
     // wheel: true = never sold in a shop, only won on the secret room's wheel (it still shows up in the inventory once you have it)
     { id: "tap-rainbow", group: "tap",           name: "rainbow sparkle tap", desc: "rainbow stars pop where you tap or click", price: 0, kind: "tap", value: "rainbow", wheel: true },
   ];
-  const SHOP = ITEMS.filter((i) => !i.wheel && !i.rare);         // what the prize shop sells
+  const SHOP = ITEMS.filter((i) => !i.wheel && !i.rare && !i.daily);         // what the prize shop sells
 
   // ----- what's owned / switched on (saved in this browser) -----
   function load(k, fallback) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? fallback : v; } catch (e) { return fallback; } }

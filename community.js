@@ -14,6 +14,17 @@
   const LAST_KEY = "community-last-post";
   const PHOTO_RE = /^https:\/\/[^\s]{4,500}$/;      // photos are web addresses, https only
 
+  // reactions: the glyphs are plain text so they match the rest of the site. To change them, edit this list
+  // (the "key" must stay one of heart / smile / star / sad, it's what the database accepts; see supabase-community-replies.sql)
+  const REACTIONS = [
+    { key: "heart", glyph: "\u2665", label: "love" },
+    { key: "smile", glyph: "\u263A", label: "smile" },
+    { key: "star", glyph: "\u2726", label: "wow" },
+    { key: "sad", glyph: "\u2639", label: "sad" },
+  ];
+  const REPLY_COOLDOWN_MS = 20 * 1000;
+  const REPLY_KEY = "community-last-reply";
+
   const grid = $("cm-grid"), status = $("cm-status"), moreBtn = $("cm-more");
   const dialog = $("cm-dialog"), form = $("cm-form"), msg = $("cm-msg"), sendBtn = $("cm-send");
   const photoInput = $("cm-photo"), preview = $("cm-preview"), addBtn = $("cm-add"), fileInput = $("cm-file");
@@ -27,6 +38,8 @@
   const BUCKET = "community-photos";
   const MAX_FILE_BYTES = 8 * 1024 * 1024;   // files bigger than this are turned away before trying
   let statusTimer = null;
+  const stats = {};                      // post id -> { replies: 3, reacts: { heart: 2 }, mine: ["heart"] }
+  let statsOk = false;                   // false until supabase-community-replies.sql has been run (then replies and reactions stay hidden)
 
   // ----- talking to Supabase -----
   function headers(extra) {
@@ -64,7 +77,7 @@
     return String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0") + "." + d.getFullYear();
   }
 
-  function buildCard(p) {
+  function buildCard(p, inThread) {
     const card = document.createElement("article");
     card.className = "cm-card";
     if (p.image_url && PHOTO_RE.test(p.image_url)) {
@@ -91,7 +104,156 @@
     meta.textContent = [p.name, dateText(p.created_at)].filter(Boolean).join(" · ");
     box.appendChild(meta);
     card.appendChild(box);
+    if (statsOk) {
+      card.appendChild(buildActions(p, inThread));
+      if (!inThread) {
+        card.classList.add("cm-card-open");
+        card.addEventListener("click", (e) => { if (!e.target.closest("button, a")) openThread(p, card); });
+      }
+    }
     return card;
+  }
+
+  // ----- reactions and replies -----
+  function voterId() {
+    let id = "";
+    try { id = localStorage.getItem("yb-id") || ""; } catch (e) {}
+    if (id.length < 8) {
+      id = "y" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36);   // same kind of id the leaderboard makes
+      try { localStorage.setItem("yb-id", id); } catch (e) {}
+    }
+    return id;
+  }
+  const statOf = (id) => stats[id] || (stats[id] = { replies: 0, reacts: {}, mine: [] });
+
+  function buildActions(p, inThread) {
+    const st = statOf(p.id);
+    const row = document.createElement("div");
+    row.className = "cm-actions";
+    row.dataset.id = p.id;
+    let shown = 0;
+    REACTIONS.forEach((r) => {
+      if (!(st.reacts[r.key] > 0)) return;               // only the reactions people have actually given
+      shown++;
+      const b = document.createElement("button");
+      b.type = "button";
+      const on = st.mine.indexOf(r.key) >= 0;
+      b.className = "cm-react" + (on ? " cm-react-on" : "");
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      b.setAttribute("aria-label", r.label);
+      b.dataset.tip = r.label;
+      const g = document.createElement("span"); g.className = "cm-react-g"; g.textContent = r.glyph;
+      const n = document.createElement("span"); n.className = "cm-react-n"; n.textContent = String(st.reacts[r.key]);
+      b.append(g, n);
+      b.addEventListener("click", (e) => { e.stopPropagation(); toggleReaction(p.id, r.key); });
+      row.appendChild(b);
+    });
+    const add = document.createElement("button");
+    add.type = "button";
+    add.className = "cm-react cm-react-add";
+    add.textContent = shown ? "+" : "+ react";
+    add.setAttribute("aria-label", "add a reaction");
+    add.setAttribute("aria-haspopup", "true");
+    add.addEventListener("click", (e) => { e.stopPropagation(); openPicker(add, p.id); });
+    row.appendChild(add);
+    if (!inThread) {
+      const rb = document.createElement("button");
+      rb.type = "button";
+      rb.className = "cm-replybtn";
+      rb.textContent = st.replies > 0 ? "replies (" + st.replies + ")" : "reply";
+      rb.addEventListener("click", (e) => { e.stopPropagation(); openThread(p, rb); });
+      row.appendChild(rb);
+    }
+    return row;
+  }
+
+  // redraw the buttons for one post wherever they show (on its card and in the open thread)
+  function redrawActions(id) {
+    const p = posts.filter((x) => x.id === id)[0];
+    if (!p) return;
+    document.querySelectorAll('.cm-actions[data-id="' + id + '"]').forEach((row) => {
+      const inThread = !!row.closest("#cm-thread");
+      row.replaceWith(buildActions(p, inThread));
+    });
+  }
+
+
+  // the little drop down with every reaction to pick from. It lives on the page itself (not inside the card), so a card never clips it.
+  let picker = null, pickerFor = null;
+  function closePicker() {
+    if (picker) { picker.remove(); picker = null; }
+    pickerFor = null;
+  }
+  function openPicker(btn, id) {
+    const same = pickerFor === btn;
+    closePicker();
+    if (same) return;
+    const st = statOf(id);
+    picker = document.createElement("div");
+    picker.className = "cm-picker";
+    picker.setAttribute("role", "menu");
+    REACTIONS.forEach((r) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.setAttribute("role", "menuitem");
+      b.className = "cm-pick" + (st.mine.indexOf(r.key) >= 0 ? " cm-pick-on" : "");
+      b.setAttribute("aria-label", r.label);
+      b.dataset.tip = r.label;
+      b.textContent = r.glyph;
+      b.addEventListener("click", (e) => { e.stopPropagation(); closePicker(); toggleReaction(id, r.key); });
+      picker.appendChild(b);
+    });
+    document.body.appendChild(picker);
+    pickerFor = btn;
+    const rect = btn.getBoundingClientRect(), pw = picker.offsetWidth, ph = picker.offsetHeight;
+    let left = Math.min(Math.max(8, rect.left), window.innerWidth - pw - 8);
+    let top = rect.bottom + 4;
+    if (top + ph > window.innerHeight - 8) top = Math.max(8, rect.top - ph - 4);     // no room below, so open upward
+    picker.style.left = left + "px";
+    picker.style.top = top + "px";
+  }
+  document.addEventListener("click", (e) => { if (picker && !e.target.closest(".cm-picker")) closePicker(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePicker(); });
+  window.addEventListener("hashchange", closePicker);
+  window.addEventListener("resize", closePicker);
+  window.addEventListener("scroll", closePicker, true);
+
+  async function toggleReaction(id, key) {
+    const st = statOf(id);
+    const was = st.mine.indexOf(key) >= 0;
+    const apply = (on) => {
+      st.mine = st.mine.filter((k) => k !== key);
+      if (on) st.mine.push(key);
+      st.reacts[key] = Math.max(0, (st.reacts[key] || 0) + (on ? 1 : -1));
+      redrawActions(id);
+    };
+    apply(!was);                                         // show it right away
+    try {
+      await api("/rest/v1/rpc/post_react", {
+        method: "POST",
+        headers: headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ p_post: id, p_voter: voterId(), p_kind: key, p_on: !was }),
+      });
+    } catch (e) {
+      apply(was);                                        // it didn't go through, so put it back
+      say("couldn't save that reaction. try again in a bit.");
+    }
+  }
+
+  async function loadStats(rows) {
+    if (!rows.length) { statsOk = statsOk || false; return; }
+    try {
+      const res = await api("/rest/v1/rpc/post_stats", {
+        method: "POST",
+        headers: headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify({ p_ids: rows.map((p) => p.id), p_voter: voterId() }),
+      });
+      const list = await res.json();
+      (Array.isArray(list) ? list : []).forEach((s) => {
+        stats[s.pid] = { replies: Number(s.replies) || 0, reacts: s.reacts && typeof s.reacts === "object" ? s.reacts : {}, mine: Array.isArray(s.mine) ? s.mine : [] };
+      });
+      statsOk = true;
+    } catch (e) { /* the replies script hasn't been run yet (or no connection): the board just works without them */ }
   }
 
   function render() {
@@ -114,6 +276,7 @@
       );
       const rows = (await res.json()).filter((p) => p && typeof p.id === "string");
       posts = append ? posts.concat(rows) : rows;
+      await loadStats(rows);
       loadedAt = Date.now();
       loading = false;
       say("", true);
@@ -339,6 +502,92 @@
     } catch (err) {
       sendBtn.disabled = false;
       msg.textContent = "couldn't send that right now. try again in a bit. (" + String(err.message || err).slice(0, 160) + ")";
+    }
+  });
+
+  // ----- the thread: one post with its replies -----
+  const thread = $("cm-thread");
+  let threadPost = null, threadFrom = null;
+
+  function replyLine(r) {
+    const li = document.createElement("li");
+    li.className = "cm-reply";
+    const t = document.createElement("p"); t.className = "cm-reply-text"; t.textContent = r.body;
+    const m = document.createElement("p"); m.className = "cm-card-meta"; m.textContent = [r.name, dateText(r.created_at)].filter(Boolean).join(" \u00b7 ");
+    li.append(t, m);
+    return li;
+  }
+
+  async function loadReplies(id) {
+    const list = $("cm-replies"), note = $("cm-reply-msg");
+    list.innerHTML = "";
+    note.textContent = "loading...";
+    try {
+      const res = await api("/rest/v1/post_replies?select=id,created_at,name,body&approved=eq.true&post_id=eq." + encodeURIComponent(id) + "&order=created_at.asc&limit=200", { headers: headers() });
+      const rows = (await res.json()).filter((r) => r && typeof r.id === "string");
+      if (!threadPost || threadPost.id !== id) return;
+      rows.forEach((r) => list.appendChild(replyLine(r)));
+      statOf(id).replies = rows.length;
+      note.textContent = rows.length ? "" : "no replies yet. be the first.";
+      redrawActions(id);
+    } catch (e) {
+      if (threadPost && threadPost.id === id) note.textContent = "couldn't load the replies right now.";
+    }
+  }
+
+  function openThread(p, from) {
+    threadPost = p;
+    threadFrom = from || null;
+    const holder = $("cm-thread-post");
+    holder.innerHTML = "";
+    holder.appendChild(buildCard(p, true));
+    $("cm-reply-form").reset();
+    $("cm-reply-msg").textContent = "";
+    thread.hidden = false;
+    $("cm-reply-body").focus({ preventScroll: true });
+    loadReplies(p.id);
+  }
+
+  function closeThread() {
+    if (thread.hidden) return;
+    thread.hidden = true;
+    threadPost = null;
+    if (threadFrom && document.contains(threadFrom)) threadFrom.focus();
+    threadFrom = null;
+  }
+
+  $("cm-thread-close").addEventListener("click", closeThread);
+  $("cm-thread-backdrop").addEventListener("click", closeThread);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeThread(); });
+  window.addEventListener("hashchange", closeThread);
+
+  $("cm-reply-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!threadPost) return;
+    const id = threadPost.id;
+    const note = $("cm-reply-msg"), send = $("cm-reply-send");
+    const body = $("cm-reply-body").value.trim();
+    const name = $("cm-reply-name").value.trim().slice(0, 24);
+    if (!body) { note.textContent = "write something first"; return; }
+    let last = 0;
+    try { last = Number(localStorage.getItem(REPLY_KEY)) || 0; } catch (err) {}
+    const wait = REPLY_COOLDOWN_MS - (Date.now() - last);
+    if (wait > 0) { note.textContent = "one reply every 20 seconds, please. try again in " + Math.ceil(wait / 1000) + "s"; return; }
+    send.disabled = true;
+    note.textContent = "sending...";
+    try {
+      await api("/rest/v1/post_replies", {
+        method: "POST",
+        headers: headers({ "Content-Type": "application/json", Prefer: "return=minimal" }),
+        body: JSON.stringify({ post_id: id, name, body }),
+      });
+      try { localStorage.setItem(REPLY_KEY, String(Date.now())); } catch (err) {}
+      $("cm-reply-body").value = "";
+      await loadReplies(id);
+    } catch (err) {
+      note.textContent = "couldn't send that right now. try again in a bit. (" + String(err.message || err).slice(0, 160) + ")";
+    } finally {
+      send.disabled = false;
     }
   });
 

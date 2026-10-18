@@ -2940,3 +2940,44 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .menu-wrap { width: min(24rem, 100%); }
 .menu-card { display: grid; grid-template-columns: repeat(2, 1fr); width: min(24rem, 100%); }
 .menu-card a { display: flex; align-items: center; justify-content: center; min-height: 3.6rem; padding: 0.8rem 0.5rem; }
+
+/* daily reward (home page button + popup) */
+.home-daily { display: block; margin: 0.6rem auto 0; position: relative; }
+.home-daily-dot { display: inline-block; width: 7px; height: 7px; margin-left: 0.5rem; vertical-align: middle; border-radius: 50%; background: var(--text); }
+.home-daily:hover .home-daily-dot, .home-daily:focus-visible .home-daily-dot { background: var(--bg); }
+.home-daily-dot[hidden] { display: none; }
+.dl-card { width: min(30rem, 100%); text-align: center; }
+.dl-sub { margin: 0 0 0.8rem !important; opacity: 0.8; }
+.dl-grid { list-style: none; margin: 0 0 0.9rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(5.2rem, 1fr)); gap: 6px; max-height: 45vh; overflow-y: auto; }
+.dl-day { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 3.6rem; padding: 0.4rem 0.2rem; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); font-size: 0.7rem; }
+.dl-n { opacity: 0.7; font-size: 0.62rem; }
+.dl-amt { font-size: 0.85rem; }
+.dl-gift { font-size: 0.58rem; opacity: 0.85; line-height: 1.2; }
+.dl-now { border: 2px solid var(--text); }
+.dl-done { opacity: 0.45; }
+.dl-check { position: absolute; top: 2px; right: 5px; font-size: 0.65rem; }
+.dl-claim { min-width: 11rem; }
+.dl-claim:disabled { opacity: 0.5; cursor: default; }
+
+/* community: reactions and replies */
+.cm-card-open { cursor: pointer; }
+.cm-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 0 0.7rem 0.7rem; }
+.cm-react { display: inline-flex; align-items: center; gap: 0.35rem; font: inherit; font-size: 0.8rem; line-height: 1; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.35rem 0.6rem; cursor: pointer; }
+.cm-react-g { font-size: 1.35rem; line-height: 1; }
+.cm-react-add { font-size: 0.68rem; padding: 0.4rem 0.55rem; }
+.cm-react-n:empty { display: none; }
+.cm-react:hover, .cm-react:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.cm-react-on { border-color: var(--text); font-weight: 700; }
+.cm-replybtn { margin-left: auto; font: inherit; font-size: 0.7rem; color: inherit; background: none; border: 0; padding: 0.3rem 0.2rem; cursor: pointer; text-decoration: underline; text-underline-offset: 0.2em; opacity: 0.8; }
+.cm-replybtn:hover, .cm-replybtn:focus-visible { opacity: 1; outline: none; }
+.cm-thread-card { width: min(30rem, 100%); padding-top: 2.4rem; }
+.cm-thread-card .cm-card { margin: 0 0 1rem; cursor: default; }
+.cm-replies { list-style: none; margin: 0 0 1rem; padding: 0; }
+.cm-reply { padding: 0.6rem 0.7rem; margin: 0 0 6px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); }
+.cm-reply-text { white-space: pre-line; overflow-wrap: anywhere; line-height: 1.5; margin: 0; font-size: 0.78rem; }
+.cm-reply .cm-card-meta { margin-top: 0.4rem; }
+#cm-reply-msg:empty { display: none; }
+.cm-picker { position: fixed; z-index: 10001; display: flex; gap: 4px; padding: 6px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); }
+.cm-pick { font: inherit; font-size: 1.6rem; line-height: 1; width: 2.6rem; height: 2.6rem; color: inherit; background: var(--bg); border: 1px solid transparent; border-radius: var(--radius); cursor: pointer; }
+.cm-pick:hover, .cm-pick:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.cm-pick-on { border-color: var(--text); }

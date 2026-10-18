@@ -125,6 +125,7 @@
 
         <p class="home-sub home-sub-below"><span class="home-ul">hear</span> my thoughts, <span class="home-ul">create</span> your own moodboard,<br><span class="home-ul">confess</span> your secrets, <span class="home-ul">explore</span> the arcade</p>
         <button type="button" class="home-random" id="home-random">randomize my stay</button>
+        <button type="button" class="home-random home-daily" id="home-daily">daily reward<span class="home-daily-dot" id="home-daily-dot" hidden aria-label="ready to claim"></span></button>
       </div>
     </section>
 
@@ -369,6 +370,22 @@
         <p class="cm-status" id="cm-status" role="status"></p>
         <div class="cm-grid" id="cm-grid"></div>
         <button type="button" class="mb-reset cm-more" id="cm-more" hidden>show more</button>
+      </div>
+
+      <!-- one post with its replies (see community.js) -->
+      <div class="mb-add" id="cm-thread" hidden role="dialog" aria-modal="true" aria-label="replies">
+        <div class="mb-add-backdrop" id="cm-thread-backdrop"></div>
+        <div class="mb-add-card cm-thread-card">
+          <button type="button" class="inv-close" id="cm-thread-close" aria-label="close">&times;</button>
+          <div id="cm-thread-post"></div>
+          <ol class="cm-replies" id="cm-replies"></ol>
+          <form id="cm-reply-form" novalidate autocomplete="off">
+            <label>name (optional)<input type="text" id="cm-reply-name" maxlength="24"></label>
+            <label>your reply<textarea id="cm-reply-body" rows="3" maxlength="300"></textarea></label>
+            <p class="mb-add-msg" id="cm-reply-msg" role="status"></p>
+            <div class="mb-add-actions"><button type="submit" id="cm-reply-send">reply</button></div>
+          </form>
+        </div>
       </div>
 
       <!-- add something -->
@@ -1072,11 +1089,23 @@
     </div>
   </div>
 
+  <!-- the daily reward (see daily.js) -->
+  <div class="inv-overlay" id="daily" hidden>
+    <div class="lb-card dl-card" role="dialog" aria-modal="true" aria-labelledby="dl-title">
+      <button type="button" class="inv-close" id="dl-close" aria-label="close">&times;</button>
+      <p class="cz-lb-title" id="dl-title">daily reward</p>
+      <p class="dl-sub" id="dl-sub"></p>
+      <ol class="dl-grid" id="dl-grid"></ol>
+      <button type="button" class="hy-btn dl-claim" id="dl-claim">claim</button>
+      <p class="cz-lb-note" id="dl-note" role="status"></p>
+    </div>
+  </div>
+
   <!-- first visit: ask for a name so people land on the leaderboard (casino.js) -->
   <div class="inv-overlay" id="wel" hidden>
     <form class="lb-card wel-card" id="wel-form" role="dialog" aria-modal="true" aria-label="join the leaderboard" autocomplete="off">
-      <p class="cz-lb-title">welcome! pick a name</p>
-      <p class="wel-sub">it puts you on the leaderboard. your score is your yeonbucks.</p>
+      <p class="cz-lb-title">pick a name</p>
+      <p class="wel-sub">welcome to the arcade! this puts you on the leaderboard. your score is your yeonbucks.</p>
       <input id="wel-name" type="text" maxlength="20" placeholder="your name" aria-label="your name on the leaderboard">
       <div class="cz-lb-btns">
         <button type="submit" class="cz-lb-link">join</button>
@@ -1121,6 +1150,7 @@
   <script src="remy.js"></script>
   <script src="battle.js"></script>
   <script src="secretroom.js"></script>
+  <script src="daily.js"></script>
   <script src="idols.js"></script>
   <script src="idol.js"></script>
   <script src="music.js"></script>
