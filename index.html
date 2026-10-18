@@ -379,13 +379,24 @@
           <button type="button" class="inv-close" id="cm-thread-close" aria-label="close">&times;</button>
           <div id="cm-thread-post"></div>
           <ol class="cm-replies" id="cm-replies"></ol>
-          <form id="cm-reply-form" novalidate autocomplete="off">
-            <label>name (optional)<input type="text" id="cm-reply-name" maxlength="24"></label>
-            <label>your reply<textarea id="cm-reply-body" rows="3" maxlength="300"></textarea></label>
-            <p class="mb-add-msg" id="cm-reply-msg" role="status"></p>
-            <div class="mb-add-actions"><button type="submit" id="cm-reply-send">reply</button></div>
-          </form>
+          <p class="mb-add-msg" id="cm-replies-msg" role="status"></p>
+          <button type="button" class="cm-react cm-react-add cm-reply-open" id="cm-reply-open">+ add reply</button>
         </div>
+      </div>
+
+      <!-- write a reply (opens on top of the thread) -->
+      <div class="mb-add cm-reply-dlg" id="cm-reply-dlg" hidden role="dialog" aria-modal="true" aria-label="add a reply">
+        <div class="mb-add-backdrop" id="cm-reply-backdrop"></div>
+        <form class="mb-add-card" id="cm-reply-form" novalidate autocomplete="off">
+          <h2>add a reply</h2>
+          <label>name (optional)<input type="text" id="cm-reply-name" maxlength="24"></label>
+          <label>your reply<textarea id="cm-reply-body" rows="4" maxlength="300"></textarea></label>
+          <p class="mb-add-msg" id="cm-reply-msg" role="status"></p>
+          <div class="mb-add-actions">
+            <button type="submit" id="cm-reply-send">send</button>
+            <button type="button" id="cm-reply-cancel">cancel</button>
+          </div>
+        </form>
       </div>
 
       <!-- add something -->

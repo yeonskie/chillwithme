@@ -2981,3 +2981,12 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .cm-pick { font: inherit; font-size: 1.6rem; line-height: 1; width: 2.6rem; height: 2.6rem; color: inherit; background: var(--bg); border: 1px solid transparent; border-radius: var(--radius); cursor: pointer; }
 .cm-pick:hover, .cm-pick:focus-visible { background: var(--text); color: var(--bg); outline: none; }
 .cm-pick-on { border-color: var(--text); }
+
+/* community: description, + and "check for new" centered */
+.cm-intro { margin-left: auto; margin-right: auto; text-align: center; }
+.cm-top { justify-content: center; }
+.cm-status { text-align: center; }
+.cm-reply-open { display: block; margin: 0 auto; }
+.cm-reply-dlg { z-index: 45; }
+#cm-replies-msg:empty { display: none; }
+#cm-replies-msg { text-align: center; margin: 0 0 0.8rem; }

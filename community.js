@@ -519,7 +519,7 @@
   }
 
   async function loadReplies(id) {
-    const list = $("cm-replies"), note = $("cm-reply-msg");
+    const list = $("cm-replies"), note = $("cm-replies-msg");
     list.innerHTML = "";
     note.textContent = "loading...";
     try {
@@ -544,12 +544,31 @@
     $("cm-reply-form").reset();
     $("cm-reply-msg").textContent = "";
     thread.hidden = false;
-    $("cm-reply-body").focus({ preventScroll: true });
     loadReplies(p.id);
   }
 
+  // the reply box: a small window on top of the thread
+  const replyDlg = $("cm-reply-dlg");
+  function openReply() {
+    if (!threadPost) return;
+    $("cm-reply-form").reset();
+    $("cm-reply-msg").textContent = "";
+    replyDlg.hidden = false;
+    $("cm-reply-body").focus();
+  }
+  function closeReply() {
+    if (replyDlg.hidden) return false;
+    replyDlg.hidden = true;
+    const b = $("cm-reply-open"); if (b) b.focus();
+    return true;
+  }
+  $("cm-reply-open").addEventListener("click", openReply);
+  $("cm-reply-cancel").addEventListener("click", closeReply);
+  $("cm-reply-backdrop").addEventListener("click", closeReply);
+
   function closeThread() {
     if (thread.hidden) return;
+    replyDlg.hidden = true;
     thread.hidden = true;
     threadPost = null;
     if (threadFrom && document.contains(threadFrom)) threadFrom.focus();
@@ -558,7 +577,7 @@
 
   $("cm-thread-close").addEventListener("click", closeThread);
   $("cm-thread-backdrop").addEventListener("click", closeThread);
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeThread(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") { if (!closeReply()) closeThread(); } });
   window.addEventListener("hashchange", closeThread);
 
   $("cm-reply-form").addEventListener("submit", async (e) => {
@@ -583,6 +602,7 @@
       });
       try { localStorage.setItem(REPLY_KEY, String(Date.now())); } catch (err) {}
       $("cm-reply-body").value = "";
+      replyDlg.hidden = true;
       await loadReplies(id);
     } catch (err) {
       note.textContent = "couldn't send that right now. try again in a bit. (" + String(err.message || err).slice(0, 160) + ")";
