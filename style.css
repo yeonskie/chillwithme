@@ -3047,3 +3047,16 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
     cursor: url("cursors/y2k-link.cur"), pointer !important;
   }
 }
+
+/* prize shop: the secret room key is inverted so it stands out, the halloween exclusive is orange */
+.shop-item[data-id="key"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+.shop-item[data-id="key"] .shop-prev { background: var(--text); color: var(--bg); border-color: var(--bg); }
+.shop-item[data-id="key"] .hy-btn { background: var(--text); color: var(--bg); border-color: var(--bg); }
+.shop-item[data-id="key"] .hy-btn:hover, .shop-item[data-id="key"] .hy-btn:focus-visible { background: var(--bg); color: var(--text); }
+.shop-item[data-id="key"] .shop-desc, .shop-item[data-id="key"] .shop-note { color: var(--bg); }
+.shop-item[data-id="tap-ghost"]:not(.is-on) { background: #ffc07a; color: #1a1a1a; border-color: #d98a2b; }
+.shop-item[data-id="tap-ghost"]:not(.is-on) .shop-prev { background: #fff6ea; color: #1a1a1a; border-color: #d98a2b; }
+.shop-item[data-id="tap-ghost"]:not(.is-on) .hy-btn { background: #fff6ea; color: #1a1a1a; border-color: #1a1a1a; }
+.shop-item[data-id="tap-ghost"]:not(.is-on) .hy-btn:hover:not(:disabled), .shop-item[data-id="tap-ghost"]:not(.is-on) .hy-btn:focus-visible { background: #1a1a1a; color: #ffc07a; }
+.shop-item[data-id="tap-ghost"]:not(.is-on) .shop-desc, .shop-item[data-id="tap-ghost"] .shop-note { color: #1a1a1a; }
+.shop-item[data-id="tap-ghost"]:not(.is-on) .shop-prev .tap-ghost-svg path:first-child { fill: #fff6ea !important; }
