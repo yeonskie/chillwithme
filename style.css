@@ -3158,7 +3158,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .pet[data-kind="fish"] .pet-acc[data-acc="hat"] { --ox: -18%; --oy: 16%; }
 .pet[data-kind="chicken"] .pet-acc[data-acc="hat"] { --rot: 10deg; }
 .pet[data-kind="hedgehog"] .pet-acc[data-acc="hat"] { --oy: -3%; }
-.pet[data-kind="mouse"] .pet-acc[data-acc="hat"] { --ox: -9%; --oy: -7%; --rot: 10deg; }
+.pet[data-kind="mouse"] .pet-acc[data-acc="hat"] { --ox: 5%; --oy: -12%; --rot: 28deg; --sc: .85; }
 .pet[data-kind="turtle"] .pet-acc[data-acc="hat"] { --ox: -24%; --oy: 3%; --sc: 0.77; --rot: 18deg; }
 .pet[data-kind="rat"] .pet-acc[data-acc="hat"] { --oy: -14%; --rot: 14deg; }
 /* bow */
