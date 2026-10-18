@@ -142,12 +142,12 @@
   const SPIN_COST = 1000, EXTRA_SPINS = 3;
   const PET_KINDS = ["koala", "frog", "panda"];                 // the mystery pets (add a new one here AND in shop.js and index.html)
   const SLICES = [
-    { id: "again",   w: 15 },   // spin again
-    { id: "boost",   w: 10 },   // 24 hr boost, +200 every 30 secs
-    { id: "c200",    w: 34, coins: 200 },
-    { id: "oops",    w: 20 },   // +0
-    { id: "c10000",  w: 2,  coins: 10000 },
-    { id: "rainbow", w: 10 },   // rainbow sparkle tap (if you already have it, you get 1,000 instead)
+    { id: "again",   w: 16 },   // spin again
+    { id: "boost",   w: 11 },   // 24 hr boost, +200 every 30 secs
+    { id: "c200",    w: 20, coins: 200 },
+    { id: "oops",    w: 24 },   // +0
+    { id: "c100000", w: 1,  coins: 100000 },
+    { id: "rainbow", w: 10 },   // rainbow sparkle tap (if you already have it, you get a random pet accessory you don't have yet; if you have them all, 1,000 instead)
     { id: "c5000",   w: 9,  coins: 5000 },
     { id: "pet",     w: 5 },   // new mystery pet! (the weight drops to 0 once all the pets are owned)
   ];
@@ -165,7 +165,18 @@
   const bal = () => (window.YB ? window.YB.have() : 0);
   function boostLeft() { let u = 0; try { u = Number(localStorage.getItem("yb-boost-until") || 0); } catch (e) {} return Math.max(0, u - Date.now()); }
   const spinItems = () => (window.YBItems ? window.YBItems.count("spin") : 0);     // free spin items from the lost and found
+  function rainbowLabel() {                                    // once you own the rainbow sparkle tap, that slice says "random pet accessory" (it gives you one instead)
+    const t = $("sw-rainbow");
+    if (!t) return;
+    const have = !!(window.YBShop && window.YBShop.owns("tap-rainbow"));
+    if (t.dataset.have === String(have)) return;
+    t.dataset.have = String(have);
+    const a = t.querySelectorAll("tspan");
+    if (have) { a[0].textContent = "random pet"; a[0].setAttribute("x", "-15"); a[1].textContent = "accessory"; a[1].setAttribute("x", "-8"); }
+    else { a[0].textContent = "rainbow "; a[0].setAttribute("x", "0"); a[1].textContent = "sparkle tap"; a[1].setAttribute("x", "-30"); }
+  }
   function wDraw() {
+    rainbowLabel();
     const st = wState(), free = freeLeft(st) > 0 || spinItems() > 0, canPay = !free && st.paid < EXTRA_SPINS;
     wBtn.disabled = spinning || (!free && !(canPay && bal() >= SPIN_COST));
     wBtn.textContent = free ? "spin (free)" : canPay ? "spin for " + fmtN(SPIN_COST) : "come back tomorrow";
@@ -227,7 +238,7 @@
     const i = pick(), s = SLICES[i];
     // the prize is decided and handed over right now; the spinning is just for show
     let msg = "";
-    if (s.coins) { window.YB.add(s.coins); msg = (s.id === "c10000" ? "jackpot! " : "") + "+" + fmtN(s.coins) + " yeonbucks!"; }
+    if (s.coins) { window.YB.add(s.coins); msg = (s.id === "c100000" ? "jackpot! " : "") + "+" + fmtN(s.coins) + " yeonbucks!"; }
     else if (s.id === "oops") msg = "oops! +0 yeonbucks. better luck next time";
     else if (s.id === "again") { st.extra++; msg = "spin again! you got a free extra spin"; }
     else if (s.id === "boost") {
@@ -236,7 +247,15 @@
       msg = "24 hr boost! +200 every 30 secs for the next 24 hours";
     } else if (s.id === "rainbow") {
       if (window.YBShop && window.YBShop.give("tap-rainbow")) msg = "rainbow sparkle tap! turn it on in your inventory";
-      else { window.YB.add(1000); msg = "you already have the rainbow sparkle tap, so here's +1,000 yeonbucks"; }
+      else {                                                                       // already have it: a random pet accessory you don't have yet
+        const NAMES = { "wear-hat": "witch hat", "wear-bow": "bow", "wear-soda": "soda" };
+        const left = Object.keys(NAMES).filter((id) => !(window.YBShop && window.YBShop.owns(id)));
+        if (left.length) {
+          const id = left[Math.floor(Math.random() * left.length)];
+          window.YBShop.give(id);
+          msg = "you already have the rainbow sparkle tap, so you got a pet accessory: the " + NAMES[id] + "! put it on in your inventory";
+        } else { window.YB.add(1000); msg = "you already have the rainbow sparkle tap and every accessory, so here's +1,000 yeonbucks"; }
+      }
     } else { setPending(pending() + 1); msg = "a new mystery pet!"; }
     wSave(st);
     spinning = true; wRes.textContent = ""; wDraw();
