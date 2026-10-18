@@ -56,7 +56,7 @@
 
   <!-- yeonbucks box (top left of every page except the casino and the shop) -->
   <aside class="yb-box" id="yb-box" hidden aria-label="your yeonbucks">
-    <p class="yb-row"><span class="yb-have"><span class="yb-num"><strong id="yb-amt">500</strong><span class="yb-pop" id="yb-pop" aria-hidden="true"></span></span> yeonbucks earned</span><button type="button" class="yb-inv" data-inv-open>inventory</button><button type="button" class="yb-where" data-how-open>how it works</button></p>
+    <p class="yb-row"><span class="yb-have"><span class="yb-num"><strong id="yb-amt">500</strong><span class="yb-pop" id="yb-pop" aria-hidden="true"></span></span> yeonbucks earned</span><button type="button" class="yb-inv" data-inv-open>inventory</button><button type="button" class="yb-where" data-how-open>how it works</button><button type="button" class="yb-where" data-lb-open>leaderboard</button></p>
   </aside>
 
   <!-- MIDDLE: only this part changes between pages -->
@@ -783,6 +783,7 @@
           <div class="sr-title">
             <p class="sr-welcome">welcome to the</p>
             <h1 class="sr-name">back of the fair</h1>
+            <a href="#home" class="hy-back sr-back">&larr; exit</a>
             <svg class="sr-bang" viewBox="0 0 70 70" aria-hidden="true" focusable="false"><g transform="rotate(8 35 33)"><rect x="9" y="5" width="52" height="42" rx="8"/><path d="M17 44 L13 62 L33 47 Z"/><rect class="sr-bang-mark" x="32" y="14" width="6" height="17" rx="3"/><circle class="sr-bang-mark" cx="35" cy="39" r="3.4"/></g></svg>
           </div>
           <svg class="sr-map sr-map-d" viewBox="80 80 1440 640" role="group" aria-label="the back of the fair: seven places to explore">
@@ -1048,6 +1049,26 @@
         <div class="remy-row"><button type="button" class="remy-btn" data-act="eat">feed her cheese!</button><button type="button" class="remy-btn" data-act="pet" aria-pressed="false">pet</button></div>
         <div class="remy-row"><button type="button" class="remy-btn" data-act="hat">give a hat!</button><button type="button" class="remy-btn" data-act="rain">make it rain</button><button type="button" class="remy-btn" data-act="battle">battle!</button></div>
       </div>
+    </div>
+  </div>
+
+  <!-- the leaderboard popup (opened by "leaderboard" next to the yeonbucks; the data and join form are handled in casino.js) -->
+  <div class="inv-overlay" id="lb-pop" hidden>
+    <div class="lb-card" role="dialog" aria-modal="true" aria-label="leaderboard">
+      <button type="button" class="inv-close" id="lb-close" aria-label="close">&times;</button>
+      <p class="cz-lb-title">leaderboard</p>
+      <ol class="cz-lb-list" id="lb2-list"></ol>
+      <p class="cz-lb-me" id="lb2-me"></p>
+      <button type="button" class="cz-lb-link" id="lb2-edit">join</button>
+      <form class="cz-lb-form" id="lb2-form" autocomplete="off" hidden>
+        <input id="lb2-name" type="text" maxlength="20" placeholder="your name" aria-label="your name on the leaderboard">
+        <div class="cz-lb-btns">
+          <button type="submit" class="cz-lb-link" id="lb2-save">join</button>
+          <button type="button" class="cz-lb-link" id="lb2-remove" hidden>remove me</button>
+          <button type="button" class="cz-lb-link" id="lb2-cancel">cancel</button>
+        </div>
+      </form>
+      <p class="cz-lb-note" id="lb2-note" role="status"></p>
     </div>
   </div>
 

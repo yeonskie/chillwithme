@@ -2903,3 +2903,35 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
   .pet { bottom: calc(var(--bar-height) + 3.2rem); }
   body.has-mini .pet { bottom: calc(var(--bar-height) + 7.4rem); }
 }
+
+/* the leaderboard popup */
+.lb-card { position: relative; width: min(25rem, 100%); max-height: 100%; overflow-y: auto; box-sizing: border-box; background: var(--bg); border: 1.5px solid var(--line); border-radius: var(--radius); padding: 2.2rem 1rem 1rem; font-size: 0.78rem; line-height: 1.35; text-align: left; }
+.lb-card p { margin: 0; }
+.lb-card .cz-lb-title { font-size: 1rem; margin-bottom: 0.5rem !important; }
+.lb-card .cz-lb-list li { padding: 4px 0; }
+.lb-card .cz-lb-rank { width: 1.6em; }
+.lb-card .cz-lb-me { margin-top: 0.4rem !important; }
+.lb-card .cz-lb-link { margin-top: 0.7rem; }
+.lb-card .cz-lb-form { margin-top: 0.6rem; }
+.lb-sub { margin-top: 0.8rem !important; font-size: 0.72rem; opacity: 0.5; }
+/* phones: the pet sits just above the yeonbucks box, however tall it is (the leaderboard link can wrap to a second line) */
+@media (max-width: 40rem) {
+  .pet { bottom: calc(var(--bar-height) + var(--yb-h, 2.2rem) + 1rem); }
+  body.has-mini .pet { bottom: calc(var(--bar-height) + var(--yb-h, 2.2rem) + 5.2rem); }
+}
+.cz-lb-unit { font-weight: 400; }
+.lb-card .cz-lb-unit { font-size: 0.7rem; }
+.lb-card .cz-lb-list li { gap: 4px; }
+
+/* the secret room: "return to the fair" at the top */
+.page[data-page="secret-room"] { position: relative; }
+.sr-back { display: block; margin-top: 0.7rem; white-space: nowrap; font-size: 0.8rem; }
+
+/* secret room on phones: room at the bottom so you can scroll the last stop (the library) up above the yeonbucks / leaderboard row */
+@media (max-width: 44rem) {
+  .page[data-page="secret-room"] .sr { padding-bottom: calc(var(--yb-h, 3rem) + 3.5rem); }
+}
+
+/* the door icon credit sits above the yeonbucks / inventory / leaderboard row, whatever size that is */
+.sr-credit { bottom: calc(var(--bar-height) + var(--yb-h, 2.2rem) + 0.8rem); }
+@media (max-width: 44rem) { .sr-credit { bottom: calc(var(--bar-height) + var(--yb-h, 2.2rem) + 0.8rem); } }

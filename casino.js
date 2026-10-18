@@ -115,6 +115,7 @@
     const mini = document.getElementById("mini");                       // the music player (on phones it sits just above the bottom bar too)
     document.body.classList.toggle("has-mini", !!mini && !mini.hidden);
   }
+  if (ybBox && window.ResizeObserver) new ResizeObserver(() => document.documentElement.style.setProperty("--yb-h", ybBox.offsetHeight + "px")).observe(ybBox);   // (so the pet can sit above the box, whatever its height)
   const miniEl = document.getElementById("mini");
   if (miniEl && window.MutationObserver) new MutationObserver(updateBox).observe(miniEl, { attributes: true, attributeFilter: ["hidden"] });
   setInterval(updateBox, 500);
@@ -389,9 +390,13 @@
 
 
   // ----- the leaderboard (small box in the top left; needs supabase-casino.sql, and community-config.js for the address) -----
-  const lbList = $("cz-lb-list"), lbMe = $("cz-lb-me"), lbNote = $("cz-lb-note"), lbName = $("cz-lb-name");
-  const lbForm = $("cz-lb-form"), lbRemove = $("cz-lb-remove"), lbEdit = $("cz-lb-edit"), lbSave = $("cz-lb-save");
-  const LB_ROWS = 5;                                   // how many people the little box shows
+  // the board is drawn in two places: the little box on the casino page, and a popup (the "leaderboard" link by the yeonbucks)
+  function lbView(p, rows, unit) {
+    const g = (s) => $(p + "-" + s);
+    return { list: g("list"), me: g("me"), note: g("note"), name: g("name"), form: g("form"), remove: g("remove"), edit: g("edit"), save: g("save"), cancel: g("cancel"), rows: rows, unit: unit || "" };
+  }
+  const VIEWS = [lbView("cz-lb", 5), lbView("lb2", 10, " yeonbucks")].filter((v) => v.list);     // (casino box: 5 people, popup: 10)
+  const lbList = VIEWS[0].list;
   let lastSent = null, lastSentAt = 0, sending = false, joined = false;
 
   function myId() {
@@ -431,68 +436,88 @@
   setInterval(() => { if (!spinning) sendScore(false); }, 500);
 
   function drawBoard(data) {
-    lbList.innerHTML = "";
-    const top = ((data && data.top) || []).slice(0, LB_ROWS);
-    top.forEach((p, i) => {
-      const li = document.createElement("li");
-      if (p.me) li.className = "cz-lb-you";
-      const rank = document.createElement("span"); rank.className = "cz-lb-rank"; rank.textContent = i + 1;
-      const nm = document.createElement("span"); nm.className = "cz-lb-name"; nm.textContent = p.name;
-      const bl = document.createElement("span"); bl.className = "cz-lb-bal"; bl.textContent = p.balance;
-      li.append(rank, nm, bl);
-      lbList.appendChild(li);
-    });
-    if (!top.length) { const li = document.createElement("li"); li.className = "cz-lb-empty"; li.textContent = "nobody yet!"; lbList.appendChild(li); }
     const me = data && data.me;
     joined = !!me;
-    lbMe.textContent = me && !top.some((p) => p.me) ? "you: #" + me.rank + " (" + me.balance + ")" : "";
-    lbEdit.textContent = me ? "edit" : "join";
-    lbSave.textContent = me ? "save" : "join";
-    lbRemove.hidden = !me;
+    VIEWS.forEach((v) => {
+      v.list.innerHTML = "";
+      const top = ((data && data.top) || []).slice(0, v.rows);
+      top.forEach((p, i) => {
+        const li = document.createElement("li");
+        if (p.me) li.className = "cz-lb-you";
+        const rank = document.createElement("span"); rank.className = "cz-lb-rank"; rank.textContent = i + 1;
+        const nm = document.createElement("span"); nm.className = "cz-lb-name"; nm.textContent = p.name;
+        const bl = document.createElement("span"); bl.className = "cz-lb-bal"; bl.textContent = p.balance;
+        if (v.unit) { const u = document.createElement("span"); u.className = "cz-lb-unit"; u.textContent = v.unit; bl.appendChild(u); }
+        li.append(rank, nm, bl);
+        v.list.appendChild(li);
+      });
+      if (!top.length) { const li = document.createElement("li"); li.className = "cz-lb-empty"; li.textContent = "nobody yet!"; v.list.appendChild(li); }
+      v.me.textContent = me && !top.some((p) => p.me) ? "you: #" + me.rank + " (" + me.balance + v.unit + ")" : "";
+      v.edit.textContent = me ? "edit" : "join";
+      v.save.textContent = me ? "save" : "join";
+      v.remove.hidden = !me;
+    });
   }
+  const setNote = (t) => VIEWS.forEach((v) => { v.note.textContent = t; });
   let loading = false;
   async function loadBoard() {
     if (loading) return;
     loading = true;
     try {
       const data = await lbApi("cz_board", { p_id: myId() });
-      drawBoard(data); lbNote.textContent = "";
+      drawBoard(data); setNote("");
       write("yb-board", JSON.stringify(data));          // remembered, so next time the box fills in instantly
     } catch (e) {
       if (lbList.children.length) return;               // keep showing the last list if the internet blips
-      lbNote.textContent = /not configured/.test(String(e.message)) ? "not connected yet" : "can't load. did you run supabase-casino.sql?";
+      setNote(/not configured/.test(String(e.message)) ? "not connected yet" : "can't load. did you run supabase-casino.sql?");
     } finally { loading = false; }
   }
   const page = document.querySelector('.page[data-page="casino"]');
-  function lbTick() { if (page && page.classList.contains("active") && document.visibilityState === "visible") loadBoard(); }
+  const pop = $("lb-pop");
+  const popOpen = () => !!pop && !pop.hidden;
+  function lbTick() { if (((page && page.classList.contains("active")) || popOpen()) && document.visibilityState === "visible") loadBoard(); }
   setInterval(lbTick, 1500);
   window.addEventListener("hashchange", () => setTimeout(lbTick, 50));
   document.addEventListener("visibilitychange", lbTick);
 
-  function showForm(on) { lbForm.hidden = !on; lbEdit.hidden = on; if (on) { lbName.value = myName(); lbName.focus({ preventScroll: true }); } }
-  lbEdit.addEventListener("click", () => showForm(true));
-  $("cz-lb-cancel").addEventListener("click", () => { showForm(false); lbNote.textContent = ""; });
-  lbForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const n = lbName.value.trim().slice(0, 20);
-    if (!n) { lbNote.textContent = "type a name first"; return; }
-    write("yb-name", n);
-    lbNote.textContent = "saving...";
-    await sendScore(true);
-    await loadBoard();
-    showForm(false);
+  VIEWS.forEach((v) => {
+    const showForm = (on) => { v.form.hidden = !on; v.edit.hidden = on; if (on) { v.name.value = myName(); v.name.focus({ preventScroll: true }); } };
+    v.edit.addEventListener("click", () => showForm(true));
+    v.cancel.addEventListener("click", () => { showForm(false); setNote(""); });
+    v.form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const n = v.name.value.trim().slice(0, 20);
+      if (!n) { setNote("type a name first"); return; }
+      write("yb-name", n);
+      setNote("saving...");
+      await sendScore(true);
+      await loadBoard();
+      showForm(false);
+    });
+    v.remove.addEventListener("click", async () => {
+      try { await lbApi("cz_remove", { p_id: myId() }); } catch (e) {}
+      write("yb-name", ""); lastSent = null;
+      await loadBoard();
+      showForm(false);
+      setNote("you're off the board");
+    });
   });
-  lbRemove.addEventListener("click", async () => {
-    try { await lbApi("cz_remove", { p_id: myId() }); } catch (e) {}
-    write("yb-name", ""); lastSent = null;
-    await loadBoard();
-    showForm(false);
-    lbNote.textContent = "you're off the board";
-  });
+
+  // the popup (opened by the "leaderboard" link by the yeonbucks box, on every page except the casino and the shop)
+  if (pop) {
+    const openPop = (from) => { pop.hidden = false; pop.dataset.from = ""; loadBoard(); const x = $("lb-close"); if (x) x.focus(); popFrom = from || null; };
+    let popFrom = null;
+    const closePop = () => { if (pop.hidden) return; pop.hidden = true; if (popFrom && document.contains(popFrom)) popFrom.focus(); popFrom = null; };
+    document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-lb-open]"); if (b) openPop(b); });
+    const x = $("lb-close"); if (x) x.addEventListener("click", closePop);
+    pop.addEventListener("click", (e) => { if (e.target === pop) closePop(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePop(); });
+    window.addEventListener("hashchange", closePop);
+  }
   // show the last list we saved straight away, then fetch a fresh one as soon as every script has loaded
   // (the address in community-config.js loads after this file, so asking any sooner says "not connected")
   try { const saved = JSON.parse(read("yb-board")); if (saved && saved.top) drawBoard(saved); } catch (e) {}
-  if (!lbList.children.length) lbNote.textContent = "loading...";
+  if (!lbList.children.length) setNote("loading...");
   if (document.readyState === "complete") lbTick(); else window.addEventListener("load", lbTick);
 
   spinBtn.addEventListener("click", spin);

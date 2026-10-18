@@ -39,7 +39,7 @@
     const has = owned();
     if (tab) tab.hidden = !has;
     const page = pageName();
-    const corner = has && ["home", "shop", "secret-room", "rare-shop"].indexOf(page) === -1;
+    const corner = has && (["home", "shop", "secret-room", "rare-shop"].indexOf(page) === -1 || (page === "home" && window.innerWidth <= 640));   // (phones: the home door goes bottom left too, so it clears the buttons in the middle)
     door.hidden = !(has && (page === "home" || corner));   // home: centered; phones on every other page (not the prize shop / the room itself): bottom left
     door.classList.toggle("sr-door-corner", corner);   // (bottom left, any screen size)
     if (doorShop) doorShop.hidden = !has;                  // the one at the bottom of the prize shop
