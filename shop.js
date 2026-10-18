@@ -58,7 +58,7 @@
     { id: "pet-mouse",    group: "pets", name: "mouse",    desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "mouse", rare: true },
     { id: "pet-turtle",   group: "pets", name: "turtle",   desc: "a rare little buddy for the corner of your screen", price: RARE_PRICE, kind: "pet", value: "turtle", rare: true },
     // pinned: true = always on the rare shelf (first), the rest rotate. The rat is the interactive pet: clicking her opens her panel (remy.js).
-    { id: "pet-rat",      group: "pets", name: "the exclusive remy rat tomodachi", short: "remy", desc: "feed her, dress her up and play with her", price: RARE_PRICE, kind: "pet", value: "rat", rare: true, pinned: true },
+    { id: "pet-rat",      group: "pets", name: "exclusive remy tomodachi", short: "remy", desc: "feed her, dress her up... battle?", price: 100000, kind: "pet", value: "rat", rare: true, pinned: true },
     // wheel: true = never sold in a shop, only won on the secret room's wheel (it still shows up in the inventory once you have it)
     { id: "tap-rainbow", group: "tap",           name: "rainbow sparkle tap", desc: "rainbow stars pop where you tap or click", price: 0, kind: "tap", value: "rainbow", wheel: true },
   ];

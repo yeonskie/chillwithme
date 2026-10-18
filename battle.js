@@ -3,13 +3,16 @@
 // It opens from the "battle!" button in remy's panel (remy.js). The layout (the boxes, platforms and buttons) is in index.html
 // (id="battle") and style.css (search "the battle"). Everything you might want to change is in the list below.
 //
-//   - MOVES: what the cheese can do when you pick FIGHT (min / max = how much HP it takes off remy, out of 100)
-//   - FOE_MOVES: what remy does back
-//   - MISS_ME / MISS_FOE: how often each side misses (0.1 = 1 in 10). The odds are tilted so remy wins most fights
+//   - MOVES: what the cheese can do when you pick FIGHT (min / max = how much HP it takes off remy, out of 100;
+//     a move marked heal: true gives that much HP back to the cheese instead). The little line under each button is made from these numbers.
+//   - FOE_MOVES: what remy does back (a bit stronger than yours, to make up for STINK healing)
+//   - MISS_ME / MISS_FOE: how often each side misses (0.25 = 1 in 4). Both the same keeps it close to 50 / 50
 //   - when remy runs out of HP she turns into the angel picture (you win)
 //     when the cheese runs out of HP remy does her celebration picture (she wins)
-//   - PET does nothing except make remy squeak (it doesn't use up your turn)
-//   - CAPTURE: a chance to catch her that gets better the lower her HP is; if it works the battle ends
+//   - PET does nothing except make remy squeak, but it uses up your turn (she attacks after)
+//   - CAPTURE: only works once remy is at CATCH_BELOW hp or lower (before that she's "too full of energy" and you lose the turn).
+//     Then there's a chance that gets better the lower her HP is. A catch ends the battle with the "gotcha!" ball.
+//   - REWARD: yeonbucks for winning the battle or catching her
 
 (function () {
   const el = document.getElementById("battle");
@@ -17,20 +20,23 @@
   const $ = (id) => document.getElementById(id);
   const sayEl = $("bt-say"), menuEl = $("bt-menu"), closeBtn = $("bt-close");
   const foeG = $("bt-foe"), meG = $("bt-me"), foeArt = $("bt-foe-art");
+  const catchEl = $("bt-catch"), wonEl = $("bt-won");
   const bars = { foe: $("bt-foe-hp"), me: $("bt-me-hp") };
 
   const MOVES = [
-    { name: "MELT",    min: 10, max: 22 },
-    { name: "CRUMBLE", min: 8,  max: 20 },
-    { name: "STINK",   min: 5,  max: 16 },
+    { name: "MELT",    min: 16, max: 26 },
+    { name: "CRUMBLE", min: 12, max: 22 },
+    { name: "STINK",   min: 15, max: 25, heal: true },     // heals the cheese instead of attacking
   ];
   const FOE_MOVES = [
-    { name: "GNAW",      min: 16, max: 28 },
-    { name: "SCRATCH",   min: 14, max: 26 },
-    { name: "TAIL WHIP", min: 12, max: 30 },
+    { name: "GNAW",      min: 17, max: 27 },
+    { name: "SCRATCH",   min: 15, max: 25 },
+    { name: "TAIL WHIP", min: 13, max: 29 },
   ];
-  const MISS_ME = 0.25;     // how often the cheese misses (the rat is slippery)
-  const MISS_FOE = 0.05;    // how often remy misses
+  const MISS_ME = 0.25;     // how often the cheese misses
+  const REWARD = 5000;      // yeonbucks for a win or a catch
+  const CATCH_BELOW = 40;   // remy has to be at this much hp (out of 100) or lower before you can catch her
+  const MISS_FOE = 0.25;    // how often remy misses (same as the cheese, so it's about 50 / 50)
   const ART = { idle: "pa-rat-battle", angel: "pa-rat-angel", win: "pa-rat-party" };
 
   const S = { me: 100, foe: 100 };
@@ -60,6 +66,8 @@
     S[side] = Math.max(0, Math.min(100, v));
     bars[side].style.setProperty("--hp", S[side] / 100);
     bars[side].dataset.lv = S[side] > 50 ? "hi" : S[side] > 20 ? "mid" : "lo";
+    const n = $(side === "foe" ? "bt-foe-n" : "bt-me-n");
+    if (n) n.textContent = S[side] + "/100";
   }
 
   function menu(items) {
@@ -67,6 +75,7 @@
     items.forEach((it) => {
       const b = document.createElement("button");
       b.type = "button"; b.className = "bt-btn"; b.textContent = it.label;
+      if (it.sub) { const sub = document.createElement("span"); sub.className = "bt-sub"; sub.textContent = it.sub; b.appendChild(sub); }
       b.addEventListener("click", () => { if (!el.hidden) it.fn(); });
       menuEl.appendChild(b);
     });
@@ -82,7 +91,11 @@
   const ring = $("bt-ring");
   const setArt = (key) => { foeArt.setAttribute("href", "#" + ART[key]); ring.style.display = key === "angel" ? "" : "none"; };
 
+  function reward() { if (window.YB && window.YB.add) window.YB.add(REWARD); }
+
   function reset() {
+    catchEl.hidden = true;
+    $("bt").classList.remove("bt-caught");
     foeG.setAttribute("class", "bt-sprite"); meG.setAttribute("class", "bt-sprite");
     setArt("idle");
     bars.foe.style.transition = bars.me.style.transition = "none";
@@ -103,7 +116,7 @@
     ]);
   }
   function moveMenu() {
-    menu(MOVES.map((m) => ({ label: m.name, fn: () => go((id) => fight(m, id)) })).concat([{ label: "BACK", fn: () => mainMenu(run) }]));
+    menu(MOVES.map((m) => ({ label: m.name, sub: m.heal ? "heals " + m.min + "-" + m.max + " hp" : m.min + "-" + m.max + " damage", fn: () => go((id) => fight(m, id)) })).concat([{ label: "BACK", fn: () => mainMenu(run) }]));
   }
   const guard = (e) => { if (!(e instanceof Cancel)) throw e; };
   function go(fn) {                                               // run a turn; stops quietly if the battle is closed half way
@@ -114,6 +127,11 @@
 
   async function fight(m, id) {
     await say("cheese used " + m.name + "!", id);
+    if (m.heal) {                                                 // STINK: heals instead of attacking
+      setHP("me", S.me + rand(m.min, m.max));
+      await say("cheese feels better!", id);
+      return foeTurn(id);
+    }
     await anim(meG, "bt-lunge-me", 520);
     if (Math.random() < MISS_ME) await say("it missed!", id);
     else {
@@ -137,17 +155,25 @@
     if (S.me <= 0) return lose(id);
     mainMenu(id);
   }
-  async function pet(id) {                                        // does nothing but make her squeak (and it isn't a turn)
+  async function pet(id) {                                        // does nothing but make her squeak (it still uses up your turn)
     if (window.Remy && window.Remy.chirp) window.Remy.chirp();
     anim(foeG, "bt-squish", 520);
     await say("cheese pet " + foeName() + "... squeak!", id);
-    mainMenu(id);
+    return foeTurn(id);
   }
   async function capture(id) {
     await say("cheese tried to capture " + foeName() + "!", id);
-    const chance = 0.15 + (1 - S.foe / 100) * 0.7;
+    if (S.foe > CATCH_BELOW) {
+      await say("but " + foeName() + " is too full of energy!", id);
+      return foeTurn(id);
+    }
+    const chance = 0.4 + (1 - S.foe / CATCH_BELOW) * 0.5;       // 40% right at the limit, up to 90% when she's nearly out of hp
     if (Math.random() < chance) {
-      await say("gotcha! " + foeName() + " was captured!", id);
+      await say("gotcha! " + foeName() + " was captured!", id, 300);
+      reward();
+      catchEl.hidden = false;                                    // the big "gotcha!" ball
+      $("bt").classList.add("bt-caught");                        // (centers the buttons under it)
+      wonEl.textContent = "+" + REWARD.toLocaleString("en-US") + " yeonbucks";
       return endMenu(id);
     }
     await say("oh no! " + foeName() + " broke free!", id);
@@ -157,7 +183,8 @@
     await say(foeName() + " fainted!", id, 500);
     setArt("angel");
     anim(foeG, "bt-ascend");
-    await say("she's an angel now. you win!", id, 400);
+    reward();
+    await say("she's an angel now. you win! +" + REWARD.toLocaleString("en-US") + " yeonbucks!", id, 400);
     endMenu(id);
   }
   async function lose(id) {                                       // the cheese is out of HP: remy celebrates

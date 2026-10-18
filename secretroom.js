@@ -27,17 +27,21 @@
   const pageName = () => location.hash.replace("#", "") || "home";
 
   // ----- what shows: the menu button, the door (home page only) -----
+  const SMALL = 900;                                       // "mobile / smaller screens": this wide or narrower
   function placeDoor() {                                   // sits right on top of the bottom bar, whatever height it is
     const bar = document.querySelector(".bar-bottom");
     let b = (bar ? bar.offsetHeight : 40) + 2;
     const yb = document.getElementById("yb-box");
-    if (yb && !yb.hidden && window.innerWidth <= 640) b += yb.offsetHeight + 14;   // phones: sits above the yeonbucks / inventory row instead of on top of it
+    if (yb && !yb.hidden && (window.innerWidth <= SMALL || door.classList.contains("sr-door-corner"))) b += yb.offsetHeight + 14;   // phones: sits above the yeonbucks / inventory row instead of on top of it
     door.style.bottom = b + "px";
   }
   function sync() {
     const has = owned();
     if (tab) tab.hidden = !has;
-    door.hidden = !(has && pageName() === "home");
+    const page = pageName();
+    const corner = has && ["home", "shop", "secret-room", "rare-shop"].indexOf(page) === -1;
+    door.hidden = !(has && (page === "home" || corner));   // home: centered; phones on every other page (not the prize shop / the room itself): bottom left
+    door.classList.toggle("sr-door-corner", corner);   // (bottom left, any screen size)
     if (doorShop) doorShop.hidden = !has;                  // the one at the bottom of the prize shop
     if (!door.hidden) placeDoor();
     if (!has && (pageName() === "secret-room" || pageName() === "rare-shop")) location.hash = "#home";   // no key, no room
