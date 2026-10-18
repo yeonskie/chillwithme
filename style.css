@@ -3108,7 +3108,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 /* the lost and found pop-up */
 .lf-card { width: min(24rem, 100%); text-align: center; }
 .lf-sub { margin: 0 0 0.8rem; font-size: 0.8rem; opacity: 0.8; }
-.lf-pic { display: flex; align-items: center; justify-content: center; height: 7.5rem; margin: 0.2rem auto 0.6rem; color: var(--text); }
+.lf-pic { display: flex; align-items: center; justify-content: center; height: 6.5rem; margin: 1.1rem auto 1.4rem; color: var(--text); }
 .lf-pic svg { display: block; height: 100%; width: auto; max-width: 11rem; }
 .lf-pic .tap-ghost-svg, .lf-pic .cheese-svg { height: 85%; }
 .lf-pic.lf-pop { animation: lf-pop 0.55s ease-out; }
@@ -3183,3 +3183,6 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 /* the speech bubble sits above the witch hat instead of underneath it */
 .pet[data-acc="hat"] .pet-bubble { bottom: calc(100% + 1.4rem); }
 @media (max-width: 40rem) { .pet[data-acc="hat"] .pet-bubble { bottom: calc(100% + 1.2rem); } }
+
+/* the lost and found box: drawn a bit smaller so its lines are thinner (and there's room above and below) */
+.lf-pic .lf-box { height: 76%; }
