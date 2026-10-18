@@ -32,7 +32,7 @@
     const bar = document.querySelector(".bar-bottom");
     let b = (bar ? bar.offsetHeight : 40) + 2;
     const yb = document.getElementById("yb-box");
-    if (yb && !yb.hidden && (window.innerWidth <= SMALL || door.classList.contains("sr-door-corner"))) b += yb.offsetHeight + 14;   // phones: sits above the yeonbucks / inventory row instead of on top of it
+    if (yb && !yb.hidden && (window.innerWidth <= SMALL || door.classList.contains("sr-door-corner"))) b = Math.max(b, Math.round(window.innerHeight - yb.getBoundingClientRect().top) + 14);   // phones: sits above the yeonbucks / inventory row instead of on top of it
     door.style.bottom = b + "px";
   }
   function sync() {
@@ -50,6 +50,8 @@
   sync();
   window.addEventListener("hashchange", sync);
   window.addEventListener("resize", sync);
+  const ybBoxEl = document.getElementById("yb-box");
+  if (ybBoxEl && window.ResizeObserver) new ResizeObserver(() => { if (!door.hidden) placeDoor(); }).observe(ybBoxEl);   // the door follows the yeonbucks box when its height changes (e.g. its buttons re-arrange)
   window.addEventListener("storage", sync);
   setInterval(sync, 1000);                                 // (catches a purchase made in the shop)
 
