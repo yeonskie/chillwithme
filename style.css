@@ -2936,19 +2936,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .sr-credit { bottom: calc(var(--bar-height) + var(--yb-h, 2.2rem) + 0.8rem); }
 @media (max-width: 44rem) { .sr-credit { bottom: calc(var(--bar-height) + var(--yb-h, 2.2rem) + 0.8rem); } }
 
-/* the "get into it" menu: two rows of four (two columns on phones, where four across won't fit) */
-.menu-wrap { width: min(48rem, 100%); }
-.menu-card { display: grid; grid-template-columns: repeat(4, 1fr); width: min(48rem, 100%); }
-.menu-card a { display: flex; align-items: center; justify-content: center; min-height: 4.2rem; padding: 0.9rem 0.6rem; }
-@media (max-width: 40rem) {
-  .menu-wrap { width: min(22rem, 100%); }
-  .menu-card { grid-template-columns: repeat(2, 1fr); width: min(22rem, 100%); }
-  .menu-card a { min-height: 3.6rem; padding: 0.8rem 0.5rem; }
-}
-
-/* first-visit name prompt */
-#wel { z-index: 60; }
-.wel-card { text-align: center; padding-top: 1.2rem; }
-.wel-card .wel-sub { margin: 0 0 0.8rem; opacity: 0.8; }
-.wel-card input { width: 100%; box-sizing: border-box; font: inherit; padding: 0.6rem; background: var(--bg); color: inherit; border: 1px solid var(--line); border-radius: var(--radius); text-align: center; }
-.wel-card .cz-lb-btns { justify-content: center; }
+/* the "get into it" menu: two columns, four rows (the secret room is the last one when unlocked) */
+.menu-wrap { width: min(24rem, 100%); }
+.menu-card { display: grid; grid-template-columns: repeat(2, 1fr); width: min(24rem, 100%); }
+.menu-card a { display: flex; align-items: center; justify-content: center; min-height: 3.6rem; padding: 0.8rem 0.5rem; }
