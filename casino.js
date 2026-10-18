@@ -520,6 +520,32 @@
   if (!lbList.children.length) setNote("loading...");
   if (document.readyState === "complete") lbTick(); else window.addEventListener("load", lbTick);
 
+  // first visit: ask for a name (once). "skip" is remembered, and "join" on the leaderboard still works later.
+  (function welcome() {
+    const wel = $("wel"), form = $("wel-form"), input = $("wel-name"), note = $("wel-note");
+    if (!wel || !form) return;
+    const close = () => { wel.hidden = true; };
+    const skip = () => { write("yb-asked", "1"); close(); };
+    function maybeShow() {
+      const cfg = typeof COMMUNITY !== "undefined" ? COMMUNITY : {};
+      if (!cfg.url || !cfg.key) return;                       // no board connected, nothing to join
+      if (myName() || read("yb-asked")) return;
+      wel.hidden = false; input.focus({ preventScroll: true });
+    }
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const n = input.value.trim().slice(0, 20);
+      if (!n) { note.textContent = "type a name first"; return; }
+      write("yb-name", n); write("yb-asked", "1");
+      note.textContent = "joining...";
+      await sendScore(true); await loadBoard();
+      close();
+    });
+    $("wel-skip").addEventListener("click", skip);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !wel.hidden) skip(); });
+    if (document.readyState === "complete") setTimeout(maybeShow, 600); else window.addEventListener("load", () => setTimeout(maybeShow, 600));
+  })();
+
   spinBtn.addEventListener("click", spin);
   betEl.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); spin(); } });
 

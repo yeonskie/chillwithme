@@ -1072,6 +1072,20 @@
     </div>
   </div>
 
+  <!-- first visit: ask for a name so people land on the leaderboard (casino.js) -->
+  <div class="inv-overlay" id="wel" hidden>
+    <form class="lb-card wel-card" id="wel-form" role="dialog" aria-modal="true" aria-label="join the leaderboard" autocomplete="off">
+      <p class="cz-lb-title">welcome! pick a name</p>
+      <p class="wel-sub">it puts you on the leaderboard. your score is your yeonbucks.</p>
+      <input id="wel-name" type="text" maxlength="20" placeholder="your name" aria-label="your name on the leaderboard">
+      <div class="cz-lb-btns">
+        <button type="submit" class="cz-lb-link">join</button>
+        <button type="button" class="cz-lb-link" id="wel-skip">skip for now</button>
+      </div>
+      <p class="cz-lb-note" id="wel-note" role="status"></p>
+    </form>
+  </div>
+
   <!-- the battle (opened by "battle!" in remy's panel; see battle.js). Everything is laid out like the battle reference: remy top right, the cheese bottom left -->
   <div class="inv-overlay" id="battle" hidden>
     <div class="bt-card" role="dialog" aria-modal="true" aria-label="battle">

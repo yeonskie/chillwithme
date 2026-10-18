@@ -2945,3 +2945,10 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
   .menu-card { grid-template-columns: repeat(2, 1fr); width: min(22rem, 100%); }
   .menu-card a { min-height: 3.6rem; padding: 0.8rem 0.5rem; }
 }
+
+/* first-visit name prompt */
+#wel { z-index: 60; }
+.wel-card { text-align: center; padding-top: 1.2rem; }
+.wel-card .wel-sub { margin: 0 0 0.8rem; opacity: 0.8; }
+.wel-card input { width: 100%; box-sizing: border-box; font: inherit; padding: 0.6rem; background: var(--bg); color: inherit; border: 1px solid var(--line); border-radius: var(--radius); text-align: center; }
+.wel-card .cz-lb-btns { justify-content: center; }
