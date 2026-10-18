@@ -35,7 +35,7 @@
     { id: "soda",    w: 5,  name: "soda",              text: "a cold soda. still fizzy. your pet can hold it!", item: "wear-soda" },
     { id: "luck",    w: 6,  name: "lucky week",        text: "+5% jackpot chance at the casino for 1 week.", boost: { key: "yb-luck-until", ms: 7 * DAY } },
     { id: "pay",     w: 6,  name: "bonus week",        text: "an extra +10% payout in the games for 1 week.", boost: { key: "yb-pay-until", ms: 7 * DAY } },
-    { id: "earn",    w: 4,  name: "earn rush",         text: "an extra +100 yeonbucks every 30 seconds for 48 hours.", boost: { key: "yb-earn-until", ms: 2 * DAY } },
+    { id: "earn",    w: 4,  name: "earn rush",         text: "lasts 48 hours.", boost: { key: "yb-earn-until", ms: 2 * DAY } },
     { id: "spin",    w: 8,  name: "free spin",         text: "a free spin for the wheel. use it any time!", token: "spin" },
     { id: "rescue",  w: 6,  name: "streak rescue",     text: "miss a day of the daily reward and this saves your streak.", token: "rescue" },
     { id: "hint",    w: 8,  name: "free hint",        text: "a free hint for guess the kpop idol. no point lost!", token: "hint" },
@@ -111,7 +111,7 @@
     if (art) return art;
     if (f.yb) return '<span class="lf-big">+' + fmt(f.yb) + "</span>";
     if (f.token) return '<span class="lf-big">' + ({ spin: "1 spin", rescue: "1 save", hint: "1 hint" }[f.token]) + "</span>";
-    if (f.boost) return '<span class="lf-big">' + ({ "yb-luck-until": "+5%", "yb-pay-until": "+10%", "yb-earn-until": "+100" }[f.boost.key]) + "</span>";
+    if (f.boost) return "<span class=\"lf-big" + (f.boost.key === "yb-earn-until" ? " lf-big-long" : "") + "\">" + ({ "yb-luck-until": "+5%", "yb-pay-until": "+10%", "yb-earn-until": "+100 every 30 seconds" }[f.boost.key]) + "</span>";
     return '<span class="lf-big lf-rainbow">✦ ✧ ✦</span>';
   }
   function remyArt() { const a = document.querySelector('#pet .pet-art[data-pet="rat"] .pet-a'); return a ? a.outerHTML : ""; }

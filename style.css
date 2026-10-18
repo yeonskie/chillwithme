@@ -3107,16 +3107,19 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 
 /* the lost and found pop-up */
 .lf-card { width: min(24rem, 100%); text-align: center; }
-.lf-sub { margin: 0 0 0.8rem; font-size: 0.8rem; opacity: 0.8; }
+.lb-card .lf-sub { margin: 0 0 0.8rem; font-size: 0.8rem; opacity: 0.8; }
 .lf-pic { display: flex; align-items: center; justify-content: center; height: 6.5rem; margin: 1.1rem auto 1.4rem; color: var(--text); }
 .lf-pic svg { display: block; height: 100%; width: auto; max-width: 11rem; }
 .lf-pic .tap-ghost-svg, .lf-pic .cheese-svg { height: 85%; }
 .lf-pic.lf-pop { animation: lf-pop 0.55s ease-out; }
 @keyframes lf-pop { from { opacity: 0; transform: translateY(14px) scale(0.6) rotate(-6deg); } 65% { opacity: 1; transform: translateY(-4px) scale(1.08); } to { transform: none; } }
 .lf-big { font-size: 1.9rem; font-weight: 700; letter-spacing: 0.02em; }
+.lf-big { text-align: center; }
+.lf-pic:has(.lf-big) { height: 4rem; margin: 0.6rem auto 0.9rem; }
+.lf-big-long { font-size: 1.05rem; line-height: 1.3; white-space: nowrap; display: block; text-align: center; margin: 0 auto; }
 .lf-rainbow { background: linear-gradient(90deg, #f06292, #ffb74d, #e0c200, #66bb6a, #42a5f5, #ab47bc); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.lf-name { margin: 0 0 0.3rem; font-weight: 700; font-size: 0.95rem; }
-.lf-text { margin: 0 auto 1.2rem; max-width: 20rem; font-size: 0.8rem; line-height: 1.5; min-height: 1.2em; overflow-wrap: anywhere; }
+.lb-card .lf-name { margin: 0 0 0.3rem; font-weight: 700; font-size: 0.95rem; }
+.lb-card .lf-text { text-align: center; margin: 0 auto 2.8rem; max-width: 20rem; font-size: 0.8rem; line-height: 1.5; min-height: 1.2em; overflow-wrap: anywhere; }
 .lf-remy { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 0 0 0.6rem; font-size: 0.78rem; }
 .lf-remy[hidden], #lf-go[hidden] { display: none; }
 .lf-remy-art { position: relative; display: block; width: 2.6rem; height: 2.6rem; }
