@@ -26,7 +26,7 @@
     { yb: 5000 },
   ];
 
-  const KEY = "yb-daily";
+  const KEY = "yb-login";                                // (not "yb-daily": the secret room already uses that one)
   const $ = (id) => document.getElementById(id);
   const btn = $("home-daily"), dot = $("home-daily-dot"), pop = $("daily");
   if (!btn || !pop) return;

@@ -10,7 +10,7 @@
   const local = location.protocol === "file:" || h === "localhost" || h === "127.0.0.1" || h === "[::1]" || h === "";
   if (!local) return;
 
-  const KEYS = ["yb-own", "yb-eq", "yb-petnames", "yb-petname", "yb-room-seen", "yb-daily", "yb-wheel", "yb-boost-until", "yb-pet-pending", "yb-rare-shift"];   // the shop's saved stuff
+  const KEYS = ["yb-own", "yb-eq", "yb-petnames", "yb-petname", "yb-room-seen", "yb-daily", "yb-login", "yb-wheel", "yb-boost-until", "yb-pet-pending", "yb-rare-shift"];   // the shop's saved stuff
   const bal = () => { const v = parseInt(localStorage.getItem("yeonbucks"), 10); return Number.isFinite(v) ? v : 0; };
   const redraw = () => { if (window.YB) window.YB.redraw(); };
   const setBal = (n) => { try { localStorage.setItem("yeonbucks", String(Math.max(0, Math.floor(n)))); } catch (e) {} redraw(); };
@@ -20,7 +20,7 @@
     "#tm{position:fixed;top:calc(var(--bar-height) + .5rem);left:.6rem;z-index:9999;font:inherit;font-size:.72rem;color:var(--text);text-align:left}" +
     "#tm *{box-sizing:border-box;font:inherit}" +
     "#tm-tab{padding:.25rem .6rem;background:#F8DE7E;color:#1a1a1a;border:1px solid #1a1a1a;border-radius:var(--radius);cursor:pointer}" +
-    "#tm-panel{margin-top:.35rem;width:13.5rem;padding:.7rem;background:var(--bg);border:1.5px solid var(--line);border-radius:var(--radius)}" +
+    "#tm-panel{margin-top:.35rem;width:13.5rem;max-height:calc(100vh - var(--bar-height)*2 - 3.5rem);overflow-y:auto;padding:.7rem;background:var(--bg);border:1.5px solid var(--line);border-radius:var(--radius)}" +
     "#tm-panel[hidden]{display:none}" +
     "#tm-panel h3{margin:0 0 .45rem;font-size:.68rem;font-weight:400;text-transform:uppercase;letter-spacing:.06em;opacity:.7}" +
     "#tm-panel h3:not(:first-child){margin-top:.75rem}" +
@@ -67,11 +67,15 @@
       '<div class="tm-row"><button type="button" id="tm-day">new day (daily prize + wheel)</button></div>' +
       "<h3>rare items shop</h3>" +
       '<div class="tm-row"><button type="button" id="tm-stock">show the next stock</button></div>' +
+      "<h3>login streak</h3>" +
+      '<div class="tm-row"><button type="button" id="tm-login">next login day (keeps streak)</button><button type="button" id="tm-login-reset">reset streak</button></div>' +
       "<h3>try things</h3>" +
       '<div class="tm-row">' +
         '<button type="button" id="tm-earn">earn in 2s</button>' +
         '<button type="button" id="tm-reset">reset shop</button>' +
       "</div>" +
+      "<h3>start over</h3>" +
+      '<div class="tm-row"><button type="button" id="tm-wipe">reset the whole website</button></div>' +
     "</div>";
   document.body.appendChild(wrap);
 
@@ -106,6 +110,24 @@
   wrap.querySelector("#tm-day").addEventListener("click", () => {        // forget today's daily prize and wheel spins
     try { localStorage.removeItem("yb-daily"); localStorage.removeItem("yb-wheel"); } catch (e) {}
     wrap.querySelector("#tm-day").textContent = "done!";
+  });
+  wrap.querySelector("#tm-login").addEventListener("click", () => {     // pretend a day has passed: today's login reward can be claimed again, and the streak carries on
+    try {
+      const s = JSON.parse(localStorage.getItem("yb-login") || "null");
+      if (s && s.last) { const y = new Date(); y.setDate(y.getDate() - 1); localStorage.setItem("yb-login", JSON.stringify({ last: y.getFullYear() + "-" + String(y.getMonth() + 1).padStart(2, "0") + "-" + String(y.getDate()).padStart(2, "0"), streak: s.streak })); }
+    } catch (e) {}
+    location.reload();
+  });
+  wrap.querySelector("#tm-login-reset").addEventListener("click", () => {
+    try { localStorage.removeItem("yb-login"); } catch (e) {}
+    location.reload();
+  });
+  wrap.querySelector("#tm-wipe").addEventListener("click", () => {      // everything this browser remembers about the site, like a first visit
+    if (!confirm("reset the whole website? this erases everything saved in this browser (yeonbucks, items, pets, remy, login streak, leaderboard name, theme, settings...) so it loads like a brand new visitor. it does NOT touch anything online (leaderboard entry, community posts).")) return;
+    try { localStorage.clear(); } catch (e) {}
+    try { sessionStorage.clear(); } catch (e) {}
+    location.hash = "";
+    location.reload();
   });
   wrap.querySelector("#tm-stock").addEventListener("click", () => {      // the rare shop changes every other day: jump ahead to the next stock
     try { localStorage.setItem("yb-rare-shift", String((parseInt(localStorage.getItem("yb-rare-shift"), 10) || 0) + 1)); } catch (e) {}
