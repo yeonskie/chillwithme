@@ -2897,3 +2897,9 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .bt.bt-caught .bt-menu { left: 50%; right: auto; top: auto; bottom: 24%; transform: translateX(-50%); width: min(24rem, 80%); height: 3.6rem; display: flex; gap: 0.8rem; margin: 0; }
 .bt.bt-caught .bt-btn { flex: 1; height: 100%; padding: 0; }
 @media (max-width: 40rem) { .bt.bt-caught .bt-menu { position: static; transform: none; width: auto; height: 3rem; margin-top: 0.5rem; } }
+
+/* phones: the pet sits above the yeonbucks / inventory / "how it works" row instead of on top of it */
+@media (max-width: 40rem) {
+  .pet { bottom: calc(var(--bar-height) + 3.2rem); }
+  body.has-mini .pet { bottom: calc(var(--bar-height) + 7.4rem); }
+}
