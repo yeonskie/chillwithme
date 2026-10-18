@@ -105,6 +105,7 @@
   document.addEventListener("click", (e) => {              // the menu button is a normal link, so catch it before the page changes
     const a = e.target.closest && e.target.closest('a[href="#secret-room"]');
     if (!a) return;
+    if (a.classList.contains("hy-back")) return;           // "back to the secret room" links (from the rare items shop) just go back, no loading screen
     e.preventDefault();
     enter(null);
   }, true);
