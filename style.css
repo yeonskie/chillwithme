@@ -2946,9 +2946,9 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .home-daily-dot { display: inline-block; width: 7px; height: 7px; margin-left: 0.5rem; vertical-align: middle; border-radius: 50%; background: var(--text); }
 .home-daily:hover .home-daily-dot, .home-daily:focus-visible .home-daily-dot { background: var(--bg); }
 .home-daily-dot[hidden] { display: none; }
-.dl-card { width: min(30rem, 100%); text-align: center; }
+.dl-card { width: min(37rem, 100%); text-align: center; }
 .dl-sub { margin: 0 0 0.8rem !important; opacity: 0.8; }
-.dl-grid { list-style: none; margin: 0 0 0.9rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(5.2rem, 1fr)); gap: 6px; max-height: 45vh; overflow-y: auto; }
+.dl-grid { list-style: none; margin: 0 0 0.9rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(5.2rem, 1fr)); gap: 6px; max-height: 50vh; overflow-y: auto; }
 .dl-day { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 3.6rem; padding: 0.4rem 0.2rem; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); font-size: 0.7rem; }
 .dl-n { opacity: 0.7; font-size: 0.62rem; }
 .dl-amt { font-size: 0.85rem; }

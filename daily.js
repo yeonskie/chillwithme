@@ -5,25 +5,41 @@
 //   { yb: 300 }                              yeonbucks only
 //   { yb: 500, gift: "pet-hamster" }         yeonbucks AND a gift. "gift" is an item id from the ITEMS list in shop.js
 //                                            (put daily: true on that item so it's never sold, only given here).
-// When someone gets to the last day, the cycle starts over from day 1.
+// There are 30 days, about a month. When someone gets to the last day, the cycle starts over from day 1.
 // If they miss a day, they start again at day 1.
 
 (function () {
   const DAILY = [
-    { yb: 100 },
-    { yb: 200 },
-    { yb: 300 },
-    { yb: 400 },
     { yb: 500 },
     { yb: 750 },
     { yb: 1000 },
-    { yb: 1000 },
-    { yb: 1250 },
-    { yb: 1500 },
-    { yb: 1750 },
     { yb: 2000 },
-    { yb: 2500 },
+    { yb: 3000 },
+    { yb: 3500 },
+    { yb: 7500 },   // day 7
+    { yb: 4000 },
+    { yb: 4500 },
     { yb: 5000 },
+    { yb: 5500 },
+    { yb: 6000 },
+    { yb: 6500 },
+    { yb: 15000 },   // day 14
+    { yb: 7000 },
+    { yb: 7500 },
+    { yb: 8000 },
+    { yb: 8500 },
+    { yb: 9000 },
+    { yb: 9500 },
+    { yb: 25000 },   // day 21
+    { yb: 10000 },
+    { yb: 10500 },
+    { yb: 11000 },
+    { yb: 11500 },
+    { yb: 12000 },
+    { yb: 12500 },
+    { yb: 40000 },   // day 28
+    { yb: 15000 },
+    { yb: 100000 },   // day 30
   ];
 
   const KEY = "yb-login";                                // (not "yb-daily": the secret room already uses that one)
