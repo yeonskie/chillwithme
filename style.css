@@ -1505,7 +1505,7 @@ main {
 .home { width: 100%; max-width: 40rem; text-align: center; }
 .home-title { font-size: clamp(1.3rem, 5vw, 2rem); font-weight: 700; margin-bottom: 0.5rem; }
 .home-sub { font-size: 0.8rem; line-height: 1.6; margin-bottom: 2.5rem; }
-.home-sub-below { margin: 2.5rem 0 0; }
+.home-sub-below { margin: 2.5rem auto 0; width: fit-content; max-width: 100%; padding: 0.45rem 0.8rem; background: color-mix(in srgb, var(--bg) 78%, transparent); border-radius: var(--radius); }
 
 /* < box > */
 .home-carousel { display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
@@ -2894,6 +2894,8 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 
 /* phones, every page except home / prize shop / the room: the door sits bottom left, above the yeonbucks */
 .sr-door.sr-door-corner { left: 0.75rem; transform: none; height: 4.4rem; }
+.sr-door.sr-door-corner .sr-door-art { stroke-width: .64px; }   /* same 1px line weight as the buttons next to it */
+.sr-door.sr-door-corner { opacity: 1; }                           /* and the same darkness */
 .sr-door.sr-door-corner:hover, .sr-door.sr-door-corner:focus-visible { transform: translateY(-2px); }
 
 /* the little line under each move (how much damage / healing) */
