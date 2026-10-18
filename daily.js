@@ -62,8 +62,10 @@
   function status() {
     const s = load(), t = today();
     if (s.last === t) return { claimed: true, streak: s.streak, day: ((s.streak - 1) % DAILY.length) + 1, next: (s.streak % DAILY.length) + 1 };
-    const streak = s.last === yesterday() ? s.streak + 1 : 1;
-    return { claimed: false, streak, day: ((streak - 1) % DAILY.length) + 1, broken: !!s.last && s.last !== yesterday() && s.streak > 1, was: s.streak };
+    const missed = !!s.last && s.last !== yesterday() && s.streak > 1;
+    const rescue = missed && window.YBItems && window.YBItems.count("rescue") > 0;       // a streak rescue (from the lost and found) saves the streak
+    const streak = s.last === yesterday() || rescue ? s.streak + 1 : 1;
+    return { claimed: false, streak, day: ((streak - 1) % DAILY.length) + 1, broken: missed && !rescue, rescue: !!rescue, was: s.streak };
   }
 
   const giftName = (id) => (window.YBShop && window.YBShop.nameOf ? window.YBShop.nameOf(id) : id);
@@ -97,7 +99,7 @@
     } else {
       const r = DAILY[st.day - 1];
       claim.textContent = "claim " + fmt(r.yb) + (r.gift ? " + gift" : "");
-      $("dl-sub").textContent = st.broken ? "you missed a day, so the streak starts over. today is day 1." : (st.day === 1 ? "log in every day and the rewards get bigger." : "day " + st.day + ". keep the streak going!");
+      $("dl-sub").textContent = st.rescue ? "you missed a day, but a streak rescue will save your " + st.was + "-day streak when you claim!" : st.broken ? "you missed a day, so the streak starts over. today is day 1." : (st.day === 1 ? "log in every day and the rewards get bigger." : "day " + st.day + ". keep the streak going!");
     }
     $("dl-note").textContent = extraNote || "";
     const now = grid.querySelector(".dl-now");
@@ -109,8 +111,9 @@
     if (st.claimed) return;
     const r = DAILY[st.day - 1];
     write(KEY, JSON.stringify({ last: today(), streak: st.streak }));
+    if (st.rescue) window.YBItems.use("rescue");
     if (window.YB) window.YB.add(r.yb);
-    let note = "+" + fmt(r.yb) + " yeonbucks!";
+    let note = (st.rescue ? "streak rescued! " : "") + "+" + fmt(r.yb) + " yeonbucks!";
     if (r.gift && window.YBShop) {
       const got = window.YBShop.give(r.gift, true);
       note += got ? " and you got " + giftName(r.gift) + "!" : " (you already own " + giftName(r.gift) + ")";

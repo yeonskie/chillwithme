@@ -10,7 +10,7 @@
   const local = location.protocol === "file:" || h === "localhost" || h === "127.0.0.1" || h === "[::1]" || h === "";
   if (!local) return;
 
-  const KEYS = ["yb-own", "yb-eq", "yb-petnames", "yb-petname", "yb-room-seen", "yb-daily", "yb-login", "yb-wheel", "yb-boost-until", "yb-pet-pending", "yb-rare-shift"];   // the shop's saved stuff
+  const KEYS = ["yb-own", "yb-eq", "yb-petnames", "yb-petname", "yb-room-seen", "yb-daily", "yb-login", "yb-fortune", "yb-fortunes", "yb-wheel", "yb-boost-until", "yb-pet-pending", "yb-rare-shift", "yb-lost", "yb-lost-seed", "yb-finds", "yb-items", "yb-luck-until", "yb-pay-until", "yb-earn-until"];   // the shop's saved stuff
   const bal = () => { const v = parseInt(localStorage.getItem("yeonbucks"), 10); return Number.isFinite(v) ? v : 0; };
   const redraw = () => { if (window.YB) window.YB.redraw(); };
   const setBal = (n) => { try { localStorage.setItem("yeonbucks", String(Math.max(0, Math.floor(n)))); } catch (e) {} redraw(); };
@@ -66,9 +66,24 @@
         '<button type="button" data-id="tap-bubble">bubble tap</button>' +
         '<button type="button" data-id="tap-ghost">ghost tap</button>' +
         '<button type="button" data-id="tap-yb">yeonbucks tap</button>' +
+        '<button type="button" data-id="tap-cheese">cheese tap</button>' +
+        '<button type="button" data-id="cur-cheese">cheese trail</button>' +
+        '<button type="button" data-id="cur-rainbow">rainbow trail</button>' +
+        '<button type="button" data-id="wear-hat">witch hat</button>' +
+        '<button type="button" data-id="wear-bow">bow</button>' +
+        '<button type="button" data-id="wear-soda">soda</button>' +
+      "</div>" +
+      "<h3>1-use items and boosts</h3>" +
+      '<div class="tm-row" data-tok>' +
+        '<button type="button" data-k="spin">free spin</button>' +
+        '<button type="button" data-k="rescue">streak rescue</button>' +
+        '<button type="button" data-k="hint">idol hint</button>' +
+        '<button type="button" data-b="yb-luck-until" data-ms="604800000">luck 1 wk</button>' +
+        '<button type="button" data-b="yb-pay-until" data-ms="604800000">payout 1 wk</button>' +
+        '<button type="button" data-b="yb-earn-until" data-ms="172800000">earn 48 hr</button>' +
       "</div>" +
       "<h3>start a new day</h3>" +
-      '<div class="tm-row"><button type="button" id="tm-day">new day (daily prize + wheel)</button></div>' +
+      '<div class="tm-row"><button type="button" id="tm-day">new day (daily prize, wheel, fortune, lost and found)</button></div>' +
       "<h3>rare items shop</h3>" +
       '<div class="tm-row"><button type="button" id="tm-stock">show the next stock</button></div>' +
       "<h3>login streak</h3>" +
@@ -111,8 +126,15 @@
     b.textContent = ok ? "got it!" : "already have";
     setTimeout(() => location.reload(), 600);
   });
-  wrap.querySelector("#tm-day").addEventListener("click", () => {        // forget today's daily prize and wheel spins
-    try { localStorage.removeItem("yb-daily"); localStorage.removeItem("yb-wheel"); } catch (e) {}
+  wrap.querySelector("[data-tok]").addEventListener("click", (e) => {    // hand over a 1-use item or a timed boost (lost and found stuff)
+    const b = e.target.closest("button");
+    if (!b) return;
+    if (b.dataset.k && window.YBItems) window.YBItems.add(b.dataset.k, 1);
+    if (b.dataset.b) { try { localStorage.setItem(b.dataset.b, String(Math.max(Date.now(), Number(localStorage.getItem(b.dataset.b) || 0)) + Number(b.dataset.ms))); } catch (err) {} }
+    b.textContent = "got it!";
+  });
+  wrap.querySelector("#tm-day").addEventListener("click", () => {        // forget today's daily prize, wheel spins, fortune and lost and found
+    try { localStorage.removeItem("yb-daily"); localStorage.removeItem("yb-wheel"); localStorage.removeItem("yb-fortune"); localStorage.removeItem("yb-lost"); localStorage.setItem("yb-lost-seed", String(Math.random())); } catch (e) {}
     wrap.querySelector("#tm-day").textContent = "done!";
   });
   wrap.querySelector("#tm-login").addEventListener("click", () => {     // pretend a day has passed: today's login reward can be claimed again, and the streak carries on

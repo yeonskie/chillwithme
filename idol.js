@@ -126,6 +126,8 @@
     hintText.textContent = "";
     input.value = ""; form.hidden = false; actions.hidden = false; nextBtn.hidden = true;
     hintBtn.disabled = !idol.hint;
+    const freeHints = window.YBItems ? window.YBItems.count("hint") : 0;
+    hintBtn.textContent = freeHints ? "free hint (" + freeHints + ")" : "hint (-1 point)";     // (free hints come from the lost and found)
     updateBar();
     if (!window.matchMedia("(pointer: coarse)").matches) input.focus();
   }
@@ -173,9 +175,11 @@
 
   hintBtn.addEventListener("click", () => {
     if (over || hintUsed || !current.hint) return;
-    hintUsed = true; score--; roundPts--;    // a hint costs a point
+    hintUsed = true;
+    const free = window.YBItems && window.YBItems.use("hint");     // a free hint (from the lost and found) doesn't cost a point
+    if (!free) { score--; roundPts--; }                             // a hint costs a point
     updateBar();
-    hintText.textContent = "hint: " + current.hint;
+    hintText.textContent = "hint: " + current.hint + (free ? " (free!)" : "");
     hintBtn.disabled = true;
     input.focus();
   });

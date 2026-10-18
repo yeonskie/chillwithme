@@ -2444,9 +2444,9 @@ html[data-bg="rain"] body, .shop-prev[data-p="rain"] {
 .pet-b { display: none; }
 .pet.is-up .pet-a, .pet-btn:hover .pet-a { display: none; }
 .pet.is-up .pet-b, .pet-btn:hover .pet-b { display: block; }
-.pet-a { animation: pet-bob 3.2s ease-in-out infinite; }
+.pet-body { display: block; position: absolute; inset: 0; animation: pet-bob 3.2s ease-in-out infinite; }   /* (the pet's drawings and its accessory: one thing that bobs) */
 @keyframes pet-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
-@media (prefers-reduced-motion: reduce) { .pet-a { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .pet-body { animation: none; } }
 .pet-bubble {
   position: absolute; bottom: calc(100% - 0.1rem); right: 0; white-space: nowrap;
   font-size: 0.75rem; line-height: 1.2; padding: 0.3rem 0.55rem; background: var(--bg); color: var(--text);
@@ -2742,9 +2742,9 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 
 /* the mystery pets (koala, frog, panda): one drawing each, so the "up" pose is a little hop */
 .pet[data-kind="koala"] .pet-art[data-pet="koala"], .pet[data-kind="frog"] .pet-art[data-pet="frog"], .pet[data-kind="panda"] .pet-art[data-pet="panda"] { display: block; }
-.pet-art[data-single] .pet-b { animation: pet-hop .55s ease-in-out infinite; }
+/* (the little hop when you point at a pet that has one drawing: the whole body hops, see the end of this file) */
 @keyframes pet-hop { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(-3deg); } }
-@media (prefers-reduced-motion: reduce) { .pet-art[data-single] .pet-b { animation: none; } }
+
 
 /* choosing a mystery pet on the wheel */
 .sw-pick { margin-top: .6rem; }
@@ -3060,3 +3060,126 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .shop-item[data-id="tap-ghost"]:not(.is-on) .hy-btn:hover:not(:disabled), .shop-item[data-id="tap-ghost"]:not(.is-on) .hy-btn:focus-visible { background: #1a1a1a; color: #ffc07a; }
 .shop-item[data-id="tap-ghost"]:not(.is-on) .shop-desc, .shop-item[data-id="tap-ghost"] .shop-note { color: #1a1a1a; }
 .shop-item[data-id="tap-ghost"]:not(.is-on) .shop-prev .tap-ghost-svg path:first-child { fill: #fff6ea !important; }
+
+/* ---------- fortune teller (fortune.js) ---------- */
+.ft-card { width: min(30rem, 100%); text-align: center; }
+.ft-card .ft-sub { margin: 0 0 0.9rem; opacity: 0.8; }
+.ft-cards { display: flex; justify-content: center; gap: 0.7rem; margin-bottom: 1rem; }
+.ft-cards[hidden], .ft-reveal[hidden] { display: none; }
+.ft-pick { flex: 0 1 7.2rem; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 0.45rem; font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.ft-back-art { display: block; width: 100%; color: var(--text); transition: transform 0.2s ease; }
+.ft-back-art svg, .ft-face svg { display: block; width: 100%; height: auto; }
+.ft-pick:hover .ft-back-art, .ft-pick:focus-visible .ft-back-art { transform: translateY(-6px) rotate(-1.5deg); }
+.ft-pick:focus-visible { outline: none; }
+.ft-pick-name { font-size: 0.8rem; }
+.ft-reveal { display: flex; justify-content: center; margin-bottom: 1rem; perspective: 900px; }
+.ft-flip { position: relative; width: min(13.5rem, 78%); aspect-ratio: 2 / 3; transform-style: preserve-3d; transition: transform 0.7s ease; }
+.ft-flip.is-flipped { transform: rotateY(180deg); }
+.ft-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; color: var(--text); }
+.ft-back svg { height: 100%; }
+.ft-front { transform: rotateY(180deg); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; box-sizing: border-box; padding: 1.1rem 1rem; background: var(--bg); border: 1.5px solid var(--line); border-radius: var(--radius); outline: 1px solid var(--line); outline-offset: -7px; }
+.ft-sym { display: block; width: 1.8rem; }
+.ft-cat { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; }
+.ft-text { font-size: 0.85rem; line-height: 1.5; overflow-wrap: anywhere; }
+.ft-yb { margin-top: 0.3rem; font-size: 0.75rem; font-weight: 700; }
+.ft-book-btn { margin-top: 0.2rem; }
+.ft-book { text-align: left; max-height: 100%; }
+.ft-book h3 { margin: 1rem 0 0.4rem; font-size: 0.72rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7; }
+.ft-book h3:first-of-type { margin-top: 0.2rem; }
+.ft-list { list-style: none; margin: 0; padding: 0; }
+.ft-list li { padding: 0.4rem 0.6rem; margin: 0 0 4px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); font-size: 0.78rem; line-height: 1.4; }
+.ft-list .ft-locked { opacity: 0.4; }
+@media (prefers-reduced-motion: reduce) { .ft-flip { transition: none; } .ft-back-art { transition: none; } }
+
+/* ---------- Lost and found finds (the room is lostfound.js, the items are in shop.js) ---------- */
+/* pet accessories: they sit on top of the pet in the corner. Each one has its own spot (hat on the head, bow by the ear, soda down low) */
+.pet-btn .pet-acc { position: absolute; inset: 0; pointer-events: none; }
+.pet-btn .pet-acc .acc-svg { position: absolute; inset: auto; height: auto; color: var(--text); }
+.pet-btn .pet-acc[data-acc="hat"] .acc-svg { left: 48%; top: -14%; width: 64%; transform-origin: 50% 85%; transform: translateX(-50%) rotate(calc(-6deg + var(--rot, 0deg))) scale(var(--sc, 1)); }
+.pet-btn .pet-acc[data-acc="bow"] .acc-svg { right: 14%; top: 4%; width: 34%; transform: rotate(calc(14deg + var(--rot, 0deg))) scale(var(--sc, 1)); }
+.pet-btn .pet-acc[data-acc="soda"] .acc-svg { left: -14%; bottom: 2%; width: 34%; transform: rotate(calc(-8deg + var(--rot, 0deg))) scale(var(--sc, 1)); }
+
+/* cheese tap + cheese trail + rainbow trail */
+.cheese-svg { display: block; width: 100%; height: 100%; color: #1a1a1a; }   /* yellow cheese, dark outline (so it reads in dark mode too) */
+.tap-cheese { width: 22px; height: 20px; animation-name: tap-petal; animation-duration: 1s; animation-timing-function: ease-out; }
+.trail-cheese { width: 18px; height: 16px; }
+.trail-rainbow { color: #f48fb1; }
+
+/* the lost and found pop-up */
+.lf-card { width: min(24rem, 100%); text-align: center; }
+.lf-sub { margin: 0 0 0.8rem; font-size: 0.8rem; opacity: 0.8; }
+.lf-pic { display: flex; align-items: center; justify-content: center; height: 7.5rem; margin: 0.2rem auto 0.6rem; color: var(--text); }
+.lf-pic svg { display: block; height: 100%; width: auto; max-width: 11rem; }
+.lf-pic .tap-ghost-svg, .lf-pic .cheese-svg { height: 85%; }
+.lf-pic.lf-pop { animation: lf-pop 0.55s ease-out; }
+@keyframes lf-pop { from { opacity: 0; transform: translateY(14px) scale(0.6) rotate(-6deg); } 65% { opacity: 1; transform: translateY(-4px) scale(1.08); } to { transform: none; } }
+.lf-big { font-size: 1.9rem; font-weight: 700; letter-spacing: 0.02em; }
+.lf-rainbow { background: linear-gradient(90deg, #f06292, #ffb74d, #e0c200, #66bb6a, #42a5f5, #ab47bc); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lf-name { margin: 0 0 0.3rem; font-weight: 700; font-size: 0.95rem; }
+.lf-text { margin: 0 auto 1.2rem; max-width: 20rem; font-size: 0.8rem; line-height: 1.5; min-height: 1.2em; overflow-wrap: anywhere; }
+.lf-remy { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: 0 0 0.6rem; font-size: 0.78rem; }
+.lf-remy[hidden], #lf-go[hidden] { display: none; }
+.lf-remy-art { position: relative; display: block; width: 2.6rem; height: 2.6rem; }
+.lf-remy-art svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.lf-remy-art .pf { fill: var(--bg); }
+.lf-remy-art .pl { fill: var(--text); }
+.lf-list-btn { margin-top: 0.2rem; }
+.lf-book { text-align: left; max-height: 100%; overflow: auto; }
+.lf-list { list-style: none; margin: 0; padding: 0; }
+.lf-list li { display: flex; justify-content: space-between; gap: 0.6rem; padding: 0.28rem 0.6rem; margin: 0 0 3px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); font-size: 0.78rem; }
+.lf-list .lf-locked { opacity: 0.4; }
+@media (prefers-reduced-motion: reduce) { .lf-pic.lf-pop { animation: none; } }
+
+/* accessories: thicken the thin icon lines so they match the pets' line weight (a steady 1.2px on top of the icon, whatever the size) */
+.acc-svg path[fill="currentColor"] { stroke: currentColor; stroke-width: 1.2px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+@media (max-width: 40rem) { .acc-svg path[fill="currentColor"] { stroke-width: 1px; } }
+/* the soda has lots of tiny details, so its lines are lighter */
+.pet-acc[data-acc="soda"] .acc-svg path[fill="currentColor"] { stroke-width: 0.6px; }
+@media (max-width: 40rem) { .pet-acc[data-acc="soda"] .acc-svg path[fill="currentColor"] { stroke-width: 0.5px; } }
+/* pointing at a pet: the whole body (drawing + accessory) hops if it has one drawing (everyone but the dog, cat and bunny, who change pose and hold still) */
+.pet-btn:hover .pet-body, .pet.is-up .pet-body { animation: none; }
+.pet:is([data-kind="koala"], [data-kind="frog"], [data-kind="panda"], [data-kind="fish"], [data-kind="chicken"], [data-kind="elephant"], [data-kind="goat"], [data-kind="hamster"], [data-kind="hedgehog"], [data-kind="mouse"], [data-kind="turtle"], [data-kind="rat"]) .pet-btn:hover .pet-body,
+.pet:is([data-kind="koala"], [data-kind="frog"], [data-kind="panda"], [data-kind="fish"], [data-kind="chicken"], [data-kind="elephant"], [data-kind="goat"], [data-kind="hamster"], [data-kind="hedgehog"], [data-kind="mouse"], [data-kind="turtle"], [data-kind="rat"]).is-up .pet-body { animation: pet-hop .55s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .pet-btn:hover .pet-body, .pet.is-up .pet-body { animation: none !important; } }
+/* when the dog, cat and bunny change pose (hover / talking), the hat and bow move to where their head is now */
+.pet-acc[data-acc="hat"], .pet-acc[data-acc="bow"], .pet-acc[data-acc="soda"] { transform: translate(calc(var(--ox, 0%) + var(--px, 0%)), calc(var(--oy, 0%) + var(--py, 0%))); }
+/* where each accessory goes on each pet. Per pet and accessory you can set:
+   --ox / --oy  move sideways / down, in % of the pet's size (negative = left / up)
+   --rot        extra tilt in degrees (negative = tilts left, positive = tilts right)
+   --sc         size (1 = normal, 0.9 = a bit smaller, 1.1 = a bit bigger)
+   Pets that aren't listed use the normal spot. */
+/* witch hat */
+.pet[data-kind="dog"] .pet-acc[data-acc="hat"] { --ox: 9%; --oy: -17%; --rot: -20deg; }
+.pet[data-kind="dog"] .pet-btn:hover .pet-acc[data-acc="hat"], .pet[data-kind="dog"].is-up .pet-acc[data-acc="hat"] { --ox: 0%; --oy: 0%; --rot: 0deg; }
+.pet[data-kind="cat"] .pet-acc[data-acc="hat"] { --oy: -3%; --rot: 5deg; }
+.pet[data-kind="bunny"] .pet-acc[data-acc="hat"] { --rot: 5deg; }
+.pet[data-kind="frog"] .pet-acc[data-acc="hat"] { --oy: -16%; --rot: 6deg; }
+.pet[data-kind="panda"] .pet-acc[data-acc="hat"] { --sc: 1.1; --rot: 6deg; }
+.pet[data-kind="fish"] .pet-acc[data-acc="hat"] { --ox: -18%; --oy: 16%; }
+.pet[data-kind="chicken"] .pet-acc[data-acc="hat"] { --rot: 10deg; }
+.pet[data-kind="hedgehog"] .pet-acc[data-acc="hat"] { --oy: -3%; }
+.pet[data-kind="mouse"] .pet-acc[data-acc="hat"] { --ox: -9%; --oy: -7%; --rot: 10deg; }
+.pet[data-kind="turtle"] .pet-acc[data-acc="hat"] { --ox: -24%; --oy: 3%; --sc: 0.77; --rot: 18deg; }
+.pet[data-kind="rat"] .pet-acc[data-acc="hat"] { --oy: -14%; --rot: 14deg; }
+/* bow */
+.pet[data-kind="dog"] .pet-acc[data-acc="bow"] { --ox: -23%; --rot: -10deg; }
+.pet[data-kind="bunny"] .pet-acc[data-acc="bow"] { --ox: -3%; --oy: 7%; }
+.pet[data-kind="frog"] .pet-acc[data-acc="bow"] { --ox: -7%; --rot: -5deg; }
+.pet[data-kind="fish"] .pet-acc[data-acc="bow"] { --ox: -28%; --oy: 18%; }
+.pet[data-kind="chicken"] .pet-acc[data-acc="bow"] { --oy: 7%; }
+.pet[data-kind="elephant"] .pet-acc[data-acc="bow"] { --ox: -3%; --oy: 7%; }
+.pet[data-kind="goat"] .pet-acc[data-acc="bow"] { --oy: 7%; }
+.pet[data-kind="hamster"] .pet-acc[data-acc="bow"] { --oy: 7%; }
+.pet[data-kind="hedgehog"] .pet-acc[data-acc="bow"] { --oy: 4%; }
+.pet[data-kind="mouse"] .pet-acc[data-acc="bow"] { --oy: 4%; }
+.pet[data-kind="turtle"] .pet-acc[data-acc="bow"] { --ox: -33%; --oy: 17%; }
+/* soda */
+.pet[data-kind="dog"] .pet-acc[data-acc="soda"] { --ox: 99%; --rot: 16deg; }
+.pet[data-kind="fish"] .pet-acc[data-acc="soda"], .pet[data-kind="elephant"] .pet-acc[data-acc="soda"], .pet[data-kind="turtle"] .pet-acc[data-acc="soda"] { --ox: -9%; }
+.pet[data-kind="dog"] .pet-btn:hover, .pet[data-kind="dog"].is-up { --px: -3%; --py: 5%; }
+.pet[data-kind="cat"] .pet-btn:hover, .pet[data-kind="cat"].is-up { --px: 11%; --py: 25%; }
+.pet[data-kind="bunny"] .pet-btn:hover, .pet[data-kind="bunny"].is-up { --px: 0%; --py: 6%; }
+
+/* the speech bubble sits above the witch hat instead of underneath it */
+.pet[data-acc="hat"] .pet-bubble { bottom: calc(100% + 1.4rem); }
+@media (max-width: 40rem) { .pet[data-acc="hat"] .pet-bubble { bottom: calc(100% + 1.2rem); } }

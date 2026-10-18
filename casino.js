@@ -58,7 +58,8 @@
   // the earn boost (bought in the prize shop) is remembered in "yb-own"
   function owns(id) { try { return JSON.parse(read("yb-own") || "[]").indexOf(id) !== -1; } catch (e) { return false; } }
   const boostOn = () => Number(read("yb-boost-until") || 0) > Date.now();   // the wheel's 24 hour boost
-  const earnAmt = () => (boostOn() ? 200 : owns("boost2") ? 100 : owns("boost") ? 75 : EARN);   // the best boost you have (the wheel's 24 hour boost is +200)
+  const foundOn = (k) => Number(read(k) || 0) > Date.now();       // the timed boosts from the lost and found (see lostfound.js): "yb-luck-until", "yb-pay-until", "yb-earn-until"
+  const earnAmt = () => (boostOn() ? 200 : owns("boost2") ? 100 : owns("boost") ? 75 : EARN) + (foundOn("yb-earn-until") ? 100 : 0);   // the best boost you have (the wheel's 24 hour boost is +200), plus the lost and found's +100 while it lasts
   function setBalance(n) { write("yeonbucks", Math.max(0, Math.floor(n))); }
 
   // ----- earning: counts the seconds this tab is showing -----
@@ -173,7 +174,7 @@
   const N = PICTURES.length;
   function jackpotChance(bal) {
     const base = Math.max(JACKPOT_MIN, JACKPOT * Math.min(1, START / Math.max(bal, 1)));
-    return Math.min(1, base + (owns("charm") ? CHARM_BONUS : 0));       // the lucky charm (prize shop) adds 5 percentage points
+    return Math.min(1, base + (owns("charm") ? CHARM_BONUS : 0) + (foundOn("yb-luck-until") ? CHARM_BONUS : 0));       // the lucky charm (prize shop) adds 5 percentage points, and so does the lost and found's week of luck
   }
   function pickResult() {
     if (Math.random() < jackpotChance(balance())) return 10;
@@ -252,7 +253,7 @@
   $("cz-credits").textContent = "icons by " + artists.join(", ") + ", from the Noun Project.";
   function pct(x) { return (Math.round(x * 10000) / 100) + "%"; }
   function updateJackpotNote() {
-    $("cz-jp").textContent = "the jackpot starts at " + pct(JACKPOT) + " and gets less likely the more yeonbucks you have. right now it's " + pct(jackpotChance(balance())) + "." + (owns("charm") ? " (your lucky charm is helping!)" : "");
+    $("cz-jp").textContent = "the jackpot starts at " + pct(JACKPOT) + " and gets less likely the more yeonbucks you have. right now it's " + pct(jackpotChance(balance())) + "." + (owns("charm") || foundOn("yb-luck-until") ? " (your lucky charm is helping!)" : "");
   }
 
   const fmt = (n) => String(n);
@@ -277,7 +278,7 @@
     add: (n) => { setBalance(balance() + Math.max(0, Math.floor(n))); refresh(); updateBox(); },
     // a prize from one of the games: +10% with the prize bonus. Gives back how much was paid, so the game can say so
     prize: (n) => {
-      const paid = Math.max(0, Math.round(n * (owns("bonus") ? 1 + PRIZE_BONUS : 1)));
+      const paid = Math.max(0, Math.round(n * (1 + (owns("bonus") ? PRIZE_BONUS : 0) + (foundOn("yb-pay-until") ? PRIZE_BONUS : 0))));   // the prize bonus and the lost and found's week of +10% add up
       setBalance(balance() + paid); refresh(); updateBox();
       return paid;
     },

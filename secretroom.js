@@ -129,6 +129,8 @@
     if (n === 2) return daily();
     if (n === 3) return openWheel();
     if (n === 4) { location.hash = "#rare-shop"; return; }
+    if (n === 5 && window.Fortune) return window.Fortune.open();
+    if (n === 6 && window.LostFound) return window.LostFound.open();
     say((ROOMS[n] || "this place") + " isn't open yet. check back soon!");
   }
 
@@ -162,11 +164,12 @@
   const freeLeft = (st) => 1 + st.extra - (st.spins - st.paid);
   const bal = () => (window.YB ? window.YB.have() : 0);
   function boostLeft() { let u = 0; try { u = Number(localStorage.getItem("yb-boost-until") || 0); } catch (e) {} return Math.max(0, u - Date.now()); }
+  const spinItems = () => (window.YBItems ? window.YBItems.count("spin") : 0);     // free spin items from the lost and found
   function wDraw() {
-    const st = wState(), free = freeLeft(st) > 0, canPay = !free && st.paid < EXTRA_SPINS;
+    const st = wState(), free = freeLeft(st) > 0 || spinItems() > 0, canPay = !free && st.paid < EXTRA_SPINS;
     wBtn.disabled = spinning || (!free && !(canPay && bal() >= SPIN_COST));
     wBtn.textContent = free ? "spin (free)" : canPay ? "spin for " + fmtN(SPIN_COST) : "come back tomorrow";
-    let info = free ? (st.extra ? "you have a free spin!" : "1 free spin a day") : canPay ? (bal() >= SPIN_COST ? "extra spins today: " + (EXTRA_SPINS - st.paid) + " left" : "not enough yeonbucks for another spin") : "no spins left today. come back tomorrow!";
+    let info = free ? (freeLeft(st) <= 0 ? "you have " + spinItems() + " free spin item" + (spinItems() === 1 ? "" : "s") + "!" : st.extra ? "you have a free spin!" : "1 free spin a day") : canPay ? (bal() >= SPIN_COST ? "extra spins today: " + (EXTRA_SPINS - st.paid) + " left" : "not enough yeonbucks for another spin") : "no spins left today. come back tomorrow!";
     const bl = boostLeft();
     if (bl) info += "  |  boost on: " + Math.floor(bl / 3600000) + "h " + Math.floor((bl % 3600000) / 60000) + "m left";
     wInfo.textContent = info;
@@ -214,6 +217,7 @@
   function spin() {
     if (spinning) return;
     const st = wState();
+    if (freeLeft(st) <= 0 && window.YBItems && window.YBItems.use("spin")) st.extra++;   // out of free spins: a free spin item counts as one
     const free = freeLeft(st) > 0;
     if (!free) {
       if (st.paid >= EXTRA_SPINS || !window.YB || !window.YB.spend(SPIN_COST)) return wDraw();
