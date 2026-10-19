@@ -38,6 +38,8 @@
   function sync() {
     const has = owned();
     if (tab) tab.hidden = !has;
+    const lockedTab = $("menu-locked");
+    if (lockedTab) lockedTab.hidden = has;                 // "???" in the menu until the key is found, then it becomes "secret room"
     const page = pageName();
     const corner = has && (["home", "shop", "secret-room", "rare-shop"].indexOf(page) === -1 || (page === "home" && window.innerWidth <= SMALL));   // (phones and tablets: the home door goes bottom left too, so it clears the buttons in the middle)
     door.hidden = !(has && (page === "home" || corner));   // home: centered; phones on every other page (not the prize shop / the room itself): bottom left

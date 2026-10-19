@@ -2697,8 +2697,8 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .sr-map-m .sr-door-icon .sr-door-art { stroke-width: .16px; }
 
 /* map doors are bigger now, so their own lines already come out near 1.3px */
-.sr-door-icon .sr-door-art { stroke: var(--text); stroke-width: 0px; }
-.sr-map-m .sr-door-icon .sr-door-art { stroke: var(--bg); stroke-width: .2px; }
+.sr-door-icon .sr-door-art { stroke: var(--bg); stroke-width: .3px; }   /* a little thinner lines */
+.sr-map-m .sr-door-icon .sr-door-art { stroke: var(--bg); stroke-width: .38px; }
 @media (max-width: 44rem) { .sr-title { margin-bottom: 1.8rem; } }
 
 /* room names on the map */
@@ -3225,3 +3225,6 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
   .home-br { display: none; }
   .home-sub-below { text-wrap: balance; }
 }
+
+/* "???" in the menu: the secret room's spot before it's unlocked (not clickable) */
+.menu-card a.menu-locked { opacity: 0.55; cursor: default; pointer-events: none; }
