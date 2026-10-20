@@ -111,6 +111,8 @@
     '<path d="M50 52l5.5 15.5L71 73l-15.5 5.5L50 94l-5.5-15.5L29 73l15.5-5.5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>' +
     '<path d="M38 112a12 12 0 1 0 12 12 9 9 0 0 1-12-12z" fill="none" stroke="currentColor" stroke-width="1.2"/>' +
     '<circle cx="68" cy="30" r="1.6" fill="currentColor"/><circle cx="30" cy="34" r="1.2" fill="currentColor"/><circle cx="74" cy="118" r="1.2" fill="currentColor"/><circle cx="26" cy="96" r="1" fill="currentColor"/></svg>';
+  const cardArt = (cat) => (window.FT_CARDS && window.FT_CARDS[cat]) || BACK;      // each card has its own drawing (fortune-cards.js)
+  const NAME = { love: "love", fortune: "fortune", luck: "lucky" };                 // what's printed on each card
   const SYMBOL = {
     love: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-7.5-4.6-9.8-9.2C.6 8.6 2.4 4.5 6.2 4.3c2.2-.1 4.1 1.1 5.8 3.2 1.7-2.1 3.6-3.3 5.8-3.2 3.8.2 5.6 4.3 4 7.5C19.5 16.4 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
     fortune: '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5l2.4 6.7 6.7 2.4-6.7 2.4L12 20.7l-2.4-6.7L2.9 11.6l6.7-2.4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>',
@@ -133,12 +135,12 @@
 
   function faceHTML(cat, idx) {
     const f = FORTUNES[cat][idx], yb = rewardOf(f);
-    return '<span class="ft-sym">' + SYMBOL[cat] + '</span><span class="ft-cat">' + cat + '</span><span class="ft-text"></span>' + (yb ? '<span class="ft-yb">+' + fmt(yb) + " yeonbucks</span>" : "");
+    return '<span class="ft-sym">' + SYMBOL[cat] + '</span><span class="ft-cat">' + NAME[cat] + '</span><span class="ft-text"></span>' + (yb ? '<span class="ft-yb">+' + fmt(yb) + " yeonbucks</span>" : "");
   }
   function showReveal(r, animate) {
     cardsEl.hidden = true;
     revealEl.hidden = false;
-    revealEl.innerHTML = '<div class="ft-flip' + (animate ? "" : " is-flipped") + '"><div class="ft-face ft-back">' + BACK + '</div><div class="ft-face ft-front">' + faceHTML(r.cat, r.idx) + "</div></div>";
+    revealEl.innerHTML = '<div class="ft-flip' + (animate ? "" : " is-flipped") + '"><div class="ft-face ft-back">' + cardArt(r.cat) + '</div><div class="ft-face ft-front">' + faceHTML(r.cat, r.idx) + "</div></div>";
     revealEl.querySelector(".ft-text").textContent = textOf(FORTUNES[r.cat][r.idx]);
     const flip = revealEl.querySelector(".ft-flip");
     if (animate) setTimeout(() => flip.classList.add("is-flipped"), 120);
@@ -151,8 +153,8 @@
       const b = document.createElement("button");
       b.type = "button";
       b.className = "ft-pick";
-      b.setAttribute("aria-label", cat + " card");
-      b.innerHTML = '<span class="ft-back-art">' + BACK + '</span><span class="ft-pick-name">' + cat + "</span>";
+      b.setAttribute("aria-label", NAME[cat] + " card");
+      b.innerHTML = '<span class="ft-back-art">' + cardArt(cat) + '</span><span class="ft-pick-name">' + NAME[cat] + "</span>";
       b.addEventListener("click", () => { const r = draw(cat); drawState(); showReveal(r, true); });
       cardsEl.appendChild(b);
     });
@@ -182,7 +184,7 @@
     CATS.forEach((cat) => {
       const h = document.createElement("h3");
       const got = FORTUNES[cat].filter((f, i) => have.indexOf(cat + ":" + i) !== -1).length;
-      h.textContent = cat + " (" + got + "/" + FORTUNES[cat].length + ")";
+      h.textContent = NAME[cat] + " (" + got + "/" + FORTUNES[cat].length + ")";
       const ul = document.createElement("ul");
       ul.className = "ft-list";
       FORTUNES[cat].forEach((f, i) => {

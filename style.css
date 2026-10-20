@@ -3345,3 +3345,33 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 @media (max-width: 1100px) and (pointer: fine) {
   body.has-yb .page[data-page="home"].active { overflow-y: auto; align-items: safe center; padding: 4.5rem 1rem; }
 }
+
+/* ---------- the tarot card drawings (fortune-cards.js): lines and fills follow light / dark mode ---------- */
+.ft-back-art svg, .ft-back svg { color: var(--text); }
+.ftx-text { font-family: var(--font-mono); font-size: 30px; fill: currentColor; stroke: none; }
+.ftx-fill { fill: var(--bg); stroke: currentColor; }
+.ftx-bg { fill: var(--bg); }
+.ftx-line { fill: none; stroke: currentColor; }
+.ftx-dash { fill: none; stroke: currentColor; stroke-dasharray: 12; }
+.ftx-fill, .ftx-line, .ftx-dash { vector-effect: non-scaling-stroke; }
+.ftx-fill, .ftx-line, .ftx-dash { stroke-width: 0.8px; stroke-linejoin: round; }
+.ft-flip { aspect-ratio: 468 / 824; width: min(12rem, 70%); }
+.ft-pick { flex: 1 1 0; max-width: 7.2rem; }
+.ft-back-art svg { width: 100%; height: auto; overflow: visible; }
+
+/* bigger tarot cards */
+.ft-card { width: min(37rem, 100%); }
+.ft-cards { gap: 1rem; }
+.ft-pick { max-width: 10rem; }
+.ft-flip { width: min(16rem, 74%); }
+@media (max-width: 40rem) { .ft-cards { gap: 0.4rem; } .ft-card { padding-left: 0.6rem; padding-right: 0.6rem; } }
+
+/* the fortune teller box and its cards are bigger */
+.ft-card { width: min(44rem, 100%); }
+.ft-cards { gap: 1rem; }
+.ft-pick { max-width: 12rem; }
+.ft-flip { width: min(16rem, 70%); }
+@media (max-width: 40rem) {
+  .ft-card { padding-left: 0.5rem; padding-right: 0.5rem; }
+  .ft-cards { gap: 0.4rem; }
+}
