@@ -3375,3 +3375,21 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
   .ft-card { padding-left: 0.5rem; padding-right: 0.5rem; }
   .ft-cards { gap: 0.4rem; }
 }
+
+/* smaller screens: smaller cards in the fortune teller */
+@media (max-width: 60rem) {
+  .ft-card { width: min(36rem, 100%); }
+  .ft-pick { max-width: 8rem; }
+  .ft-flip { width: min(13rem, 70%); }
+}
+@media (max-width: 40rem) {
+  .ft-card { padding-left: 1rem; padding-right: 1rem; }
+  .ft-cards { gap: 0.6rem; }
+  .ft-pick { max-width: 5.8rem; }
+  .ft-flip { width: min(9.5rem, 58%); }
+}
+
+/* spread the tarot cards out more */
+.ft-cards { justify-content: space-evenly; gap: 1.5rem; }
+@media (max-width: 60rem) { .ft-cards { gap: 1.2rem; } }
+@media (max-width: 40rem) { .ft-cards { gap: 0.8rem; } }
