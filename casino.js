@@ -19,7 +19,7 @@
 // (run supabase-casino.sql once). Nobody is on it unless they join.
 //
 // THE PICTURES: games/casino/slot-1.svg ... slot-9.svg. To use fewer, delete lines from PICTURES (and
-// the files). "by" is the artist's name, shown in the "how it works" pop-up (Noun Project credit).
+// the files). "by" is the artist's name (the credits pop-up in the bottom bar lists them; see credits.js).
 
 (function () {
   const START = 500;                 // yeonbucks everyone starts with
@@ -249,8 +249,6 @@
     li.appendChild(t);
     $("cz-pay").appendChild(li);
   });
-  const artists = PICTURES.map((s) => s.by).filter((v, k, a) => v && a.indexOf(v) === k);
-  $("cz-credits").textContent = "icons by " + artists.join(", ") + ", from the Noun Project.";
   function pct(x) { return (Math.round(x * 10000) / 100) + "%"; }
   function updateJackpotNote() {
     $("cz-jp").textContent = "the jackpot starts at " + pct(JACKPOT) + " and gets less likely the more yeonbucks you have. right now it's " + pct(jackpotChance(balance())) + "." + (owns("charm") || foundOn("yb-luck-until") ? " (your lucky charm is helping!)" : "");

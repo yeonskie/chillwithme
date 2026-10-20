@@ -3199,19 +3199,22 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
   .yb-row .yb-break { display: block; order: -1; flex: 0 0 100%; height: 0; }
 }
 
+/* the little carousel's size (merry.js); smaller screens shrink it below */
+.home-merry { width: clamp(9rem, calc(100svh - 38rem), 15rem); max-width: 100%; margin: 0 auto 0.9rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
 /* ---------- home on small phones / in-app browsers (discord etc. have less screen height) ----------
    everything is a bit smaller, and the page can scroll so the last buttons always end up above the door and the yeonbucks box */
 @media (max-width: 1100px) {
   body.has-yb .page[data-page="home"].active { overflow-y: auto; align-items: safe center; padding: 1.8rem 1rem 9rem; }   /* tablets: the door sits bottom left above one row of buttons */
   body.has-mini.has-yb .page[data-page="home"].active { padding-bottom: 12.5rem; }
-  .home-slides { flex-basis: clamp(9rem, calc(100svh - 31rem), 16rem); }
+  .home-merry { width: clamp(8.5rem, calc(100svh - 33rem), 15rem); }
 }
 @media (max-width: 40rem) {
   body.has-yb .page[data-page="home"].active { padding: clamp(2rem, calc(100svh - 45rem), 4.3rem) 1rem 11.5rem; }   /* phones: two rows of buttons under the door */
   body.has-mini.has-yb .page[data-page="home"].active { padding-bottom: 15rem; }
-  .home-slides { flex-basis: clamp(9rem, calc(100svh - 40rem), 16rem); }
+  .home-merry { width: clamp(8.5rem, calc(100svh - 43rem), 15rem); }
 }
-@media (max-width: 1100px) and (max-height: 46rem) {
+@media (max-height: 46rem) {
   .home-title { font-size: 1.25rem; margin-bottom: 0.3rem; }
   .home-sub { margin-bottom: 1rem; }
   .home-sub-below { margin-top: 1rem; font-size: 0.72rem; line-height: 1.5; padding: 0.3rem 0.6rem; }
@@ -3228,3 +3231,89 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 
 /* "???" in the menu: the secret room's spot before it's unlocked (not clickable) */
 .menu-card a.menu-locked { opacity: 0.55; cursor: default; pointer-events: none; }
+
+/* ---------- the little carousel on the home page (see merry.js) ---------- */
+.mg { display: block; width: 100%; height: auto; overflow: visible; }
+.mg path, .mg rect, .mg polygon, .mg circle { fill: var(--bg); stroke: var(--text); stroke-width: 1.2px; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.mg clipPath * { fill: none; stroke: none; }
+.mg .mg-horse path { vector-effect: none; stroke-width: calc(var(--hsw, 4px) / var(--k, 1)); }   /* plain line so it can squash flat cleanly (merry.js sets the width) */
+.mg-stripes { animation: mg-up var(--t, 4s) linear infinite; }
+.mg-stripes.mg-down { animation-name: mg-down; }
+@keyframes mg-up { from { transform: translateY(0); } to { transform: translateY(calc(-1 * var(--p))); } }
+@keyframes mg-down { from { transform: translateY(0); } to { transform: translateY(var(--p)); } }
+@media (prefers-reduced-motion: reduce) { .mg-stripes { animation: none; } }
+
+/* the box with the page names is now a slim bar under the carousel */
+.home-slides { aspect-ratio: auto; flex: 0 1 14rem; height: 2.8rem; }
+.home-slide a { padding: 0 1rem; gap: 0; }
+
+/* the page-name bar under the carousel: smaller (about 0.8x) */
+.home-carousel { gap: 0.55rem; }
+.home-arrow { width: 1.8rem; height: 1.8rem; font-size: 0.8rem; }
+.home-slides { flex: 0 1 12rem; height: 2.2rem; }
+.home-slide a { padding: 0 0.6rem; }
+.home-slide-label { font-size: 0.78rem; white-space: nowrap; }
+
+/* home layout: the title and description above, the carousel exactly in the vertical middle, the buttons below */
+.home { align-self: stretch; display: grid; grid-template-rows: 1fr auto 1fr; justify-items: center; }
+.home-top { align-self: end; }
+.home-bottom { align-self: start; width: 100%; }
+.home-mid { width: 100%; }
+.home .home-top .home-sub { margin-bottom: 0.9rem; }
+.home .home-sub-below { margin: 0 auto 1.6rem; }
+.home .home-merry { margin-bottom: 0.9rem; }
+@media (max-height: 46rem) { .home .home-sub-below { margin-bottom: 1rem; } }
+@media (min-width: 1101px) {
+  body.has-yb .page[data-page="home"].active { padding: 4.5rem 1.5rem; }   /* the same space above and below, so the carousel is exactly in the middle of the screen */
+}
+
+/* ---------- bottom bar: "[date] ○ credits" and the credits pop-up (credits.js) ---------- */
+.bar-dot { margin: 0 0.5rem; opacity: 0.6; }
+.credits-link { font: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+.credits-link:hover, .credits-link:focus-visible { opacity: 0.6; outline: none; }
+.credits-card { text-align: left; width: min(26rem, 100%); }
+.credits-note { opacity: 0.65; margin: 0 0 0.8rem !important; font-size: 0.72rem; text-align: center; }
+.credits-list { list-style: none; margin: 0; padding: 0; }
+.credits-list li { padding: 0.45rem 0; border-top: 1px solid color-mix(in srgb, var(--text) 18%, transparent); font-size: 0.74rem; line-height: 1.45; }
+.credits-list li:first-child { border-top: 0; }
+.credits-by { opacity: 0.85; }
+.credits-where { display: block; opacity: 0.55; font-size: 0.68rem; }
+
+/* ---------- the small music player: smaller, along the bottom, to the left of the pet (or at the bottom right if there's no pet) ---------- */
+.mini {
+  top: auto;
+  bottom: calc(var(--bar-height) + 0.4rem);
+  right: 1rem;
+  left: auto;
+  max-width: 15rem;
+  gap: 0.2rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.65rem;
+}
+body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
+.mini .icon-btn { width: 1.5rem; height: 1.5rem; }
+.mini .icon-btn svg { width: 0.8rem; height: 0.8rem; }
+.mini-title { margin-right: 0.2rem; }
+@media (max-width: 40rem) {
+  .mini { left: 1rem; right: 1rem; max-width: none; padding: 0.2rem 0.6rem; }
+  body:has(#pet:not([hidden])) .mini { right: calc(1rem + 3.4rem + 0.4rem); }
+  .mini-title { flex: 1 1 auto; }
+  /* the pet goes back to the bottom right corner (the yeonbucks box is on the left, and the player sits between them) */
+  .pet, body.has-mini .pet { bottom: calc(var(--bar-height) + 0.3rem); }
+  body.has-mini .yb-box { bottom: calc(var(--bar-height) + 3.4rem); }
+  body.has-mini.has-yb .page { padding-bottom: 7rem; }
+}
+
+/* the small player is just the three buttons (back, play / pause, skip) */
+.mini-title { display: none; }
+.mini { padding: 0.15rem 0.3rem; gap: 0.1rem; }
+.mini .icon-btn { width: 1.8rem; height: 1.8rem; }
+.mini .icon-btn svg { width: 0.9rem; height: 0.9rem; }
+@media (max-width: 40rem) {
+  .mini, body:has(#pet:not([hidden])) .mini { left: 1rem; right: auto; }
+}
+
+/* "randomize my stay" and "daily reward": a bit smaller */
+.home .home-random { padding: 0.4rem 0.9rem; font-size: 0.7rem; }
+.home .home-random.home-daily { margin-top: 0.4rem; }
+.home .home-daily-dot { width: 6px; height: 6px; margin-left: 0.4rem; }
