@@ -6,6 +6,12 @@
 
 const UPDATES = [
   {
+    date: "10.20.26",
+    items: [
+      "updated the door",
+    ],
+  },
+  {
     date: "10.19.26",
     items: [
       "new homepage with tap-to-spin carousel",

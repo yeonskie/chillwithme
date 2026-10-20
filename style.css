@@ -3238,7 +3238,10 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 
 /* ---------- the little carousel on the home page (see merry.js) ---------- */
 .mg { display: block; width: 100%; height: auto; overflow: visible; }
-.mg path, .mg rect, .mg polygon, .mg circle { fill: var(--bg); stroke: var(--text); stroke-width: 1.2px; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.mg path, .mg rect, .mg polygon, .mg circle { fill: var(--text); stroke: none; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.mg .mc1 { fill: var(--bg); stroke: var(--text); stroke-width: 1px; }   /* white shapes with a dark line */
+.mg .mc2 { fill: var(--bg); }
+.mg .mc3 { fill: var(--text); stroke: var(--bg); stroke-width: 1px; }   /* dark shapes with a light line */
 .mg clipPath * { fill: none; stroke: none; }
 .mg .mg-horse path { vector-effect: none; stroke-width: calc(var(--hsw, 4px) / var(--k, 1)); }   /* plain line so it can squash flat cleanly (merry.js sets the width) */
 .mg-stripes { animation: mg-up var(--t, 4s) linear infinite; }
@@ -3393,3 +3396,32 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 .ft-cards { justify-content: space-evenly; gap: 1.5rem; }
 @media (max-width: 60rem) { .ft-cards { gap: 1.2rem; } }
 @media (max-width: 40rem) { .ft-cards { gap: 0.8rem; } }
+
+
+/* ----- the secret door (my own drawing): simple one small, detailed one big ----- */
+.sr-art { display: block; overflow: visible; --dw: .64px; }
+.sr-art * { vector-effect: non-scaling-stroke; stroke-width: var(--dw); }
+.sr-art path:not([class]) { fill: var(--text); stroke: none; }
+.sr-art g[class] path:not([class]) { stroke: none; }
+.sr-art .ds1, .sr-art .dd1 { fill: none; stroke: var(--bg); }
+.sr-art .ds2, .sr-art .dd2 { fill: var(--bg); stroke: var(--text); }
+.sr-art .ds3, .sr-art .dd3 { fill: none; stroke: var(--text); }
+.sr-art .ds4, .sr-art .dd4 { fill: var(--text); stroke: var(--bg); }
+.sr-art .ds8, .sr-art .dd10 { fill: var(--bg); stroke: none; }
+.sr-art .dd5, .sr-art .dd6 { fill: none; stroke: var(--text); stroke-dasharray: 1.6 1.6; }
+.sr-art [class*="1"][stroke-linecap] { stroke-linecap: round; }
+.sr-door svg.sr-art { height: 100%; width: auto; }
+.sr-door-icon.sr-art { --dw: .4px; }
+.sr-door-icon.sr-art-simple { fill: none; }
+.sr-door.sr-door-inline { height: 11rem; margin-top: 1.8rem; }
+.sr-door.sr-door-inline svg.sr-art { --dw: .85px; }
+@media (max-width: 40rem) { .sr-door.sr-door-inline { height: 8.5rem; } }
+.sr-door.sr-door-inline { opacity: 1; }
+
+@media (min-width: 40.01rem) {
+  .sr-door.sr-door-corner { height: 8.8rem; }
+  .sr-door.sr-door-corner svg.sr-art { --dw: .85px; }
+}
+
+/* updates pop-up: the list scrolls when it gets long */
+#updates-pop .updates-list { max-height: min(60vh, 26rem); overflow-y: auto; overscroll-behavior: contain; padding-right: .4rem; }

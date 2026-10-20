@@ -2,7 +2,7 @@
 //
 // Buying the "secret room key" in the prize shop (it's in the list in shop.js) does three things:
 //   1. a "secret room" button shows up in the bottom menu
-//   2. a small secret door appears on the home page, just above the "navigation menu" button
+//   2. a small secret door appears on the home page, just above the "menu" button
 //   3. both of them open the back of the fair: the first time with a question, then a loading screen,
 //      then the secret room page (the section with data-page="secret-room" in index.html)
 //
@@ -100,8 +100,8 @@
     if (seen()) startLoading(); else openAsk(from);
   }
   door.addEventListener("click", () => enter(door));
-  if (doorShop) {                                          // a second door at the bottom of the prize shop (same picture, same click)
-    doorShop.innerHTML = door.innerHTML;
+  if (doorShop) {                                          // a second door at the bottom of the prize shop (the big detailed one, same click)
+    window.SR_DOOR.fill(doorShop.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "svg")), "detailed");
     doorShop.addEventListener("click", () => enter(doorShop));
   }
   document.addEventListener("click", (e) => {              // the menu button is a normal link, so catch it before the page changes

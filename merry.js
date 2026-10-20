@@ -20,8 +20,8 @@
   const SPEED = 14;
   const RADIUS = 300;
   const BOB = 14;
-  const CX = 540, CY = 722;                 // the middle of the ride, in the drawing
-  const POLE_TOP = 380;                     // where the poles start (hidden under the top of the ride)
+  const CX = 540, CY = 717.6;                 // the middle of the ride, in the drawing
+  const POLE_TOP = 375.6;                     // where the poles start (hidden under the top of the ride)
   const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const poles = units.map((u) => u.querySelector(".mg-pole"));
