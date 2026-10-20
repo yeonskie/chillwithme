@@ -26,6 +26,11 @@
 
   const poles = units.map((u) => u.querySelector(".mg-pole"));
   const horses = units.map((u) => u.querySelector(".mg-horse"));
+  // the stripes on the poles are moved here too (not by a separate css animation), so they always move in step with the
+  // horses, including when you tap to spin it faster
+  const stripes = units.map((u) => u.querySelector(".mg-stripes"));
+  const STRIPE_GAP = 64.34;                          // the distance from one stripe to the next on the pole
+  const STRIPE_SPEED = 35.66;                        // how far the stripes slide for each bit the ride turns
   let angle = 0, boost = 0, last = 0, where = units.map(() => null);
 
   // the horses are drawn with a plain line (not a "same width at any size" line) so they can squash flat without turning
@@ -49,6 +54,10 @@
       u.setAttribute("transform", "translate(" + x.toFixed(1) + " 0)");
       poles[i].setAttribute("transform", "translate(0 " + POLE_TOP + ") scale(" + poleScale.toFixed(3) + ")");
       horses[i].setAttribute("transform", "translate(0 " + y.toFixed(1) + ") scale(" + (horseScale * turn).toFixed(3) + " " + horseScale.toFixed(3) + ")");
+      if (stripes[i]) {
+        const slide = (angle * STRIPE_SPEED) % STRIPE_GAP;
+        stripes[i].setAttribute("transform", "translate(0 " + (stripes[i].classList.contains("mg-down") ? slide : -slide).toFixed(2) + ")");
+      }
       const layer = d >= 0 ? "front" : "back";
       if (where[i] !== layer) {                        // front ones are in front of the drape, back ones behind it
         (d >= 0 ? front : back).appendChild(u);

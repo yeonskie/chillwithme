@@ -3336,3 +3336,6 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 
 /* casino leaderboard box shows everyone: on computers it scrolls inside itself if the list gets taller than the machine */
 @media (min-width: 701px) { .cz-lb { max-height: calc(100% - 12px); overflow-y: auto; } }
+
+/* the stripes on the carousel poles are moved by merry.js now (so they stay in step when it spins faster) */
+.mg-stripes, .mg-stripes.mg-down { animation: none !important; }
