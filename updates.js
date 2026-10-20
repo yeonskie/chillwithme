@@ -11,6 +11,7 @@ const UPDATES = [
       "new homepage with tap-to-spin carousel",
       "updated mobile music player pop-up",
       "created credits page",
+      "asks for leaderboard name on each page -homepage",
     ],
   },
   {
