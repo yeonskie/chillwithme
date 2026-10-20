@@ -77,7 +77,7 @@ function setMenu(open, returnFocus) {
   }
 }
 
-// click "get into it" to open or close the menu
+// click "navigation menu" to open or close the menu
 menuBtn.addEventListener("click", () => {
   setMenu(menuList.hidden);
 });

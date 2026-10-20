@@ -141,3 +141,19 @@
   show(0);
   start();
 })();
+
+// ---------- "enjoy your stay, [name]!" ----------
+// Once someone has put their name on the leaderboard, the home page says it. (The name is the one saved in this browser as "yb-name".)
+(function () {
+  const hello = document.getElementById("home-hello");
+  if (!hello) return;
+  function update() {
+    let name = "";
+    try { name = (localStorage.getItem("yb-name") || "").trim(); } catch (e) {}
+    hello.textContent = name ? "enjoy your stay, " + name + "!" : "enjoy your stay!";
+  }
+  update();
+  window.addEventListener("yb-name-changed", update);
+  window.addEventListener("storage", update);     // (another tab changed it)
+  window.addEventListener("hashchange", update);
+})();

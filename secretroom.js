@@ -2,7 +2,7 @@
 //
 // Buying the "secret room key" in the prize shop (it's in the list in shop.js) does three things:
 //   1. a "secret room" button shows up in the bottom menu
-//   2. a small secret door appears on the home page, just above the "get into it" button
+//   2. a small secret door appears on the home page, just above the "navigation menu" button
 //   3. both of them open the back of the fair: the first time with a question, then a loading screen,
 //      then the secret room page (the section with data-page="secret-room" in index.html)
 //

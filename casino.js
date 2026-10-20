@@ -489,13 +489,14 @@
       if (!n) { setNote("type a name first"); return; }
       write("yb-name", n);
       setNote("saving...");
+      window.dispatchEvent(new Event("yb-name-changed"));
       await sendScore(true);
       await loadBoard();
       showForm(false);
     });
     v.remove.addEventListener("click", async () => {
       try { await lbApi("cz_remove", { p_id: myId() }); } catch (e) {}
-      write("yb-name", ""); lastSent = null;
+      write("yb-name", ""); lastSent = null; window.dispatchEvent(new Event("yb-name-changed"));
       await loadBoard();
       showForm(false);
       setNote("you're off the board");
@@ -537,7 +538,7 @@
       e.preventDefault();
       const n = input.value.trim().slice(0, 20);
       if (!n) { note.textContent = "type a name first"; return; }
-      write("yb-name", n); write("yb-asked", "1");
+      write("yb-name", n); write("yb-asked", "1"); window.dispatchEvent(new Event("yb-name-changed"));
       note.textContent = "joining...";
       await sendScore(true); await loadBoard();
       close();

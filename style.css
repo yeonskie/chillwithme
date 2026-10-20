@@ -1195,8 +1195,12 @@ main {
   .cell-left button, .cell-menu button { padding: 0.7rem 0; }
   .menu-card a { padding: 1rem; }
 
-  /* a little more room in the middle, for "get into it (click me!)" */
-  .bar-bottom { grid-template-columns: 1fr 1.35fr 1fr; }
+  /* date on its own line, with updates ○ credits underneath */
+  .bar-bottom { grid-template-columns: .85fr .9fr 1.25fr; }
+  .bar-bottom .cell-right { flex-wrap: wrap; justify-content: flex-end; align-content: center; text-align: right; }
+  .bar-bottom .cell-right #today { flex: 0 0 100%; }
+  .bar-bottom .cell-right .bar-dot:nth-child(2) { display: none; }
+  .bar-bottom .cell-right .bar-dot { margin: 0 0.3rem; }
 }
 
 /* phones: tighter top of the moodboard, music and community pages */
@@ -2968,7 +2972,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .sr-credit { bottom: calc(var(--bar-height) + var(--yb-h, 2.2rem) + 0.8rem); }
 @media (max-width: 44rem) { .sr-credit { bottom: calc(var(--bar-height) + var(--yb-h, 2.2rem) + 0.8rem); } }
 
-/* the "get into it" menu: two columns, four rows (the secret room is the last one when unlocked) */
+/* the menu: two columns, four rows (the secret room is the last one when unlocked) */
 .menu-wrap { width: min(24rem, 100%); }
 .menu-card { display: grid; grid-template-columns: repeat(2, 1fr); width: min(24rem, 100%); }
 .menu-card a { display: flex; align-items: center; justify-content: center; min-height: 3.6rem; padding: 0.8rem 0.5rem; }
@@ -3317,3 +3321,15 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 .home .home-random { padding: 0.4rem 0.9rem; font-size: 0.7rem; }
 .home .home-random.home-daily { margin-top: 0.4rem; }
 .home .home-daily-dot { width: 6px; height: 6px; margin-left: 0.4rem; }
+
+/* ---------- the updates page (updates.js) and its menu button ---------- */
+.menu-card a.menu-wide { grid-column: 1 / -1; }
+.updates-day { margin: 0 0 1.6rem; }
+.updates-date { margin: 0 0 0.5rem; font-size: 0.85rem; font-weight: 700; }
+.updates-items { list-style: none; margin: 0; padding: 0; font-size: 0.8rem; line-height: 1.6; }
+.updates-items li { position: relative; padding-left: 1.1rem; }
+.updates-items li::before { content: "*"; position: absolute; left: 0; }
+
+/* updates pop-up list */
+#updates-pop .updates-list { text-align: left; }
+#updates-pop .updates-day:last-child { margin-bottom: 0; }

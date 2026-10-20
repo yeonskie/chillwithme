@@ -1,0 +1,62 @@
+// ---------- Updates pop-up ----------
+// The "updates" link in the bottom bar (next to credits) opens this list.
+// This is the file to edit when you add something new to the site. Newest day first.
+// To add a new day, copy one { date, items } block and put it at the TOP of the list.
+// To add something to a day that's already there, add a line to its items.
+
+const UPDATES = [
+  {
+    date: "10.19.26",
+    items: [
+      "new homepage with tap-to-spin carousel",
+      "updated mobile music player pop-up",
+      "created credits page",
+    ],
+  },
+  {
+    date: "10.18.26",
+    items: [
+      "daily login rewards",
+      "new locations in secret room",
+      "remy updated modes",
+      "new taps in prize shop (yeonbucks tap, flower petal tap, bubble tap, ghost tap (halloween exclusive)",
+      "new y2k cursor in prize shop",
+      "updated menu columns",
+    ],
+  },
+];
+
+(function () {
+  const list = document.getElementById("updates-list");
+  if (!list) return;
+  UPDATES.forEach((day) => {
+    const box = document.createElement("div");
+    box.className = "updates-day";
+    const d = document.createElement("p");
+    d.className = "updates-date";
+    d.textContent = day.date;
+    const ul = document.createElement("ul");
+    ul.className = "updates-items";
+    (day.items || []).forEach((t) => {
+      const li = document.createElement("li");
+      li.textContent = t;
+      ul.appendChild(li);
+    });
+    box.appendChild(d);
+    box.appendChild(ul);
+    list.appendChild(box);
+  });
+})();
+
+(function () {
+  const ov = document.getElementById("updates-pop");
+  const openBtn = document.getElementById("updates-open");
+  const closeBtn = document.getElementById("updates-close");
+  if (!ov || !openBtn || !closeBtn) return;
+  function open() { ov.hidden = false; closeBtn.focus(); }
+  function close() { if (ov.hidden) return; ov.hidden = true; openBtn.focus(); }
+  openBtn.addEventListener("click", open);
+  closeBtn.addEventListener("click", close);
+  ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+})();
