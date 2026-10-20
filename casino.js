@@ -520,15 +520,18 @@
   if (!lbList.children.length) setNote("loading...");
   if (document.readyState === "complete") lbTick(); else window.addEventListener("load", lbTick);
 
-  // when someone first enters the arcade, ask for a name, once.
+  // when someone first enters the arcade (or any game page), ask for a name, once.
   // "skip" is remembered, and "join" on the leaderboard still works later.
   (function welcome() {
     const wel = $("wel"), form = $("wel-form"), input = $("wel-name"), note = $("wel-note");
     if (!wel || !form) return;
     const close = () => { wel.hidden = true; };
+    // every game page counts, so people who jump straight to one still get asked (not the secret room or rare shop)
+    const GAME_PAGES = /^#(arcade|casino|shop|idol|scattergories|hyrax|confession|circus-tent|fun-house|house-of-mirrors|haunted-house|tunnel-of-love)$/;
+    const onGamePage = () => GAME_PAGES.test(location.hash);
     const skip = () => { write("yb-asked", "1"); close(); };
     function maybeShow() {
-      if (!/^#arcade$/.test(location.hash)) return;
+      if (!onGamePage()) return;
       const cfg = typeof COMMUNITY !== "undefined" ? COMMUNITY : {};
       if (!cfg.url || !cfg.key) return;                       // no board connected, nothing to join
       if (myName() || read("yb-asked")) return;
@@ -545,7 +548,7 @@
     });
     $("wel-skip").addEventListener("click", skip);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !wel.hidden) skip(); });
-    window.addEventListener("hashchange", () => { if (!/^#arcade$/.test(location.hash)) close(); else setTimeout(maybeShow, 300); });
+    window.addEventListener("hashchange", () => { if (!onGamePage()) close(); else setTimeout(maybeShow, 300); });
     if (document.readyState === "complete") setTimeout(maybeShow, 600); else window.addEventListener("load", () => setTimeout(maybeShow, 600));
   })();
 
