@@ -20,6 +20,7 @@ const UPDATES = [
       "daily login rewards",
       "new locations in secret room",
       "remy updated modes",
+      "added reactions + replies on community board",
       "new taps in prize shop (yeonbucks tap, flower petal tap, bubble tap, ghost tap (halloween exclusive)",
       "new y2k cursor in prize shop",
       "updated menu columns",
