@@ -1,5 +1,5 @@
 // ---------- Home page: the rotating boxes ----------
-// The boxes slide from left to right and fade into each other. It turns by itself every 3 seconds. It waits while someone hovers or focuses it, and
+// The labels scroll from left to right, one pushing the next along. It turns by itself every 3 seconds. It waits while someone hovers or focuses it, and
 // whenever the home page isn't the one showing. The < and > buttons (and swiping) turn it by hand.
 
 (function () {
@@ -13,8 +13,7 @@
   if (!slides.length) return;
 
   const EVERY_MS = 3000;          // how often it changes
-  const MOVE_MS = 1200;           // how long the slide and fade takes
-  const SHIFT_PX = 25;            // how far each box travels while it fades
+  const MOVE_MS = 600;            // how long the scroll takes
   const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let index = 0, timer = null, paused = false;
 
@@ -36,13 +35,13 @@
     });
     if (dir === undefined || from === index || !slides[from].animate) return;
     const d = dir < 0 ? -1 : 1;
-    const opts = { duration: reduced ? 0 : MOVE_MS, easing: "cubic-bezier(0.4, 0, 0.2, 1)", fill: "forwards" };
+    // a smooth scroll: the old label slides out the side and the next one slides in right behind it, no fading
+    // (the bar clips them, see .home-slides in style.css). it eases in and out.
+    const opts = { duration: reduced ? 0 : MOVE_MS, easing: "cubic-bezier(0.45, 0, 0.2, 1)", fill: "forwards" };
     const incoming = slides[index], outgoing = slides[from];
     outgoing.classList.add("leaving");
-    const out = outgoing.animate(
-      [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(" + d * SHIFT_PX + "px)" }], opts);
-    const inn = incoming.animate(
-      [{ opacity: 0, transform: "translateX(" + -d * SHIFT_PX + "px)" }, { opacity: 1, transform: "none" }], opts);
+    const out = outgoing.animate([{ transform: "none" }, { transform: "translateX(" + d * 100 + "%)" }], opts);
+    const inn = incoming.animate([{ transform: "translateX(" + -d * 100 + "%)" }, { transform: "none" }], opts);
     running = [out, inn];
     out.onfinish = () => { outgoing.classList.remove("leaving"); out.cancel(); };
     inn.onfinish = () => { inn.cancel(); };

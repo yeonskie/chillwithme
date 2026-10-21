@@ -3661,3 +3661,7 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 
 /* the wheel result: an optional second line under the bold message, not bold */
 .sw-sub { display: block; margin-top: .25rem; font-weight: 400; font-size: .75rem; opacity: .75; }
+
+/* the page-name bar scrolls: the bar itself holds the outline and clips the labels as they slide past each other */
+.home-slides { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
+.home-slide a { border: 0; border-radius: 0; }
