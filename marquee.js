@@ -35,7 +35,7 @@
     "wind speeds are high today, don't get swept away. we don't have insurance.",
     "find your fate at the fortune teller",
     "make memories at the photobooth (spoiler?)",
-    "save your yeonbucks for the secret room key... you might discover something magical",
+    "you might discover something magical if you keep digging",
     "leave your confessions at the booth, not like anyone is listening",
     "please ignore the sound of scurrying rats (health inspector don't read this)",
   ];
