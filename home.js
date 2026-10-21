@@ -14,7 +14,7 @@
 
   const EVERY_MS = 3000;          // how often it changes
   const MOVE_MS = 1200;           // how long the slide and fade takes
-  const SHIFT_PX = 50;            // how far each box travels while it fades
+  const SHIFT_PX = 25;            // how far each box travels while it fades
   const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let index = 0, timer = null, paused = false;
 
