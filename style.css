@@ -110,48 +110,37 @@ main {
 
 .cell-toggle button:hover { text-decoration: underline; }
 
-/* ---------- Scrolling marquee text (top center) ---------- */
+/* ---------- The message strip (top center, see marquee.js) ---------- */
 .cell-marquee {
   padding: 0;
   min-width: 0;            /* keeps the 3 sections even */
   justify-content: center;
 }
 
-/* the window is exactly as wide as one copy of the text */
+/* the strip is as wide as its section. the text (repeated to fill it) slides left by one copy-set, over and over (see marquee.js) */
 .marquee-window {
   position: relative;
   overflow: hidden;
-  max-width: 100%;         /* on very small screens, never wider than the section */
+  width: 100%;
+  height: 1.3em;
 }
-
-.marquee-sizer {
-  display: block;
-  visibility: hidden;      /* only here to give the window its width */
-  white-space: nowrap;
-}
-
 .marquee-track {
   position: absolute;
   top: 0;
   left: 0;
   display: flex;
   width: max-content;
-  animation: marquee-scroll 10s linear infinite;   /* bigger number = slower */
+  animation: marquee-scroll 10s linear infinite;   /* the real speed is set from marquee.js (SPEED) */
 }
-
 .marquee-item {
+  flex: none;
   white-space: nowrap;
-  padding-right: 2rem;     /* space between each repeat of the text */
+  padding-right: 3rem;     /* space between each repeat of the text */
 }
-
+.marquee-still { text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-
-/* people who prefer less motion get static text */
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track { animation: none; }
+  to   { transform: translateX(var(--shift, -50%)); }
 }
 
 /* ---------- Bottom bar ---------- */
