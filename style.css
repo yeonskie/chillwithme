@@ -3193,19 +3193,20 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 }
 
 /* the little carousel's size (merry.js); smaller screens shrink it below */
-.home-merry { width: clamp(9rem, calc(100svh - 38rem), 15rem); max-width: 100%; margin: 0 auto 0.9rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.home-mid { --merry-w: clamp(9rem, calc(100svh - 38rem), 15rem); }   /* (the page-name bar under it is the same width, see --merry-w) */
+.home-merry { width: var(--merry-w); max-width: 100%; margin: 0 auto 0.9rem; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 
 /* ---------- home on small phones / in-app browsers (discord etc. have less screen height) ----------
    everything is a bit smaller, and the page can scroll so the last buttons always end up above the door and the yeonbucks box */
 @media (max-width: 1100px) and (pointer: coarse) {
   body.has-yb .page[data-page="home"].active { overflow-y: auto; align-items: safe center; padding: 1.8rem 1rem 9rem; }   /* tablets: the door sits bottom left above one row of buttons */
   body.has-mini.has-yb .page[data-page="home"].active { padding-bottom: 12.5rem; }
-  .home-merry { width: clamp(8.5rem, calc(100svh - 33rem), 15rem); }
+  .home-mid { --merry-w: clamp(8.5rem, calc(100svh - 33rem), 15rem); }
 }
 @media (max-width: 40rem) and (pointer: coarse) {
   body.has-yb .page[data-page="home"].active { padding: clamp(2rem, calc(100svh - 45rem), 4.3rem) 1rem 11.5rem; }   /* phones: two rows of buttons under the door */
   body.has-mini.has-yb .page[data-page="home"].active { padding-bottom: 15rem; }
-  .home-merry { width: clamp(8.5rem, calc(100svh - 43rem), 15rem); }
+  .home-mid { --merry-w: clamp(8.5rem, calc(100svh - 43rem), 15rem); }
 }
 @media (max-height: 46rem) {
   .home-title { font-size: 1.25rem; margin-bottom: 0.3rem; }
@@ -3655,8 +3656,13 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 .home-slides { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
 .home-slide a { border: 0; border-radius: 0; }
 
-/* the page-name bar on the home page: wider on bigger screens, so there's more to click (phones keep it slimmer) */
-@media (min-width: 40.01rem) { .home-slides { flex: 0 1 17rem; } }
+/* on bigger screens the page-name bar is exactly as wide as the carousel drawing above it (they share --merry-w). the words shrink a little if the
+   bar is narrow, so the longest one ("thoughts to consume") always fits */
+@media (min-width: 40.01rem) {   /* (phones keep their own size) */
+  .home-slides { flex: 0 0 var(--merry-w); width: var(--merry-w); box-sizing: border-box; }
+  .home-slide a { padding: 0 0.3rem; }
+  .home-slide-label { font-size: min(0.78rem, calc((var(--merry-w) - 12px) / 11.8)); }
+}
 
 /* the bottom "menu" button: a wider (and taller) click area, the text stays the same size */
 #btn-menu { padding-left: 3.5rem; padding-right: 3.5rem; align-self: stretch; }

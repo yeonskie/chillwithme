@@ -1,5 +1,5 @@
 // ---------- Home page: the rotating boxes ----------
-// The labels scroll from left to right, one pushing the next along. It turns by itself every 3 seconds. It waits while someone hovers or focuses it, and
+// The labels scroll from left to right, one pushing the next along. It turns by itself every 3.7 seconds. It waits while someone hovers or focuses it, and
 // whenever the home page isn't the one showing. The < and > buttons (and swiping) turn it by hand.
 
 (function () {
@@ -12,7 +12,7 @@
   const slides = Array.from(list.querySelectorAll(".home-slide"));
   if (!slides.length) return;
 
-  const EVERY_MS = 3000;          // how often it changes
+  const EVERY_MS = 3700;          // how often it changes
   const MOVE_MS = 600;            // how long the scroll takes
   const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let index = 0, timer = null, paused = false;
