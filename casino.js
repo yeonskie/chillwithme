@@ -445,13 +445,13 @@
         if (p.me) li.className = "cz-lb-you";
         const rank = document.createElement("span"); rank.className = "cz-lb-rank"; rank.textContent = i + 1;
         const nm = document.createElement("span"); nm.className = "cz-lb-name"; nm.textContent = p.name;
-        const bl = document.createElement("span"); bl.className = "cz-lb-bal"; bl.textContent = p.balance;
+        const bl = document.createElement("span"); bl.className = "cz-lb-bal"; bl.textContent = Number(p.balance).toLocaleString("en-US");
         if (v.unit) { const u = document.createElement("span"); u.className = "cz-lb-unit"; u.textContent = v.unit; bl.appendChild(u); }
         li.append(rank, nm, bl);
         v.list.appendChild(li);
       });
       if (!top.length) { const li = document.createElement("li"); li.className = "cz-lb-empty"; li.textContent = "nobody yet!"; v.list.appendChild(li); }
-      v.me.textContent = me && !top.some((p) => p.me) ? "you: #" + me.rank + " (" + me.balance + v.unit + ")" : "";
+      v.me.textContent = me && !top.some((p) => p.me) ? "you: #" + me.rank + " (" + Number(me.balance).toLocaleString("en-US") + v.unit + ")" : "";
       v.edit.textContent = me ? "edit" : "join";
       v.save.textContent = me ? "save" : "join";
       v.remove.hidden = !me;
