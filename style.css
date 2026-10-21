@@ -3638,3 +3638,14 @@ a.home-ul:hover, a.home-ul:focus-visible { text-decoration-thickness: 2px; outli
 /* the secret door sits above the page, so it used to cover the buttons in pop-ups (add yours, owner posts, etc.).
    while one of those pop-ups is open, the middle of the page is lifted above the door, so the door goes behind the pop-up. */
 main:has(.mb-add:not([hidden]), .mb-light:not([hidden]), .gi-dialog:not([hidden]), .hy-intro:not([hidden])) { z-index: 31; }
+
+/* every screen (phone, tablet, desktop): lock the page to the visible screen, so the footer and everything stuck to the bottom
+   (the yeonbucks box, the pet, the door) stay put together and the page can't bounce on its own.
+   only the middle of the page scrolls. */
+html, body { overscroll-behavior: none; }
+body { position: fixed; inset: 0; height: auto; }
+main { overscroll-behavior: contain; }
+
+/* community board: extra room at the bottom (only when the door is showing), so the last post can scroll up above the door and the yeonbucks box */
+body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 11rem; }
+@media (min-width: 40.01rem) { body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 15rem; } }

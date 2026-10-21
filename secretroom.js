@@ -30,9 +30,11 @@
   const SMALL = 1100;                                       // "mobile / smaller screens": this wide or narrower
   function placeDoor() {                                   // sits right on top of the bottom bar, whatever height it is
     const bar = document.querySelector(".bar-bottom");
+    // (measured from the bottom bar, not from window.innerHeight: on phones innerHeight changes the moment the browser's toolbar
+    // slides away while you scroll, before the yeonbucks box has moved, and that made the door jump up)
     let b = (bar ? bar.offsetHeight : 40) + 2;
     const yb = document.getElementById("yb-box");
-    if (yb && !yb.hidden && (window.innerWidth <= SMALL || door.classList.contains("sr-door-corner"))) b = Math.max(b, Math.round(window.innerHeight - yb.getBoundingClientRect().top) + 14);   // phones: sits above the yeonbucks / inventory row instead of on top of it
+    if (yb && !yb.hidden && (window.innerWidth <= SMALL || door.classList.contains("sr-door-corner"))) b = Math.max(b, Math.round((bar ? bar.getBoundingClientRect().bottom : window.innerHeight) - yb.getBoundingClientRect().top) + 14);   // phones: sits above the yeonbucks / inventory row instead of on top of it
     door.style.bottom = b + "px";
   }
   function sync() {
