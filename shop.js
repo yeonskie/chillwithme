@@ -614,3 +614,27 @@
     },
   };
 })();
+
+
+// big screens: the prize shop is laid out at one size and scaled to fit the screen height (no scrolling, see .shop-wrap in style.css)
+(function () {
+  const pages = [document.querySelector('.page[data-page="shop"]'), document.querySelector('.page[data-page="rare-shop"]')].filter(Boolean);
+  if (!pages.length) return;
+  const root = document.documentElement;
+  const wide = window.matchMedia ? window.matchMedia("(min-width: 61rem)") : { matches: true };
+  function fit() {
+    const page = pages.find((p) => p.clientHeight > 0);   // whichever of the two shops is showing
+    const wrap = page && page.querySelector(".shop-wrap");
+    if (!wrap) return;
+    const h = page.clientHeight, cs = getComputedStyle(page), w = page.clientWidth - parseFloat(cs.paddingLeft || 0) - parseFloat(cs.paddingRight || 0);
+    if (!h || !w || !wide.matches) return;
+    root.style.setProperty("--shop-s", "1");
+    const designH = wrap.offsetHeight;
+    if (!designH) return;
+    const s = Math.max(0.5, Math.min(page.dataset.page === "rare-shop" ? 1 : 1.3, h / designH, (w * 0.96) / wrap.offsetWidth));
+    root.style.setProperty("--shop-s", s.toFixed(3));
+  }
+  window.addEventListener("resize", fit);
+  window.addEventListener("hashchange", () => { fit(); setTimeout(fit, 60); });
+  fit(); setTimeout(fit, 200);
+})();

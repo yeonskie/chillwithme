@@ -9,6 +9,8 @@ const UPDATES = [
     date: "10.20.26",
     items: [
       "updated the door",
+      "updated carousel",
+      "revamped prize shop/rare items shop design",
     ],
   },
   {

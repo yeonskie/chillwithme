@@ -2774,7 +2774,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .shop-restock { font-size: 0.7rem; opacity: 0.8; margin: 0.15rem 0 0; }
 
 /* the rare items shop shows 4 at a time, stacked 2 x 2 */
-#rare-items .shop-item { flex-basis: calc((100% - 0.6rem) / 2); }
+#rare-items .shop-item { flex-basis: calc((100% - var(--gx, 0.6rem)) / 2); }
 
 /* a little more room between the rare items shop title and the yeonbucks count */
 .page[data-page="rare-shop"] .shop-have { margin-top: 1.4rem; }
@@ -3425,3 +3425,171 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 
 /* updates pop-up: the list scrolls when it gets long */
 #updates-pop .updates-list { max-height: min(60vh, 26rem); overflow-y: auto; overscroll-behavior: contain; padding-right: .4rem; }
+
+/* shop + rare items shop on phones: leave room at the bottom (the yeonbucks box and music player sit on top of it) so the last items can scroll up above them */
+@media (max-width: 40rem) {
+  .page[data-page="shop"] .shop-wrap, .page[data-page="rare-shop"] .shop-wrap { margin-bottom: 5rem; }
+  body.has-mini .page[data-page="shop"] .shop-wrap, body.has-mini .page[data-page="rare-shop"] .shop-wrap { margin-bottom: 9rem; }
+}
+
+/* the prize shop title is my hanging sign drawing */
+.shop-sign { margin: 0; line-height: 0; font-weight: 700; }
+.shop-sign svg { display: block; height: 13rem; width: auto; margin: 0 auto; overflow: visible; }
+.shop-sign path, .shop-sign rect, .shop-sign circle { fill: var(--text); stroke: none; vector-effect: non-scaling-stroke; }
+.shop-sign .ps1 { fill: none; stroke: var(--bg); stroke-width: 1px; stroke-dasharray: 3 3; }
+.shop-sign .ps2 { fill: var(--bg); stroke: var(--text); stroke-width: 1px; }
+.shop-sign .ps3 { fill: var(--text); stroke: var(--bg); stroke-width: 1px; }
+.shop-sign text { font-family: inherit; font-size: 40.61px; font-weight: 700; }
+.shop-sign .ps4 { fill: var(--text); }
+.shop-sign .ps5 { fill: var(--bg); }
+@media (max-width: 40rem) { .shop-sign svg { height: 10.5rem; } }
+
+/* the sign hangs from the very top of the page, with the back link and the rest underneath it */
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) { padding-top: 0; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap { display: flex; flex-direction: column; align-items: center; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-head { order: -1; margin: 0 0 1.2rem; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap > .hy-back { margin-top: 0.3rem; }
+
+/* a tighter top so the items are higher up the page */
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.2rem 1.2rem; margin-top: 0.3rem; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar p { margin: 0; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { flex-direction: row; align-items: baseline; gap: 0.4rem; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have strong { font-size: 1.4rem; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-msg { margin: 0; min-height: 0.8em; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-awning { height: clamp(2rem, 5vw, 3rem); }
+/* ---------- the redesigned prize shop (her drawing): signpost on the left, striped shop on the right ---------- */
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-side { display: contents; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-side > .hy-back { order: 0; }
+.shop-post, .shop-pole { display: none; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) #sr-door-shop { flex: none; order: 9; }
+
+/* the sign drawing: black = text, white = bg, lines stay 1px */
+.shop-post * { vector-effect: non-scaling-stroke; stroke-width: 1px; }
+.shop-post :is(path, rect, circle, polygon):not([class]) { fill: var(--text); stroke: none; }
+.shop-post .pp3 { fill: var(--bg); stroke: var(--text); }
+.shop-post .pp4 { fill: var(--bg); stroke: none; }
+.shop-post .pp7 { fill: none; stroke: var(--bg); }
+.shop-post .pp8 { fill: none; stroke: var(--bg); stroke-dasharray: 6 6; }
+.shop-post .pp9 { fill: none; stroke: var(--text); }
+.shop-post .pp10 { fill: var(--text); stroke: var(--bg); }
+.shop-post text { font-family: inherit; font-size: 36px; font-weight: 700; stroke: none; }
+.shop-post .pp1 { fill: var(--bg); }
+.shop-post .pp2 { fill: var(--text); }
+
+/* the awning and the framed shop (all screen sizes) */
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { width: 100%; }
+.shop-tent { display: block; width: 100%; height: auto; overflow: visible; margin-bottom: -4.53%; position: relative; z-index: 1; pointer-events: none; }
+.shop-tent .tk { fill: var(--text); stroke: var(--text); stroke-width: 1px; stroke-linejoin: miter; }
+.shop-tent .tk > :not(.tw) { vector-effect: non-scaling-stroke; }
+.shop-tent .tw { fill: var(--bg); stroke: var(--text); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.shop-tent polygon.tw, .shop-tent path.tw { vector-effect: non-scaling-stroke; }
+.shop-tent .tw path { vector-effect: non-scaling-stroke; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body { position: relative; width: 92.4%; margin: 0 auto; box-sizing: border-box; padding: 6.7% 5.5% 4%; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 1rem 1rem; background: var(--bg); }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body::before { content: ""; position: absolute; inset: 0 1.6% 2.3% 1.6%; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 0.7rem 0.7rem; pointer-events: none; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-grid { --gx: 0.6rem; gap: 0.6rem var(--gx); }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item { flex-basis: calc((100% - 2 * var(--gx)) / 3); }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-pager { margin-top: 1.2rem; gap: 2rem; }
+@media (max-width: 40rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item { flex-basis: calc((100% - var(--gx)) / 2); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body { padding: 8% 5% 5%; }
+}
+
+@media (min-width: 61rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) { padding: 0 clamp(1rem, 4vw, 5rem) 0 calc(clamp(1rem, 7vw, 9rem) + 18.2rem); overflow: hidden; }
+  /* the whole shop is sized to fit the screen height (shop.js sets --shop-s; the text stays the normal size), so it never scrolls and sits in the middle */
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap { flex: none; width: 1100px; zoom: var(--shop-s, 1); margin: auto 0; padding: 30px 0; display: block; text-align: left; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-head { display: none; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { align-self: start; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-grid { --gx: 26px; gap: 12px var(--gx); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item { aspect-ratio: 276 / 128; justify-content: center; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-desc { font-size: 0.86rem; line-height: 1.15rem; min-height: 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-name { font-size: 1.08rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-name small { font-size: 0.7rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-price { font-size: 0.9rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-buy { font-size: 0.9rem; padding: 0.25rem 1.2rem; margin-top: 0.25rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-prev { height: 2.4rem; margin-bottom: 0.1rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item { gap: 0.15rem; padding: 0.4rem 0.6rem 0.45rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-pager { font-size: 0.9rem; margin-top: 0.9rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-arrow { font-size: 1rem; padding: 0.2rem 1rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body { padding: 6.6% 4.3% 2.4%; }
+
+  /* the left side (back link, buttons, signpost, door) is small, not scaled with the shop, and stays at the left edge of the screen */
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-side { position: absolute; left: clamp(1rem, 7vw, 9rem); top: clamp(2rem, 7vh, 5rem); bottom: 0; width: 17rem; zoom: calc(1 / var(--shop-s, 1)); --bw: 1px; display: grid; grid-template-columns: 1fr; grid-template-rows: auto auto auto auto auto 1fr; align-content: start; align-items: start; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-side > .hy-back { grid-row: 2; grid-column: 1; margin: 0.8rem 0 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar { display: contents; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { grid-row: 2; grid-column: 1; margin: 0.3rem 0 0; flex-direction: row; align-items: baseline; gap: 0.4rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have strong { font-size: 1.1rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row { grid-row: 1; grid-column: 1; width: max-content; max-width: 100%; margin: 0.3rem 0 0; display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row .hy-btn { width: 50%; text-align: center; padding: 0.35rem 0.4rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row .hy-btn:first-child { width: 100%; padding: 0.35rem 0.8rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-msg { grid-row: 3; grid-column: 1; margin: 0.4rem 0 0; min-height: 1em; }
+  .shop-post { display: block; grid-row: 5; grid-column: 1; width: 100%; height: auto; overflow: visible; margin-top: 8%; }
+  /* the pole: runs from the top of the sign down to the bottom of the page */
+  .shop-pole { display: block; grid-row: 5 / 7; grid-column: 1; justify-self: start; align-self: stretch; width: 5.63%; margin-top: 8%; position: relative; box-sizing: border-box; border: 1px solid var(--text); border-bottom: 0; border-radius: 3px 3px 0 0; background: linear-gradient(90deg, var(--text) 0 84%, var(--bg) 84%); }
+  .shop-pole::after { content: ""; position: absolute; left: -1px; right: -1px; top: 100%; height: 100vh; border: 1px solid var(--text); border-top: 0; background: inherit; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) #sr-door-shop { grid-row: 6; grid-column: 1; align-self: end; justify-self: start; position: relative; left: auto; bottom: auto; transform: none; z-index: 1; width: 45.6%; height: auto; margin: 0 0 1rem 29.1%; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) #sr-door-shop svg.sr-art { width: 100%; height: auto; }
+}
+
+/* the shop is scaled with zoom, so thin lines are made slightly thicker to stay as dark as the rest of the site */
+@media (min-width: 61rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) { --bw: calc(1px / var(--shop-s, 1)); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap .hy-btn,
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item,
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-prev { border-width: var(--bw); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body { border-width: var(--bw); border-top-width: 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body::before { border-width: var(--bw); border-top-width: 0; }
+  .shop-pole, .shop-pole::after { border-width: var(--bw); }
+  .shop-pole { border-bottom-width: 0; }
+  .shop-pole::after { border-top-width: 0; }
+  .shop-tent .tw, .shop-tent .tk { stroke-width: calc(var(--bw) * 1.8); }
+  .shop-post * { stroke-width: calc(var(--bw) * 1.5); }
+}
+
+/* the yeonbucks box on the middle of the awning (big screens; phones keep the count next to the buttons) */
+.shop-roofbox { display: none; }
+@media (min-width: 61rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { position: relative; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { display: none; }
+  .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 3.6rem; transform: translateX(-50%); z-index: 2; margin: 0; padding: 0.55rem 1.6rem 0.6rem; background: var(--bg); border: var(--bw, 1px) solid var(--line); border-radius: var(--radius); line-height: 1.15; text-align: center; }
+  .shop-roofbox strong { font-size: 1.7rem; }
+  .shop-roofbox span { font-size: 0.8rem; }
+}
+
+/* prize shop buttons: a slightly heavier outline (desktop), and the greyed-out ones a bit less faded */
+@media (min-width: 61rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap .hy-btn { box-shadow: 0 0 0 calc(var(--bw, 1px) * 0.5) var(--line); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-buy:disabled, :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-arrow:disabled { opacity: 0.6; }
+}
+
+/* the rare items shop: the "new stock in ..." line sits under the buttons */
+.shop-restock { font-size: 0.75rem; opacity: 0.8; }
+@media (min-width: 61rem) {
+  .page[data-page="rare-shop"] .shop-restock { grid-row: 3; grid-column: 1; margin: 0.6rem 0 0; }
+  .page[data-page="rare-shop"] .shop-msg { grid-row: 4; }
+}
+@media (min-width: 61rem) {
+  #rare-items .shop-prev { height: 4.2rem; }
+  #rare-items .shop-prev-pet { height: 4.2rem; }
+}
+
+/* the rare items shop is narrower and taller: roughly a square (big screens) */
+@media (min-width: 61rem) {
+  .page[data-page="rare-shop"] .shop-wrap { width: 580px; }
+  #rare-items .shop-item { aspect-ratio: 1.12; }
+  #rare-items .shop-prev, #rare-items .shop-prev-pet { height: 5rem; }
+  #rare-items .shop-desc { font-size: 0.82rem; line-height: 1.15rem; }
+  #rare-items .shop-name { font-size: 1.02rem; }
+  #rare-items .shop-price { font-size: 0.86rem; }
+  #rare-items .shop-buy { font-size: 0.86rem; padding: 0.25rem 1.1rem; margin-top: 0.3rem; }
+  .shop-post-rare text { font-size: 26px; }
+}
+@media (min-width: 61rem) {
+  .page[data-page="rare-shop"] .shop-body { padding-bottom: 4.5%; }
+  .page[data-page="rare-shop"] .shop-body::before { bottom: 1.6%; }
+}
+@media (min-width: 61rem) {
+  .page[data-page="rare-shop"] .shop-roofbox { top: 1.2rem; padding: 0.4rem 1.2rem 0.45rem; }
+  .page[data-page="rare-shop"] .shop-roofbox strong { font-size: 1.35rem; }
+  .page[data-page="rare-shop"] .shop-roofbox span { font-size: 0.7rem; }
+}

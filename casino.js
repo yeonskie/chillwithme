@@ -94,7 +94,7 @@
   function holdSet(amt) { write("yb-hold", JSON.stringify({ amt, until: Date.now() + SPIN_MS + 4000 })); }
   function holdClear() { write("yb-hold", ""); }
 
-  // ----- the "___ yeonbucks earned" box (everywhere except the casino and the shop) -----
+  // ----- the "___ yeonbucks earned" box (everywhere except the casino and the two shops) -----
   const ybBox = document.getElementById("yb-box"), ybAmt = document.getElementById("yb-amt");
   // a little "+50!" that floats up next to the number whenever you earn yeonbucks
   const ybPop = document.getElementById("yb-pop");
@@ -108,7 +108,7 @@
   function updateBox() {
     if (!ybBox) return;
     const page = location.hash.replace("#", "");
-    const show = page !== "casino" && page !== "shop";
+    const show = page !== "casino" && page !== "shop" && page !== "rare-shop";
     ybBox.hidden = !show;
     document.body.classList.toggle("has-yb", show);
     if (!show) return;
