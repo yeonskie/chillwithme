@@ -622,6 +622,19 @@
   if (!pages.length) return;
   const root = document.documentElement;
   const wide = window.matchMedia ? window.matchMedia("(min-width: 61rem)") : { matches: true };
+  // the shop pages are not all the same height (some items have longer descriptions), so the size is worked out from the
+  // tallest page: step through the pages one by one (this all happens before the screen repaints, so you never see it),
+  // then go back to the page that was showing. that way every page fits and the size doesn't jump when you flip pages.
+  function tallestPage(page, wrap) {
+    const arrow = (i) => page.querySelectorAll(".shop-pager .shop-arrow")[i];   // 0 = back, 1 = next
+    let max = wrap.offsetHeight, back = 0, guard = 0;
+    while (arrow(0) && !arrow(0).disabled && guard++ < 40) { arrow(0).click(); back++; }
+    max = Math.max(max, wrap.offsetHeight);
+    let fwd = 0;
+    while (arrow(1) && !arrow(1).disabled && guard++ < 80) { arrow(1).click(); fwd++; max = Math.max(max, wrap.offsetHeight); }
+    while (fwd > back && arrow(0) && !arrow(0).disabled) { arrow(0).click(); fwd--; }
+    return max;
+  }
   function fit() {
     const page = pages.find((p) => p.clientHeight > 0);   // whichever of the two shops is showing
     const wrap = page && page.querySelector(".shop-wrap");
@@ -629,9 +642,10 @@
     const h = page.clientHeight, cs = getComputedStyle(page), w = page.clientWidth - parseFloat(cs.paddingLeft || 0) - parseFloat(cs.paddingRight || 0);
     if (!h || !w || !wide.matches) return;
     root.style.setProperty("--shop-s", "1");
-    const designH = wrap.offsetHeight;
+    const designH = tallestPage(page, wrap);
     if (!designH) return;
-    const s = Math.max(0.5, Math.min(page.dataset.page === "rare-shop" ? 1 : 1.3, h / designH, (w * 0.96) / wrap.offsetWidth));
+    // 0.96: a little breathing room under the shop, so the bottom edge never gets cut off
+    const s = Math.max(0.5, Math.min(page.dataset.page === "rare-shop" ? 1 : 1.3, (h / designH) * 0.96, (w * 0.96) / wrap.offsetWidth));
     root.style.setProperty("--shop-s", s.toFixed(3));
   }
   window.addEventListener("resize", fit);
