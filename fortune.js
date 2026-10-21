@@ -135,7 +135,8 @@
 
   function faceHTML(cat, idx) {
     const f = FORTUNES[cat][idx], yb = rewardOf(f);
-    return '<span class="ft-sym">' + SYMBOL[cat] + '</span><span class="ft-cat">' + NAME[cat] + '</span><span class="ft-text"></span>' + (yb ? '<span class="ft-yb">+' + fmt(yb) + " yeonbucks</span>" : "");
+    // the reveal now shows the same drawn card (fortune-cards.js) with the reading printed in the empty space under the picture
+    return cardArt(cat) + '<span class="ft-note"><span class="ft-text"></span>' + (yb ? '<span class="ft-yb">+' + fmt(yb) + " yeonbucks</span>" : "") + "</span>";
   }
   function showReveal(r, animate) {
     cardsEl.hidden = true;

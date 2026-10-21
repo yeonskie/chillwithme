@@ -12,6 +12,7 @@ const UPDATES = [
       "updated carousel",
       "revamped prize shop/rare items shop design",
       "changed some titles to shrikhand font",
+      "new fortune teller cards",
     ],
   },
   {
