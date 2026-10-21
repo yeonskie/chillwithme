@@ -3648,4 +3648,4 @@ main { overscroll-behavior: contain; }
 
 /* community board: extra room at the bottom (only when the door is showing), so the last post can scroll up above the door and the yeonbucks box */
 body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 11rem; }
-@media (min-width: 40.01rem) { body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 15rem; } }
+@media (min-width: 40.01rem) { body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 8rem; } }
