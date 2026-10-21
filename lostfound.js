@@ -28,7 +28,7 @@
     { id: "yb5000",  w: 5,  name: "+5,000 yeonbucks",  text: "whoa. someone really lost this one.", yb: 5000 },
     { id: "yb100k",  w: 1,  name: "jackpot! +100,000 yeonbucks", text: "an envelope stuffed full of yeonbucks. nobody's coming back for it.", yb: 100000 },
     { id: "ghost",   w: 3,  name: "halloween ghost tap", text: "an expired halloween thing, but it still works. boo!", item: "tap-ghost", after: "2026-10-31" },
-    { id: "cheese",  w: 6,  name: "cheese tap",        text: "remy came back with a piece of cheese. she dropped it in your inventory!", item: "tap-cheese", remy: true },
+    { id: "cheese",  w: 6,  name: "cheese tap",        text: "remy left a trail of cheese in her path as she scurries away...", item: "tap-cheese", remy: true },
     { id: "chtrail", w: 3,  name: "cheese trail",      text: "remy dragged in a whole trail of cheese. very proud of herself.", item: "cur-cheese", remy: true },
     { id: "hat",     w: 5,  name: "witch hat",         text: "a pointy hat, a little dusty. your pet can wear it!", item: "wear-hat" },
     { id: "bow",     w: 5,  name: "bow",               text: "a cute bow. your pet can wear it!", item: "wear-bow" },
