@@ -3659,5 +3659,5 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 .home-slides { flex: 0 1 17rem; }
 
 /* the bottom "menu" button: a wider (and taller) click area, the text stays the same size */
-.cell-menu button { padding-left: 3.5rem; padding-right: 3.5rem; align-self: stretch; }
-@media (max-width: 40rem) { .cell-menu button { padding-left: 1.5rem; padding-right: 1.5rem; } }
+#btn-menu { padding-left: 3.5rem; padding-right: 3.5rem; align-self: stretch; }
+@media (max-width: 40rem) { #btn-menu { padding-left: 1.5rem; padding-right: 1.5rem; } }
