@@ -526,8 +526,8 @@
     const wel = $("wel"), form = $("wel-form"), input = $("wel-name"), note = $("wel-note");
     if (!wel || !form) return;
     const close = () => { wel.hidden = true; };
-    // every game page counts, so people who jump straight to one still get asked (not the secret room or rare shop)
-    const GAME_PAGES = /^#(arcade|casino|shop|idol|scattergories|hyrax|confession|circus-tent|fun-house|house-of-mirrors|haunted-house|tunnel-of-love)$/;
+    // every game page counts, so people who jump straight to one still get asked (not the secret room, rare shop or confession booth; the community board does)
+    const GAME_PAGES = /^#(arcade|casino|shop|idol|scattergories|hyrax|community|circus-tent|fun-house|house-of-mirrors|haunted-house|tunnel-of-love)$/;
     const onGamePage = () => GAME_PAGES.test(location.hash);
     const skip = () => { write("yb-asked", "1"); close(); };
     function maybeShow() {

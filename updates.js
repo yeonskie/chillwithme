@@ -10,6 +10,7 @@ const UPDATES = [
     items: [
       "fixed glitch where door covers add button on posts",
       "made footer and bottom elements fixed on screen",
+      "fixed cap of 100 mil on leaderboard",
     ],
   },
   {
