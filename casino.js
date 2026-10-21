@@ -112,7 +112,7 @@
     ybBox.hidden = !show;
     document.body.classList.toggle("has-yb", show);
     if (!show) return;
-    ybAmt.textContent = shown();
+    ybAmt.textContent = shown().toLocaleString("en-US");
     const mini = document.getElementById("mini");                       // the music player (on phones it sits just above the bottom bar too)
     document.body.classList.toggle("has-mini", !!mini && !mini.hidden);
   }
@@ -254,7 +254,7 @@
     $("cz-jp").textContent = "the jackpot starts at " + pct(JACKPOT) + " and gets less likely the more yeonbucks you have. right now it's " + pct(jackpotChance(balance())) + "." + (owns("charm") || foundOn("yb-luck-until") ? " (your lucky charm is helping!)" : "");
   }
 
-  const fmt = (n) => String(n);
+  const fmt = (n) => Number(n).toLocaleString("en-US");
 
   function refresh() {
     balEl.textContent = fmt(shown());
