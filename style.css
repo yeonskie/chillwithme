@@ -3654,3 +3654,10 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 /* the page-name bar scrolls: the bar itself holds the outline and clips the labels as they slide past each other */
 .home-slides { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
 .home-slide a { border: 0; border-radius: 0; }
+
+/* the page-name bar on the home page: wider, so there's more to click */
+.home-slides { flex: 0 1 17rem; }
+
+/* the bottom "menu" button: a wider (and taller) click area, the text stays the same size */
+.cell-menu button { padding-left: 3.5rem; padding-right: 3.5rem; align-self: stretch; }
+@media (max-width: 40rem) { .cell-menu button { padding-left: 1.5rem; padding-right: 1.5rem; } }
