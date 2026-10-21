@@ -3632,3 +3632,6 @@ a.home-ul:hover, a.home-ul:focus-visible { text-decoration-thickness: 2px; outli
 .ft-note { position: absolute; left: 15%; right: 15%; top: 20%; bottom: 17%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; text-align: center; }
 .ft-front .ft-text { font-size: 0.95rem; line-height: 1.5; }
 @media (max-width: 40rem) { .ft-note { left: 12%; right: 12%; } .ft-front .ft-text { font-size: 0.78rem; line-height: 1.45; } }
+
+/* lighter outline on the buy buttons in both shops (the other shop buttons keep the darker one) */
+:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap .shop-buy { box-shadow: none; }
