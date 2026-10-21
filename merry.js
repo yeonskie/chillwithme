@@ -34,10 +34,12 @@
   let angle = 0, boost = 0, last = 0, where = units.map(() => null);
 
   // the horses are drawn with a plain line (not a "same width at any size" line) so they can squash flat without turning
-  // into a dark smudge; this keeps that line about 1.2px thick on screen whatever size the drawing is shown at
+  // into a dark smudge; this keeps that line about 0.9px thick on screen whatever size the drawing is shown at
+  // (it was 1.2px; change HORSE_LINE to make the horses' lines thicker or thinner)
+  const HORSE_LINE = 0.9;
   function lineWidth() {
     const w = svg.getBoundingClientRect().width;
-    if (w > 0) svg.style.setProperty("--hsw", (1.2 / (w / 880)).toFixed(2) + "px");
+    if (w > 0) svg.style.setProperty("--hsw", (HORSE_LINE / (w / 880)).toFixed(2) + "px");
   }
   lineWidth();
   if (window.ResizeObserver) new ResizeObserver(lineWidth).observe(svg); else window.addEventListener("resize", lineWidth);

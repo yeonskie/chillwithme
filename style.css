@@ -3551,9 +3551,9 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 @media (min-width: 61rem) {
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { position: relative; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { display: none; }
-  .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 3.6rem; transform: translateX(-50%); z-index: 2; margin: 0; padding: 0.55rem 1.6rem 0.6rem; background: var(--bg); border: var(--bw, 1px) solid var(--line); border-radius: var(--radius); line-height: 1.15; text-align: center; }
-  .shop-roofbox strong { font-size: 1.7rem; }
-  .shop-roofbox span { font-size: 0.8rem; }
+  .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 3.6rem; transform: translateX(-50%); z-index: 2; margin: 0; padding: 0.7rem 2rem 0.75rem; background: var(--bg); border: var(--bw, 1px) solid var(--line); border-radius: var(--radius); line-height: 1.15; text-align: center; }
+  .shop-roofbox strong { font-size: 2.1rem; }
+  .shop-roofbox span { font-size: 0.95rem; }
 }
 
 /* prize shop buttons: a slightly heavier outline (desktop), and the greyed-out ones a bit less faded */
@@ -3589,7 +3589,37 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
   .page[data-page="rare-shop"] .shop-body::before { bottom: 1.6%; }
 }
 @media (min-width: 61rem) {
-  .page[data-page="rare-shop"] .shop-roofbox { top: 1.2rem; padding: 0.4rem 1.2rem 0.45rem; }
-  .page[data-page="rare-shop"] .shop-roofbox strong { font-size: 1.35rem; }
-  .page[data-page="rare-shop"] .shop-roofbox span { font-size: 0.7rem; }
+  .page[data-page="rare-shop"] .shop-roofbox { top: 1.2rem; padding: 0.5rem 1.5rem 0.55rem; }
+  .page[data-page="rare-shop"] .shop-roofbox strong { font-size: 1.7rem; }
+  .page[data-page="rare-shop"] .shop-roofbox span { font-size: 0.8rem; }
 }
+
+/* carnival heading font (Shrikhand): titles only, meaning every h1 and h2 on the site.
+   the carousel labels and all other text stay Roboto Mono.
+   to try another one, change --font-heading here and add it to the google fonts link in index.html.
+   (font-synthesis: none keeps single-weight display fonts from getting a fake bold.) */
+:root { --font-heading: "Shrikhand", Georgia, serif; }
+h1, h2 { font-family: var(--font-heading); font-weight: 400; letter-spacing: 0.01em; font-synthesis: none; }
+
+/* Shrikhand on the prize shop and rare items shop sign text (the sign on the post, and the old hanging sign on small screens)
+   and on the yeonbucks number on the roof. the word "yeonbucks" under the number stays Roboto Mono. */
+.shop-post text, .shop-sign text { font-family: var(--font-heading); font-weight: 400; font-synthesis: none; letter-spacing: 0.01em; }
+.shop-roofbox strong { font-family: var(--font-heading); font-weight: 400; font-synthesis: none; }
+
+/* Shrikhand on the fairgrounds welcome title in the confession booth */
+.confession-title { font-family: var(--font-heading); font-weight: 400; font-synthesis: none; letter-spacing: 0.01em; }
+
+/* Shrikhand on more short titles: leaderboard titles, back room map labels, pop-up titles, end-of-game titles,
+   the "back of the fair" name and the entering-the-back-room screen. to undo, delete this block. */
+.cz-lb-title, .sr-label-name, .inv-title, .sw-pick-title, .gi-end-title, .sr-name, .sr-load-title { font-family: var(--font-heading); font-weight: 400; font-synthesis: none; letter-spacing: 0.01em; }
+
+/* bold labels on the homepage carousel buttons (braindump, confession booth, etc.) */
+.home-slide-label { font-weight: 700; }
+
+/* the underlined words in the homepage line are links now */
+a.home-ul { color: inherit; }
+a.home-ul:hover, a.home-ul:focus-visible { text-decoration-thickness: 2px; outline: none; }
+
+/* a bit smaller homepage title (Shrikhand runs large) */
+.home-title { font-size: clamp(1.15rem, 4.2vw, 1.7rem); }
+@media (max-height: 46rem) { .home-title { font-size: 1.1rem; } }
