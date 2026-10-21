@@ -3635,3 +3635,6 @@ a.home-ul:hover, a.home-ul:focus-visible { text-decoration-thickness: 2px; outli
 
 /* lighter outline on the buy buttons in both shops (the other shop buttons keep the darker one) */
 :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap .shop-buy { box-shadow: none; }
+/* the secret door sits above the page, so it used to cover the buttons in pop-ups (add yours, owner posts, etc.).
+   while one of those pop-ups is open, the middle of the page is lifted above the door, so the door goes behind the pop-up. */
+main:has(.mb-add:not([hidden]), .mb-light:not([hidden]), .gi-dialog:not([hidden]), .hy-intro:not([hidden])) { z-index: 31; }
