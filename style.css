@@ -3658,3 +3658,6 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 /* bigger leaderboard titles (the little box, and the pop-up) */
 .cz-lb-title { font-size: 1.1rem; }
 .lb-card .cz-lb-title { font-size: 1.5rem; }
+
+/* the wheel result: an optional second line under the bold message, not bold */
+.sw-sub { display: block; margin-top: .25rem; font-weight: 400; font-size: .75rem; opacity: .75; }

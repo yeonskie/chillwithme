@@ -232,6 +232,11 @@
     wRes.textContent = "";
     if (!showPick()) { wRes.textContent = k + " came home with you! find them in your inventory (they're out now if no pet was)"; wDraw(); }
   });
+  function showResult(msg, sub) {                                             // the message (bold), and optionally a plain line under it
+    wRes.textContent = "";
+    msg.split("\n").forEach((line, n) => { if (n) wRes.appendChild(document.createElement("br")); wRes.appendChild(document.createTextNode(line)); });   // a new line in the message becomes a line break
+    if (sub) { const p = document.createElement("span"); p.className = "sw-sub"; p.textContent = sub; wRes.appendChild(p); }
+  }
   function spin() {
     if (spinning) return;
     const st = wState();
@@ -244,7 +249,7 @@
     st.spins++;
     const i = pick(), s = SLICES[i];
     // the prize is decided and handed over right now; the spinning is just for show
-    let msg = "";
+    let msg = "", sub = "";                                                    // sub: a second line under the message, not bold
     if (s.coins) { window.YB.add(s.coins); msg = (s.id === "c100000" ? "jackpot! " : "") + "+" + fmtN(s.coins) + " yeonbucks!"; }
     else if (s.id === "oops") msg = "oops! +0 yeonbucks. better luck next time";
     else if (s.id === "again") { st.extra++; msg = "spin again! you got a free extra spin"; }
@@ -260,7 +265,7 @@
         if (left.length) {
           const id = left[Math.floor(Math.random() * left.length)];
           window.YBShop.give(id);
-          msg = "you already have the rainbow sparkle tap, so you got a pet accessory: the " + NAMES[id] + "! put it on in your inventory";
+          msg = "you got a new pet accessory:\nthe " + NAMES[id] + "!"; sub = "put it on in your inventory";
         } else { window.YB.add(1000); msg = "you already have the rainbow sparkle tap and every accessory, so here's +1,000 yeonbucks"; }
       }
     } else { setPending(pending() + 1); msg = "a new mystery pet!"; }
@@ -270,7 +275,7 @@
     rot += ((360 - center - (rot % 360)) % 360 + 360) % 360 + 360 * 5;        // lands that slice under the pointer
     wheelG.style.transform = "rotate(" + rot + "deg)";
     const ms = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches ? 600 : 4700;
-    setTimeout(() => { spinning = false; wRes.textContent = msg; wDraw(); if (s.id === "pet") showPick(); }, ms);
+    setTimeout(() => { spinning = false; showResult(msg, sub); wDraw(); if (s.id === "pet") showPick(); }, ms);
   }
   function openWheel() { wRes.textContent = ""; wDraw(); showPick(); wOv.hidden = false; (pickBox.hidden ? wBtn : pickOpts.querySelector("button") || wBtn).focus(); }
   function closeWheel() { if (spinning) return; wOv.hidden = true; }
