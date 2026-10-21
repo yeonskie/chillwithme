@@ -3655,8 +3655,8 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 .home-slides { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); }
 .home-slide a { border: 0; border-radius: 0; }
 
-/* the page-name bar on the home page: wider, so there's more to click */
-.home-slides { flex: 0 1 17rem; }
+/* the page-name bar on the home page: wider on bigger screens, so there's more to click (phones keep it slimmer) */
+@media (min-width: 40.01rem) { .home-slides { flex: 0 1 17rem; } }
 
 /* the bottom "menu" button: a wider (and taller) click area, the text stays the same size */
 #btn-menu { padding-left: 3.5rem; padding-right: 3.5rem; align-self: stretch; }
