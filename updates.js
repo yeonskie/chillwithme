@@ -6,6 +6,13 @@
 
 const UPDATES = [
   {
+    date: "10.21.26",
+    items: [
+      "fixed glitch where door covers add button on posts",
+      "made footer and bottom elements fixed on screen",
+    ],
+  },
+  {
     date: "10.20.26",
     items: [
       "updated the door",
