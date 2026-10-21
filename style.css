@@ -3436,7 +3436,7 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 .shop-sign { margin: 0; line-height: 0; font-weight: 700; }
 .shop-sign svg { display: block; height: 13rem; width: auto; margin: 0 auto; overflow: visible; }
 .shop-sign path, .shop-sign rect, .shop-sign circle { fill: var(--text); stroke: none; vector-effect: non-scaling-stroke; }
-.shop-sign .ps1 { fill: none; stroke: var(--bg); stroke-width: 1px; stroke-dasharray: 3 3; }
+.shop-sign .ps1 { fill: none; stroke: var(--text); stroke-width: 1px; stroke-dasharray: 3 3; }
 .shop-sign .ps2 { fill: var(--bg); stroke: var(--text); stroke-width: 1px; }
 .shop-sign .ps3 { fill: var(--text); stroke: var(--bg); stroke-width: 1px; }
 .shop-sign text { font-family: inherit; font-size: 40.61px; font-weight: 700; }
@@ -3469,7 +3469,7 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 .shop-post .pp3 { fill: var(--bg); stroke: var(--text); }
 .shop-post .pp4 { fill: var(--bg); stroke: none; }
 .shop-post .pp7 { fill: none; stroke: var(--bg); }
-.shop-post .pp8 { fill: none; stroke: var(--bg); stroke-dasharray: 6 6; }
+.shop-post .pp8 { fill: none; stroke: var(--text); stroke-dasharray: 6 6; }
 .shop-post .pp9 { fill: none; stroke: var(--text); }
 .shop-post .pp10 { fill: var(--text); stroke: var(--bg); }
 .shop-post text { font-family: inherit; font-size: 36px; font-weight: 700; stroke: none; }
@@ -3578,8 +3578,8 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
   .page[data-page="rare-shop"] .shop-wrap { width: 580px; }
   #rare-items .shop-item { aspect-ratio: 1.12; }
   #rare-items .shop-prev, #rare-items .shop-prev-pet { height: 5rem; }
-  #rare-items .shop-desc { font-size: 0.82rem; line-height: 1.15rem; }
-  #rare-items .shop-name { font-size: 1.02rem; }
+  #rare-items .shop-desc { font-size: 0.72rem; line-height: 1.05rem; }
+  #rare-items .shop-name { font-size: 0.9rem; }
   #rare-items .shop-price { font-size: 0.86rem; }
   #rare-items .shop-buy { font-size: 0.86rem; padding: 0.25rem 1.1rem; margin-top: 0.3rem; }
   .shop-post-rare text { font-size: 26px; }
