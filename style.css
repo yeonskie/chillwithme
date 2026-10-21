@@ -3654,3 +3654,7 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 .cz-lb-bal { flex: none; white-space: nowrap; }
 .lb-card { width: min(30rem, 100%); }
 @media (min-width: 701px) { .cz-lb { width: 190px; } }
+
+/* bigger leaderboard titles (the little box, and the pop-up) */
+.cz-lb-title { font-size: 1.1rem; }
+.lb-card .cz-lb-title { font-size: 1.5rem; }
