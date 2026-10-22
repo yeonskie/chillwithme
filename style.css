@@ -2300,7 +2300,7 @@ body.has-yb .page { padding-bottom: 4.5rem; }
 
 /* on phones the music player sits just above the bottom bar, so while it's showing the yeonbucks box moves up above it */
 @media (max-width: 40rem) {
-  body.has-mini .yb-box { bottom: calc(var(--bar-height) + 4.4rem); }
+  /* (the yeonbucks box stays where it is: the player sits above it, or beside the secret door, placed by secretroom.js: placeMini) */
   body.has-mini.has-yb .page { padding-bottom: 8rem; }
 }
 
@@ -3401,7 +3401,6 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
   .mini-title { flex: 1 1 auto; }
   /* the pet goes back to the bottom right corner (the yeonbucks box is on the left, and the player sits between them) */
   .pet, body.has-mini .pet { bottom: calc(var(--bar-height) + 0.3rem); }
-  body.has-mini .yb-box { bottom: calc(var(--bar-height) + 3.4rem); }
   body.has-mini.has-yb .page { padding-bottom: 7rem; }
 }
 

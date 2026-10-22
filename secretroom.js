@@ -37,6 +37,20 @@
     if (yb && !yb.hidden && (window.innerWidth <= SMALL || door.classList.contains("sr-door-corner"))) b = Math.max(b, Math.round((bar ? bar.getBoundingClientRect().bottom : window.innerHeight) - yb.getBoundingClientRect().top) + 14);   // phones: sits above the yeonbucks / inventory row instead of on top of it
     door.style.bottom = b + "px";
   }
+  // phones: the little music player sits above the yeonbucks box (the "how it works" / leaderboard buttons),
+  // and if the secret door is showing there, it moves over to the right of the door instead of covering it
+  function placeMini() {
+    const mini = $("mini");
+    if (!mini) return;
+    if (mini.hidden || window.innerWidth > 640) { mini.style.bottom = ""; mini.style.left = ""; return; }   // (computers keep the player where the stylesheet puts it)
+    const bar = document.querySelector(".bar-bottom");
+    const yb = document.getElementById("yb-box");
+    let b = (bar ? bar.offsetHeight : 40) + 8;
+    if (yb && !yb.hidden) b = Math.max(b, Math.round((bar ? bar.getBoundingClientRect().bottom : window.innerHeight) - yb.getBoundingClientRect().top) + 14);   // (same height as the door, so the two line up)
+    mini.style.bottom = b + "px";
+    const doorShowing = door && !door.hidden && door.classList.contains("sr-door-corner") && getComputedStyle(door).display !== "none";
+    mini.style.left = doorShowing ? Math.round(door.getBoundingClientRect().right + 10) + "px" : "1rem";
+  }
   function sync() {
     const has = owned();
     if (tab) tab.hidden = !has;
@@ -48,6 +62,7 @@
     door.classList.toggle("sr-door-corner", corner);   // (bottom left, any screen size)
     if (doorShop) doorShop.hidden = !has;                  // the one at the bottom of the prize shop
     if (!door.hidden) placeDoor();
+    placeMini();
     if (!has && (pageName() === "secret-room" || pageName() === "rare-shop")) location.hash = "#home";   // no key, no room
   }
   window.SR = { sync: sync };
@@ -55,7 +70,7 @@
   window.addEventListener("hashchange", sync);
   window.addEventListener("resize", sync);
   const ybBoxEl = document.getElementById("yb-box");
-  if (ybBoxEl && window.ResizeObserver) new ResizeObserver(() => { if (!door.hidden) placeDoor(); }).observe(ybBoxEl);   // the door follows the yeonbucks box when its height changes (e.g. its buttons re-arrange)
+  if (ybBoxEl && window.ResizeObserver) new ResizeObserver(() => { if (!door.hidden) placeDoor(); placeMini(); }).observe(ybBoxEl);   // the door follows the yeonbucks box when its height changes (e.g. its buttons re-arrange)
   window.addEventListener("storage", sync);
   setInterval(sync, 1000);                                 // (catches a purchase made in the shop)
 
