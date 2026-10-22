@@ -3713,3 +3713,38 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 .home { display: flex; flex-direction: column; justify-content: safe center; align-items: center; }
 .home-top, .home-mid, .home-bottom { align-self: auto; }
 .home-mid, .home-bottom { width: 100%; }
+
+/* ---------- homepage extras (see homefun.js): string lights at the top, balloons you can pop ---------- */
+.hl-lights {
+  --lights-h: 2.8rem;
+  position: fixed; top: var(--bar-height); left: 0; right: 0; height: var(--lights-h);
+  z-index: 1; overflow: hidden; pointer-events: none;
+  display: flex; justify-content: center;
+}
+@media (max-width: 40rem) { .hl-lights { --lights-h: 2.2rem; } }
+.hl-swag { flex: none; height: 100%; width: auto; aspect-ratio: 385.04 / 90; overflow: visible; }
+.hl-wire, .hl-w, .hl-k { vector-effect: non-scaling-stroke; stroke-width: 1px; }   /* the same line weight as the border under the top bar */
+.hl-wire { fill: none; stroke: var(--line); stroke-miterlimit: 10; }
+.hl-w { fill: var(--bg); stroke: var(--line); stroke-miterlimit: 10; }     /* the light flags: the page color with an outline */
+.hl-k { fill: var(--text); stroke: var(--bg); stroke-miterlimit: 10; }      /* the dark flags: the text color */
+
+/* the balloons float behind everything on the page (z-index -1 = under the title, carousel and buttons) */
+.hb-layer {
+  position: fixed; top: var(--bar-height); bottom: var(--bar-height); left: 0; right: 0;
+  z-index: -1; overflow: hidden; pointer-events: none;
+}
+.hb-fx { z-index: 2; }
+.hb { position: absolute; top: 0; pointer-events: none; will-change: transform; }
+.hb-sway { display: block; width: 100%; height: 100%; transform-origin: 50% 100%; }
+.hb svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hb-body, .hb-shine, .hb-string { vector-effect: non-scaling-stroke; stroke-width: 1px; }   /* (the outlines stay a clear thin line, even on the small balloons) */
+.hb-string { fill: none; stroke: var(--line); stroke-miterlimit: 10; }
+.hb-shine { fill: #f2efe9; stroke: #2a2a2a; stroke-miterlimit: 10; }                  /* the light balloons: the tan of the page, with a dark outline */
+.hb-white .hb-body { fill: #f2efe9; stroke: #2a2a2a; stroke-miterlimit: 10; }
+.hb-dark .hb-body { fill: #000; stroke: #fff; stroke-miterlimit: 10; }
+.hb-tick { position: absolute; width: 1px; height: 0.55rem; margin: -0.275rem 0 0 -0.5px; background: var(--line); border-radius: 2px; pointer-events: none; }
+.hb-plus {
+  position: absolute; transform: translate(-50%, -50%); pointer-events: none; white-space: nowrap;
+  font-family: "Shrikhand", serif; font-size: 1.9rem; line-height: 1; color: var(--text);
+  text-shadow: -2px 0 var(--bg), 2px 0 var(--bg), 0 -2px var(--bg), 0 2px var(--bg), -2px -2px var(--bg), 2px 2px var(--bg), -2px 2px var(--bg), 2px -2px var(--bg);
+}
