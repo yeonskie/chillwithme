@@ -61,7 +61,7 @@
     { id: "acc-orange",   group: "accents",      name: "orange",         desc: "a warm orange tint over the site",    price: 2500,  kind: "accent", value: "orange" },
     { id: "acc-yellow",   group: "accents",      name: "yellow",         desc: "a sunny yellow tint over the site",   price: 2500,  kind: "accent", value: "yellow" },
     { id: "acc-blue",     group: "accents",      name: "blue",           desc: "a cool blue tint over the site",      price: 2500,  kind: "accent", value: "blue" },
-    { id: "acc-green",    group: "accents",      name: "neon green",     desc: "a fresh green tint over the site",    price: 2500,  kind: "accent", value: "green" },
+    { id: "acc-green",    group: "accents",      name: "ncity in the house", desc: "a fresh green tint over the site", price: 2500,  kind: "accent", value: "green" },
     { id: "acc-lavender", group: "accents",      name: "lavender",       desc: "a dreamy purple tint over the site",  price: 2500,  kind: "accent", value: "lavender" },
     { id: "boost",      group: "boosts",       name: "earn boost",      desc: "+75 every 30 seconds instead of +50", price: 10000, kind: "perk", tag: "+75" },
     { id: "boost2",     group: "boosts",       name: "super earn boost", desc: "+100 every 30 seconds instead of +50", price: 35000, kind: "perk", tag: "+100" },
