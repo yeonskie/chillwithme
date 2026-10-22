@@ -11,7 +11,7 @@
 //   lost   - (optional) true = not sold anywhere, it is a find in the secret room's lost and found (see lostfound.js)
 //   daily  - (optional) true = not sold anywhere, it is a gift in the daily reward (see the DAILY list in daily.js)
 //   rare   - (optional) true = sold in the RARE ITEMS SHOP in the secret room instead (see "THE RARE ITEMS SHOP" lower down)
-//   (the shop shows the items in this order, 9 at a time with an arrow to the next page, so just keep adding to the list. Keep the secret room key last.)
+//   (the prize shop sorts the items into its categories: see SHOP_CATS below. each category starts on its own page, 9 items at a time with an arrow to the next page.)
 //   kind   - "perk"   : you just own it (the earn boosts, lucky charm and prize bonus are switched on in casino.js, the secret room key in secretroom.js; "tag" is the little label in the box)
 //            "cursor" : a trail that follows the mouse. "value" is "sparkle" or "heart"
 //            "pointer": a different mouse pointer (the arrow and the pointing hand). "value" is "y2k". The images are in the cursors folder, the CSS is in style.css (search "data-pointer").
@@ -181,18 +181,41 @@
   // list() says what's on it right now. The prize shop and the rare items shop each have one.
   const phone = window.matchMedia ? window.matchMedia("(max-width: 40rem)") : { matches: false };
   const perPage = () => (phone.matches ? 6 : 9);
-  function makeShelf(box, list) {
+  // catOf (optional): says which category an item is in. when it's given, the shelf is split by category: every category starts on its own
+  // page (a category with more than a page of items takes a few pages) and its name is the little heading under the roof.
+  function makeShelf(box, list, catOf) {
     let page = 0;
+    function pagesOf(items) {
+      const out = [];
+      if (!catOf) {
+        for (let i = 0; i < items.length || !out.length; i += perPage()) out.push({ title: "", items: items.slice(i, i + perPage()) });
+        return out;
+      }
+      const names = [];
+      items.forEach((it) => { const c = catOf(it); if (names.indexOf(c) === -1) names.push(c); });
+      names.forEach((c) => {
+        const mine = items.filter((it) => catOf(it) === c);
+        for (let i = 0; i < mine.length; i += perPage()) out.push({ title: c, items: mine.slice(i, i + perPage()) });
+      });
+      return out.length ? out : [{ title: "", items: [] }];
+    }
     function build() {
       if (!box) return;
       const items = list();
-      const pages = Math.max(1, Math.ceil(items.length / perPage()));
+      const shelf = pagesOf(items);
+      const pages = shelf.length;
       page = Math.min(Math.max(page, 0), pages - 1);
       box.innerHTML = "";
+      if (shelf[page].title) {                      // the category's name, in a small heading under the roof
+        const cat = document.createElement("h2");
+        cat.className = "shop-cat";
+        cat.textContent = shelf[page].title;
+        box.appendChild(cat);
+      }
       const grid = document.createElement("div");   // everything in one set of rows
       grid.className = "shop-grid";
       box.appendChild(grid);
-      items.slice(page * perPage(), page * perPage() + perPage()).forEach((item) => {
+      shelf[page].items.forEach((item) => {
         const card = document.createElement("div");
         card.className = "shop-item";
         card.dataset.id = item.id;
@@ -245,7 +268,22 @@
     }
     return { build: build, update: update };
   }
-  const prizeShelf = makeShelf(document.getElementById("shop-items"), shopList);
+  // the prize shop's categories, in the order they show. an item goes in the first one it fits.
+// (the color tints are with the backgrounds. the secret room key is the secret door.)
+const SHOP_CATS = [
+    ["backgrounds", (i) => i.kind === "bg" || i.kind === "accent"],
+    ["taps", (i) => i.kind === "tap"],
+    ["boosts", (i) => i.kind === "perk" && i.id !== "key"],
+    ["pets", (i) => i.kind === "pet"],
+    ["desktop only features", (i) => !!i.desktop],
+    ["secret door", (i) => i.id === "key"],
+  ];
+  const shopCat = (i) => { const c = SHOP_CATS.find((k) => k[1](i)); return c ? c[0] : "more"; };
+  const shopSorted = () => {                                                   // the shop's items, category by category (keeping their order inside each)
+    const rank = (i) => { const n = SHOP_CATS.findIndex((k) => k[0] === shopCat(i)); return n < 0 ? 99 : n; };
+    return shopList().map((it, n) => [it, n]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map((x) => x[0]);
+  };
+  const prizeShelf = makeShelf(document.getElementById("shop-items"), shopSorted, shopCat);
 
   // ----- THE RARE ITEMS SHOP (the secret room, room 4) -----
   // Same look as the prize shop. It only stocks RARE_SLOTS things at a time and the stock changes every other day,
@@ -642,13 +680,16 @@
   // the shop pages are not all the same height (some items have longer descriptions), so the size is worked out from the
   // tallest page: step through the pages one by one (this all happens before the screen repaints, so you never see it),
   // then go back to the page that was showing. that way every page fits and the size doesn't jump when you flip pages.
+  let tallBody = 0;                                       // the tallest the shop's box gets on any page (so every page can be that tall)
   function tallestPage(page, wrap) {
     const arrow = (i) => page.querySelectorAll(".shop-pager .shop-arrow")[i];   // 0 = back, 1 = next
+    const body = page.querySelector(".shop-body");
     let max = wrap.offsetHeight, back = 0, guard = 0;
-    while (arrow(0) && !arrow(0).disabled && guard++ < 40) { arrow(0).click(); back++; }
+    tallBody = body ? body.offsetHeight : 0;
+    while (arrow(0) && !arrow(0).disabled && guard++ < 40) { arrow(0).click(); back++; tallBody = Math.max(tallBody, body ? body.offsetHeight : 0); }
     max = Math.max(max, wrap.offsetHeight);
     let fwd = 0;
-    while (arrow(1) && !arrow(1).disabled && guard++ < 80) { arrow(1).click(); fwd++; max = Math.max(max, wrap.offsetHeight); }
+    while (arrow(1) && !arrow(1).disabled && guard++ < 80) { arrow(1).click(); fwd++; max = Math.max(max, wrap.offsetHeight); tallBody = Math.max(tallBody, body ? body.offsetHeight : 0); }
     while (fwd > back && arrow(0) && !arrow(0).disabled) { arrow(0).click(); fwd--; }
     return max;
   }
@@ -659,8 +700,11 @@
     const h = page.clientHeight, cs = getComputedStyle(page), w = page.clientWidth - parseFloat(cs.paddingLeft || 0) - parseFloat(cs.paddingRight || 0);
     if (!h || !w || !wide.matches) return;
     root.style.setProperty("--shop-s", "1");
-    const designH = tallestPage(page, wrap);
+    page.style.setProperty("--shop-body-h", "0px");          // measure with no minimum first...
+    let designH = tallestPage(page, wrap);
     if (!designH) return;
+    page.style.setProperty("--shop-body-h", tallBody + "px"); // ...then every page of the shop is as tall as the tallest, so the roof doesn't jump around
+    designH = Math.max(designH, wrap.offsetHeight);
     // 0.96: a little breathing room under the shop, so the bottom edge never gets cut off
     const s = Math.max(0.5, Math.min(page.dataset.page === "rare-shop" ? 1 : 1.3, (h / designH) * 0.96, (w * 0.96) / wrap.offsetWidth));
     root.style.setProperty("--shop-s", s.toFixed(3));

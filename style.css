@@ -3811,3 +3811,11 @@ main { margin-top: var(--lights-h); }
 
 /* "hide the door" in the inventory: the corner door and the one at the bottom of the prize shop go away (the secret room is still in the menu) */
 html.sr-door-off .sr-door { display: none !important; }
+
+/* the category name under the roof of the prize shop (shop.js: SHOP_CATS) */
+.shop-cat { margin: 0.35rem 0 1.1rem; text-align: center; font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: 1.4rem; line-height: 1.2; letter-spacing: 0.01em; }
+
+/* the prize shop's pages are all as tall as the tallest one (shop.js sets --shop-body-h), with the arrows along the bottom */
+.page[data-page="shop"] .shop-body { display: flex; flex-direction: column; min-height: var(--shop-body-h, 0); }
+.page[data-page="shop"] .shop-body .shop-pager { margin-top: auto; }
+.page[data-page="shop"] .shop-body .shop-grid { margin-bottom: 1.2rem; }
