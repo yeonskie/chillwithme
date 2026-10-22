@@ -1076,20 +1076,20 @@ body.has-yb .page[data-page="music"] { padding-bottom: 2.8rem; }
 /* shuffle, previous, play, next, repeat: in the panel, at the spots the design puts them */
 .jb-controls { inset: 0; pointer-events: none; }
 .jb-ctl {
-  position: absolute; pointer-events: auto; top: calc(var(--u) * 273); width: calc(var(--u) * 26); height: calc(var(--u) * 26);
+  position: absolute; pointer-events: auto; top: calc(var(--u) * 269.75); width: calc(var(--u) * 31); height: calc(var(--u) * 32.5);
   display: grid; place-items: center; padding: 0; font: inherit; color: var(--text); background: none;
   border: none; border-radius: var(--radius); cursor: pointer;
 }
 .jb-ctl::after { content: ""; position: absolute; inset: -4px; }
-.jb-ctl svg { width: calc(var(--u) * 17); height: calc(var(--u) * 17); display: block; }
+.jb-ctl svg { width: calc(var(--u) * 21.25); height: calc(var(--u) * 21.25); display: block; }
 .jb-ctl:hover { background: color-mix(in srgb, var(--text) 12%, transparent); }
 .jb-ctl[aria-pressed="true"] { background: var(--text); color: var(--bg); }
 .jb-ctl:focus-visible { outline: 1px solid var(--text); outline-offset: 1px; }
-#music-shuffle { left: calc(var(--ux) * (476.6 - 290) - var(--u) * 13); }
-#music-prev    { left: calc(var(--ux) * (513 - 290) - var(--u) * 13); }
-#music-play    { left: calc(var(--ux) * (548 - 290) - var(--u) * 13); }
-#music-next    { left: calc(var(--ux) * (578.5 - 290) - var(--u) * 13); }
-#music-repeat  { left: calc(var(--ux) * (607 - 290) - var(--u) * 13); }
+#music-shuffle { left: calc(var(--ux) * 155 - var(--u) * 15.5); }
+#music-prev    { left: calc(var(--ux) * 202.5 - var(--u) * 15.5); }
+#music-play    { left: calc(var(--ux) * 250 - var(--u) * 15.5); }
+#music-next    { left: calc(var(--ux) * 297.5 - var(--u) * 15.5); }
+#music-repeat  { left: calc(var(--ux) * 345 - var(--u) * 15.5); }
 
 /* all songs on its own line, then the categories and playlists */
 .jb-tabs {
