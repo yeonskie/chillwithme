@@ -2091,7 +2091,7 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .page[data-page="casino"] { padding-top: 0.5rem; padding-bottom: 0.5rem; text-align: center; }
 .page[data-page="casino"].active { display: flex; flex-direction: column; min-height: 100%; box-sizing: border-box; }
 .page[data-page="casino"] .cz-back { align-self: center; margin-bottom: 0; }
-.cz-wrap { font-size: 1rem; font-size: clamp(11px, min(1rem, calc((100vh - 9rem) / 46)), 1rem); font-size: clamp(11px, min(1rem, calc((100svh - 9rem) / 46)), 1rem); width: min(24em, 100%); margin: 0 auto; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; }
+.cz-wrap { font-size: 1rem; font-size: clamp(11px, min(1rem, calc((100vh - 9rem - var(--lights-h)) / 46)), 1rem); font-size: clamp(11px, min(1rem, calc((100svh - 9rem - var(--lights-h)) / 46)), 1rem); width: min(24em, 100%); margin: 0 auto; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; }
 /* spare height is shared out between the blocks with auto margins. if the screen is too short for everything, the margins just shrink to 0 and the page scrolls normally from the top (nothing gets cut off) */
 .cz-wrap > * { margin-top: auto; margin-bottom: auto; }
 .cz-group { display: flex; flex-direction: column; align-items: center; width: 100%; }
@@ -2206,7 +2206,7 @@ body.has-yb .page { padding-bottom: 4.5rem; }
    (never smaller than 10.5px, never bigger than 17px; on a very short screen it scrolls instead).
    To make it bigger overall, make 41.2 smaller. To make it smaller, make 41.2 bigger. */
 @media (max-width: 700px) {
-  .page[data-page="casino"] .cz-wrap { font-size: 13px; font-size: clamp(10.5px, calc((100vh - 126px) / 41.2), 17px); font-size: clamp(10.5px, calc((100svh - 126px) / 41.2), 17px); gap: 1.2em; }
+  .page[data-page="casino"] .cz-wrap { font-size: 13px; font-size: clamp(10.5px, calc((100vh - 126px - var(--lights-h)) / 41.2), 17px); font-size: clamp(10.5px, calc((100svh - 126px - var(--lights-h)) / 41.2), 17px); gap: 1.2em; }
 }
 
 /* on phones the music player sits just above the bottom bar, so while it's showing the yeonbucks box moves up above it */
@@ -2636,7 +2636,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 /* secret room: everything centered in the space between the top and bottom bars */
 .page[data-page="secret-room"].active {
   display: flex; align-items: center; justify-content: center;
-  min-height: calc(100vh - var(--bar-height) * 2); min-height: calc(100dvh - var(--bar-height) * 2);
+  min-height: calc(100vh - var(--bar-height) * 2 - var(--lights-h)); min-height: calc(100dvh - var(--bar-height) * 2 - var(--lights-h));
 }
 .page[data-page="secret-room"] .sr { width: 100%; padding: 1rem 1rem 2.5rem; }
 .sr-status { min-height: 0; margin-top: .4rem; }
@@ -2810,7 +2810,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 
 /* ===== the battle (battle.js). Laid out like the battle reference: 1625 x 1080, everything placed in % of that ===== */
 .bt-card { position: relative; width: min(66rem, 100%); max-height: 100%; overflow-y: auto; overflow-x: hidden; background: var(--bg); border: 1.5px solid var(--line); border-radius: var(--radius); padding: 2.4rem 0.8rem 0.8rem; }
-.bt { --H: 1080; position: relative; width: min(100%, calc((100vh - 7.5rem) * 1.505)); margin: 0 auto; aspect-ratio: 1625.51 / 1080; container-type: inline-size; font-weight: 700; }
+.bt { --H: 1080; position: relative; width: min(100%, calc((100vh - 7.5rem - var(--lights-h)) * 1.505)); margin: 0 auto; aspect-ratio: 1625.51 / 1080; container-type: inline-size; font-weight: 700; }
 .bt-arena { position: absolute; inset: 0; }
 .bt-art { position: absolute; left: 0; top: 0; width: 100%; height: calc(1080 / var(--H) * 100%); overflow: visible; }
 .bt-horizon { fill: none; stroke: var(--text); stroke-width: 4; }
@@ -3208,6 +3208,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
   body.has-mini.has-yb .page[data-page="home"].active { padding-top: clamp(2rem, calc(2rem + (100svh - 42rem) * 0.4), 10.7rem); padding-bottom: 15rem; }
   .home-mid { --merry-w: clamp(8.5rem, calc(100svh - 43rem), 15rem); }
 }
+@media (max-width: 40rem) and (pointer: coarse) and (max-height: 44rem) { .home-mid { --merry-w: 7.3rem; } }   /* short phones: a slightly smaller carousel, so there's still room for the flags above the title */
 @media (max-height: 46rem) {
   .home-title { font-size: 1.25rem; margin-bottom: 0.3rem; }
   .home-sub { margin-bottom: 1rem; }
@@ -3715,13 +3716,14 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 .home-mid, .home-bottom { width: 100%; }
 
 /* ---------- homepage extras (see homefun.js): string lights at the top, balloons you can pop ---------- */
+:root { --lights-h: 2.8rem; }                       /* the flags along the top, on every page: the page starts just below them */
+@media (max-width: 40rem) { :root { --lights-h: 2.2rem; } }
+main { margin-top: var(--lights-h); }
 .hl-lights {
-  --lights-h: 2.8rem;
   position: fixed; top: var(--bar-height); left: 0; right: 0; height: var(--lights-h);
   z-index: 1; overflow: hidden; pointer-events: none;
   display: flex; justify-content: center;
 }
-@media (max-width: 40rem) { .hl-lights { --lights-h: 2.2rem; } }
 .hl-swag { flex: none; height: 100%; width: auto; aspect-ratio: 385.04 / 90; overflow: visible; }
 .hl-wire, .hl-w, .hl-k { vector-effect: non-scaling-stroke; stroke-width: 1px; }   /* the same line weight as the border under the top bar */
 .hl-wire { fill: none; stroke: var(--line); stroke-miterlimit: 10; }
@@ -3734,6 +3736,7 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
   z-index: -1; overflow: hidden; pointer-events: none;
 }
 .hb-fx { z-index: 2; }
+@media (max-width: 640px) { .hb-layer:not(.hb-fx) { z-index: 2; } }   /* on a phone the balloons float in front of the page, so they're easy to tap */
 .hb { position: absolute; top: 0; pointer-events: none; will-change: transform; }
 .hb-sway { display: block; width: 100%; height: 100%; transform-origin: 50% 100%; }
 .hb svg { display: block; width: 100%; height: 100%; overflow: visible; }

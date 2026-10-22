@@ -1,10 +1,11 @@
-// ---------- the homepage extras: string lights along the top, and floating balloons you can pop ----------
-// THE LIGHTS:  a string of little lights fixed under the top bar. They're black and tan like the rest of the page, and only show on the homepage.
+// ---------- string lights (flags) along the top of every page, and floating balloons you can pop on the homepage ----------
+// THE LIGHTS:  a string of little flags fixed under the top bar, on every page. They're black and tan like the rest of the page, and the page starts just below them.
 //              (the drawing is the LIGHTS_SWAG svg below, one "swag" of wire. it gets repeated to fill the screen width)
 // THE BALLOONS: balloons float slowly up the homepage. tap one to pop it and win 1 to 10 yeonbucks.
 //              every balloon gets its own random amount when it appears (bigger balloons are worth a little more).
 //              the drawing is BALLOON_PARTS below: a white one and a dark one are picked at random.
-//              they float up the left and right edges of the homepage (not through the middle), behind the rest of the page. tap one to pop it.
+//              on a computer they float up the left and right edges, behind the rest of the page. on a phone they float anywhere,
+//              in front of the page, and a bit bigger, so they're easy to tap. tap one to pop it.
 // To change things, edit the numbers just below.
 
 (function () {
@@ -40,7 +41,6 @@
   const lights = document.createElement("div");
   lights.className = "hl-lights";
   lights.setAttribute("aria-hidden", "true");
-  lights.hidden = true;
   document.body.appendChild(lights);
 
   let lightsCount = 0;
@@ -133,7 +133,7 @@
     if (!layer.clientHeight) return;
     const prize = Math.random() < PRIZE_CHANCE ? Math.floor(rand(PRIZE_MIN, PRIZE_MAX + 1)) : 0;   // 0 = an empty balloon
     const size = prize || 4;                                                                         // (empty balloons are a middle size, so you can't tell which have yeonbucks)
-    const w = (window.innerWidth > 640 ? 2.1 : 1.7) * 16 + (size - 1) * (window.innerWidth > 640 ? 3 : 2);   // bigger balloon = bigger prize
+    const w = (isPhone() ? 2.4 : 2.1) * 16 + (size - 1) * 3;   // bigger balloon = bigger prize
     const h = w * (872 / 380);
     // stay out of the middle: balloons only float up the left and right edges, beside the title, carousel and buttons.
     // (the middle is measured from the page itself, so it works at any screen size)
@@ -156,8 +156,8 @@
       if (layer.clientWidth - zr - GAP > w * 0.6) sides.push([rightMin, room]);
       if (!sides.length) sides.push([0, leftMax], [rightMin, room]);   // (no space either side: just use the very edges)
     }
-    // on a phone the page is nearly as wide as the screen, so balloons hug the very edges (a little of each one can hang off the side of the screen)
-    if (isPhone()) { sides.length = 0; sides.push([-w * 0.4, 0], [room, room + w * 0.4]); }
+    // on a phone the balloons float anywhere across the screen, in front of the page, and they're a bit bigger: much easier to tap
+    if (isPhone()) { sides.length = 0; sides.push([4, Math.max(4, room - 4)]); }
     const pick = () => { const sd = sides[Math.floor(Math.random() * sides.length)]; return rand(sd[0], Math.max(sd[0], sd[1])); };
     // spread out: try a few spots and take the one furthest from the balloons already floating
     let x = pick(), best = -1;
@@ -197,20 +197,28 @@
 
   // the balloons float behind the page, so taps are checked here instead: a tap on empty page (not a link or button)
   // that lands on a balloon pops it. (a little extra room around each balloon makes the small ones easier to hit)
-  const PAD = 8;
+  const PAD_DESKTOP = 8, PAD_PHONE = 16;
   document.addEventListener("click", (e) => {
     if (layer.hidden || !balloons.size) return;
     const t = e.target;
-    if (!t.closest || !t.closest("main")) return;
-    if (t.closest("a, button, input, select, textarea, label, summary, [role=button], [data-lb-open], #home-merry")) return;
+    if (!t.closest) return;
+    const phone = isPhone();
+    if (t.closest(".inv-overlay, .sr-load, .gi-dialog, dialog")) return;      // (never when a pop-up is open)
+    if (!phone) {
+      // on a computer the balloons are behind the page: only taps on empty page count (links and buttons work as normal)
+      if (!t.closest("main")) return;
+      if (t.closest("a, button, input, select, textarea, label, summary, [role=button], [data-lb-open], #home-merry")) return;
+    }
+    const PAD = phone ? PAD_PHONE : PAD_DESKTOP;
     for (const el of balloons.keys()) {
       const r = el.getBoundingClientRect();
       if (e.clientX >= r.left - PAD && e.clientX <= r.right + PAD && e.clientY >= r.top - PAD && e.clientY <= r.bottom + PAD) {
+        if (phone) { e.preventDefault(); e.stopPropagation(); }              // on a phone the balloon is in front, so it gets the tap (not the button under it)
         pop(el, balloons.get(el).prize);
         return;
       }
     }
-  });
+  }, true);
 
   // keeps at least MIN_BALLOONS floating: when one is popped or floats off the top, the next one comes in a moment later
   function refill() {
@@ -242,13 +250,13 @@
 
   function sync() {
     const on = atHome();
-    lights.hidden = !on;
     layer.hidden = !on;
     fx.hidden = !on;
-    if (on) { buildLights(); start(); } else stop();
+    if (on) start(); else stop();
   }
 
   window.addEventListener("hashchange", () => setTimeout(sync, 0));
-  window.addEventListener("resize", () => { if (!lights.hidden) buildLights(); });
+  window.addEventListener("resize", buildLights);
+  buildLights();
   sync();
 })();
