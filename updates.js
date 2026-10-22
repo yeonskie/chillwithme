@@ -6,6 +6,12 @@
 
 const UPDATES = [
   {
+    date: "10.22.26",
+    items: [
+      "retitled 'music page' to 'jukebox' and revamped design",
+    ],
+  },
+  {
     date: "10.21.26",
     items: [
       "fixed glitch where door covers add button on posts",
