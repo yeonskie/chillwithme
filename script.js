@@ -1067,13 +1067,50 @@ async function pictureFromFile(file, forSite) {
   return url;
 }
 
+// adds several uploaded pictures in one go (the caption, if there is one, goes on every box).
+// they end up in the order they were picked; a picture that fails is skipped and the rest still go in
+async function addManyPictures(files, alt) {
+  addGo.disabled = true;
+  let done = 0, failed = 0;
+  // on a private board each new box goes to the front, so the last one picked is added first
+  const list = addForSite ? files : [...files].reverse();
+  for (let i = 0; i < list.length; i++) {
+    addMsg.textContent = "adding picture " + (done + failed + 1) + " of " + list.length + "...";
+    try {
+      const src = await pictureFromFile(list[i], addForSite);
+      const raw = { type: "image", src, alt };
+      if (addForSite) {
+        const test = normalizeItem(raw);
+        await loadShape(test);
+        if (test.type === "image" && test.failed) throw new Error("load");
+        await siteDb.addItem(boardKey(currentBoard), raw);
+      } else if (!(await addToBoard(currentBoard, raw))) {
+        throw new Error("save");
+      }
+      done++;
+    } catch (err) {
+      failed++;
+    }
+  }
+  addGo.disabled = false;
+  if (!failed) { closeAdd(); return; }
+  addMsg.textContent = done
+    ? "added " + done + ", but " + failed + " didn't work (too big, not a picture, or storage is full)"
+    : "none of those pictures could be added (too big, not a picture, or storage is full)";
+}
+
 addForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   let raw;
   if (addKind === "image") {
     let src = document.getElementById("mb-add-src").value.trim();
-    const file = document.getElementById("mb-add-file").files[0];
+    const files = [...document.getElementById("mb-add-file").files];
+    const file = files[0];
     if (!src && !file) { addMsg.textContent = "paste a picture address or choose a file first"; return; }
+    if (files.length > 1) {                        // several pictures at once: each one becomes its own box
+      await addManyPictures(files, document.getElementById("mb-add-alt").value.trim());
+      return;
+    }
     if (file) {                                    // an uploaded file wins over an address
       addGo.disabled = true;
       addMsg.textContent = "preparing the picture...";
@@ -1454,7 +1491,7 @@ function buildSlide(item) {
       img.src = item.src;
       img.alt = item.alt || "";
       img.draggable = false;
-      img.addEventListener("load", () => centerSlide(false));   // its width is only known once it loads
+      img.addEventListener("load", () => { fitSlideImage(img); centerSlide(false); });   // its size is only known once it loads
       img.addEventListener("error", () => {
         img.replaceWith(imagePlaceholder(item.alt, true));
         slide.classList.add("mb-slide-ph");
@@ -1479,6 +1516,23 @@ function buildSlide(item) {
   }
   return slide;
 }
+
+// sizes a picture so the frame is exactly the picture, as big as fits on the screen (small pictures are scaled up, big ones down)
+function fitSlideImage(img) {
+  if (!img.naturalWidth || !img.naturalHeight) return;
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+  const maxW = Math.max(120, window.innerWidth - 8 * rem);
+  const maxH = Math.max(120, Math.min(44 * rem, (lightStage.clientHeight || window.innerHeight) - 2.2 * rem));
+  const k = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight);
+  img.style.width = Math.round(img.naturalWidth * k) + "px";
+  img.style.height = Math.round(img.naturalHeight * k) + "px";
+}
+
+function fitAllSlideImages() {
+  lightTrack.querySelectorAll(".mb-slide-image img").forEach(fitSlideImage);
+  centerSlide(false);
+}
+window.addEventListener("resize", () => { if (!light.hidden) fitAllSlideImages(); });
 
 // slides the row so the chosen box sits in the middle
 function centerSlide(animate = true) {
@@ -1516,6 +1570,7 @@ function openLightbox(el) {
   lightFocus = document.activeElement;
   light.hidden = false;
   showSlide(boxes.indexOf(el), false);
+  fitAllSlideImages();
   document.getElementById("mb-light-close").focus();
 }
 

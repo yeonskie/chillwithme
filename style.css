@@ -728,12 +728,13 @@ main {
 }
 
 /* pictures show whole here, never cropped */
+.mb-slide-image { height: auto; max-height: 100%; overflow: hidden; line-height: 0; }
 .mb-slide img {
   display: block;
   height: 100%;
   width: auto;
   max-width: calc(100vw - 8rem);
-  object-fit: contain;
+  object-fit: cover;          /* (the frame is sized to the picture, so nothing is actually cropped) */
 }
 
 .mb-slide-ph { width: min(40rem, calc(100vw - 8rem)); }
