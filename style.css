@@ -2171,8 +2171,8 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .yb-box p { margin: 0; }
 .yb-row { display: flex; align-items: center; gap: 10px; }
 .yb-have { border: 1px solid var(--text); border-radius: var(--radius); padding: 5px 9px; background: var(--bg); }
-.yb-where { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; opacity: 0.75; }
-.yb-where:hover { opacity: 1; }
+.yb-where { font: inherit; color: var(--text); background: color-mix(in srgb, var(--bg) 85%, transparent); border: 0; padding: 0 4px; border-radius: var(--radius); cursor: pointer; text-decoration: underline; }   /* (85% opaque background, so the words stay readable over a floor) */
+.yb-where:hover { color: var(--text); }
 .yb-num { position: relative; display: inline-block; }
 .yb-pop { position: absolute; left: 100%; top: -1.6em; margin-left: 2px; font-weight: 700; white-space: nowrap; pointer-events: none; opacity: 0; }
 .yb-pop-go { animation: yb-pop 1.6s ease-out forwards; }
@@ -2186,7 +2186,7 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
   .yb-pop-go { animation: yb-pop-still 1.6s linear forwards; }
   @keyframes yb-pop-still { 0%, 80% { opacity: 1; } 100% { opacity: 0; } }
 }
-.yb-where { background: var(--bg); padding: 3px 4px; border-radius: var(--radius); }
+.yb-where { background: color-mix(in srgb, var(--bg) 85%, transparent); padding: 3px 4px; border-radius: var(--radius); }
 
 /* every page (except the casino and shop) ends a little higher, so the box never sits on top of the last bit of content */
 body.has-yb .page { padding-bottom: 4.5rem; }
