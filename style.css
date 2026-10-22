@@ -3411,6 +3411,10 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 .mini .icon-btn svg { width: 0.9rem; height: 0.9rem; }
 @media (max-width: 40rem) {
   .mini, body:has(#pet:not([hidden])) .mini { left: 1rem; right: auto; }
+  /* phones: a smaller player, so it doesn't crowd the buttons above it */
+  .mini { padding: 0.1rem 0.2rem; gap: 0; }
+  .mini .icon-btn { width: 1.45rem; height: 1.45rem; }
+  .mini .icon-btn svg { width: 0.75rem; height: 0.75rem; }
 }
 
 /* "randomize my stay" and "daily reward": a bit smaller */
