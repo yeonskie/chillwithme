@@ -13,6 +13,7 @@ const UPDATES = [
       "new carnival-themed marquee in header",
       "removed cap on leaderboard at 100 mil",
       "new menu scroll animation on homepage",
+      "repositioned homepage and made title larger",
     ],
   },
   {
