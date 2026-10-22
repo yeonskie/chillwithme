@@ -3736,7 +3736,7 @@ main { margin-top: var(--lights-h); }
   z-index: -1; overflow: hidden; pointer-events: none;
 }
 .hb-fx { z-index: 2; }
-@media (max-width: 640px) { .hb-layer:not(.hb-fx) { z-index: 2; } }   /* on a phone the balloons float in front of the page, so they're easy to tap */
+@media (max-width: 640px) { .hb-layer:not(.hb-fx) { z-index: 0; } }   /* on a phone the balloons float in front of the page (so they're easy to tap), but behind the bottom left box, the door and the flags */
 .hb { position: absolute; top: 0; pointer-events: none; will-change: transform; }
 .hb-sway { display: block; width: 100%; height: 100%; transform-origin: 50% 100%; }
 .hb svg { display: block; width: 100%; height: 100%; overflow: visible; }

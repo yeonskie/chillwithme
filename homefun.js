@@ -204,11 +204,8 @@
     if (!t.closest) return;
     const phone = isPhone();
     if (t.closest(".inv-overlay, .sr-load, .gi-dialog, dialog")) return;      // (never when a pop-up is open)
-    if (!phone) {
-      // on a computer the balloons are behind the page: only taps on empty page count (links and buttons work as normal)
-      if (!t.closest("main")) return;
-      if (t.closest("a, button, input, select, textarea, label, summary, [role=button], [data-lb-open], #home-merry")) return;
-    }
+    if (!t.closest("main")) return;                                             // (the bottom left box, the door and the bars are always above the balloons, and work as normal)
+    if (!phone && t.closest("a, button, input, select, textarea, label, summary, [role=button], [data-lb-open], #home-merry")) return;   // (on a computer the balloons are behind the page: only taps on empty page count)
     const PAD = phone ? PAD_PHONE : PAD_DESKTOP;
     for (const el of balloons.keys()) {
       const r = el.getBoundingClientRect();
