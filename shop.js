@@ -385,6 +385,23 @@
     }
     invBody.appendChild(pets);
     invBody.appendChild(group("pet accessory", "acc", "none"));
+    if (owns("key") && window.SR_DOOR) {                      // the secret door: my drawing, or the plain one that came with the page
+      const dw = document.createElement("div");
+      dw.className = "inv-group";
+      const dh = document.createElement("h3");
+      dh.textContent = "secret door look";
+      dw.appendChild(dh);
+      const dr = document.createElement("div");
+      dr.className = "inv-opts";
+      const b = document.createElement("button");              // one button: it says what tapping it will do
+      b.type = "button";
+      b.className = "inv-opt";
+      b.textContent = window.SR_DOOR.isPlain() ? "enable door drawing" : "disable door drawing";
+      b.addEventListener("click", () => { window.SR_DOOR.setPlain(!window.SR_DOOR.isPlain()); drawInv(); });
+      dr.appendChild(b);
+      dw.appendChild(dr);
+      invBody.appendChild(dw);
+    }
     const perks = ITEMS.filter((i) => i.kind === "perk" && owns(i.id));
     const wrap = document.createElement("div");
     wrap.className = "inv-group";
