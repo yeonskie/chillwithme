@@ -11,9 +11,9 @@
 (function () {
   const MIN_BALLOONS = 2;            // there are always at least this many balloons floating (a new one appears right away when one is popped or floats off)
   const MAX_DESKTOP = 12;            // ...and never more than this many at once on a computer...
-  const MAX_PHONE = 4;               // ...or on a phone (screens 640 pixels wide or less)
+  const MAX_PHONE = 3;               // ...or on a phone (screens 640 pixels wide or less)
   const SPAWN_DESKTOP = [1250, 2000];   // when there's room, a new balloon floats in every 1.25 to 2 seconds on a computer...
-  const SPAWN_PHONE = [5500, 8000];     // ...and every 5.5 to 8 seconds on a phone (milliseconds)
+  const SPAWN_PHONE = [10000, 15000];   // ...and every 10 to 15 seconds on a phone (milliseconds)
   const PRIZE_CHANCE = 0.65;         // only some balloons have yeonbucks inside: 0.65 = about 6 or 7 in 10 (the rest just pop)
   const SPEED_MIN = 22;              // how fast they rise, in pixels per second (small number = slower)
   const SPEED_MAX = 34;
@@ -237,7 +237,8 @@
   function start() {
     if (running) return;
     running = true;
-    for (let i = 0; i < START_BALLOONS; i++) spawn(0.08 + (0.8 * (i + rand(0.2, 0.8))) / START_BALLOONS);   // (evenly up the screen, not bunched)
+    const first = isPhone() ? MIN_BALLOONS : START_BALLOONS;
+    for (let i = 0; i < first; i++) spawn(0.08 + (0.8 * (i + rand(0.2, 0.8))) / first);   // (evenly up the screen, not bunched)
     schedule();
   }
   function stop() {
