@@ -663,6 +663,14 @@ function buildItem(item, index) {
       img.draggable = false;
       img.addEventListener("error", () => img.replaceWith(imagePlaceholder(item.alt, true)));
       el.appendChild(img);
+      if (item.alt) {                       // the caption sits along the bottom of the box
+        const cap = document.createElement("p");
+        cap.className = "mb-cap";
+        const words = document.createElement("span");       // (the two-line limit sits on this inner part, so no padding lets a third line peek out)
+        words.textContent = item.alt;
+        cap.appendChild(words);
+        el.appendChild(cap);
+      }
     } else {
       el.appendChild(imagePlaceholder(item.alt, item.failed));
     }
@@ -1498,6 +1506,13 @@ function buildSlide(item) {
         centerSlide(false);
       });
       slide.appendChild(img);
+      if (item.alt) {                       // the caption goes under the picture, like on a community post
+        const cap = document.createElement("p");
+        cap.className = "mb-slide-cap";
+        cap.textContent = item.alt;
+        slide.appendChild(cap);
+        slide.classList.add("has-cap");
+      }
     } else {
       slide.classList.add("mb-slide-ph");
       slide.appendChild(imagePlaceholder(item.alt, item.failed));
@@ -1522,7 +1537,8 @@ function fitSlideImage(img) {
   if (!img.naturalWidth || !img.naturalHeight) return;
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
   const maxW = Math.max(120, window.innerWidth - 8 * rem);
-  const maxH = Math.max(120, Math.min(44 * rem, (lightStage.clientHeight || window.innerHeight) - 2.2 * rem));
+  const capH = img.parentNode.classList.contains("has-cap") ? 4.5 * rem : 0;      // room for the caption under it
+  const maxH = Math.max(120, Math.min(44 * rem, (lightStage.clientHeight || window.innerHeight) - 2.2 * rem) - capH);
   const k = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight);
   img.style.width = Math.round(img.naturalWidth * k) + "px";
   img.style.height = Math.round(img.naturalHeight * k) + "px";

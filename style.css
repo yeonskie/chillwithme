@@ -729,6 +729,23 @@ main {
 
 /* pictures show whole here, never cropped */
 .mb-slide-image { height: auto; max-height: 100%; overflow: hidden; line-height: 0; }
+.mb-slide-image.has-cap { overflow: auto; }
+.mb-slide-cap {                       /* under the picture, as wide as the picture (width 0 + min-width so it never stretches the frame) */
+  width: 0; min-width: 100%; box-sizing: border-box; margin: 0; padding: 0.8rem 1rem;
+  font-size: 0.85rem; line-height: 1.55; white-space: pre-line; overflow-wrap: anywhere; text-align: left;
+  border-top: 1px solid var(--line);
+}
+/* the caption along the bottom of a box on the board */
+.mb-cap {
+  position: absolute; left: 0; right: 0; bottom: 0; margin: 0; padding: 0.35rem 0.5rem;
+  font-size: 0.7rem; line-height: 1.3; text-align: left; color: var(--text); pointer-events: none;
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  border-top: 1px solid var(--line);
+}
+.mb-cap span {
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; overflow-wrap: anywhere;                    /* two lines at most */
+}
 .mb-slide img {
   display: block;
   height: 100%;
