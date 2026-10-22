@@ -3199,13 +3199,13 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 /* ---------- home on small phones / in-app browsers (discord etc. have less screen height) ----------
    everything is a bit smaller, and the page can scroll so the last buttons always end up above the door and the yeonbucks box */
 @media (max-width: 1100px) and (pointer: coarse) {
-  body.has-yb .page[data-page="home"].active { overflow-y: auto; align-items: safe center; padding: 1.8rem 1rem 9rem; }   /* tablets: the door sits bottom left above one row of buttons */
-  body.has-mini.has-yb .page[data-page="home"].active { padding-bottom: 12.5rem; }
+  body.has-yb .page[data-page="home"].active { overflow-y: auto; align-items: safe center; padding: clamp(1.8rem, calc(100svh - 50rem), 4.8rem) 1rem 9rem; }   /* tablets: the door sits bottom left above one row of buttons */
+  body.has-mini.has-yb .page[data-page="home"].active { padding-top: 8.3rem; padding-bottom: 12.5rem; }
   .home-mid { --merry-w: clamp(8.5rem, calc(100svh - 33rem), 15rem); }
 }
 @media (max-width: 40rem) and (pointer: coarse) {
-  body.has-yb .page[data-page="home"].active { padding: clamp(2rem, calc(100svh - 45rem), 4.3rem) 1rem 11.5rem; }   /* phones: two rows of buttons under the door */
-  body.has-mini.has-yb .page[data-page="home"].active { padding-bottom: 15rem; }
+  body.has-yb .page[data-page="home"].active { padding: clamp(2rem, calc(2rem + (100svh - 40rem) * 0.3), 7.2rem) 1rem 11.5rem; }   /* phones: two rows of buttons under the door */
+  body.has-mini.has-yb .page[data-page="home"].active { padding-top: clamp(2rem, calc(2rem + (100svh - 42rem) * 0.4), 10.7rem); padding-bottom: 15rem; }
   .home-mid { --merry-w: clamp(8.5rem, calc(100svh - 43rem), 15rem); }
 }
 @media (max-height: 46rem) {
@@ -3707,3 +3707,9 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { padding-top: 0.25rem; }
 }
 @media (max-width: 60.99rem) { .page[data-page="rare-shop"] .shop-restock { margin-top: 0.5rem; } }
+
+/* the whole home page block (title, description, carousel, buttons) is centered up and down, not just the carousel.
+   (the title is bigger now, so centering only the carousel left the page looking top-heavy) */
+.home { display: flex; flex-direction: column; justify-content: safe center; align-items: center; }
+.home-top, .home-mid, .home-bottom { align-self: auto; }
+.home-mid, .home-bottom { width: 100%; }
