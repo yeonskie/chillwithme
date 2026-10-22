@@ -16,8 +16,6 @@ const UPDATES = [
       "balloons on homescreen, pop to earn yeonbucks",
       "triangle flags to top of homepage",
       "repositioned homepage and made title larger",
-      "balloons on homescreen, pop to earn yeonbucks",
-      "triangle flags to top of homepage",
     ],
   },
   {
