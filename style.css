@@ -3815,7 +3815,8 @@ main { margin-top: var(--lights-h); }
 .hb-string { fill: none; stroke: var(--line); stroke-miterlimit: 10; }
 .hb-shine { fill: #f2efe9; stroke: #2a2a2a; stroke-miterlimit: 10; }                  /* the light balloons: the tan of the page, with a dark outline */
 .hb-white .hb-body { fill: #f2efe9; stroke: #2a2a2a; stroke-miterlimit: 10; }
-.hb-dark .hb-body { fill: #000; stroke: #fff; stroke-miterlimit: 10; }
+.hb-dark .hb-body { fill: #141414; stroke: #f2efe9; stroke-miterlimit: 10; }                 /* the site's dark mode black and its off-white (not pure #000 / #fff) */
+:root[data-theme="light"] .hb-dark .hb-body { fill: #2a2a2a; }                             /* and the soft charcoal on light mode */
 .hb-tick { position: absolute; width: 1px; height: 0.55rem; margin: -0.275rem 0 0 -0.5px; background: var(--line); border-radius: 2px; pointer-events: none; }
 .hb-plus {
   position: absolute; transform: translate(-50%, -50%); pointer-events: none; white-space: nowrap;
