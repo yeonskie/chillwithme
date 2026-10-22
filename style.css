@@ -1124,6 +1124,14 @@ body.has-yb .page[data-page="music"] { padding-bottom: 2.8rem; }
     padding: calc(var(--u) * 8) calc(2.4rem + var(--u) * 8) calc(var(--u) * 8) calc(var(--u) * 8); box-sizing: border-box; background: var(--bg); border: 1px solid var(--line); border-radius: calc(var(--u) * 5);
   }
   .jb-tab { height: max(2rem, calc(var(--u) * 24)); padding: 0 max(0.8rem, calc(var(--ux) * 10)); }
+  /* bigger shuffle / previous / play / next / repeat, spread evenly along the panel */
+  .jb-ctl { top: calc(var(--u) * 269.5); width: calc(var(--ux) * 38); height: calc(var(--u) * 31); }
+  .jb-ctl svg { width: calc(var(--u) * 22); height: calc(var(--u) * 22); }
+  #music-shuffle { left: calc(var(--ux) * (154 - 19)); }
+  #music-prev    { left: calc(var(--ux) * (202 - 19)); }
+  #music-play    { left: calc(var(--ux) * (250 - 19)); }
+  #music-next    { left: calc(var(--ux) * (298 - 19)); }
+  #music-repeat  { left: calc(var(--ux) * (346 - 19)); }
   .jb-plus { width: max(2rem, calc(var(--u) * 24)); padding: 0; font-size: max(16px, calc(var(--u) * 14)); }
   .jb-exp {
     display: block; position: absolute; z-index: 6; left: calc(var(--ux) * 405 - 2.2rem); top: calc(var(--u) * 318);
