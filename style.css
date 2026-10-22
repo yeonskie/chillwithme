@@ -1108,6 +1108,30 @@ body.has-yb .page[data-page="music"] { padding-bottom: 2.8rem; }
 .jb-tab[aria-selected="true"] { background: var(--text); color: var(--bg); }
 .jb-plus { width: calc(var(--u) * 22); padding: 0; font-size: max(10px, calc(var(--u) * 13)); }
 .jb-plus:hover { text-decoration: none; background: var(--text); color: var(--bg); }
+/* the little arrow that opens all the tabs (phones only) */
+.jb-exp { display: none; }
+/* phones and tablets: the jukebox is stretched up and down a bit (--sx under 1 makes it taller, so the 500 in aspect-ratio becomes 500 x --sx),
+   and the tabs get big enough to tap: they show one line, and the arrow beside them opens every tab over the song list */
+@media (max-width: 50rem), (pointer: coarse) {
+  .jb { --sx: 0.88; aspect-ratio: 440 / 785; }
+  .jb-tabs {
+    top: calc(var(--u) * 306); height: max(2rem, calc(var(--u) * 24)); width: calc(var(--ux) * 310 - 2.4rem); left: calc(var(--ux) * 95);
+    flex-wrap: wrap; justify-content: center; align-content: flex-start; overflow: hidden;
+    font-size: max(13px, calc(var(--u) * 12)); gap: calc(var(--u) * 5) calc(var(--ux) * 5);
+  }
+  .jb-tabs.open {
+    z-index: 5; height: auto; max-height: calc(var(--u) * 190); overflow-y: auto; width: calc(var(--ux) * 310);
+    padding: calc(var(--u) * 8) calc(2.4rem + var(--u) * 8) calc(var(--u) * 8) calc(var(--u) * 8); box-sizing: border-box; background: var(--bg); border: 1px solid var(--line); border-radius: calc(var(--u) * 5);
+  }
+  .jb-tab { height: max(2rem, calc(var(--u) * 24)); padding: 0 max(0.8rem, calc(var(--ux) * 10)); }
+  .jb-plus { width: max(2rem, calc(var(--u) * 24)); padding: 0; font-size: max(16px, calc(var(--u) * 14)); }
+  .jb-exp {
+    display: block; position: absolute; z-index: 6; left: calc(var(--ux) * 405 - 2.2rem); top: calc(var(--u) * 306);
+    width: 2rem; height: max(2rem, calc(var(--u) * 24)); margin: 0; padding: 0; font: inherit; font-size: max(14px, calc(var(--u) * 12));
+    color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: calc(var(--u) * 3.56); cursor: pointer;
+  }
+  .jb-tabs.open ~ .jb-exp { left: calc(var(--ux) * 405 - 2.2rem); top: calc(var(--u) * 306 - 0px); }
+}
 
 /* the songs: two columns of four, like the design. a "+" in the corner adds to a playlist */
 .jb-grid {

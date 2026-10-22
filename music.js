@@ -349,9 +349,26 @@ function renderTabs() {
     tab.setAttribute("aria-selected", String(i === view));
     // each playlist shows how many songs are in it, so you can see an add worked
     tab.textContent = i <= cats.length ? name : name + " (" + playlists[i - 1 - cats.length].songs.filter(songBySrc).length + ")";
-    tab.addEventListener("click", () => { view = i; page = 0; el.toast.textContent = ""; renderTabs(); renderList(); });
+    tab.addEventListener("click", () => { view = i; page = 0; el.toast.textContent = ""; el.tabs.parentNode.classList.remove("open"); renderTabs(); renderList(); });
     el.tabs.appendChild(tab);
   });
+  // phones: the tabs show one line, and this little arrow opens them all (see .jb-exp in style.css)
+  if (!el.exp) {
+    el.exp = document.createElement("button");
+    el.exp.type = "button";
+    el.exp.className = "jb-exp";
+    el.exp.textContent = "▾";
+    el.exp.setAttribute("aria-label", "show all categories");
+    el.exp.setAttribute("aria-expanded", "false");
+    el.exp.addEventListener("click", () => {
+      const open = el.tabs.parentNode.classList.toggle("open");
+      el.exp.textContent = open ? "▴" : "▾";
+      el.exp.setAttribute("aria-expanded", String(open));
+      el.exp.setAttribute("aria-label", open ? "hide categories" : "show all categories");
+    });
+    el.tabs.parentNode.parentNode.appendChild(el.exp);
+  }
+  el.exp.textContent = el.tabs.parentNode.classList.contains("open") ? "▴" : "▾";
   el.delpl.hidden = plAt() < 0;       // delete and the little secret note are for playlists only
   el.note.hidden = plAt() < 0;
 }
