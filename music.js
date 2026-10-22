@@ -51,6 +51,7 @@ const ICONS = {
   next: SVG('<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>', true),
   shuffle: SVG('<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>'),
   repeat: SVG('<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>'),
+  more: SVG('<line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/>'),
   repeat1: SVG('<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/><path d="M11 10h1v4"/>'),
 };
 function setIcon(btn, name, label) {
@@ -64,7 +65,7 @@ const el = {
   seek: $("music-seek"), play: $("music-play"), prev: $("music-prev"), next: $("music-next"),
   shuffle: $("music-shuffle"), repeat: $("music-repeat"), vol: $("music-vol"), msg: $("music-msg"),
   tabs: $("music-tabs"), list: $("music-list"), delpl: $("music-delpl"), note: $("music-note"),
-  newpl: $("music-newpl"), toast: $("music-toast"),
+  newpl: $("music-newpl"), toast: $("music-toast"), more: $("music-more"), pageNo: $("music-page"),
   mini: $("mini"), miniTitle: $("mini-title"), miniPrev: $("mini-prev"), miniPlay: $("mini-play"), miniNext: $("mini-next"),
 };
 
@@ -102,6 +103,8 @@ function songBySrc(src) {
 
 // the tabs, left to right: all songs (0), then the categories, then the playlists visitors make
 let view = 0;
+let page = 0;                    // which four songs the jukebox is showing
+const PER_PAGE = 4;
 const catAt = () => (view >= 1 && view <= cats.length ? cats[view - 1] : null);   // the category being shown, if any
 const plAt = () => view - 1 - cats.length;                                       // the playlist being shown (-1 if it isn't one)
 function viewSongs() {
@@ -117,6 +120,7 @@ setIcon(el.prev, "prev"); setIcon(el.miniPrev, "prev");
 setIcon(el.next, "next"); setIcon(el.miniNext, "next");
 setIcon(el.shuffle, "shuffle");
 setIcon(el.repeat, "repeat");
+setIcon(el.more, "more");
 setIcon(el.play, "play"); setIcon(el.miniPlay, "play");
 
 // ----- the player -----
@@ -127,6 +131,11 @@ let repeatMode = 0;             // 0 = off, 1 = repeat the whole list, 2 = repea
 
 function current() {
   return queue[qi] || null;
+}
+
+// fills the bar up to where the song is
+function paintSeek() {
+  el.seek.style.setProperty("--p", (el.seek.value / 10) + "%");
 }
 
 function fmt(sec) {
@@ -143,6 +152,11 @@ function loadSong(song) {
   el.seek.value = 0;
   el.cur.textContent = "0:00";
   el.dur.textContent = "0:00";
+  paintSeek();
+  requestAnimationFrame(fitAll);
+  // if the song is in the list you're looking at, flip to the page it's on
+  const at = viewSongs().findIndex((x) => x.src === song.src);
+  if (at >= 0 && Math.floor(at / PER_PAGE) !== page) { page = Math.floor(at / PER_PAGE); renderList(); }
   if ("mediaSession" in navigator && window.MediaMetadata) {
     navigator.mediaSession.metadata = new MediaMetadata({ title: song.title, artist: song.artist });
   }
@@ -213,6 +227,7 @@ audio.addEventListener("loadedmetadata", () => { el.dur.textContent = fmt(audio.
 audio.addEventListener("timeupdate", () => {
   el.cur.textContent = fmt(audio.currentTime);
   if (audio.duration) el.seek.value = Math.round((audio.currentTime / audio.duration) * 1000);
+  paintSeek();
 });
 audio.addEventListener("error", () => {
   el.msg.textContent = "couldn't play that one. is the file in the music folder, with the same name as in songs.js?";
@@ -227,6 +242,7 @@ el.miniPlay.addEventListener("click", togglePlay);
 el.miniNext.addEventListener("click", () => nextSong(false));
 el.seek.addEventListener("input", () => {
   if (audio.duration) audio.currentTime = (el.seek.value / 1000) * audio.duration;
+  paintSeek();
 });
 el.shuffle.addEventListener("click", () => {
   shuffleOn = !shuffleOn;
@@ -273,7 +289,7 @@ function syncUI() {
   el.list.querySelectorAll("li[data-src]").forEach((li) => {
     const isNow = !!song && li.dataset.src === song.src;
     li.classList.toggle("current", isNow);
-    li.querySelector(".song-no").textContent = isNow ? (playing ? "now" : "||") : li.dataset.no;
+    li.classList.toggle("paused", isNow && !playing);
   });
 }
 
@@ -286,18 +302,52 @@ function say(text) {
   toastTimer = setTimeout(() => { el.toast.textContent = ""; }, 3500);
 }
 
+// ----- fitting words in their boxes -----
+// a long title or artist shrinks (down to about 60% of its size) until it fits, so nothing gets cut off.
+// only a name that is still too long after that ends in "..."
+function fitText(node) {
+  node.style.fontSize = "";
+  if (!node.clientWidth) return;                 // the page isn't showing right now
+  const base = parseFloat(getComputedStyle(node).fontSize);
+  let size = base;
+  // the real (fractional) width of the words, since scrollWidth rounds and can miss a tiny overflow
+  const range = document.createRange();
+  range.selectNodeContents(node);
+  // the room the words have: a song box's inside (the words sit centered in it), or the whole width of the title/artist line
+  const holder = node.matches(".song-title, .song-artist") ? node.parentElement : null;
+  const avail = () => {
+    if (!holder) return node.getBoundingClientRect().width;
+    const cs = getComputedStyle(holder);
+    return holder.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  };
+  const tooWide = () => range.getBoundingClientRect().width > avail() + 0.05;
+  while (tooWide() && size > base * 0.6) {
+    size -= 0.5;
+    node.style.fontSize = size + "px";
+  }
+}
+function fitAll() {
+  document.querySelectorAll(".jb .song-title, .jb .song-artist, .jb .jb-title, .jb .jb-artist").forEach(fitText);
+}
+whenReady(() => {
+  const box = document.querySelector(".jb-main");
+  if (box && window.ResizeObserver) new ResizeObserver(fitAll).observe(box);
+  window.addEventListener("hashchange", () => requestAnimationFrame(fitAll));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+});
+
 // ----- the list and the tabs -----
 function renderTabs() {
   el.tabs.innerHTML = "";
   ["all songs", ...cats, ...playlists.map((p) => p.name)].forEach((name, i) => {
     const tab = document.createElement("button");
     tab.type = "button";
-    tab.className = "mb-tab";
+    tab.className = "jb-tab";
     tab.setAttribute("role", "tab");
     tab.setAttribute("aria-selected", String(i === view));
     // each playlist shows how many songs are in it, so you can see an add worked
     tab.textContent = i <= cats.length ? name : name + " (" + playlists[i - 1 - cats.length].songs.filter(songBySrc).length + ")";
-    tab.addEventListener("click", () => { view = i; el.toast.textContent = ""; renderTabs(); renderList(); });
+    tab.addEventListener("click", () => { view = i; page = 0; el.toast.textContent = ""; renderTabs(); renderList(); });
     el.tabs.appendChild(tab);
   });
   el.delpl.hidden = plAt() < 0;       // delete and the little secret note are for playlists only
@@ -307,6 +357,11 @@ function renderTabs() {
 function renderList() {
   el.list.innerHTML = "";
   const list = viewSongs();
+  const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+  if (page >= pages) page = 0;
+  el.more.hidden = pages < 2;                                        // the arrow only shows when there's more than eight
+  el.pageNo.textContent = pages > 1 ? (page + 1) + "/" + pages : "";
+  el.more.setAttribute("aria-label", "more songs (page " + (page + 1) + " of " + pages + ")");
   if (!list.length) {
     const li = document.createElement("li");
     li.className = "music-empty";
@@ -314,21 +369,23 @@ function renderList() {
       ? (songsFileOk
           ? "no songs yet. put mp3 files in the music folder and list them in songs.js."
           : "couldn't read songs.js. check that it's next to index.html and that every line ends with a comma and every title and file name is in quotes.")
-      : "nothing in this playlist yet. go to all songs and hit add.";
+      : "nothing in this playlist yet. go to all songs and hit +.";
     el.list.appendChild(li);
     return;
   }
-  list.forEach((song, i) => {
+  list.slice(page * PER_PAGE, (page + 1) * PER_PAGE).forEach((song, k) => {
+    const i = page * PER_PAGE + k;
     const li = document.createElement("li");
     li.dataset.src = song.src;
-    li.dataset.no = String(i + 1).padStart(2, "0");
+    li.className = "jb-cell";
 
     const main = document.createElement("button");
     main.type = "button";
     main.className = "song-main";
-    main.innerHTML = '<span class="song-no"></span><span class="song-title"></span><span class="song-artist"></span>';
+    main.innerHTML = '<span class="song-title"></span><span class="song-artist"></span>';
     main.querySelector(".song-title").textContent = song.title;
     main.querySelector(".song-artist").textContent = song.artist;
+    main.title = song.title + (song.artist ? " - " + song.artist : "");
     main.addEventListener("click", () => {
       const now = current();
       if (now && now.src === song.src) {
@@ -345,11 +402,13 @@ function renderList() {
     act.type = "button";
     act.className = "song-act";
     if (plAt() < 0) {
-      act.textContent = "add";
+      act.textContent = "+";
+      act.title = "add to a playlist";
       act.setAttribute("aria-label", "add " + song.title + " to a playlist");
       act.addEventListener("click", () => openDialog(song));
     } else {
-      act.textContent = "remove";
+      act.textContent = "\u00d7";
+      act.title = "remove from this playlist";
       act.setAttribute("aria-label", "remove " + song.title + " from this playlist");
       act.addEventListener("click", () => {
         const pl = playlists[plAt()];
@@ -364,7 +423,13 @@ function renderList() {
     el.list.appendChild(li);
   });
   syncUI();
+  fitAll();
 }
+
+el.more.addEventListener("click", () => {
+  page += 1;                       // after the last page, back to the first
+  renderList();
+});
 
 // ----- the add-to-playlist / new-playlist box -----
 const dialog = $("music-dialog");
@@ -425,7 +490,7 @@ form.addEventListener("submit", (e) => {
     dMsg.textContent = "couldn't save. is your browser blocking storage?";
     return;
   }
-  if (!dialogSong) view = cats.length + playlists.length;     // from the + button: jump to the new playlist
+  if (!dialogSong) { view = cats.length + playlists.length; page = 0; }     // from the + button: jump to the new playlist
   closeDialog();
   renderTabs();
   renderList();
@@ -447,6 +512,7 @@ el.delpl.addEventListener("click", async () => {
   playlists.splice(k, 1);
   savePlaylists();
   view = 0;
+  page = 0;
   renderTabs();
   renderList();
 });

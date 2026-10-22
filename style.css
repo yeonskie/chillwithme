@@ -957,116 +957,200 @@ main {
 .mb-confirm-card { width: min(20rem, 100%); }
 .mb-confirm-card p { margin-bottom: 1rem; font-size: 0.8rem; line-height: 1.5; }
 
-/* ---------- Music page ---------- */
+/* ---------- Music page: the jukebox ---------- */
+/* the drawing is an svg (viewBox 290 50 500 935, from jukebox_design.svg); the player and the song list
+   are real buttons laid on top of it. every size is in "design units": --u is one unit of the drawing,
+   so a number below is the same spot as in the design file (x - 290, y - 50) and it all scales together */
+/* the jukebox sits in the middle of the screen, up and down. the volume and messages hang below it, in the bottom padding */
 .page[data-page="music"] {
-  padding: 3rem clamp(1rem, 6vw, 5.5rem) 4rem;
+  padding: 1.2rem clamp(0.5rem, 3vw, 5.5rem) 2.8rem;
+}
+.page[data-page="music"].active {
+  display: flex; flex-direction: column; justify-content: center;
+  min-height: calc(100vh - var(--bar-height) * 2 - var(--lights-h)); min-height: calc(100dvh - var(--bar-height) * 2 - var(--lights-h));
+  box-sizing: border-box;
+}
+body.has-yb .page[data-page="music"] { padding-bottom: 2.8rem; }
+/* computers: the whole jukebox fits the screen, so the page never scrolls */
+@media (min-width: 50.01rem) and (pointer: fine) { main:has(.page[data-page="music"].active) { overflow-y: hidden; } }
+/* phones and tablets: scroll with extra room at the bottom, so the last bit clears the yeonbucks buttons and the pet */
+@media (max-width: 50rem), (pointer: coarse) {
+  .jb-main { width: min(100%, 30rem); }
+  .page[data-page="music"], body.has-yb .page[data-page="music"] { padding-bottom: 6.5rem; }
 }
 
-.music-now {
-  max-width: 40rem;
-  margin-bottom: 2.5rem;
-  padding: 1.25rem;
-  font-size: 0.75rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+/* the title sits beside the jukebox; the jukebox shrinks to fit the screen height (but never below 24rem), and on a phone it goes below the title and fills the width */
+.music { width: 100%; display: flex; align-items: center; justify-content: center; gap: clamp(1.5rem, 6vw, 6rem); margin: 0 auto; text-align: center; }
+.jb-main { position: relative; width: min(42rem, calc((100vh - 12rem) * 0.637)); max-width: 100%; flex: 0 0 auto; container-type: inline-size; }
+
+/* the drawing is stretched sideways to make the jukebox wider: --sx is how much (1.2 = 20% wider). --u is one design unit
+   up and down (and for text), --ux is one design unit across. if you change --sx, change the 600 in aspect-ratio to 500 x --sx */
+.jb {
+  --sx: 1;
+  --ux: calc(100cqw / 500);
+  --u: calc(var(--ux) / var(--sx));
+  position: relative;
+  aspect-ratio: 500 / 785;
+  font-size: calc(var(--u) * 8.41);
+  text-align: center;
 }
 
-.music-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.2rem; }
-.music-artist { margin-bottom: 1rem; opacity: 0.6; }
+/* the drawing: the design's white is the page color and its black is the text color, so it follows light and dark */
+.jb-art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; fill: var(--text); overflow: visible; }
+.jb-art * { vector-effect: non-scaling-stroke; stroke-width: 1px; }
+.jb-w { fill: var(--bg); stroke: var(--text); stroke-miterlimit: 10; }
+.jb-b { fill: var(--text); stroke: var(--bg); stroke-miterlimit: 10; }
+.jb-bg { fill: var(--bg); }
+.jb-l { fill: none; stroke: var(--text); stroke-miterlimit: 10; }
+.jb-clipped { clip-path: url(#jb-clip); }
 
-.music-seek {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.9rem;
+.jb > :not(.jb-art) { position: absolute; margin: 0; }
+
+/* the title and the little line under it, above the machine */
+.jb-head { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; width: clamp(13rem, 24vw, 20rem); flex: 0 1 auto; }
+.jb-logo { width: 78%; height: auto; display: block; fill: var(--text); }
+.jb-tag { margin: 0; font-size: 0.95rem; line-height: 1.35; }
+@media (max-width: 50rem) {
+  .music { flex-direction: column; gap: 0.5rem; }
+  .jb-head { width: 13rem; gap: 0.3rem; }
+  .jb-tag { font-size: 0.75rem; }
 }
 
-.music-seek input { flex: 1 1 auto; min-width: 0; }
-.music-seek span { flex: 0 0 auto; min-width: 2.5rem; }
-.music-seek span:last-child { text-align: right; }
-
-.music input[type="range"] { accent-color: var(--text); cursor: pointer; }
-
-.music-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 1.1rem;
+/* what's playing, inside the half-round screen */
+.jb-now { left: calc(var(--ux) * 155); width: calc(var(--ux) * 190); top: calc(var(--u) * 172); }
+.jb-title {
+  font-family: "Shrikhand", serif; font-size: calc(var(--u) * 21); line-height: calc(var(--u) * 23);
+  font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-
-.music-controls button, .song-act, .music-pick button {
-  padding: 0.2rem 0.5rem;
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: none;
-  border-radius: var(--radius);
-  cursor: pointer;
+.jb-artist {
+  margin: calc(var(--u) * 1) calc(var(--ux) * -15) 0 !important; font-size: calc(var(--u) * 12); line-height: calc(var(--u) * 15);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-
-.music-controls button:hover, .song-act:hover, .music-pick button:hover { text-decoration: underline; }
-.music-controls button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
-
-.music-vol { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
-.music-vol input { width: 6rem; }
-
-.music-msg { min-height: 1.2em; margin-top: 0.6rem; opacity: 0.7; }
-
-.music-top {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.75rem 1rem;
-  margin-bottom: 2.75rem;
+.jb-cur, .jb-dur {
+  top: calc(var(--u) * 222); line-height: calc(var(--u) * 12);
+  font-family: "Shrikhand", serif; font-size: calc(var(--u) * 10.52); white-space: nowrap;
 }
+.jb-cur { left: calc(var(--ux) * 135); }
+.jb-dur { left: calc(var(--ux) * 336.8); }
 
-.music:has(.mb-note:not([hidden])) .music-top { margin-bottom: 0; }
-
-/* the songs: one outlined list, a row each */
-.music-list {
-  max-width: 40rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.8rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
+/* the bar: an outlined, rounded track that fills as the song goes */
+.jb-seek {
+  left: calc(var(--ux) * 168.5); width: calc(var(--ux) * 160.9); height: calc(var(--u) * 14); top: calc(var(--u) * 222.3);
+  -webkit-appearance: none; appearance: none; background: none; cursor: pointer; color: var(--text); --p: 0%;
 }
+.jb-seek::-webkit-slider-runnable-track {
+  height: calc(var(--u) * 5); border: 1px solid var(--text); border-radius: calc(var(--u) * 1.8); box-sizing: border-box;
+  background: linear-gradient(to right, var(--text) var(--p), var(--bg) var(--p));
+}
+.jb-seek::-moz-range-track {
+  height: calc(var(--u) * 5); border: 1px solid var(--text); border-radius: calc(var(--u) * 1.8); box-sizing: border-box;
+  background: linear-gradient(to right, var(--text) var(--p), var(--bg) var(--p));
+}
+.jb-seek::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: calc(var(--u) * 9); height: calc(var(--u) * 9);
+  margin-top: calc(var(--u) * -2.5 - 0.5px); border-radius: 50%; background: var(--bg); border: 1px solid var(--text); box-sizing: border-box;
+}
+.jb-seek::-moz-range-thumb {
+  width: calc(var(--u) * 9); height: calc(var(--u) * 9); border-radius: 50%; background: var(--bg); border: 1px solid var(--text); box-sizing: border-box;
+}
+.jb-seek:focus-visible { outline: 1px solid var(--text); outline-offset: 2px; }
 
-.music-list li { display: flex; align-items: stretch; }
-.music-list li + li { border-top: 1px solid var(--line); }
+/* shuffle, previous, play, next, repeat: in the panel, at the spots the design puts them */
+.jb-controls { inset: 0; pointer-events: none; }
+.jb-ctl {
+  position: absolute; pointer-events: auto; top: calc(var(--u) * 273); width: calc(var(--u) * 26); height: calc(var(--u) * 26);
+  display: grid; place-items: center; padding: 0; font: inherit; color: var(--text); background: none;
+  border: none; border-radius: var(--radius); cursor: pointer;
+}
+.jb-ctl::after { content: ""; position: absolute; inset: -4px; }
+.jb-ctl svg { width: calc(var(--u) * 17); height: calc(var(--u) * 17); display: block; }
+.jb-ctl:hover { background: color-mix(in srgb, var(--text) 12%, transparent); }
+.jb-ctl[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.jb-ctl:focus-visible { outline: 1px solid var(--text); outline-offset: 1px; }
+#music-shuffle { left: calc(var(--ux) * (476.6 - 290) - var(--u) * 13); }
+#music-prev    { left: calc(var(--ux) * (513 - 290) - var(--u) * 13); }
+#music-play    { left: calc(var(--ux) * (548 - 290) - var(--u) * 13); }
+#music-next    { left: calc(var(--ux) * (578.5 - 290) - var(--u) * 13); }
+#music-repeat  { left: calc(var(--ux) * (607 - 290) - var(--u) * 13); }
 
+/* all songs on its own line, then the categories and playlists */
+.jb-tabs {
+  left: calc(var(--ux) * 95); width: calc(var(--ux) * 310); top: calc(var(--u) * 312); height: calc(var(--u) * 58);
+  display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; gap: calc(var(--u) * 4) calc(var(--ux) * 5);
+  overflow-y: auto; scrollbar-width: none; font-size: max(7.5px, calc(var(--u) * 11.5));
+}
+.jb-tabs::-webkit-scrollbar { display: none; }
+.jb-tabs [role="tablist"] { display: contents; }
+.jb-tab {
+  flex: 0 0 auto; height: calc(var(--u) * 22); padding: 0 calc(var(--ux) * 7); font: inherit; line-height: 1;
+  color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: calc(var(--u) * 3.56);
+  cursor: pointer; white-space: nowrap; box-sizing: border-box;
+}
+.jb-tab:hover { text-decoration: underline; }
+.jb-tab[aria-selected="true"] { background: var(--text); color: var(--bg); }
+.jb-plus { width: calc(var(--u) * 22); padding: 0; font-size: max(10px, calc(var(--u) * 13)); }
+.jb-plus:hover { text-decoration: none; background: var(--text); color: var(--bg); }
+
+/* the songs: two columns of four, like the design. a "+" in the corner adds to a playlist */
+.jb-grid {
+  left: calc(var(--ux) * 155); top: calc(var(--u) * 476.55); width: calc(var(--ux) * 190); height: calc(var(--u) * 165);
+  padding: 0; list-style: none;
+  display: grid; grid-template-columns: 1fr; grid-template-rows: repeat(4, 1fr);
+  gap: calc(var(--u) * 7); grid-auto-flow: row;
+}
+.jb-cell {
+  position: relative; min-width: 0; display: flex; align-items: stretch;
+  background: var(--bg); border: 1px solid var(--line); border-radius: calc(var(--u) * 3.59); box-sizing: border-box; overflow: hidden;
+}
 .song-main {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr) minmax(0, 0.8fr);
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.8rem 0.75rem;
-  font: inherit;
-  text-align: left;
-  color: inherit;
-  background: none;
-  border: none;
-  cursor: pointer;
+  flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--u) * 1.5);
+  padding: 0 calc(var(--u) * 14); font: inherit; color: inherit; background: none; border: none; cursor: pointer;
 }
+.song-title, .song-artist { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.1; }
 
+.song-title { font-size: max(10px, calc(var(--u) * 13.5)); font-weight: 700; }
+.song-artist { font-size: max(8.5px, calc(var(--u) * 10.5)); }
 .song-main:hover .song-title { text-decoration: underline; }
-.song-title, .song-artist { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.song-artist { opacity: 0.6; }
-.song-act { flex: 0 0 auto; margin: 0 0.4rem; align-self: center; }
+.song-act {
+  position: absolute; top: 50%; right: calc(var(--u) * 3); transform: translateY(-50%); width: max(14px, calc(var(--u) * 12)); height: max(14px, calc(var(--u) * 12));
+  display: grid; place-items: center; padding: 0; font: inherit; font-size: max(11px, calc(var(--u) * 11)); line-height: 1;
+  color: inherit; background: none; border: none; border-radius: var(--radius); cursor: pointer; opacity: 0.55;
+}
+.song-act::after { content: ""; position: absolute; inset: -4px; }
+.song-act:hover, .song-act:focus-visible { opacity: 1; background: color-mix(in srgb, currentColor 15%, transparent); }
+.jb-cell.current { background: var(--text); color: var(--bg); }
+.jb-cell.current.paused .song-title { font-style: italic; }
+.music-empty { grid-column: 1 / -1; grid-row: 1 / -1; align-self: center; font-size: max(8px, calc(var(--u) * 7)); line-height: 1.5; opacity: 0.7; }
 
-.music-list li.current { background: var(--text); color: var(--bg); }
-.music-list li.current .song-artist { opacity: 0.7; }
+/* the arrow that turns to the next eight songs */
+.jb-more {
+  left: calc(var(--ux) * 253.33 - var(--u) * 14.15); top: calc(var(--u) * 654); width: calc(var(--u) * 28.3); height: calc(var(--u) * 28.3);
+  display: grid; place-items: center; padding: 0; font: inherit; color: var(--text); background: var(--bg);
+  border: 1px solid var(--line); border-radius: calc(var(--u) * 3.56); cursor: pointer;
+}
+.jb-more[hidden] { display: none; }
+.jb-more svg { width: 60%; height: 60%; display: block; }
+.jb-more:hover { background: var(--text); color: var(--bg); }
+.jb-page { left: calc(var(--ux) * 273 + var(--u) * 8); top: calc(var(--u) * 663); font-size: max(7px, calc(var(--u) * 7)); opacity: 0.65; white-space: nowrap; }
 
-.music-empty { padding: 1rem 0.75rem; opacity: 0.6; }
+/* under the jukebox: volume, the owner's buttons, and little messages */
+.jb-extras { position: absolute; top: 100%; left: 0; right: 0; margin-top: 0.15rem; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; font-size: 0.75rem; }
+.music-vol { display: flex; align-items: center; gap: 0.5rem; }
+.music-vol input { width: 7rem; }
+/* phones and tablets use their own volume buttons, so the slider is only for computers */
+@media (pointer: coarse), (max-width: 40rem) { .music-vol { display: none; } }
+.music input[type="range"].music-vol-range, .music-vol input[type="range"] { accent-color: var(--text); cursor: pointer; }
+.jb-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.25rem; }
+.jb-actions:not(:has(button:not([hidden]))) { display: none; }
+.jb-extras .mb-note { max-width: 24rem; margin: 0; }
+.music-toast { min-height: 1.4em; margin: 0; font-size: 0.75rem; }
+.music-msg { min-height: 1.2em; margin: 0; opacity: 0.7; max-width: 24rem; }
 
-.music-pick { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
-.music-pick button { border: 1px solid var(--line); padding: 0.4rem 0.8rem; }
+.music-pick { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; }
+.music-pick button { padding: 0.4rem 0.8rem; font: inherit; color: inherit; background: none; border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.music-pick button:hover { text-decoration: underline; }
 .music-secret { margin: 1rem 0 0; }
+
 
 /* the small player that shows on other pages while music is going */
 .mini {
@@ -1101,8 +1185,6 @@ main {
 
 .mini button:hover { text-decoration: underline; }
 
-/* a short "added!" message under the tabs */
-.music-toast { max-width: 40rem; min-height: 1.4em; margin: 0.6rem 0 0.6rem; font-size: 0.75rem; }
 
 /* ---------- Community page ---------- */
 .page[data-page="community"] {
@@ -1195,15 +1277,13 @@ main {
 /* phones: tighter top of the moodboard, music and community pages */
 @media (max-width: 40rem) {
   .page[data-page="braindump"], .page[data-page="music"], .page[data-page="community"] { padding-top: 1.25rem; }
-  .mb-top, .music-top { margin-bottom: 1.25rem; }
-  .mb:has(.mb-note:not([hidden])) .mb-top, .music:has(.mb-note:not([hidden])) .music-top { margin-bottom: 0; }
+  .mb-top { margin-bottom: 1.25rem; }
+  .mb:has(.mb-note:not([hidden])) .mb-top { margin-bottom: 0; }
   /* tabs on their own line, then the + and "make yours" on the left and reset on the right */
-  .mb-top, .music-top { display: grid; grid-template-columns: auto auto 1fr; gap: 0.75rem 0.5rem; align-items: center; }
+  .mb-top { display: grid; grid-template-columns: auto auto 1fr; gap: 0.75rem 0.5rem; align-items: center; }
   .mb-top { grid-template-columns: repeat(4, auto) 1fr; }       /* room for the owner's +, the board's +, make yours, reset */
-  .mb-top .mb-left, .music-top .mb-left { display: contents; }
-  .mb-top .mb-tabs, .music-top .mb-tabs { grid-column: 1 / -1; grid-row: 1; justify-self: start; }
-  .music-top .mb-plus { grid-row: 2; grid-column: 1; }
-  .music-top .mb-right { grid-row: 2; grid-column: 3; justify-self: end; }
+  .mb-top .mb-left { display: contents; }
+  .mb-top .mb-tabs { grid-column: 1 / -1; grid-row: 1; justify-self: start; }
   /* on the braindump page the buttons fill the second line left to right, whichever ones are showing */
   .mb-top .mb-plus-wrap, .mb-top #mb-add-mine, .mb-top .mb-newboard, .mb-top .mb-right { grid-row: 2; grid-column: auto; }
   .mb-top .mb-right { justify-self: start; margin-left: 0.5rem; }
@@ -1284,26 +1364,6 @@ main {
 .mb-add-filehint { margin: -0.4rem 0 0.9rem; font-size: 0.7rem; }
 .mb-add-filehint:empty { display: none; }
 .mb-plus[hidden] { display: none; }
-
-/* phones: the music tabs (all songs, the categories, the playlists) wrap onto new lines instead of scrolling sideways */
-@media (max-width: 40rem) {
-  .music-top .mb-tabs {
-    flex-wrap: wrap;
-    width: 100%;
-    gap: 0.5rem;
-    overflow: visible;
-    border: none;
-    border-radius: 0;
-  }
-  .music-top .mb-tab {
-    min-width: 0;
-    max-width: 100%;
-    padding: 0 0.9rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-  }
-  .music-top .mb-tab + .mb-tab { border-left: 1px solid var(--line); }
-}
 
 /* ---------- Confession booth ---------- */
 /* fills the middle and centers its words */
@@ -1438,24 +1498,6 @@ main {
 .secret-pop .cm-card-meta { margin-bottom: 1.2rem; }
 @media (max-width: 44rem) { .place .cm-card { flex-basis: calc((100% - 1.2rem) / 2); } }
 @media (max-width: 30rem) { .place .cm-card { flex-basis: 100%; } }
-
-/* ---------- Music page: everything centered ---------- */
-.music { max-width: 40rem; margin: 0 auto; text-align: center; }
-.music-now { margin-left: auto; margin-right: auto; }
-.music-controls { justify-content: center; }
-.music-vol { margin-left: 0; }
-.music-top { justify-content: center; align-items: center; }
-.music-top .mb-left { justify-content: center; }
-.music-top .mb-right { justify-content: center; }
-.music-list { margin-left: auto; margin-right: auto; text-align: left; }
-.music-toast, .mb-note { margin-left: auto; margin-right: auto; text-align: center; }
-.music-pick { justify-content: center; }
-@media (max-width: 40rem) {
-  .music-top { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.75rem 0.5rem; }
-  .music-top .mb-tabs { order: 0; width: 100%; justify-content: center; justify-self: auto; }
-  .music-top .mb-plus { order: 1; }
-  .music-top .mb-right { order: 2; margin-left: 0; justify-self: auto; }
-}
 
 /* ---------- Thoughts page: centered ---------- */
 .thoughts-canvas {
@@ -1698,8 +1740,6 @@ main {
   .cm-refresh,
   #cm-refresh,
   .place-back,
-  .music-controls button,
-  .song-act,
   .bar-surprise,
   .menu-x {
     position: relative;
@@ -1708,14 +1748,12 @@ main {
   .mb-reset::after,
   #cm-refresh::after,
   .place-back::after,
-  .music-controls button::after,
-  .song-act::after,
   .bar-surprise::after {
     content: "";
     position: absolute;
     inset: -0.7rem -0.5rem;
   }
-  .music-seek input[type="range"], .music-vol input[type="range"] { height: 2rem; }
+  .music-vol input[type="range"] { height: 2rem; }
 
   /* iPhones zoom the whole page in when a box with small text is tapped; 16px stops that */
   input, textarea, select { font-size: 16px; }
@@ -2013,9 +2051,6 @@ main {
 .icon-btn svg { width: 1.2rem; height: 1.2rem; display: block; pointer-events: none; }
 .icon-btn:hover, .icon-btn:focus-visible { background: color-mix(in srgb, var(--text) 12%, transparent); text-decoration: none; outline: none; }
 .icon-btn[aria-pressed="true"] { background: var(--text); color: var(--bg); }
-.music-controls { gap: 0.5rem 0.6rem; }
-.music-controls .icon-play { width: 3.25rem; height: 3.25rem; }
-.music-controls .icon-play svg { width: 1.5rem; height: 1.5rem; }
 
 /* the small player that follows you around */
 .mini .icon-btn { width: 1.9rem; height: 1.9rem; }
