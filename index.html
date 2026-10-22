@@ -424,8 +424,11 @@
 
           <!-- the songs, eight at a time -->
           <ol class="jb-grid" id="music-list"></ol>
-          <button type="button" class="jb-more" id="music-more" aria-label="more songs" title="more songs" hidden></button>
-          <span class="jb-page" id="music-page"></span>
+          <div class="jb-pager" id="music-pager" hidden>
+            <button type="button" class="jb-more" id="music-less" aria-label="previous songs" title="previous songs"></button>
+            <span class="jb-page" id="music-page"></span>
+            <button type="button" class="jb-more" id="music-more" aria-label="more songs" title="more songs"></button>
+          </div>
         </div>
 
         <div class="jb-extras">

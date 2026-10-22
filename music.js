@@ -51,6 +51,7 @@ const ICONS = {
   next: SVG('<polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>', true),
   shuffle: SVG('<polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/>'),
   repeat: SVG('<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>'),
+  less: SVG('<line x1="20" y1="12" x2="5" y2="12"/><polyline points="11 6 5 12 11 18"/>'),
   more: SVG('<line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/>'),
   repeat1: SVG('<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/><path d="M11 10h1v4"/>'),
 };
@@ -65,7 +66,7 @@ const el = {
   seek: $("music-seek"), play: $("music-play"), prev: $("music-prev"), next: $("music-next"),
   shuffle: $("music-shuffle"), repeat: $("music-repeat"), vol: $("music-vol"), msg: $("music-msg"),
   tabs: $("music-tabs"), list: $("music-list"), delpl: $("music-delpl"), note: $("music-note"),
-  newpl: $("music-newpl"), toast: $("music-toast"), more: $("music-more"), pageNo: $("music-page"),
+  newpl: $("music-newpl"), toast: $("music-toast"), more: $("music-more"), less: $("music-less"), pager: $("music-pager"), pageNo: $("music-page"),
   mini: $("mini"), miniTitle: $("mini-title"), miniPrev: $("mini-prev"), miniPlay: $("mini-play"), miniNext: $("mini-next"),
 };
 
@@ -121,6 +122,7 @@ setIcon(el.next, "next"); setIcon(el.miniNext, "next");
 setIcon(el.shuffle, "shuffle");
 setIcon(el.repeat, "repeat");
 setIcon(el.more, "more");
+setIcon(el.less, "less");
 setIcon(el.play, "play"); setIcon(el.miniPlay, "play");
 
 // ----- the player -----
@@ -358,10 +360,12 @@ function renderList() {
   el.list.innerHTML = "";
   const list = viewSongs();
   const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
-  if (page >= pages) page = 0;
-  el.more.hidden = pages < 2;                                        // the arrow only shows when there's more than eight
+  if (page < 0) page = pages - 1;
+  else if (page >= pages) page = 0;
+  el.pager.hidden = pages < 2;                                       // the arrows only show when there's more than one page
   el.pageNo.textContent = pages > 1 ? (page + 1) + "/" + pages : "";
-  el.more.setAttribute("aria-label", "more songs (page " + (page + 1) + " of " + pages + ")");
+  el.more.setAttribute("aria-label", "next songs (page " + (page + 1) + " of " + pages + ")");
+  el.less.setAttribute("aria-label", "previous songs (page " + (page + 1) + " of " + pages + ")");
   if (!list.length) {
     const li = document.createElement("li");
     li.className = "music-empty";
@@ -428,6 +432,10 @@ function renderList() {
 
 el.more.addEventListener("click", () => {
   page += 1;                       // after the last page, back to the first
+  renderList();
+});
+el.less.addEventListener("click", () => {
+  page -= 1;                       // before the first page, around to the last
   renderList();
 });
 

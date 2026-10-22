@@ -1122,16 +1122,20 @@ body.has-yb .page[data-page="music"] { padding-bottom: 2.8rem; }
 .jb-cell.current.paused .song-title { font-style: italic; }
 .music-empty { grid-column: 1 / -1; grid-row: 1 / -1; align-self: center; font-size: max(8px, calc(var(--u) * 7)); line-height: 1.5; opacity: 0.7; }
 
-/* the arrow that turns to the next eight songs */
+/* the arrows that turn through the songs: back, page number, forward */
+.jb-pager {
+  position: absolute; left: calc(var(--ux) * 253.33); top: calc(var(--u) * 654); transform: translateX(-50%);
+  display: flex; align-items: center; gap: calc(var(--u) * 8);
+}
+.jb-pager[hidden] { display: none; }
 .jb-more {
-  left: calc(var(--ux) * 253.33 - var(--u) * 14.15); top: calc(var(--u) * 654); width: calc(var(--u) * 28.3); height: calc(var(--u) * 28.3);
+  position: static; width: calc(var(--u) * 28.3); height: calc(var(--u) * 28.3);
   display: grid; place-items: center; padding: 0; font: inherit; color: var(--text); background: var(--bg);
   border: 1px solid var(--line); border-radius: calc(var(--u) * 3.56); cursor: pointer;
 }
-.jb-more[hidden] { display: none; }
 .jb-more svg { width: 60%; height: 60%; display: block; }
 .jb-more:hover { background: var(--text); color: var(--bg); }
-.jb-page { left: calc(var(--ux) * 273 + var(--u) * 8); top: calc(var(--u) * 663); font-size: max(7px, calc(var(--u) * 7)); opacity: 0.65; white-space: nowrap; }
+.jb-page { position: static; min-width: 2.6em; padding: 0.3em 0.5em; text-align: center; font-size: max(9px, calc(var(--u) * 10)); white-space: nowrap; background: color-mix(in srgb, var(--bg) 90%, transparent); border-radius: calc(var(--u) * 3.56); }
 
 /* under the jukebox: volume, the owner's buttons, and little messages */
 .jb-extras { position: absolute; top: 100%; left: 0; right: 0; margin-top: 0.15rem; display: flex; flex-direction: column; align-items: center; gap: 0.6rem; font-size: 0.75rem; }
