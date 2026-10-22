@@ -2714,8 +2714,8 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
   .sr-door { transition: none; }
 }
 
-/* secret room: smaller map, credit pinned at the bottom */
-.sr-canvas { max-width: 52rem; }
+/* secret room: the map (25% bigger than before: 52rem -> 65rem), credit pinned at the bottom */
+.sr-canvas { max-width: 65rem; }
 .sr-credit { position: fixed; left: 0; right: 0; bottom: calc(var(--bar-height) + .35rem); margin: 0; z-index: 5; pointer-events: none; }
 @media (max-width: 44rem) {
   .sr-canvas { max-width: 24rem; }
@@ -2759,9 +2759,10 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
   .sr-map-d { display: none; }
   .sr-map-m { display: block; }
   .sr-canvas { max-width: 26rem; }
-  .sr-welcome { font-size: .85rem; }
-  .sr-name { font-size: 1.2rem; }
-  .sr-bang { width: 3rem; right: -1.9rem; top: -1.4rem; }
+  .sr-map-m { width: 125%; max-width: none; flex: none; }   /* 25% bigger than the space it's given, spilling evenly out each side (the drawing has empty room around it) */
+  .sr-welcome { font-size: 1.06rem; }
+  .sr-name { font-size: 1.5rem; }
+  .sr-bang { width: 3.75rem; right: -2.4rem; top: -1.75rem; }
   .sr-title { margin: 1rem auto .5rem; }
 }
 
@@ -3057,7 +3058,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 
 /* secret room on phones: room at the bottom so you can scroll the last stop (the library) up above the yeonbucks / leaderboard row */
 @media (max-width: 44rem) {
-  .page[data-page="secret-room"] .sr { padding-bottom: calc(var(--yb-h, 3rem) + 3.5rem); }
+  .page[data-page="secret-room"] .sr { padding-bottom: calc(var(--yb-h, 3rem) + 1rem); }
 }
 
 /* the door icon credit sits above the yeonbucks / inventory / leaderboard row, whatever size that is */
@@ -3869,3 +3870,7 @@ html.sr-door-off .sr-door { display: none !important; }
 .page[data-page="shop"] .shop-body { display: flex; flex-direction: column; min-height: var(--shop-body-h, 0); }
 .page[data-page="shop"] .shop-body .shop-pager { margin-top: auto; }
 .page[data-page="shop"] .shop-body .shop-grid { margin-bottom: 1.2rem; }
+
+/* secret room on phones: the flags and the background pattern scroll up with the page (secretroom.js sets --sr-y while you scroll) */
+html.sr-scroll .hl-lights { transform: translateY(var(--sr-y, 0px)); }
+html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }

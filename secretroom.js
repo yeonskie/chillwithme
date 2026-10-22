@@ -65,6 +65,18 @@
     placeMini();
     if (!has && (pageName() === "secret-room" || pageName() === "rare-shop")) location.hash = "#home";   // no key, no room
   }
+  // secret room on phones: the flags along the top and the background pattern scroll up along with the map and title
+  // (everywhere else they stay put). --sr-y is how far the page has scrolled, as a negative number of pixels
+  const mainEl = document.getElementById("main");
+  function syncScroll() {
+    const on = pageName() === "secret-room" && window.innerWidth <= 704;      // (704px = 44rem, where the phone layout starts)
+    document.documentElement.classList.toggle("sr-scroll", on);
+    document.documentElement.style.setProperty("--sr-y", on && mainEl ? -mainEl.scrollTop + "px" : "0px");
+  }
+  if (mainEl) mainEl.addEventListener("scroll", syncScroll, { passive: true });
+  window.addEventListener("hashchange", () => setTimeout(syncScroll, 0));
+  window.addEventListener("resize", syncScroll);
+  syncScroll();
   window.SR = { sync: sync };
   sync();
   window.addEventListener("hashchange", sync);
