@@ -3670,8 +3670,8 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 @media (max-width: 40rem) { #btn-menu { padding-left: 1.5rem; padding-right: 1.5rem; } }
 
 /* the homepage title is on two lines now, so it can be bigger */
-.home-title { font-size: clamp(1.75rem, 6.8vw, 2.5rem); line-height: 1; }
-@media (max-height: 46rem) { .home-title { font-size: 1.75rem; } }
+.home-title { font-size: clamp(1.5rem, 5.8vw, 2.1rem); line-height: 1; }
+@media (max-height: 46rem) { .home-title { font-size: 1.5rem; } }
 
 /* phones and tablets (the prize shop and the rare shop): "how to earn more yeonbucks" gets its own line, and "inventory" and
    "leaderboard" sit side by side under it. (big screens have their own layout further up) */
