@@ -3808,3 +3808,6 @@ main { margin-top: var(--lights-h); }
   font-family: "Shrikhand", serif; font-size: 1.9rem; line-height: 1; color: var(--text);
   text-shadow: -2px 0 var(--bg), 2px 0 var(--bg), 0 -2px var(--bg), 0 2px var(--bg), -2px -2px var(--bg), 2px 2px var(--bg), -2px 2px var(--bg), 2px -2px var(--bg);
 }
+
+/* "hide the door" in the inventory: the corner door and the one at the bottom of the prize shop go away (the secret room is still in the menu) */
+html.sr-door-off .sr-door { display: none !important; }

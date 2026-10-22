@@ -10,37 +10,22 @@
   let n = 0;
   // returns the svg's inside, with its own clip-path ids (so a few doors on one page don't clash)
   function art(kind) { const id = "d" + (++n); return ART[kind].replace(/-@/g, "-" + id); }
-  // ----- "secret door look" (inventory): your drawing, or the plain door that's built into the page -----
-  const KEY = "yb-door-plain";                            // "1" = plain door (your drawing is switched off)
-  let plain = false;
-  try { plain = localStorage.getItem(KEY) === "1"; } catch (e) { /* no storage: your drawing stays on */ }
-  const orig = new WeakMap();                             // each door's own plain markup, kept so it can be put back
-  const used = new Map();                                 // every door on the page -> its size ("simple" or "detailed")
-  let spare = null;                                       // a plain door to use for doors that are drawn by script (the one in the prize shop)
-  function keepPlain(svg) {
-    if (orig.has(svg) || !svg.innerHTML.trim()) return;
-    orig.set(svg, { vb: svg.getAttribute("viewBox"), cls: svg.getAttribute("class"), html: svg.innerHTML });
-    if (!spare) spare = orig.get(svg);
-  }
-  function draw(svg, kind) {
-    keepPlain(svg);
-    used.set(svg, kind);
-    if (plain) {
-      const o = orig.get(svg) || spare;
-      if (o) { svg.setAttribute("viewBox", o.vb || "14 0 72 100"); svg.setAttribute("class", o.cls || ""); svg.innerHTML = o.html; return; }
-    }
-    svg.setAttribute("viewBox", VB); svg.classList.remove("sr-art-simple", "sr-art-detailed"); svg.classList.add("sr-art", "sr-art-" + kind); svg.innerHTML = art(kind);
-  }
+  // ----- "secret door" (inventory): show the door in the corner and at the bottom of the prize shop, or hide it -----
+  const KEY = "yb-door-hidden";                            // "1" = the door is hidden (the secret room is still in the menu)
+  let hidden = false;
+  try { hidden = localStorage.getItem(KEY) === "1"; } catch (e) { /* no storage: the door stays */ }
+  const root = document.documentElement;
+  root.classList.toggle("sr-door-off", hidden);
   window.SR_DOOR = {
+    isHidden() { return hidden; },
+    setHidden(on) {
+      hidden = !!on;
+      root.classList.toggle("sr-door-off", hidden);
+      try { localStorage.setItem(KEY, hidden ? "1" : "0"); } catch (e) { /* fine */ }
+    },
     VB: VB,
     html: art,
-    fill: draw,
-    isPlain() { return plain; },
-    setPlain(on) {
-      plain = !!on;
-      try { localStorage.setItem(KEY, plain ? "1" : "0"); } catch (e) { /* fine */ }
-      used.forEach((kind, svg) => { if (svg.isConnected) draw(svg, kind); });
-    }
+    fill(svg, kind) { svg.setAttribute("viewBox", VB); svg.classList.remove("sr-art-simple", "sr-art-detailed"); svg.classList.add("sr-art", "sr-art-" + kind); svg.innerHTML = art(kind); }
   };
   // the corner door + the two on the map are the simple one
   document.querySelectorAll("svg.sr-door-icon").forEach(s => window.SR_DOOR.fill(s, "simple"));
