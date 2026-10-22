@@ -13,7 +13,11 @@ const UPDATES = [
       "new carnival-themed marquee in header",
       "removed cap on leaderboard at 100 mil",
       "new menu scroll animation on homepage",
+      "balloons on homescreen, pop to earn yeonbucks",
+      "triangle flags to top of homepage",
       "repositioned homepage and made title larger",
+      "balloons on homescreen, pop to earn yeonbucks",
+      "triangle flags to top of homepage",
     ],
   },
   {
