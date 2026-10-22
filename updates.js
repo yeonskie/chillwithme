@@ -9,6 +9,11 @@ const UPDATES = [
     date: "10.22.26",
     items: [
       "retitled 'music page' to 'jukebox' and revamped design",
+      "cropped moodboard posts with captions",
+      "shop categories",
+      "orange and yellow tints",
+      "ability to hide secret door",
+      "star, heart, raindrop backgrounds now animated",
     ],
   },
   {
