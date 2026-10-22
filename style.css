@@ -2542,6 +2542,8 @@ html[data-bg="rain"] body, .shop-prev[data-p="rain"] {
    To make the tint stronger or softer, change --tint. To change a color, change --accent. */
 :root { --tint: 20%; }
 :root[data-accent="pink"]     { --accent: #ff9ec4; }
+:root[data-accent="orange"]   { --accent: #ffa64d; --tint: 32%; }   /* (a little stronger than the others: 20%) */
+:root[data-accent="yellow"]   { --accent: #ffe14d; --tint: 32%; }
 :root[data-accent="blue"]     { --accent: #6cb4ff; }
 :root[data-accent="green"]    { --accent: #39ff14; }
 :root[data-accent="lavender"] { --accent: #b79cff; }
@@ -2549,6 +2551,8 @@ html[data-bg="rain"] body, .shop-prev[data-p="rain"] {
 :root[data-accent][data-theme="light"] { --bg: color-mix(in srgb, var(--accent) var(--tint), #f2efe9); }
 :root[data-accent] ::selection { background: var(--accent); color: #1a1a1a; }
 .shop-prev-accent[data-a="pink"]     { background: #ff9ec4; }
+.shop-prev-accent[data-a="orange"]   { background: #ffa64d; }
+.shop-prev-accent[data-a="yellow"]   { background: #ffe14d; }
 .shop-prev-accent[data-a="blue"]     { background: #6cb4ff; }
 .shop-prev-accent[data-a="green"]    { background: #39ff14; }
 .shop-prev-accent[data-a="lavender"] { background: #b79cff; }

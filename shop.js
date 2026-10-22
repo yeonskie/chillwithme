@@ -17,7 +17,7 @@
 //            "pointer": a different mouse pointer (the arrow and the pointing hand). "value" is "y2k". The images are in the cursors folder, the CSS is in style.css (search "data-pointer").
 //            "tap"    : something pops where you tap or click. "value" is "sparkle", "heart", "petal", "bubble", "ghost" or "yb" (yb = +1 yeonbucks per tap). The drawing is at the bottom of this file, the CSS is in style.css (search "tap-bit").
 //            "bg"     : a page background. "value" is "dots", "grid", "stars", "hearts" or "rain"
-//            "accent" : tints the whole site a color. "value" is "pink", "blue", "green" or "lavender" (the colors are in style.css, search "data-accent")
+//            "accent" : tints the whole site a color. "value" is "pink", "orange", "yellow", "blue", "green" or "lavender" (the colors are in style.css, search "data-accent")
 //            "acc"    : something your pet wears (found in the lost and found only). "value" is "hat", "bow" or "soda"
 //            "pet"    : a little pet in the bottom right corner. "value" is the animal's name, e.g. "dog" or "koala" (what they say is at the bottom of this file)
 //            "soon"   : shows in the shop but can't be bought yet
@@ -58,6 +58,8 @@
     { id: "tap-ghost",   group: "tap",           name: "ghost tap (halloween exclusive)", desc: "little ghosts float up where you tap or click. gone after october 31!", price: 3000, kind: "tap", value: "ghost", short: "ghosts", until: "2026-10-31" },
     { id: "tap-yb",      group: "tap",           name: "yeonbucks tap",  desc: "+1 yeonbucks for every tap or click on the site", price: 10000, kind: "tap", value: "yb", short: "yeonbucks" },
     { id: "acc-pink",     group: "accents",      name: "light pink",     desc: "a soft pink tint over the site",      price: 2500,  kind: "accent", value: "pink" },
+    { id: "acc-orange",   group: "accents",      name: "orange",         desc: "a warm orange tint over the site",    price: 2500,  kind: "accent", value: "orange" },
+    { id: "acc-yellow",   group: "accents",      name: "yellow",         desc: "a sunny yellow tint over the site",   price: 2500,  kind: "accent", value: "yellow" },
     { id: "acc-blue",     group: "accents",      name: "blue",           desc: "a cool blue tint over the site",      price: 2500,  kind: "accent", value: "blue" },
     { id: "acc-green",    group: "accents",      name: "neon green",     desc: "a fresh green tint over the site",    price: 2500,  kind: "accent", value: "green" },
     { id: "acc-lavender", group: "accents",      name: "lavender",       desc: "a dreamy purple tint over the site",  price: 2500,  kind: "accent", value: "lavender" },
@@ -183,7 +185,7 @@
   const perPage = () => (phone.matches ? 6 : 9);
   // catOf (optional): says which category an item is in. when it's given, the shelf is split by category: every category starts on its own
   // page (a category with more than a page of items takes a few pages) and its name is the little heading under the roof.
-  function makeShelf(box, list, catOf) {
+  function makeShelf(box, list, catOf, partOf) {
     let page = 0;
     function pagesOf(items) {
       const out = [];
@@ -194,8 +196,13 @@
       const names = [];
       items.forEach((it) => { const c = catOf(it); if (names.indexOf(c) === -1) names.push(c); });
       names.forEach((c) => {
-        const mine = items.filter((it) => catOf(it) === c);
-        for (let i = 0; i < mine.length; i += perPage()) out.push({ title: c, items: mine.slice(i, i + perPage()) });
+        const all = items.filter((it) => catOf(it) === c);
+        const parts = [];                                         // partOf (optional): items in different parts of a category never share a page (same heading, new page)
+        all.forEach((it) => { const k = partOf ? partOf(it) : ""; if (parts.indexOf(k) === -1) parts.push(k); });
+        parts.forEach((k) => {
+          const mine = all.filter((it) => (partOf ? partOf(it) : "") === k);
+          for (let i = 0; i < mine.length; i += perPage()) out.push({ title: c, items: mine.slice(i, i + perPage()) });
+        });
       });
       return out.length ? out : [{ title: "", items: [] }];
     }
@@ -269,7 +276,7 @@
     return { build: build, update: update };
   }
   // the prize shop's categories, in the order they show. an item goes in the first one it fits.
-// (the color tints are with the backgrounds. the secret room key is the secret door.)
+// (the color tints are under backgrounds too, on their own page. the secret room key is the secret door.)
 const SHOP_CATS = [
     ["backgrounds", (i) => i.kind === "bg" || i.kind === "accent"],
     ["taps", (i) => i.kind === "tap"],
@@ -283,7 +290,7 @@ const SHOP_CATS = [
     const rank = (i) => { const n = SHOP_CATS.findIndex((k) => k[0] === shopCat(i)); return n < 0 ? 99 : n; };
     return shopList().map((it, n) => [it, n]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map((x) => x[0]);
   };
-  const prizeShelf = makeShelf(document.getElementById("shop-items"), shopSorted, shopCat);
+  const prizeShelf = makeShelf(document.getElementById("shop-items"), shopSorted, shopCat, (i) => (shopCat(i) === "backgrounds" ? i.kind : ""));   // (the color tints get their own page under "backgrounds")
 
   // ----- THE RARE ITEMS SHOP (the secret room, room 4) -----
   // Same look as the prize shop. It only stocks RARE_SLOTS things at a time and the stock changes every other day,
