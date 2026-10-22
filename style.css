@@ -3667,3 +3667,7 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 /* the bottom "menu" button: a wider (and taller) click area, the text stays the same size */
 #btn-menu { padding-left: 3.5rem; padding-right: 3.5rem; align-self: stretch; }
 @media (max-width: 40rem) { #btn-menu { padding-left: 1.5rem; padding-right: 1.5rem; } }
+
+/* the homepage title is on two lines now, so it can be bigger */
+.home-title { font-size: clamp(1.75rem, 6.8vw, 2.5rem); line-height: 1; }
+@media (max-height: 46rem) { .home-title { font-size: 1.75rem; } }
