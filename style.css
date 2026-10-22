@@ -3671,3 +3671,39 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 /* the homepage title is on two lines now, so it can be bigger */
 .home-title { font-size: clamp(1.75rem, 6.8vw, 2.5rem); line-height: 1; }
 @media (max-height: 46rem) { .home-title { font-size: 1.75rem; } }
+
+/* phones and tablets (the prize shop and the rare shop): "how to earn more yeonbucks" gets its own line, and "inventory" and
+   "leaderboard" sit side by side under it. (big screens have their own layout further up) */
+@media (max-width: 60.99rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row { display: grid; grid-template-columns: auto auto; justify-content: center; gap: 0.5rem; width: 100%; flex: 0 0 100%; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row .hy-btn:first-child { grid-column: 1 / -1; justify-self: center; }
+}
+
+/* phones and tablets, both shops:
+   - more room above and below the number of yeonbucks, and between the buttons and the shop
+   - "back to the arcade / secret room" sits under the buttons (the order of things in the column is set here)
+   - in the rare shop, "inventory" is centered under "how to earn" */
+@media (max-width: 60.99rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-head { order: -5; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar { order: -4; margin-top: 0.9rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-restock { order: -3; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-side > .hy-back { order: -2; margin: 0.9rem 0 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-msg { order: -1; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { padding: 0.7rem 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-awning { margin-top: 1.4rem; }
+}
+
+/* phones and tablets, both shops: half the space between the sign and the number of yeonbucks (the space under the number stays) */
+@media (max-width: 60.99rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-head { margin-bottom: 0.6rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar { margin-top: 0.45rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { padding-top: 0.35rem; }
+}
+
+/* a little less again between the sign and the number of yeonbucks */
+@media (max-width: 60.99rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-head { margin-bottom: 0.4rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar { margin-top: 0.3rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { padding-top: 0.25rem; }
+}
+@media (max-width: 60.99rem) { .page[data-page="rare-shop"] .shop-restock { margin-top: 0.5rem; } }
