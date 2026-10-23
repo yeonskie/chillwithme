@@ -149,7 +149,13 @@
   function update() {
     let name = "";
     try { name = (localStorage.getItem("yb-name") || "").trim(); } catch (e) {}
-    hello.textContent = name ? "enjoy your stay, " + name + "!" : "enjoy your stay!";
+    if (!name) { hello.textContent = "enjoy your stay!"; return; }
+    // the name is its own piece, so on phones a long one drops to a second line instead of splitting up (see .home-name in style.css)
+    const nm = document.createElement("span");
+    nm.className = "home-name";
+    nm.textContent = name + "!";
+    hello.textContent = "enjoy your stay, ";
+    hello.appendChild(nm);
   }
   update();
   window.addEventListener("yb-name-changed", update);

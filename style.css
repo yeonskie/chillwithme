@@ -3904,3 +3904,6 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 @media (min-width: 40.01rem) and (pointer: fine) {
   .home-mid { --merry-w: clamp(8.5rem, calc(100svh - 39.5rem), 15rem); }
 }
+
+/* the name in "enjoy your stay, [name]!": stays in one piece, so a long name moves to its own second line (and only breaks apart if it's wider than the whole ticket) */
+.home-name { display: inline-block; max-width: 100%; overflow-wrap: anywhere; }
