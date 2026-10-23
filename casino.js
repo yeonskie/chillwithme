@@ -136,7 +136,15 @@
   const balEl = $("cz-bal"), nextEl = $("cz-next"), msg = $("cz-msg"), betEl = $("cz-bet"), spinBtn = $("cz-spin");
   let spinning = false;
 
-  function say(text, cls) { msg.textContent = text; msg.className = "cz-msg" + (cls ? " " + cls : ""); }
+  function say(text, cls) {   // **like this** makes part of the message bold (used for the amounts)
+    msg.textContent = "";
+    text.split("**").forEach((part, i) => {
+      if (!part) return;
+      if (i % 2) { const b = document.createElement("strong"); b.textContent = part; msg.appendChild(b); }
+      else msg.appendChild(document.createTextNode(part));
+    });
+    msg.className = "cz-msg" + (cls ? " " + cls : "");
+  }
 
   // the 9 boxes
   const cells = [];
@@ -337,6 +345,7 @@
     holdSet(win);                                             // every tab shows the balance after the bet, before the prize arrives
     refresh();
     say("spinning...");
+    msg.parentElement.classList.add("cz-spun");                 // after the first spin the welcome title goes away and only the results show
     cells.forEach((c) => c.classList.remove("cz-win", "cz-pair"));
     grid.classList.remove("cz-jackpot");
     machineEl.classList.remove("cz-gold");
@@ -369,25 +378,25 @@
     const won = evaluate(final).cells.map((i) => cells[i]);
     if (result === 10) {
       // jackpot: the whole machine flashes, then stays lit
-      say("jackpot! all nine match! you won " + fmt(win) + " yeonbucks!");
+      say("jackpot! all nine match! you won **" + fmt(win) + "** yeonbucks!");
       await flash(() => { grid.classList.toggle("cz-jackpot"); machineEl.classList.toggle("cz-gold"); }, 7);
       grid.classList.add("cz-jackpot");
       machineEl.classList.add("cz-gold");
     } else if (result === 5) {
       // two lines: they flash, then stay lit
-      say("two lines! 5x: you won " + fmt(win) + " yeonbucks!");
+      say("two lines! 5x: you won **" + fmt(win) + "** yeonbucks!");
       await flash(() => won.forEach((c) => c.classList.toggle("cz-win")), 5);
       won.forEach((c) => c.classList.add("cz-win"));
     } else if (result === 1) {
       // three in a row: lit up and steady
       won.forEach((c) => c.classList.add("cz-win"));
-      say("three in a row! 1x: you got your " + fmt(bet) + " back.");
+      say("three in a row! 1x: you got your **" + fmt(bet) + "** back.");
     } else if (result === 0.5) {
       // two in a row: the pair gets a dashed outline
       won.forEach((c) => c.classList.add("cz-pair"));
-      say("two in a row! 0.5x: you got half back (" + fmt(win) + ").");
+      say("two in a row! 0.5x: you got half back (**" + fmt(win) + "**).");
     } else {
-      say("no matches. you lost " + fmt(bet) + " yeonbucks.", "cz-bad");
+      say("no matches. you lost **" + fmt(bet) + "** yeonbucks.", "cz-bad");
     }
     spinning = false;
     spinBtn.classList.remove("cz-pulled");

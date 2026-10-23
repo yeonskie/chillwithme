@@ -2204,6 +2204,10 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-title { margin: 0; font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: 4.3cqw; line-height: 1.1; white-space: nowrap; }
 .cz-msg { margin: 0; min-height: 1.3em; font-size: max(10.5px, 2.2cqw); font-weight: 700; line-height: 1.25; text-wrap: balance; }
 .cz-msg.cz-bad { opacity: 0.7; }
+.cz-msg strong { font-weight: 700; }
+/* after the first spin: no welcome title, just the result (the amount in bold) */
+.cz-spun .cz-title { display: none; }
+.cz-spun .cz-msg { font-size: max(12px, 2.9cqw); font-weight: 400; }
 
 /* the screen: three rows, lined up with the dashed lines in the drawing */
 .cz-grid { position: absolute; z-index: 2; left: 10.38%; width: 66.7%; top: 25.85%; height: 48.57%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: 124.09fr 137.26fr 122.33fr; gap: 0; border-radius: 4.86cqw; overflow: hidden; margin: 0; }
