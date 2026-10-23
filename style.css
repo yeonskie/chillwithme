@@ -3144,7 +3144,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .cm-react-add { font-size: 0.68rem; padding: 0.4rem 0.55rem; }
 .cm-react-n:empty { display: none; }
 .cm-react:hover, .cm-react:focus-visible { background: var(--text); color: var(--bg); outline: none; }
-.cm-react-on { border-color: var(--text); font-weight: 700; }
+.cm-react-on, .cm-react-on:hover, .cm-react-on:focus-visible { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 700; }
 .cm-replybtn { margin-left: auto; font: inherit; font-size: 0.7rem; color: inherit; background: none; border: 0; padding: 0.3rem 0.2rem; cursor: pointer; text-decoration: underline; text-underline-offset: 0.2em; opacity: 0.8; }
 .cm-replybtn:hover, .cm-replybtn:focus-visible { opacity: 1; outline: none; }
 .cm-thread-card { width: min(30rem, 100%); padding-top: 2.4rem; }
@@ -3157,7 +3157,7 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 .cm-picker { position: fixed; z-index: 10001; display: flex; gap: 4px; padding: 6px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); }
 .cm-pick { font: inherit; font-size: 1.6rem; line-height: 1; width: 2.6rem; height: 2.6rem; color: inherit; background: var(--bg); border: 1px solid transparent; border-radius: var(--radius); cursor: pointer; }
 .cm-pick:hover, .cm-pick:focus-visible { background: var(--text); color: var(--bg); outline: none; }
-.cm-pick-on { border-color: var(--text); }
+.cm-pick-on, .cm-pick-on:hover, .cm-pick-on:focus-visible { background: var(--text); color: var(--bg); border-color: var(--text); }
 
 /* community: description, + and "check for new" centered */
 .cm-intro { margin-left: auto; margin-right: auto; text-align: center; }
