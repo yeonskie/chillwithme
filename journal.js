@@ -146,7 +146,11 @@
         request("/rest/v1/boards?select=name&order=created_at.asc&limit=100", { method: "GET" }).then((r) => r.json()),
         request("/rest/v1/board_items?select=id,board_name,item&order=created_at.asc&limit=2000", { method: "GET" }).then((r) => r.json()),
         // descriptions and the order you set (supabase-board-meta.sql); if that hasn't been run yet, the boards still load
-        request("/rest/v1/board_meta?select=board_name,title,description,position,layout,layout_at&limit=500", { method: "GET" }).then((r) => r.json()).catch(() => []),
+        // "heading" is the big title under the tickets: add it with   alter table board_meta add column if not exists heading text;
+        request("/rest/v1/board_meta?select=board_name,title,heading,description,position,layout,layout_at&limit=500", { method: "GET" }).then((r) => r.json())
+          // no "heading" column yet: ask again without it, so descriptions, order and layouts still load
+          .catch(() => request("/rest/v1/board_meta?select=board_name,title,description,position,layout,layout_at&limit=500", { method: "GET" }).then((r) => r.json()))
+          .catch(() => []),
       ]);
       const meta = (Array.isArray(metaRows) ? metaRows : []).filter((m) => m && typeof m.board_name === "string");
       const names = boardRows.map((r) => r.name).filter((n) => typeof n === "string");
@@ -218,6 +222,13 @@
     // a moodboard's description (for everyone). empty puts back the one from moodboards.js, if there is one
     async saveDescription(name, text) {
       await upsertMeta([{ board_name: name, description: text || null }]);
+      await loadBoards(true);
+    },
+    // the big title under the tickets (for everyone) and the description; empty puts back the board's own name / no description
+    async saveBoardText(name, text, heading) {
+      const row = { board_name: name, description: text || null };
+      if (heading !== undefined) row.heading = heading || null;
+      await upsertMeta([row]);
       await loadBoards(true);
     },
     // the order of the shared moodboards: a list of their names, first to last

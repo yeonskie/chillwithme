@@ -432,6 +432,13 @@ function sharedRows(b, count) {
   return fresh.length ? evenRows([fresh, ...rows]) : rows;
 }
 
+// the big title under the tickets: the alternate title you set online, otherwise the board's name
+function boardHeading(b) {
+  if (!boards[b]) return "";
+  const h = boardMine[b] ? "" : String(metaOf(boards[b].name).heading || "").trim();
+  return h || boardTitle(b);
+}
+
 // the description under a moodboard's name: what you set online, otherwise "description" from moodboards.js
 function boardDesc(b) {
   if (!boards[b] || boardMine[b]) return "";
@@ -701,13 +708,24 @@ function setRowVars(row) {
   row.style.setProperty("--rh", tall);
 }
 
+let tabLimit = TABS_SHOWN;       // on phones this shrinks until the closed tabs (and "+ N more") fit in two rows
 function renderTabs() {
+  tabLimit = TABS_SHOWN;
+  renderTabsPass();
+}
+function renderTabsPass() {
   const mine = !!boardMine[currentBoard];
   document.getElementById("mb-add-mine").hidden = !mine || ownerMode;       // adding to a board of your own (you, the owner, use the other + instead)
   // you can delete your own boards, and (signed in) the ones you made for everyone
   document.getElementById("mb-delete").hidden = !(mine || (ownerMode && boardOnline[currentBoard]));
   document.getElementById("mb-note").hidden = !mine;
   // the description under the tabs, and (for you, signed in) the buttons that change it and the board's place
+  const heading = document.getElementById("mb-heading");
+  if (heading) {
+    const t = boardHeading(currentBoard);
+    heading.textContent = t;
+    heading.hidden = !t;
+  }
   const desc = document.getElementById("mb-desc");
   if (desc) {
     const text = boardDesc(currentBoard);
@@ -729,10 +747,10 @@ function renderTabs() {
   }
   mbTabs.innerHTML = "";
   // only the first few moodboards show as tabs; the rest sit behind a "+ more" button (the board you're on always shows)
-  const crowded = boards.length > TABS_SHOWN;
+  const crowded = boards.length > tabLimit;
   mbTabs.classList.toggle("expanded", crowded && tabsExpanded);
   boards.forEach((board, i) => {
-    if (crowded && !tabsExpanded && i >= TABS_SHOWN && i !== currentBoard) return;
+    if (crowded && !tabsExpanded && i >= tabLimit && i !== currentBoard) return;
     const tab = document.createElement("button");
     tab.type = "button";
     tab.className = "mb-tab";
@@ -747,7 +765,7 @@ function renderTabs() {
     mbTabs.appendChild(tab);
   });
   // closed: "+ N more" is the last tab in the row
-  const hidden = boards.length - boards.filter((b, i) => i < TABS_SHOWN || i === currentBoard).length;
+  const hidden = boards.length - boards.filter((b, i) => i < tabLimit || i === currentBoard).length;
   if (crowded && !tabsExpanded && hidden > 0) {
     const moreTab = document.createElement("button");
     moreTab.type = "button";
@@ -770,6 +788,11 @@ function renderTabs() {
     less.textContent = "see less";
   }
   fitStrip();
+  // phones: at most two rows of tickets while the list is closed ("+ N more" counts as one of them)
+  if (!tabsExpanded && tabLimit > 1 && window.matchMedia("(max-width: 40rem)").matches && mbTabs.offsetParent !== null) {
+    const rows = new Set([...mbTabs.children].map((c) => c.offsetTop)).size;
+    if (rows > 2) { tabLimit--; renderTabsPass(); return; }
+  }
   checkTopWrap();
 }
 
@@ -1429,6 +1452,7 @@ if (document.getElementById("mb-save-order")) {
   const dialog = document.getElementById("mb-desc-dialog");
   const form = document.getElementById("mb-desc-form");
   const text = document.getElementById("mb-desc-text");
+  const headingIn = document.getElementById("mb-heading-text");
   const msg = document.getElementById("mb-desc-msg");
   const saveBtn = document.getElementById("mb-desc-save");
   const editBtn = document.getElementById("mb-edit-desc");
@@ -1440,6 +1464,7 @@ if (document.getElementById("mb-save-order")) {
     if (!ownerMode || boardMine[currentBoard] || !boards[currentBoard]) return;
     document.getElementById("mb-desc-for").textContent = boardTitle(currentBoard);
     text.value = boardDesc(currentBoard);
+    if (headingIn) headingIn.value = String(metaOf(boards[currentBoard].name).heading || "").trim();
     msg.textContent = "";
     dialog.hidden = false;
     text.focus();
@@ -1462,7 +1487,10 @@ if (document.getElementById("mb-save-order")) {
     saveBtn.disabled = true;
     msg.textContent = "saving...";
     try {
-      await siteDb.saveDescription(name, text.value.trim().slice(0, 300));
+      const had = String(metaOf(name).heading || "").trim();
+      const nowHeading = headingIn ? headingIn.value.trim().slice(0, 60) : had;
+      // the heading is only sent when it changed, so descriptions still save before the "heading" column exists
+      await siteDb.saveBoardText(name, text.value.trim().slice(0, 300), nowHeading === had ? undefined : nowHeading);
       dialog.hidden = true;
     } catch (err) {
       msg.textContent = "couldn't save that (" + err.message + ")";
