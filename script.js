@@ -769,8 +769,25 @@ function renderTabs() {
     less.hidden = !(crowded && tabsExpanded);
     less.textContent = "see less";
   }
+  fitStrip();
   checkTopWrap();
 }
+
+// tabs as ticket stubs: one connected strip when every moodboard name fits on one line (wider screens, closed list),
+// otherwise each tab is its own ticket (see "ticket stubs" in style.css)
+function fitStrip() {
+  const top = document.querySelector(".mb-top");
+  if (!top || top.offsetParent === null) return;
+  const wantStrip = !mbTabs.classList.contains("expanded") && mbTabs.children.length > 0 && !window.matchMedia("(max-width: 40rem)").matches;
+  if (!wantStrip) { mbTabs.classList.remove("mb-strip"); return; }
+  // measure the strip's natural width with the strip look on, against the room the tabs actually have
+  mbTabs.classList.add("mb-strip");
+  const room = top.clientWidth - 8;
+  const need = [...mbTabs.children].reduce((w, c) => w + c.getBoundingClientRect().width, 0) + 14;
+  if (need > room) mbTabs.classList.remove("mb-strip");
+}
+window.addEventListener("resize", fitStrip);
+if (window.ResizeObserver) new ResizeObserver(() => fitStrip()).observe(document.querySelector(".mb-top") || document.body);
 
 // centers the buttons by the moodboard names whenever they don't all fit on one line
 // (measured with the centering off, so it can switch back when the window is made wider)
