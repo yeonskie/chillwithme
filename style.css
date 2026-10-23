@@ -2187,9 +2187,10 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
   font-weight: 700;
   transform: translateX(6.26%);   /* the lever sticks out on the right, so the machine is nudged over to line the body (the tray) up with the middle of the page and the text underneath */
 }
-.cz-art { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; fill: var(--text); }
+.cz-art { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; fill: var(--text); z-index: 1; }
 .cz-art *, .cz-lever * { vector-effect: non-scaling-stroke; }
 .cz-art .cz4 { fill: none; stroke: var(--bg); stroke-width: 1px; }
+.cz-art .cz-hb { stroke: color-mix(in srgb, var(--bg) 55%, var(--text)); }   /* lighter border over the lever holder */
 .cz-art .cz5 { fill: none; stroke: var(--text); stroke-width: 1px; stroke-dasharray: 5 5; }
 .cz-art .cz6 { fill: var(--bg); stroke: var(--text); stroke-width: 1px; }
 .cz-art .cz7 { fill: none; stroke: var(--text); stroke-width: 1px; }
@@ -2199,13 +2200,13 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-lever path:not([class]) { fill: var(--text); }
 
 /* the words on the marquee at the top: the title, and under it the little message (wins, losses, "spinning...") */
-.cz-marquee { position: absolute; left: 11.55%; width: 64.4%; top: 3.42%; height: 15.57%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5cqw; overflow: hidden; }
+.cz-marquee { position: absolute; z-index: 2; left: 11.55%; width: 64.4%; top: 3.42%; height: 15.57%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5cqw; overflow: hidden; }
 .cz-title { margin: 0; font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: 4.3cqw; line-height: 1.1; white-space: nowrap; }
 .cz-msg { margin: 0; min-height: 1.3em; font-size: max(10.5px, 2.2cqw); font-weight: 700; line-height: 1.25; text-wrap: balance; }
 .cz-msg.cz-bad { opacity: 0.7; }
 
 /* the screen: three rows, lined up with the dashed lines in the drawing */
-.cz-grid { position: absolute; left: 10.38%; width: 66.7%; top: 25.85%; height: 48.57%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: 124.09fr 137.26fr 122.33fr; gap: 0; border-radius: 4.86cqw; overflow: hidden; margin: 0; }
+.cz-grid { position: absolute; z-index: 2; left: 10.38%; width: 66.7%; top: 25.85%; height: 48.57%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: 124.09fr 137.26fr 122.33fr; gap: 0; border-radius: 4.86cqw; overflow: hidden; margin: 0; }
 /* the picture is pinned inside its cell (absolute) because iPhone Safari ignores height:100% on a box sized by aspect-ratio */
 .cz-cell { position: relative; min-width: 0; min-height: 0; box-sizing: border-box; }
 .cz-cell img { position: absolute; top: 7%; left: 7%; width: 86%; height: 86%; object-fit: contain; pointer-events: none; user-select: none; }
@@ -2222,21 +2223,22 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-pair { outline: 1px dashed var(--text); outline-offset: -0.35em; }
 
 /* the little window on the tray is where you type your bet */
-.cz-betwin { position: absolute; left: 31.87%; width: 23.8%; top: 83.7%; height: 9.9%; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; font-weight: 400; cursor: text; }
-.cz-bet { width: 78%; box-sizing: border-box; text-align: center; font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: max(16px, 6.2cqw); line-height: 1.1; color: var(--text); background: transparent; border: 0; border-bottom: 1px dotted var(--text); border-radius: 0; padding: 0; margin: 0; -moz-appearance: textfield; appearance: textfield; }
+.cz-betwin { position: absolute; z-index: 2; left: 31.87%; width: 23.8%; top: 83.2%; height: 9.9%; margin: 0; padding-bottom: 0.6cqw; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; font-weight: 400; cursor: text; }
+.cz-bet { width: 78%; box-sizing: border-box; text-align: center; font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: max(16px, 5.4cqw); line-height: 1; color: var(--text); background: transparent; border: 0; border-radius: 0; padding: 0; margin: 0; -moz-appearance: textfield; appearance: textfield; }
 .cz-bet::-webkit-outer-spin-button, .cz-bet::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.cz-bet:focus { outline: none; border-bottom-style: solid; }
-.cz-bet[data-len="6"], .cz-bet[data-len="7"] { font-size: max(16px, 4.6cqw); }
-.cz-bet[data-len="8"], .cz-bet[data-len="9"] { font-size: max(16px, 3.6cqw); }
-.cz-bet:is([data-len="10"], [data-len="11"], [data-len="12"], [data-len="13"], [data-len="14"]) { font-size: max(16px, 2.9cqw); }
-.cz-betwin .cz-cur { font-size: max(8px, 2cqw); text-transform: none; letter-spacing: 0.02em; margin-top: 0.4cqw; }
+.cz-bet:focus { outline: none; }
+.cz-bet[data-len="6"], .cz-bet[data-len="7"] { font-size: max(16px, 4cqw); }
+.cz-bet[data-len="8"], .cz-bet[data-len="9"] { font-size: max(16px, 3.2cqw); }
+.cz-bet:is([data-len="10"], [data-len="11"], [data-len="12"], [data-len="13"], [data-len="14"]) { font-size: max(16px, 2.6cqw); }
+.cz-betwin .cz-cur { font-size: max(8px, 1.9cqw); line-height: 1.2; white-space: nowrap; text-transform: none; letter-spacing: 0.02em; margin-top: -0.6cqw; }
 .cz-cur { font-size: 0.8em; text-transform: uppercase; }
 
 /* the lever: tap it to spin. Its arm flips down while the wheels turn. */
-.cz-lever { position: absolute; left: 85.6%; width: 12.4%; top: 14.6%; height: 42.4%; padding: 0; margin: 0; background: none; border: 0; cursor: pointer; color: inherit; -webkit-tap-highlight-color: transparent; }
+.cz-lever { position: absolute; z-index: 0; left: 85.5%; width: 12.4%; top: 14.6%; height: 42.4%; padding: 0; margin: 0; background: none; border: 0; cursor: pointer; color: inherit; -webkit-tap-highlight-color: transparent; }
 .cz-lever svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .cz-arm { transform-origin: 51px 225px; transition: transform 0.35s cubic-bezier(0.3, 1.5, 0.5, 1); }
-.cz-lever:hover:not(:disabled) .cz-arm, .cz-lever:focus-visible .cz-arm, .cz-lever.cz-pulled .cz-arm { transform: scaleY(-1); }
+@media (hover: hover) { .cz-lever:hover:not(:disabled) .cz-arm { transform: scaleY(-1); } }   /* only with a mouse, so a tap on a phone doesn't leave it stuck down */
+.cz-lever.cz-pulled .cz-arm { transform: scaleY(-1); }
 .cz-lever:focus-visible { outline: 1px dashed var(--text); outline-offset: 2px; }
 .cz-lever:disabled { cursor: default; }
 .cz-lever:disabled:not(.cz-pulled) { opacity: 0.45; }

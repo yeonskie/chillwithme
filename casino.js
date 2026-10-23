@@ -320,7 +320,8 @@
     const win = Math.round(bet * result);                    // (0.5x of an odd bet rounds up, so 5 yeonbucks pays back 3)
     spinning = true;
     spinBtn.disabled = true;
-    spinBtn.classList.add("cz-pulled");                        // the lever arm flips down while it spins
+    spinBtn.classList.add("cz-pulled");                        // the lever arm flips down, then pops back up
+    setTimeout(() => spinBtn.classList.remove("cz-pulled"), 450);
     setBalance(balance() - bet + win);
     holdSet(win);                                             // every tab shows the balance after the bet, before the prize arrives
     refresh();
