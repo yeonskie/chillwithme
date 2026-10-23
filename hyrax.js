@@ -21,7 +21,10 @@
   const MONCH_STYLE = "crunch";     // the built-in sound: "crunch" (crispy), "chomp" (low and thumpy) or "squeak" (cute)
   const MONCH_TEXT = "monch!";      // the word that pops up when it eats ("" for none)
   const HYRAX_SIZE = 1.8;           // how tall the hyrax is, in boxes (it was 2.6; smaller number = smaller hyrax)
-  const FINISH_PRIZE = 3000;        // yeonbucks for finding all the food
+  const PRIZE_MAX = 4000;           // yeonbucks for finishing fast
+  const PRIZE_MIN = 1000;           // yeonbucks for finishing slowly (everyone who finishes gets at least this)
+  const FAST_SECS_PER_FOOD = 1;    // this many seconds (or fewer) per piece of food = the full prize
+  const SLOW_SECS_PER_FOOD = 3;     // this many seconds (or more) per piece of food = the smallest prize. in between it slides.
   const EAT_MS = 800;               // how long the eating picture shows
   const PICS = { wait: 2, move: 4, eat: 1, done: 3 };
   const PLANT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-9"/><path d="M12 12c0-4-3-6-7-6 0 4 3 6 7 6z"/><path d="M12 14c0-3 2-5 6-5 0 3-2 5-6 5z"/></svg>';
@@ -33,7 +36,7 @@
   let cell = 48, cols = 0, rows = 0, total = 0, eaten = 0;
   let pos = { x: 0, y: 0 };
   let dragging = false, grab = { x: 0, y: 0 };
-  let eatTimer = null, finished = false, started = false, soundOn = true;
+  let eatTimer = null, finished = false, started = false, soundOn = true, startedAt = 0, tookMs = 0;
 
   // if a picture can't be found, say which one (usually the folder is in the wrong place)
   hyrax.addEventListener("error", () => {
@@ -49,11 +52,17 @@
   // ---------- building the board ----------
   function build() {
     clearTimeout(eatTimer);
-    eatTimer = null; finished = false; started = false; eaten = 0; dragging = false;
+    eatTimer = null; finished = false; started = false; eaten = 0; dragging = false; startedAt = 0; tookMs = 0;
     board.querySelectorAll(".hy-cell").forEach((c) => c.remove());
     againBtn.hidden = true;
     if (restartBtn) restartBtn.hidden = false;
-    hint.textContent = "the hyrax is hungry. drag it around to find food.";
+    hint.textContent = "the hyrax is hungry.";
+    hint.appendChild(document.createElement("br"));
+    hint.appendChild(document.createTextNode("drag it around to find food."));
+    hint.appendChild(document.createElement("br"));
+    const fast = document.createElement("strong");
+    fast.textContent = "the faster you go, the more yeonbucks.";
+    hint.appendChild(fast);
 
     const small = window.matchMedia("(max-width: 40rem)").matches;
     cell = small ? 40 : 52;
@@ -113,6 +122,7 @@
     pos.x = Math.min(board.clientWidth - hx, Math.max(hx, x));
     pos.y = Math.min(board.clientHeight - hy, Math.max(hy, y));
     place();
+    if (!started) startedAt = Date.now();          // the clock starts with the first move
     started = true;
     reveal();
   }
@@ -140,6 +150,7 @@
     clearTimeout(eatTimer);
     if (eaten >= total) {
       finished = true;
+      tookMs = startedAt ? Date.now() - startedAt : 0;
       eatTimer = setTimeout(win, EAT_MS);
     } else {
       eatTimer = setTimeout(() => { eatTimer = null; setPic(idleState()); }, EAT_MS);
@@ -158,13 +169,24 @@
     setTimeout(() => s.remove(), 900);
   }
 
+  // the faster you find everything, the more you get: PRIZE_MAX at FAST seconds per food or quicker, PRIZE_MIN at SLOW or slower
+  function prizeFor(ms) {
+    const per = ms / 1000 / Math.max(1, total);
+    const t = Math.min(1, Math.max(0, (per - FAST_SECS_PER_FOOD) / (SLOW_SECS_PER_FOOD - FAST_SECS_PER_FOOD)));
+    return Math.round((PRIZE_MAX - (PRIZE_MAX - PRIZE_MIN) * t) / 50) * 50;
+  }
+
   function win() {
     eatTimer = null;
     setPic("done");
     hint.textContent = "the hyrax is full. thank you!";
     if (window.YB && window.YB.prize) {
-      const paid = window.YB.prize(FINISH_PRIZE);          // (a bit more with the prize bonus)
-      hint.textContent += " you won " + paid.toLocaleString("en-US") + " yeonbucks!";
+      const paid = window.YB.prize(prizeFor(tookMs));       // (a bit more with the prize bonus)
+      hint.appendChild(document.createElement("br"));           // second row: you earned **3,000 yeonbucks**
+      hint.appendChild(document.createTextNode("you earned "));
+      const earned = document.createElement("strong");
+      earned.textContent = paid.toLocaleString("en-US") + " yeonbucks";
+      hint.appendChild(earned);
     }
     againBtn.hidden = false;
     if (restartBtn) restartBtn.hidden = true;   // "play again" takes its place
