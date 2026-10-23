@@ -587,7 +587,7 @@
           </div>
 
           <div class="shop-bar"><p class="shop-have"><strong data-yb>500</strong><span>yeonbucks</span></p>
-          <p class="shop-inv-row"><button type="button" class="hy-btn" data-how-open>how to earn more yeonbucks</button> <button type="button" class="hy-btn" data-inv-open>inventory</button> <button type="button" class="hy-btn" data-lb-open>leaderboard</button></p></div>
+          <p class="shop-inv-row"><button type="button" class="hy-btn" data-how-open>how to earn more yeonbucks</button> <button type="button" class="hy-btn" data-inv-open>inventory</button></p></div>
           <p class="shop-msg" id="shop-msg" role="status"></p>
 
           <!-- the signpost (big screens): her drawing of the bar and the hanging sign; the pole is drawn in CSS so it can run to the bottom of the page -->
@@ -802,13 +802,26 @@
         <p class="cz-earn">+<span data-earn>50</span> in <span id="cz-next">0:30</span></p>
         <p class="cz-links">
           <button type="button" class="hy-btn" data-inv-open>inventory</button>
-          <button type="button" class="hy-btn" data-lb-open>leaderboard</button>
-          <span class="cz-br" aria-hidden="true"></span>
           <button type="button" class="hy-btn" id="cz-how-btn">how it works</button>
           <a href="#shop" class="hy-btn">prize shop</a>
         </p>
       <a href="#arcade" class="hy-back cz-back">&larr; back to the arcade</a>
       </div>
+      <aside class="cz-lb" id="cz-lb" aria-label="leaderboard">
+        <p class="cz-lb-title">leaderboard</p>
+        <ol class="cz-lb-list" id="cz-lb-list"></ol>
+        <p class="cz-lb-me" id="cz-lb-me"></p>
+        <button type="button" class="cz-lb-link" id="cz-lb-edit">join</button>
+        <form class="cz-lb-form" id="cz-lb-form" autocomplete="off" hidden>
+          <input id="cz-lb-name" type="text" maxlength="20" placeholder="your name" aria-label="your name on the leaderboard">
+          <div class="cz-lb-btns">
+            <button type="submit" class="cz-lb-link" id="cz-lb-save">join</button>
+            <button type="button" class="cz-lb-link" id="cz-lb-remove" hidden>remove me</button>
+            <button type="button" class="cz-lb-link" id="cz-lb-cancel">cancel</button>
+          </div>
+        </form>
+        <p class="cz-lb-note" id="cz-lb-note" role="status"></p>
+      </aside>
     </section>
 
     <!-- casino: how it works -->

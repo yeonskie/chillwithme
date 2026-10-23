@@ -2261,9 +2261,7 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-earn { font-size: 0.78rem; font-weight: 700; opacity: 0.3; font-variant-numeric: tabular-nums; margin: 0; }
 .cz-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin: 0; }
 .cz-links .hy-btn { font-size: 0.78rem; }
-.cz-br { display: none; }
 @media (max-width: 40rem) { .cz-machine { transform: none; width: min(calc(100% + 1.4rem), 32rem, max(16rem, calc((100svh - 22rem) * 0.96))); } .cz-wrap { gap: 0.4rem; } .cz-quick { margin-top: -0.3rem; } }   /* phones: the whole machine (lever included) sits in the true middle */
-@media (max-width: 40rem) { .cz-links { row-gap: 0; } .cz-br { display: block; flex-basis: 100%; height: 0.4rem; } }   /* two rows of buttons on phones only */
 /* the pop-up lives outside the page, so it keeps normal sizes */
 .cz-pay { list-style: none; margin: 0.6rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
 .cz-pay-item { display: flex; align-items: center; gap: 0.8rem; font-size: 0.78rem; text-align: left; }
