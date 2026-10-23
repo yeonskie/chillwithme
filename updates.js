@@ -14,6 +14,9 @@ const UPDATES = [
       "orange and yellow tints",
       "ability to hide secret door",
       "star, heart, raindrop backgrounds now animated",
+      "new ticket design for homepage title and shop",
+      "bigger buttons + expand option for jukebox categories on mobile",
+      "shop sign stays pinned on mobile",
     ],
   },
   {
