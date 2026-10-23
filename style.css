@@ -3659,11 +3659,11 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 @media (min-width: 61rem) {
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { position: relative; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { display: none; }
-  .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 2.9rem; transform: translateX(-50%); z-index: 2; margin: 0; justify-content: center; padding: 0 3.4rem; isolation: isolate; min-width: 10.8rem; aspect-ratio: 1.877; box-sizing: border-box; line-height: 1.15; text-align: center; }   /* the ticket art (same as the homepage's) sits behind the count; it keeps its shape and grows evenly, and the number gets smaller as it gets longer */
+  .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 5.25rem; transform: translate(-50%, -50%); z-index: 2; margin: 0; justify-content: center; padding: 0 2rem; isolation: isolate; min-width: 10.8rem; aspect-ratio: 1.877; box-sizing: border-box; line-height: 1.15; text-align: center; }   /* the ticket art (same as the homepage's) sits behind the count; it keeps its shape and grows evenly, and the number gets smaller as it gets longer */
   .shop-roofbox strong { font-size: 2.1rem; }
-  .shop-roofbox strong[data-len="6"], .shop-roofbox strong[data-len="7"] { font-size: 1.8rem; }
-  .shop-roofbox strong[data-len="8"], .shop-roofbox strong[data-len="9"] { font-size: 1.5rem; }
-  .shop-roofbox strong:is([data-len="10"], [data-len="11"], [data-len="12"], [data-len="13"], [data-len="14"]) { font-size: 1.25rem; }
+  .shop-roofbox strong[data-len="6"], .shop-roofbox strong[data-len="7"] { font-size: 1.7rem; }
+  .shop-roofbox strong[data-len="8"], .shop-roofbox strong[data-len="9"] { font-size: 1.4rem; }
+  .shop-roofbox strong:is([data-len="10"], [data-len="11"], [data-len="12"], [data-len="13"], [data-len="14"]) { font-size: 1.15rem; }
   .shop-roofbox span { font-size: 0.95rem; }
 }
 
@@ -3700,11 +3700,11 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
   .page[data-page="rare-shop"] .shop-body::before { bottom: 1.6%; }
 }
 @media (min-width: 61rem) {
-  .page[data-page="rare-shop"] .shop-roofbox { top: 0.9rem; padding: 0 1.8rem; min-width: 8.6rem; }
+  .page[data-page="rare-shop"] .shop-roofbox { top: 2.59rem; padding: 0 1.4rem; min-width: 8.6rem; }
   .page[data-page="rare-shop"] .shop-roofbox strong { font-size: 1.7rem; }
-  .page[data-page="rare-shop"] .shop-roofbox strong[data-len="6"], .page[data-page="rare-shop"] .shop-roofbox strong[data-len="7"] { font-size: 1.45rem; }
-  .page[data-page="rare-shop"] .shop-roofbox strong[data-len="8"], .page[data-page="rare-shop"] .shop-roofbox strong[data-len="9"] { font-size: 1.2rem; }
-  .page[data-page="rare-shop"] .shop-roofbox strong:is([data-len="10"], [data-len="11"], [data-len="12"], [data-len="13"], [data-len="14"]) { font-size: 1.05rem; }
+  .page[data-page="rare-shop"] .shop-roofbox strong[data-len="6"], .page[data-page="rare-shop"] .shop-roofbox strong[data-len="7"] { font-size: 1.35rem; }
+  .page[data-page="rare-shop"] .shop-roofbox strong[data-len="8"], .page[data-page="rare-shop"] .shop-roofbox strong[data-len="9"] { font-size: 1.1rem; }
+  .page[data-page="rare-shop"] .shop-roofbox strong:is([data-len="10"], [data-len="11"], [data-len="12"], [data-len="13"], [data-len="14"]) { font-size: 0.92rem; }
   .page[data-page="rare-shop"] .shop-roofbox span { font-size: 0.8rem; }
 }
 
