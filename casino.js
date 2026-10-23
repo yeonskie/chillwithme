@@ -139,7 +139,7 @@
     const svg = document.querySelector(".cz-lever svg");
     if (!svg) return { down() {}, up() {}, set() {} };
     const fade = svg.querySelector("#cz-fade"), ffade = svg.querySelector("#cz-ffade"), armF = svg.querySelector(".cz-armf"), armS = svg.querySelector(".cz-arms"), ballG = svg.querySelector(".cz-ballg");
-    const PX = 50.45, PY = 231.46, HW = 11.25, EXTRA = 1, LEN = 198.3, LEAN = 4.95, FAR = LEN * 2.3, BX = 55.4, BY = 33.2;   // EXTRA = how much wider the arm is on its right side
+    const PX = 50.45, PY = 231.46, HW = 11.25, EXTRA = 0.58, TRIM = 1.5, LEN = 198.3, LEAN = 4.95, FAR = LEN * 2.3, BX = 55.4, BY = 33.2;   // EXTRA = how much wider the arm is on its right side. TRIM = how much narrower on its left side
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const BOOST = 0.28, DOWN = 140, SINK = 54;   // DOWN: where it rests when pulled. SINK: how far the bottom of the arm slides down into the holder (about half of it) at the most pulled
     let deg = 0, raf = 0;
@@ -151,8 +151,9 @@
       const s = FAR / (FAR - z) * (1 + BOOST * ss((d - 90) / (DOWN - 90)));   // past straight-at-you it keeps growing, so it ends big and close
       const by = PY + SINK * ss((d - 50) / (DOWN - 50));                       // the bottom of the arm slides down into the holder as it gets pulled
       const x = PX + LEAN * (1 - t) * s, y = by - LEN * Math.cos(a) * s, hw = HW * s, hr = (HW + EXTRA) * s;
-      armF.setAttribute("points", (PX - HW) + "," + by + " " + (PX + HW + EXTRA) + "," + by + " " + (x + hr) + "," + y + " " + (x - hw) + "," + y);
-      armS.setAttribute("d", "M" + (PX - HW) + "," + by + "L" + (x - hw) + "," + y + "M" + (PX + HW + EXTRA) + "," + by + "L" + (x + hr) + "," + y);
+      const bl = PX - HW + TRIM, tl = x - hw + TRIM * s;   // left edge at the bottom and at the ball
+      armF.setAttribute("points", bl + "," + by + " " + (PX + HW + EXTRA) + "," + by + " " + (x + hr) + "," + y + " " + tl + "," + y);
+      armS.setAttribute("d", "M" + bl + "," + by + "L" + tl + "," + y + "M" + (PX + HW + EXTRA) + "," + by + "L" + (x + hr) + "," + y);
       // the bottom of the arm feathers away as it sinks into the holder (no fade at rest, so it still meets the holder top cleanly)
       const sunk = ss((d - 50) / (DOWN - 50)), dx = x - PX, dy = y - by, ln = Math.hypot(dx, dy) || 1;
       const fl = dy < 0 ? Math.max(0.01, by - PY) : 5;     // pointing up: only the part that's inside the holder fades. pointing down: it fades along its top stretch
