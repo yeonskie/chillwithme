@@ -3923,3 +3923,8 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 
 /* the name in "enjoy your stay, [name]!": stays in one piece, so a long name moves to its own second line (and only breaks apart if it's wider than the whole ticket) */
 .home-name { display: inline-block; max-width: 100%; overflow-wrap: anywhere; }
+
+/* phones: the inner line of the shop frame is the same distance from the outer one on the sides and the bottom */
+@media (max-width: 40rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body::before { inset: 0 5px 5px 5px; border-radius: 0 0 11px 11px; }
+}
