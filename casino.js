@@ -155,7 +155,7 @@
       armS.setAttribute("d", "M" + (PX - HW) + "," + by + "L" + (x - hw) + "," + y + "M" + (PX + HW + EXTRA) + "," + by + "L" + (x + hr) + "," + y);
       // the bottom of the arm feathers away as it sinks into the holder (no fade at rest, so it still meets the holder top cleanly)
       const sunk = ss((d - 50) / (DOWN - 50)), dx = x - PX, dy = y - by, ln = Math.hypot(dx, dy) || 1;
-      const fl = dy < 0 ? Math.max(0.01, by - PY) : 14 + 14 * sunk;     // pointing up: only the part that's inside the holder fades. pointing down: it fades along its top stretch
+      const fl = dy < 0 ? Math.max(0.01, by - PY) : 5;     // pointing up: only the part that's inside the holder fades. pointing down: it fades along its top stretch
       const f = Math.min(fl, ln) / ln;
       for (const g of [fade, ffade]) {
         g.setAttribute("x1", PX); g.setAttribute("y1", by);
