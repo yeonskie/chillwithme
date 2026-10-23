@@ -6,6 +6,12 @@
 
 const UPDATES = [
   {
+    date: "10.23.26",
+    items: [
+      "revamped casino design",
+    ],
+  },
+  {
     date: "10.22.26",
     items: [
       "retitled 'music page' to 'jukebox' and revamped design",
