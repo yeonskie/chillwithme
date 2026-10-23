@@ -43,6 +43,7 @@
         '<button type="button" data-n="1000">+1,000</button>' +
         '<button type="button" data-n="10000">+10,000</button>' +
         '<button type="button" data-n="100000">+100,000</button>' +
+        '<button type="button" data-n="100000000">+100 mil</button>' +
       "</div>" +
       "<h3>set an exact amount</h3>" +
       '<div class="tm-row"><input id="tm-amt" type="number" min="0" step="1" placeholder="e.g. 30000"><button type="button" id="tm-set">set</button></div>' +

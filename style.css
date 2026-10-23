@@ -3631,9 +3631,9 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row .hy-btn { width: 50%; text-align: center; padding: 0.35rem 0.4rem; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row .hy-btn:first-child { width: 100%; padding: 0.35rem 0.8rem; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-msg { grid-row: 3; grid-column: 1; margin: 0.4rem 0 0; min-height: 1em; }
-  .shop-post { display: block; grid-row: 5; grid-column: 1; width: 100%; height: auto; overflow: visible; margin-top: 8%; }
+  .shop-post { display: block; grid-row: 5; grid-column: 1; width: 88%; height: auto; overflow: visible; margin-top: 8%; }
   /* the pole: runs from the top of the sign down to the bottom of the page */
-  .shop-pole { display: block; grid-row: 5 / 7; grid-column: 1; justify-self: start; align-self: stretch; width: 5.63%; margin-top: 8%; position: relative; box-sizing: border-box; border: 1px solid var(--text); border-bottom: 0; border-radius: 3px 3px 0 0; background: linear-gradient(90deg, var(--text) 0 84%, var(--bg) 84%); }
+  .shop-pole { display: block; grid-row: 5 / 7; grid-column: 1; justify-self: start; align-self: stretch; width: 4.95%; margin-top: 8%; position: relative; box-sizing: border-box; border: 1px solid var(--text); border-bottom: 0; border-radius: 3px 3px 0 0; background: linear-gradient(90deg, var(--text) 0 84%, var(--bg) 84%); }
   .shop-pole::after { content: ""; position: absolute; left: -1px; right: -1px; top: 100%; height: 100vh; border: 1px solid var(--text); border-top: 0; background: inherit; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) #sr-door-shop { grid-row: 6; grid-column: 1; align-self: end; justify-self: start; position: relative; left: auto; bottom: auto; transform: none; z-index: 1; width: 45.6%; height: auto; margin: 0 0 1rem 29.1%; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) #sr-door-shop svg.sr-art { width: 100%; height: auto; }
@@ -3659,7 +3659,7 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 @media (min-width: 61rem) {
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { position: relative; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { display: none; }
-  .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 5.25rem; transform: translate(-50%, -50%); z-index: 2; margin: 0; justify-content: center; padding: 0 2rem; isolation: isolate; min-width: 10.8rem; aspect-ratio: 1.877; box-sizing: border-box; line-height: 1.15; text-align: center; }   /* the ticket art (same as the homepage's) sits behind the count; it keeps its shape and grows evenly, and the number gets smaller as it gets longer */
+  .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 5.7rem; transform: translate(-50%, -50%); z-index: 2; margin: 0; justify-content: center; padding: 0 2rem; isolation: isolate; min-width: 10.8rem; aspect-ratio: 1.877; box-sizing: border-box; line-height: 1.15; text-align: center; }   /* the ticket art (same as the homepage's) sits behind the count; it keeps its shape and grows evenly, and the number gets smaller as it gets longer */
   .shop-roofbox strong { font-size: 2.1rem; }
   .shop-roofbox strong[data-len="6"], .shop-roofbox strong[data-len="7"] { font-size: 1.7rem; }
   .shop-roofbox strong[data-len="8"], .shop-roofbox strong[data-len="9"] { font-size: 1.4rem; }
@@ -3700,7 +3700,7 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
   .page[data-page="rare-shop"] .shop-body::before { bottom: 1.6%; }
 }
 @media (min-width: 61rem) {
-  .page[data-page="rare-shop"] .shop-roofbox { top: 2.59rem; padding: 0 1.4rem; min-width: 8.6rem; }
+  .page[data-page="rare-shop"] .shop-roofbox { top: 2.85rem; padding: 0 1.4rem; min-width: 8.6rem; }
   .page[data-page="rare-shop"] .shop-roofbox strong { font-size: 1.7rem; }
   .page[data-page="rare-shop"] .shop-roofbox strong[data-len="6"], .page[data-page="rare-shop"] .shop-roofbox strong[data-len="7"] { font-size: 1.35rem; }
   .page[data-page="rare-shop"] .shop-roofbox strong[data-len="8"], .page[data-page="rare-shop"] .shop-roofbox strong[data-len="9"] { font-size: 1.1rem; }
