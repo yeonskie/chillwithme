@@ -3549,7 +3549,7 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
     clip-path: inset(calc(var(--sg) * 259 / 494 - var(--lights-h)) 0 0 0); }
   .page.active:has(.shop-sign) { top: 10.5rem; }
   /* a soft fade where the page slides out under the sign, instead of a hard edge */
-  .shop-sign::after { content: ""; position: fixed; left: 0; right: 0; top: calc(var(--bar-height) + var(--lights-h) + var(--sg)); height: 2rem; z-index: 3; pointer-events: none; background: linear-gradient(var(--bg), transparent); }
+  .shop-sign::after { content: ""; position: fixed; left: 0; right: 0; top: calc(var(--bar-height) + var(--lights-h) + var(--sg)); height: 1.1rem; z-index: 3; pointer-events: none; background: linear-gradient(var(--bg), transparent); }
 }
 
 /* the sign hangs from the very top of the page, with the back link and the rest underneath it */
