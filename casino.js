@@ -259,7 +259,7 @@
   function refresh() {
     balEl.textContent = fmt(shown());
     document.querySelectorAll("[data-earn]").forEach((el) => { el.textContent = earnAmt(); });   // the "+50" in the text (75 with the boost)
-    document.querySelectorAll("[data-yb]").forEach((el) => { el.textContent = fmt(shown()); });   // "you have ___ yeonbucks" boxes on other pages
+    document.querySelectorAll("[data-yb]").forEach((el) => { el.textContent = fmt(shown()); el.dataset.len = String(el.textContent.length); });   // "you have ___ yeonbucks" boxes on other pages
     const left = Math.max(0, Math.ceil(EVERY - progress()));
     nextEl.textContent = Math.floor(left / 60) + ":" + String(left % 60).padStart(2, "0");
     spinBtn.disabled = spinning || !!hold() || balance() < BET_STEP;
