@@ -138,17 +138,30 @@
   const lever = (() => {
     const svg = document.querySelector(".cz-lever svg");
     if (!svg) return { down() {}, up() {}, set() {} };
-    const armF = svg.querySelector(".cz-armf"), armS = svg.querySelector(".cz-arms"), ballG = svg.querySelector(".cz-ballg");
-    const PX = 50.45, PY = 231.46, HW = 11.25, LEN = 198.3, LEAN = 4.95, FAR = LEN * 2.3, BX = 55.4, BY = 33.2;
+    const fade = svg.querySelector("#cz-fade"), ffade = svg.querySelector("#cz-ffade"), armF = svg.querySelector(".cz-armf"), armS = svg.querySelector(".cz-arms"), ballG = svg.querySelector(".cz-ballg");
+    const PX = 50.45, PY = 231.46, HW = 11.25, EXTRA = 1, LEN = 198.3, LEAN = 4.95, FAR = LEN * 2.3, BX = 55.4, BY = 33.2;   // EXTRA = how much wider the arm is on its right side
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const BOOST = 0.28, DOWN = 140, SINK = 54;   // DOWN: where it rests when pulled. SINK: how far the bottom of the arm slides down into the holder (about half of it) at the most pulled
     let deg = 0, raf = 0;
+    const ss = (v) => { v = Math.min(1, Math.max(0, v)); return v * v * (3 - 2 * v); };
     function pose(d) {
       deg = d;
       const a = d * Math.PI / 180, t = Math.min(1, Math.max(0, d / 180));
-      const z = LEN * Math.sin(a), s = FAR / (FAR - z);
-      const x = PX + LEAN * (1 - t) * s, y = PY - LEN * Math.cos(a) * s, hw = HW * s;
-      armF.setAttribute("points", (PX - HW) + "," + PY + " " + (PX + HW) + "," + PY + " " + (x + hw) + "," + y + " " + (x - hw) + "," + y);
-      armS.setAttribute("d", "M" + (PX - HW) + "," + PY + "L" + (x - hw) + "," + y + "M" + (PX + HW) + "," + PY + "L" + (x + hw) + "," + y);
+      const z = LEN * Math.sin(a);
+      const s = FAR / (FAR - z) * (1 + BOOST * ss((d - 90) / (DOWN - 90)));   // past straight-at-you it keeps growing, so it ends big and close
+      const by = PY + SINK * ss((d - 50) / (DOWN - 50));                       // the bottom of the arm slides down into the holder as it gets pulled
+      const x = PX + LEAN * (1 - t) * s, y = by - LEN * Math.cos(a) * s, hw = HW * s, hr = (HW + EXTRA) * s;
+      armF.setAttribute("points", (PX - HW) + "," + by + " " + (PX + HW + EXTRA) + "," + by + " " + (x + hr) + "," + y + " " + (x - hw) + "," + y);
+      armS.setAttribute("d", "M" + (PX - HW) + "," + by + "L" + (x - hw) + "," + y + "M" + (PX + HW + EXTRA) + "," + by + "L" + (x + hr) + "," + y);
+      // the bottom of the arm feathers away as it sinks into the holder (no fade at rest, so it still meets the holder top cleanly)
+      const sunk = ss((d - 50) / (DOWN - 50)), dx = x - PX, dy = y - by, ln = Math.hypot(dx, dy) || 1;
+      const fl = dy < 0 ? Math.max(0.01, by - PY) : 14 + 14 * sunk;     // pointing up: only the part that's inside the holder fades. pointing down: it fades along its top stretch
+      const f = Math.min(fl, ln) / ln;
+      for (const g of [fade, ffade]) {
+        g.setAttribute("x1", PX); g.setAttribute("y1", by);
+        g.setAttribute("x2", PX + dx * f); g.setAttribute("y2", by + dy * f);
+      }
+      ffade.firstElementChild.style.stopOpacity = sunk > 0.001 ? 0 : 1;
       ballG.setAttribute("transform", "translate(" + x + " " + y + ") scale(" + s + ") translate(" + -BX + " " + -BY + ")");
     }
     function run(from, to, ms, ease) {
@@ -167,7 +180,7 @@
     // let go: snaps back up and wobbles a little past the top
     const back = (p) => { const c = 1.1, q = p - 1; return 1 + (c + 1) * q * q * q + c * q * q; };
     return {
-      down() { run(deg, 180, 380, pull); },
+      down() { run(deg, DOWN, 380, pull); },
       up() { run(deg, 0, 600, back); },
       set: pose,
     };
