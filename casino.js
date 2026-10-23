@@ -283,7 +283,7 @@
   };
 
   // the bet box grows with the number, so big bets (like 100000) never get cut off
-  function fitBet() { betEl.style.width = Math.max(5.7, String(betEl.value).length + 2.5) + "ch"; }
+  function fitBet() { betEl.dataset.len = String(String(betEl.value).length); }   // (the number in the tray window gets smaller as it gets longer)
   betEl.addEventListener("input", fitBet);
   fitBet();
   function readBet() {
@@ -320,6 +320,7 @@
     const win = Math.round(bet * result);                    // (0.5x of an odd bet rounds up, so 5 yeonbucks pays back 3)
     spinning = true;
     spinBtn.disabled = true;
+    spinBtn.classList.add("cz-pulled");                        // the lever arm flips down while it spins
     setBalance(balance() - bet + win);
     holdSet(win);                                             // every tab shows the balance after the bet, before the prize arrives
     refresh();
@@ -375,6 +376,7 @@
       say("no matches. you lost " + fmt(bet) + " yeonbucks.", "cz-bad");
     }
     spinning = false;
+    spinBtn.classList.remove("cz-pulled");
     refresh();
   }
 

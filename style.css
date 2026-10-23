@@ -2173,56 +2173,90 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .sg-invite strong { letter-spacing: 0.2em; }
 
 /* ---------- Casino de yeon ---------- */
-/* Everything on this page is sized in "em", and the page's font size shrinks on short screens (but never
-   below 11px), so the whole thing fits without scrolling on a normal phone or laptop. To make it all bigger or smaller, change 46 below
-   (a smaller number = bigger page, a bigger number = smaller page). */
-/* the back link stays at the top, and everything else sits in the middle of the screen */
+/* ---------- casino: the slot machine (her drawing). The picture is one svg, and the words, screen, number and lever sit on top of it.
+   Everything inside the machine is sized with "cqw" (a percentage of the machine's width), so it all scales together. ---------- */
 .page[data-page="casino"] { padding-top: 0.5rem; padding-bottom: 0.5rem; text-align: center; }
 .page[data-page="casino"].active { display: flex; flex-direction: column; min-height: 100%; box-sizing: border-box; }
-.page[data-page="casino"] .cz-back { align-self: center; margin-bottom: 0; }
-.cz-wrap { font-size: 1rem; font-size: clamp(11px, min(1rem, calc((100vh - 9rem - var(--lights-h)) / 46)), 1rem); font-size: clamp(11px, min(1rem, calc((100svh - 9rem - var(--lights-h)) / 46)), 1rem); width: min(24em, 100%); margin: 0 auto; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; }
-/* spare height is shared out between the blocks with auto margins. if the screen is too short for everything, the margins just shrink to 0 and the page scrolls normally from the top (nothing gets cut off) */
-.cz-wrap > * { margin-top: auto; margin-bottom: auto; }
-.cz-group { display: flex; flex-direction: column; align-items: center; width: 100%; }
-.cz-wrap .hy-back { font-size: 0.75em; margin-bottom: 0.2em; }
-.cz-welcome { font-size: 1.05em; margin: 0; }
-.cz-title { font-size: 1.7em; font-weight: 700; line-height: 1.15; margin: 0; }
-.cz-bal { margin: 0; display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
-.cz-bal strong { font-size: 2em; font-variant-numeric: tabular-nums; }
-.cz-cur { font-size: 0.8em; text-transform: uppercase; }
-.cz-earn { font-size: 0.8em; font-weight: 700; opacity: 0.3; font-variant-numeric: tabular-nums; margin: 0.1em 0 0.4em; }
-.cz-top { margin: 0; }
-.cz-wrap .hy-btn { font-size: 0.75em; }
+.page[data-page="casino"] .cz-back { align-self: center; margin: 0.2rem 0 0; }
+.cz-wrap { width: 100%; margin: 0.8rem auto auto; display: flex; flex-direction: column; align-items: center; gap: 0.7rem; flex: none; }
 .cz-wrap .hy-btn:not(:hover):not(:focus-visible) { background: var(--bg); }   /* solid, so patterned backgrounds don't show through */
-.cz-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; padding: 0.6em; box-sizing: border-box; background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); width: min(20em, 100%); margin: 0; }
-/* the picture is pinned inside its cell (absolute) because iPhone Safari ignores height:100% on a box sized by aspect-ratio, which let the pictures spill out of the grid */
-.cz-cell { position: relative; aspect-ratio: 1.3 / 1; min-width: 0; box-sizing: border-box; }
-.cz-cell img { position: absolute; top: 0.3em; left: 0.3em; width: calc(100% - 0.6em); height: calc(100% - 0.6em); object-fit: contain; pointer-events: none; user-select: none; }
+@media (max-width: 40rem) { .cz-wrap { margin: auto; } }   /* phones: everything sits in the middle of the screen */
+.cz-machine {
+  position: relative; container-type: inline-size; aspect-ratio: 727 / 790;
+  width: min(100%, 32rem, max(16rem, calc((100vh - 22rem) * 0.92))); width: min(100%, 32rem, max(16rem, calc((100svh - 24rem) * 0.92)));
+  font-weight: 700;
+  transform: translateX(6.26%);   /* the lever sticks out on the right, so the machine is nudged over to line the body (the tray) up with the middle of the page and the text underneath */
+}
+.cz-art { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; fill: var(--text); }
+.cz-art *, .cz-lever * { vector-effect: non-scaling-stroke; }
+.cz-art .cz4 { fill: none; stroke: var(--bg); stroke-width: 1px; }
+.cz-art .cz5 { fill: none; stroke: var(--text); stroke-width: 1px; stroke-dasharray: 5 5; }
+.cz-art .cz6 { fill: var(--bg); stroke: var(--text); stroke-width: 1px; }
+.cz-art .cz7 { fill: none; stroke: var(--text); stroke-width: 1px; }
+.cz-art .cz8, .cz-lever .cz8 { fill: var(--text); stroke: var(--bg); stroke-width: 1px; }
+.cz-art .cz9 { fill: none; stroke: var(--text); stroke-width: 1px; stroke-dasharray: 3 3; }
+.cz-art .cz13, .cz-lever .cz13 { fill: var(--bg); stroke: none; }
+.cz-lever path:not([class]) { fill: var(--text); }
+
+/* the words on the marquee at the top: the title, and under it the little message (wins, losses, "spinning...") */
+.cz-marquee { position: absolute; left: 11.55%; width: 64.4%; top: 3.42%; height: 15.57%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5cqw; overflow: hidden; }
+.cz-title { margin: 0; font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: 4.3cqw; line-height: 1.1; white-space: nowrap; }
+.cz-msg { margin: 0; min-height: 1.3em; font-size: max(10.5px, 2.2cqw); font-weight: 700; line-height: 1.25; text-wrap: balance; }
+.cz-msg.cz-bad { opacity: 0.7; }
+
+/* the screen: three rows, lined up with the dashed lines in the drawing */
+.cz-grid { position: absolute; left: 10.38%; width: 66.7%; top: 25.85%; height: 48.57%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: 124.09fr 137.26fr 122.33fr; gap: 0; border-radius: 4.86cqw; overflow: hidden; margin: 0; }
+/* the picture is pinned inside its cell (absolute) because iPhone Safari ignores height:100% on a box sized by aspect-ratio */
+.cz-cell { position: relative; min-width: 0; min-height: 0; box-sizing: border-box; }
+.cz-cell img { position: absolute; top: 7%; left: 7%; width: 86%; height: 86%; object-fit: contain; pointer-events: none; user-select: none; }
 :root[data-theme="dark"] .cz-cell img { filter: invert(1); }
 .cz-spinning img { opacity: 0.6; }
 .cz-win { background: var(--text); }
 .cz-win img { filter: invert(1); }
 :root[data-theme="dark"] .cz-win img { filter: none; }
-/* jackpot (10x): the whole machine inverts */
-/* jackpot: the whole grid flashes baby pink (the pictures stay black so they show up on it) */
+/* jackpot: the whole screen flashes baby pink (the pictures stay black so they show up on it) */
 .cz-jackpot { background: #f8c8dc; }
 .cz-jackpot .cz-cell img { filter: none; }
 :root[data-theme="dark"] .cz-jackpot .cz-cell img { filter: none; }
 /* 0.5x: the two matching pictures get a dashed outline */
 .cz-pair { outline: 1px dashed var(--text); outline-offset: -0.35em; }
-.cz-msg { min-height: 1.3em; font-size: 0.85em; font-weight: 700; margin: 0.6em 0 0; }
-.cz-msg.cz-bad { opacity: 0.7; }
-.cz-controls { display: flex; flex-direction: column; align-items: center; gap: 0.1em; }
-.cz-bet { width: 3.4em; max-width: 100%; height: 3.4em; box-sizing: border-box; text-align: center; font: inherit; font-size: 1.6em; font-weight: 700; color: inherit; background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); padding: 0; -moz-appearance: textfield; appearance: textfield; }
+
+/* the little window on the tray is where you type your bet */
+.cz-betwin { position: absolute; left: 31.87%; width: 23.8%; top: 83.7%; height: 9.9%; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; font-weight: 400; cursor: text; }
+.cz-bet { width: 78%; box-sizing: border-box; text-align: center; font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: max(16px, 6.2cqw); line-height: 1.1; color: var(--text); background: transparent; border: 0; border-bottom: 1px dotted var(--text); border-radius: 0; padding: 0; margin: 0; -moz-appearance: textfield; appearance: textfield; }
 .cz-bet::-webkit-outer-spin-button, .cz-bet::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.cz-bet:focus { outline: none; box-shadow: 0 0 0 2px var(--line); }
-.cz-quick { display: flex; gap: 0.9em; margin: 0.2em 0 0; }
-.cz-quick button { font: inherit; font-size: 0.75em; color: inherit; background: none; border: none; padding: 0; opacity: 0.55; cursor: pointer; text-decoration: underline; }
+.cz-bet:focus { outline: none; border-bottom-style: solid; }
+.cz-bet[data-len="6"], .cz-bet[data-len="7"] { font-size: max(16px, 4.6cqw); }
+.cz-bet[data-len="8"], .cz-bet[data-len="9"] { font-size: max(16px, 3.6cqw); }
+.cz-bet:is([data-len="10"], [data-len="11"], [data-len="12"], [data-len="13"], [data-len="14"]) { font-size: max(16px, 2.9cqw); }
+.cz-betwin .cz-cur { font-size: max(8px, 2cqw); text-transform: none; letter-spacing: 0.02em; margin-top: 0.4cqw; }
+.cz-cur { font-size: 0.8em; text-transform: uppercase; }
+
+/* the lever: tap it to spin. Its arm flips down while the wheels turn. */
+.cz-lever { position: absolute; left: 85.6%; width: 12.4%; top: 14.6%; height: 42.4%; padding: 0; margin: 0; background: none; border: 0; cursor: pointer; color: inherit; -webkit-tap-highlight-color: transparent; }
+.cz-lever svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.cz-arm { transform-origin: 51px 225px; transition: transform 0.35s cubic-bezier(0.3, 1.5, 0.5, 1); }
+.cz-lever:hover:not(:disabled) .cz-arm, .cz-lever:focus-visible .cz-arm, .cz-lever.cz-pulled .cz-arm { transform: scaleY(-1); }
+.cz-lever:focus-visible { outline: 1px dashed var(--text); outline-offset: 2px; }
+.cz-lever:disabled { cursor: default; }
+.cz-lever:disabled:not(.cz-pulled) { opacity: 0.45; }
+@media (prefers-reduced-motion: reduce) { .cz-arm { transition: none; } }
+
+/* under the machine: the bet, the instructions, and the buttons */
+.cz-have { margin: 0; font-size: 0.85rem; }
+.cz-have strong { font-weight: 700; }
+.cz-quick { display: flex; gap: 1.2rem; margin: -0.5rem 0 0; }
+.cz-quick button { font: inherit; font-size: 0.85rem; color: inherit; background: none; border: none; padding: 0.3rem 0.2rem; opacity: 0.6; cursor: pointer; text-decoration: underline; }
 .cz-quick button:hover, .cz-quick button:focus-visible { opacity: 1; outline: none; }
-.cz-spinwrap { width: min(18em, 100%); flex: none; box-sizing: border-box; padding: 0.3em; background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); }
-.cz-spin { display: block; width: 100%; font: inherit; font-size: 0.9em; color: inherit; background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); padding: 0.4em 1em; cursor: pointer; }
-.cz-spin:hover:not(:disabled), .cz-spin:focus-visible { background: var(--text); color: var(--bg); outline: none; }
-.cz-spin:disabled { opacity: 0.45; cursor: default; }
+.cz-caption { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; margin: 0.2rem 0 0; padding: 0 0.5rem; }
+.cz-caption strong { font-size: clamp(0.7rem, 2.9vw, 0.95rem); letter-spacing: 0; }
+.cz-caption span { font-size: 0.72rem; }
+.cz-earn { font-size: 0.78rem; font-weight: 700; opacity: 0.3; font-variant-numeric: tabular-nums; margin: 0; }
+.cz-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin: 0; }
+.cz-links .hy-btn { font-size: 0.78rem; }
+.cz-br { display: none; }
+@media (max-width: 40rem) { .cz-machine { transform: none; } }   /* phones: the whole machine (lever included) sits in the true middle */
+@media (max-width: 40rem) { .cz-links { row-gap: 0; } .cz-br { display: block; flex-basis: 100%; height: 0.4rem; } }   /* two rows of buttons on phones only */
 /* the pop-up lives outside the page, so it keeps normal sizes */
 .cz-pay { list-style: none; margin: 0.6rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
 .cz-pay-item { display: flex; align-items: center; gap: 0.8rem; font-size: 0.78rem; text-align: left; }
@@ -2283,19 +2317,6 @@ body.has-yb .page { padding-bottom: 4.5rem; }
 /* on phones the leaderboard goes underneath everything instead of the top left corner */
 @media (max-width: 700px) {
   .cz-lb { position: static; width: min(220px, calc(100% - 16px)); margin: 1.5rem auto 0.5rem; }
-}
-
-/* on computers the casino page doesn't stretch to fill the whole screen, so everything sits a little closer together
-   (change 44.5em to spread it out more or less) */
-@media (min-width: 701px) {
-  .page[data-page="casino"].active .cz-wrap { flex: 0 0 auto; height: 44.5em; margin: auto; }
-}
-
-/* on phones the casino is sized to the screen so "spin the wheel" shows without scrolling on most phones
-   (never smaller than 10.5px, never bigger than 17px; on a very short screen it scrolls instead).
-   To make it bigger overall, make 41.2 smaller. To make it smaller, make 41.2 bigger. */
-@media (max-width: 700px) {
-  .page[data-page="casino"] .cz-wrap { font-size: 13px; font-size: clamp(10.5px, calc((100vh - 126px - var(--lights-h)) / 41.2), 17px); font-size: clamp(10.5px, calc((100svh - 126px - var(--lights-h)) / 41.2), 17px); gap: 1.2em; }
 }
 
 /* on phones the music player sits just above the bottom bar, so while it's showing the yeonbucks box moves up above it */
