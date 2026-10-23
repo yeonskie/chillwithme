@@ -139,7 +139,7 @@
     const svg = document.querySelector(".cz-lever svg");
     if (!svg) return { down() {}, up() {}, set() {} };
     const fade = svg.querySelector("#cz-fade"), ffade = svg.querySelector("#cz-ffade"), armF = svg.querySelector(".cz-armf"), armS = svg.querySelector(".cz-arms"), ballG = svg.querySelector(".cz-ballg");
-    const PX = 50.45, PY = 231.46, HW = 11.25, EXTRA = 0.58, TRIM = 1.5, LEN = 198.3, LEAN = 4.95, FAR = LEN * 2.3, BX = 55.4, BY = 33.2;   // EXTRA = how much wider the arm is on its right side. TRIM = how much narrower on its left side
+    const PX = 50.45, PY = 231.46, HW = 11.25, EXTRA = 0.58, TRIM = 1.5, BALLDX = (EXTRA + TRIM) / 2 + 1.04, LEN = 198.3, LEAN = 4.95, FAR = LEN * 2.3, BX = 55.4, BY = 33.2;   // EXTRA = how much wider the arm is on its right side. TRIM = how much narrower on its left side
     const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const BOOST = 0.28, DOWN = 140, SINK = 54;   // DOWN: where it rests when pulled. SINK: how far the bottom of the arm slides down into the holder (about half of it) at the most pulled
     let deg = 0, raf = 0;
@@ -163,7 +163,7 @@
         g.setAttribute("x2", PX + dx * f); g.setAttribute("y2", by + dy * f);
       }
       ffade.firstElementChild.style.stopOpacity = sunk > 0.001 ? 0 : 1;
-      ballG.setAttribute("transform", "translate(" + x + " " + y + ") scale(" + s + ") translate(" + -BX + " " + -BY + ")");
+      ballG.setAttribute("transform", "translate(" + (x + BALLDX * s) + " " + y + ") scale(" + s + ") translate(" + -BX + " " + -BY + ")");
     }
     function run(from, to, ms, ease) {
       cancelAnimationFrame(raf);
