@@ -332,7 +332,7 @@
     spinning = true;
     spinBtn.disabled = true;
     spinBtn.classList.add("cz-pulled");                        // the lever arm flips down, then pops back up
-    setTimeout(() => spinBtn.classList.remove("cz-pulled"), 450);
+    setTimeout(() => spinBtn.classList.remove("cz-pulled"), 1200);
     setBalance(balance() - bet + win);
     holdSet(win);                                             // every tab shows the balance after the bet, before the prize arrives
     refresh();
