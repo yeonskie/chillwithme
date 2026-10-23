@@ -1581,7 +1581,8 @@ function buildSlide(item) {
 function fitSlideImage(img) {
   if (!img.naturalWidth || !img.naturalHeight) return;
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-  const maxW = Math.max(120, window.innerWidth - 8 * rem);
+  const side = window.matchMedia("(max-width: 40rem)").matches ? 2.5 : 8;      // phones: nearly edge to edge
+  const maxW = Math.max(120, window.innerWidth - side * rem);
   const capH = img.parentNode.classList.contains("has-cap") ? 4.5 * rem : 0;      // room for the caption under it
   const maxH = Math.max(120, Math.min(44 * rem, (lightStage.clientHeight || window.innerHeight) - 2.2 * rem) - capH);
   const k = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight);
