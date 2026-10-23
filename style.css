@@ -4133,3 +4133,25 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
   .mb-slide-text { width: calc(100vw - 2.5rem); padding: 1.25rem; }
   .mb-light-stage { padding-top: 1rem; }
 }
+
+/* prize shop: bigger text and previews on computers (phones keep their original sizes). only the items change: the shop itself is untouched */
+@media (min-width: 40.01rem) and (max-width: 60.99rem) {
+  .shop-name { font-size: 0.95rem; }
+  .shop-desc { font-size: 0.78rem; line-height: 1.25rem; min-height: 2.5em; opacity: 0.8; }
+  .shop-price { font-size: 0.85rem; }
+  .shop-prev { height: 3rem; font-size: 1.1rem; }
+  .shop-prev-pet { height: 4rem; }
+  .shop-item { padding: 0.7rem 0.6rem 0.75rem; gap: 0.25rem; }
+  .shop-note { font-size: 0.72rem; }
+  .shop-item .hy-btn { font-size: 0.85rem; }
+}
+
+/* bigger computer screens zoom the shop out to fit the window (--shop-s, set by shop.js), which shrinks these words too.
+   the words keep their normal size, and only get bigger when the zoom drops low enough that they'd be under about 13px (names) / 11px (the rest) on screen */
+@media (min-width: 61rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-name { font-size: max(1.08rem, calc(13px / var(--shop-s, 1))); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-desc { font-size: max(0.86rem, calc(11px / var(--shop-s, 1))); line-height: 1.15rem; min-height: 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-price { font-size: max(0.9rem, calc(11.5px / var(--shop-s, 1))); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-note { font-size: max(0.62rem, calc(10px / var(--shop-s, 1))); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-prev { height: 2.4rem; }
+}

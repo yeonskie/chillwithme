@@ -716,7 +716,7 @@ const SHOP_CATS = [
     page.style.setProperty("--shop-body-h", tallBody + "px"); // ...then every page of the shop is as tall as the tallest, so the roof doesn't jump around
     designH = Math.max(designH, wrap.offsetHeight);
     // 0.96: a little breathing room under the shop, so the bottom edge never gets cut off
-    const s = Math.max(0.5, Math.min(page.dataset.page === "rare-shop" ? 1 : 1.3, (h / designH) * 0.96, (w * 0.96) / wrap.offsetWidth));
+    const s = Math.max(0.5, Math.min(1, (h / designH) * 0.96, (w * 0.96) / wrap.offsetWidth));
     root.style.setProperty("--shop-s", s.toFixed(3));
   }
   window.addEventListener("resize", fit);
