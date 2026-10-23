@@ -3532,7 +3532,8 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 
 /* the prize shop title is my hanging sign drawing */
 .shop-sign { margin: 0; line-height: 0; font-weight: 700; }
-.shop-sign svg { display: block; height: 13rem; width: auto; margin: 0 auto; overflow: visible; }
+.shop-sign { --sg: 13rem; }   /* --sg = height of the sign itself; the chain above it is extra and runs up under the flags */
+.shop-sign svg { display: block; height: calc(var(--sg) * 753 / 494); width: auto; margin: calc(var(--lights-h) - var(--sg) * 259 / 494) auto 0; overflow: visible; }
 .shop-sign path, .shop-sign rect, .shop-sign circle { fill: var(--text); stroke: none; vector-effect: non-scaling-stroke; }
 .shop-sign .ps1 { fill: none; stroke: var(--text); stroke-width: 1px; stroke-dasharray: 3 3; }
 .shop-sign .ps2 { fill: var(--bg); stroke: var(--text); stroke-width: 1px; }
@@ -3540,7 +3541,16 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 .shop-sign text { font-family: inherit; font-size: 40.61px; font-weight: 700; }
 .shop-sign .ps4 { fill: var(--text); }
 .shop-sign .ps5 { fill: var(--bg); }
-@media (max-width: 40rem) { .shop-sign svg { height: 10.5rem; } }
+@media (max-width: 40rem) {
+  .shop-sign { --sg: 10.5rem; }
+  /* the sign stays pinned under the flags (like them); the page itself starts below it, so only yeonbucks and lower scroll */
+  .shop-sign { height: 0; }
+  .shop-sign svg { position: fixed; top: calc(var(--bar-height) + var(--lights-h) - var(--sg) * 259 / 494); left: 50%; margin: 0; transform: translateX(-50%); z-index: 2; pointer-events: none;
+    clip-path: inset(calc(var(--sg) * 259 / 494 - var(--lights-h)) 0 0 0); }
+  .page.active:has(.shop-sign) { top: 10.5rem; }
+  /* a soft fade where the page slides out under the sign, instead of a hard edge */
+  .shop-sign::after { content: ""; position: fixed; left: 0; right: 0; top: calc(var(--bar-height) + var(--lights-h) + var(--sg)); height: 2rem; z-index: 3; pointer-events: none; background: linear-gradient(var(--bg), transparent); }
+}
 
 /* the sign hangs from the very top of the page, with the back link and the rest underneath it */
 :is(.page[data-page="shop"], .page[data-page="rare-shop"]) { padding-top: 0; }
