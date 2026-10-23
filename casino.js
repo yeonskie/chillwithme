@@ -133,6 +133,47 @@
   if (!grid) return;
 
   const machineEl = grid.parentElement;   // the machine box (it gets the yellow jackpot outline)
+  // ---- the lever: drawn in 3d. It pivots at the holder and swings toward you (up -> straight at you -> down), with perspective,
+  // so the ball grows as it comes at you. pose(deg): 0 = up, 180 = hanging straight down.
+  const lever = (() => {
+    const svg = document.querySelector(".cz-lever svg");
+    if (!svg) return { down() {}, up() {}, set() {} };
+    const armF = svg.querySelector(".cz-armf"), armS = svg.querySelector(".cz-arms"), ballG = svg.querySelector(".cz-ballg");
+    const PX = 50.45, PY = 231.46, HW = 11.25, LEN = 198.3, LEAN = 4.95, FAR = LEN * 2.3, BX = 55.4, BY = 33.2;
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let deg = 0, raf = 0;
+    function pose(d) {
+      deg = d;
+      const a = d * Math.PI / 180, t = Math.min(1, Math.max(0, d / 180));
+      const z = LEN * Math.sin(a), s = FAR / (FAR - z);
+      const x = PX + LEAN * (1 - t) * s, y = PY - LEN * Math.cos(a) * s, hw = HW * s;
+      armF.setAttribute("points", (PX - HW) + "," + PY + " " + (PX + HW) + "," + PY + " " + (x + hw) + "," + y + " " + (x - hw) + "," + y);
+      armS.setAttribute("d", "M" + (PX - HW) + "," + PY + "L" + (x - hw) + "," + y + "M" + (PX + HW) + "," + PY + "L" + (x + hw) + "," + y);
+      ballG.setAttribute("transform", "translate(" + x + " " + y + ") scale(" + s + ") translate(" + -BX + " " + -BY + ")");
+    }
+    function run(from, to, ms, ease) {
+      cancelAnimationFrame(raf);
+      if (reduce) { pose(to); return; }
+      const t0 = performance.now();
+      const tick = (now) => {
+        const p = Math.min(1, (now - t0) / ms);
+        pose(from + (to - from) * ease(p));
+        if (p < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }
+    // pull: starts slow (it takes a push), then drops fast and lands with a small bounce
+    const pull = (p) => (p < 0.8 ? Math.pow(p / 0.8, 1.7) * 1.04 : 1.04 - 0.04 * Math.sin(((p - 0.8) / 0.2) * Math.PI / 2));
+    // let go: snaps back up and wobbles a little past the top
+    const back = (p) => { const c = 1.1, q = p - 1; return 1 + (c + 1) * q * q * q + c * q * q; };
+    return {
+      down() { run(deg, 180, 380, pull); },
+      up() { run(deg, 0, 600, back); },
+      set: pose,
+    };
+  })();
+  window.czLever = lever;
+
   const balEl = $("cz-bal"), nextEl = $("cz-next"), msg = $("cz-msg"), betEl = $("cz-bet"), spinBtn = $("cz-spin");
   let spinning = false;
 
@@ -340,7 +381,7 @@
     const win = Math.round(bet * result);                    // (0.5x of an odd bet rounds up, so 5 yeonbucks pays back 3)
     spinning = true;
     spinBtn.disabled = true;
-    spinBtn.classList.add("cz-pulled");                        // the lever arm stays down until the wheels stop (removed again at the end of the spin)
+    spinBtn.classList.add("cz-pulled"); lever.down();                        // the lever arm stays down until the wheels stop (removed again at the end of the spin)
     setBalance(balance() - bet + win);
     holdSet(win);                                             // every tab shows the balance after the bet, before the prize arrives
     refresh();
@@ -399,7 +440,7 @@
       say("no matches. you lost **" + fmt(bet) + "** yeonbucks.", "cz-bad");
     }
     spinning = false;
-    spinBtn.classList.remove("cz-pulled");
+    spinBtn.classList.remove("cz-pulled"); lever.up();
     refresh();
   }
 
