@@ -3700,7 +3700,7 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
   .page[data-page="rare-shop"] .shop-body::before { bottom: 1.6%; }
 }
 @media (min-width: 61rem) {
-  .page[data-page="rare-shop"] .shop-roofbox { top: 2.85rem; padding: 0 1.4rem; min-width: 8.6rem; }
+  .page[data-page="rare-shop"] .shop-roofbox { top: 3.13rem; padding: 0 1.4rem; min-width: 8.6rem; }
   .page[data-page="rare-shop"] .shop-roofbox strong { font-size: 1.7rem; }
   .page[data-page="rare-shop"] .shop-roofbox strong[data-len="6"], .page[data-page="rare-shop"] .shop-roofbox strong[data-len="7"] { font-size: 1.35rem; }
   .page[data-page="rare-shop"] .shop-roofbox strong[data-len="8"], .page[data-page="rare-shop"] .shop-roofbox strong[data-len="9"] { font-size: 1.1rem; }
