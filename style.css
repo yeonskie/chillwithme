@@ -3992,3 +3992,8 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 @media (max-width: 40rem) and (max-height: 41rem) {
   .page[data-page="arcade"] { padding-bottom: 8.5rem; }   /* short phones: stay clear of the yeonbucks / inventory buttons at the bottom left */
 }
+
+/* help the hyrax on phones: when the little secret door is showing (bottom left), the board ends above it so the door doesn't cover any of the game */
+@media (max-width: 40rem) {
+  body.has-yb:has(#sr-door:not([hidden])) .page[data-page="hyrax"] { padding-bottom: 9.7rem; }
+}

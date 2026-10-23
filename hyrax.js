@@ -305,5 +305,16 @@
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => { if (location.hash === "#hyrax" && !started && !finished) build(); }, 200);
   });
+  // the board can also change size by itself before you start (e.g. the little secret door shows up and the board gets shorter), so rebuild it to fit
+  if (window.ResizeObserver) {
+    let boardTimer = null, lastH = 0;
+    new ResizeObserver(() => {
+      const h = board.clientHeight;
+      if (!h || Math.abs(h - lastH) < 2) { lastH = h || lastH; return; }
+      lastH = h;
+      clearTimeout(boardTimer);
+      boardTimer = setTimeout(() => { if (location.hash === "#hyrax" && cells.length && !started && !finished) build(); }, 150);
+    }).observe(board);
+  }
   check();
 })();
