@@ -28,8 +28,11 @@
   const BET_STEP = 1;                // bets go up by this much (1 = you can bet down to the last yeonbuck)
   const SPIN_MS = 1800;              // how long the pictures shuffle for
   const JACKPOT = 0.05;              // the jackpot chance at START yeonbucks or less
+  const JACKPOT_BOOST = 0.03;        // the jackpot boost (prize shop, 50k) adds this much on top of the lucky charm
   const CHARM_BONUS = 0.05;          // the lucky charm adds this much to the jackpot chance (0.05 = 5 percentage points)
   const PRIZE_BONUS = 0.10;          // the prize bonus adds this much to every game prize (0.10 = +10%)
+  const CASHBACK_CHANCE = 0.05;      // the cashback item (prize shop): this chance on every spin...
+  const CASHBACK_PART = 0.10;        // ...to get this much of the bet back (0.10 = 10%)
   const JACKPOT_MIN = 0.0025;        // ...and it never goes below this
 
   const PICTURES = [
@@ -238,7 +241,7 @@
   const N = PICTURES.length;
   function jackpotChance(bal) {
     const base = Math.max(JACKPOT_MIN, JACKPOT * Math.min(1, START / Math.max(bal, 1)));
-    return Math.min(1, base + (owns("charm") ? CHARM_BONUS : 0) + (foundOn("yb-luck-until") ? CHARM_BONUS : 0));       // the lucky charm (prize shop) adds 5 percentage points, and so does the lost and found's week of luck
+    return Math.min(1, base + (owns("charm") ? CHARM_BONUS : 0) + (owns("charm2") ? JACKPOT_BOOST : 0) + (foundOn("yb-luck-until") ? CHARM_BONUS : 0));       // the lucky charm (prize shop) adds 5 percentage points, and so does the lost and found's week of luck
   }
   function pickResult() {
     if (Math.random() < jackpotChance(balance())) return 10;
@@ -315,7 +318,7 @@
   });
   function pct(x) { return (Math.round(x * 10000) / 100) + "%"; }
   function updateJackpotNote() {
-    $("cz-jp").textContent = "the jackpot starts at " + pct(JACKPOT) + " and gets less likely the more yeonbucks you have. right now it's " + pct(jackpotChance(balance())) + "." + (owns("charm") || foundOn("yb-luck-until") ? " (your lucky charm is helping!)" : "");
+    $("cz-jp").textContent = "the jackpot starts at " + pct(JACKPOT) + " and gets less likely the more yeonbucks you have. right now it's " + pct(jackpotChance(balance())) + "." + (owns("charm") || owns("charm2") || foundOn("yb-luck-until") ? " (your lucky charm is helping!)" : "");
   }
 
   const fmt = (n) => Number(n).toLocaleString("en-US");
@@ -393,11 +396,12 @@
     // decide the result first, and settle the money straight away (so refreshing can't cheat)
     const result = pickResult();
     const win = Math.round(bet * result);                    // (0.5x of an odd bet rounds up, so 5 yeonbucks pays back 3)
+    const cash = owns("cashback") && Math.random() < CASHBACK_CHANCE ? Math.round(bet * CASHBACK_PART) : 0;   // cashback, whatever the spin gives
     spinning = true;
     spinBtn.disabled = true;
     spinBtn.classList.add("cz-pulled"); lever.down();                        // the lever arm stays down until the wheels stop (removed again at the end of the spin)
-    setBalance(balance() - bet + win);
-    holdSet(win);                                             // every tab shows the balance after the bet, before the prize arrives
+    setBalance(balance() - bet + win + cash);
+    holdSet(win + cash);                                           // every tab shows the balance after the bet, before the prize arrives
     refresh();
     say("spinning...");
     msg.parentElement.classList.add("cz-spun");                 // after the first spin the welcome title goes away and only the results show
@@ -452,6 +456,13 @@
       say("two in a row! 0.5x: you got half back (**" + fmt(win) + "**).");
     } else {
       say("no matches. you lost **" + fmt(bet) + "** yeonbucks.", "cz-bad");
+    }
+    if (cash > 0) {                                           // cashback: added to the end of whatever the spin said
+      const b = document.createElement("strong");
+      b.textContent = fmt(cash);
+      msg.appendChild(document.createTextNode(" cashback! "));
+      msg.appendChild(b);
+      msg.appendChild(document.createTextNode(" yeonbucks back."));
     }
     spinning = false;
     spinBtn.classList.remove("cz-pulled"); lever.up();

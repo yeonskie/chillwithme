@@ -66,6 +66,8 @@
     { id: "boost",      group: "boosts",       name: "earn boost",      desc: "+75 every 30 seconds instead of +50", price: 10000, kind: "perk", tag: "+75" },
     { id: "boost2",     group: "boosts",       name: "super earn boost", desc: "+100 every 30 seconds instead of +50", price: 35000, kind: "perk", tag: "+100" },
     { id: "charm",      group: "boosts",       name: "lucky charm",     desc: "+5% chance of the casino jackpot",    price: 20000, kind: "perk", tag: "+5%" },
+    { id: "charm2",     group: "boosts",       name: "jackpot boost",   desc: "+3% chance of the casino jackpot, on top of the lucky charm", price: 50000, kind: "perk", tag: "+3%" },
+    { id: "cashback",   group: "boosts",       name: "cashback",        desc: "small chance on every casino spin to get 10% of your bet back", price: 30000, kind: "perk", tag: "10%" },
     { id: "bonus",      group: "boosts",       name: "prize bonus",     desc: "+10% on every game prize",            price: 20000, kind: "perk", tag: "+10%" },
     { id: "pet-dog",     group: "pets",          name: "dog",            desc: "a little buddy for the corner of your screen", price: 25000, kind: "pet", value: "dog" },
     { id: "pet-cat",     group: "pets",          name: "cat",            desc: "a little buddy for the corner of your screen", price: 25000, kind: "pet", value: "cat" },
@@ -286,9 +288,10 @@ const SHOP_CATS = [
     ["secret door", (i) => i.id === "key"],
   ];
   const shopCat = (i) => { const c = SHOP_CATS.find((k) => k[1](i)); return c ? c[0] : "more"; };
-  const shopSorted = () => {                                                   // the shop's items, category by category (keeping their order inside each)
+  const byPrice = ["boosts", "desktop only features"];                       // these categories go from cheapest to priciest
+  const shopSorted = () => {                                                   // the shop's items, category by category (keeping their order inside each, except the byPrice ones below, cheapest first)
     const rank = (i) => { const n = SHOP_CATS.findIndex((k) => k[0] === shopCat(i)); return n < 0 ? 99 : n; };
-    return shopList().map((it, n) => [it, n]).sort((a, b) => rank(a[0]) - rank(b[0]) || a[1] - b[1]).map((x) => x[0]);
+    return shopList().map((it, n) => [it, n]).sort((a, b) => rank(a[0]) - rank(b[0]) || (byPrice.indexOf(shopCat(a[0])) >= 0 ? a[0].price - b[0].price : 0) || a[1] - b[1]).map((x) => x[0]);
   };
   const prizeShelf = makeShelf(document.getElementById("shop-items"), shopSorted, shopCat, (i) => (shopCat(i) === "backgrounds" ? i.kind : ""));   // (the color tints get their own page under "backgrounds")
 
