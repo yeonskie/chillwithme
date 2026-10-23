@@ -3936,8 +3936,8 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
   .ht-wavy { display: none; }
   .ht-scal { display: block; }
   .home .home-ticket .home-title { font-size: 10.1cqw; margin-bottom: 0.25rem; }
-  .home .home-ticket .home-sub { font-size: 0.58rem; }
-  .home .home-sub.home-sub-below { font-size: 0.648rem; line-height: 1.5; padding: 0.25rem 0.5rem; margin-bottom: 1.1rem; }
+  .home .home-ticket .home-sub { font-size: 0.64rem; }
+  .home .home-sub.home-sub-below { font-size: 0.75rem; line-height: 1.5; padding: 0.3rem 0.6rem; margin-bottom: 1.1rem; }   /* (a bit bigger so it's easier to read) */
 }
 
 /* ---------- home: the two small buttons sit side by side, and the carousel is a little smaller on shorter computer screens ---------- */
