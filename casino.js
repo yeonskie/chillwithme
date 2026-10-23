@@ -284,8 +284,18 @@
   };
 
   // the bet box grows with the number, so big bets (like 100000) never get cut off
-  function fitBet() { betEl.dataset.len = String(String(betEl.value).length); }   // (the number in the tray window gets smaller as it gets longer)
+  const fitCtx = document.createElement("canvas").getContext("2d");
+  function fitBet() {   // the bet always shows in full: a long number is scaled down to fit the tray window (the text stays 16px so phones don't zoom in)
+    const cs = getComputedStyle(betEl), win = betEl.parentElement.clientWidth;
+    betEl.style.transform = ""; betEl.style.width = "";
+    if (!win || !fitCtx) return;
+    fitCtx.font = cs.fontWeight + " " + cs.fontSize + " " + cs.fontFamily;
+    const w = fitCtx.measureText(betEl.value || "0").width + 4, avail = win * 0.86;
+    if (w > avail) { betEl.style.width = Math.ceil(w) + "px"; betEl.style.transform = "scale(" + (avail / w).toFixed(3) + ")"; }
+  }
+
   betEl.addEventListener("input", fitBet);
+  window.addEventListener("resize", fitBet);
   fitBet();
   function readBet() {
     let b = Math.floor(Number(betEl.value) / BET_STEP) * BET_STEP;

@@ -2224,12 +2224,9 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 
 /* the little window on the tray is where you type your bet */
 .cz-betwin { position: absolute; z-index: 2; left: 31.87%; width: 23.8%; top: 83.2%; height: 9.9%; margin: 0; padding-bottom: 0.6cqw; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; font-weight: 400; cursor: text; }
-.cz-bet { width: 78%; box-sizing: border-box; text-align: center; font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: max(16px, 5.4cqw); line-height: 1; color: var(--text); background: transparent; border: 0; border-radius: 0; padding: 0; margin: 0; -moz-appearance: textfield; appearance: textfield; }
+.cz-bet { width: 92%; transform-origin: center; box-sizing: border-box; text-align: center; font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: max(16px, 5.4cqw); line-height: 1; color: var(--text); background: transparent; border: 0; border-radius: 0; padding: 0; margin: 0; -moz-appearance: textfield; appearance: textfield; }
 .cz-bet::-webkit-outer-spin-button, .cz-bet::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .cz-bet:focus { outline: none; }
-.cz-bet[data-len="6"], .cz-bet[data-len="7"] { font-size: max(16px, 4cqw); }
-.cz-bet[data-len="8"], .cz-bet[data-len="9"] { font-size: max(16px, 3.2cqw); }
-.cz-bet:is([data-len="10"], [data-len="11"], [data-len="12"], [data-len="13"], [data-len="14"]) { font-size: max(16px, 2.6cqw); }
 .cz-betwin .cz-cur { font-size: max(8px, 1.9cqw); line-height: 1.2; white-space: nowrap; text-transform: none; letter-spacing: 0.02em; margin-top: -0.6cqw; }
 .cz-cur { font-size: 0.8em; text-transform: uppercase; }
 
