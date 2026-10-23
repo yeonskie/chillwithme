@@ -132,6 +132,7 @@
   const grid = $("cz-grid");
   if (!grid) return;
 
+  const machineEl = grid.parentElement;   // the machine box (it gets the yellow jackpot outline)
   const balEl = $("cz-bal"), nextEl = $("cz-next"), msg = $("cz-msg"), betEl = $("cz-bet"), spinBtn = $("cz-spin");
   let spinning = false;
 
@@ -338,6 +339,7 @@
     say("spinning...");
     cells.forEach((c) => c.classList.remove("cz-win", "cz-pair"));
     grid.classList.remove("cz-jackpot");
+    machineEl.classList.remove("cz-gold");
 
     const final = makeGrid(result);
     if (reduced) {
@@ -368,8 +370,9 @@
     if (result === 10) {
       // jackpot: the whole machine flashes, then stays lit
       say("jackpot! all nine match! you won " + fmt(win) + " yeonbucks!");
-      await flash(() => grid.classList.toggle("cz-jackpot"), 7);
+      await flash(() => { grid.classList.toggle("cz-jackpot"); machineEl.classList.toggle("cz-gold"); }, 7);
       grid.classList.add("cz-jackpot");
+      machineEl.classList.add("cz-gold");
     } else if (result === 5) {
       // two lines: they flash, then stay lit
       say("two lines! 5x: you won " + fmt(win) + " yeonbucks!");

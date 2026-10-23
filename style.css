@@ -2215,10 +2215,13 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-win { background: var(--text); }
 .cz-win img { filter: invert(1); }
 :root[data-theme="dark"] .cz-win img { filter: none; }
-/* jackpot: the whole screen flashes baby pink (the pictures stay black so they show up on it) */
-.cz-jackpot { background: #f8c8dc; }
+/* jackpot: the whole screen flashes soft yellow (the pictures stay black so they show up on it) */
+.cz-jackpot { background: #f8de7e; }
 .cz-jackpot .cz-cell img { filter: none; }
 :root[data-theme="dark"] .cz-jackpot .cz-cell img { filter: none; }
+/* jackpot: the stars down both sides flash yellow and glow */
+.cz-art .cz-stars { transition: fill 0.12s; }
+.cz-machine.cz-gold .cz-stars { fill: #f4c20d; filter: drop-shadow(0 0 3px #f4c20d) drop-shadow(0 0 7px rgba(244, 194, 13, 0.85)); }
 /* 0.5x: the two matching pictures get a dashed outline */
 .cz-pair { outline: 1px dashed var(--text); outline-offset: -0.35em; }
 
