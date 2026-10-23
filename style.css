@@ -3977,18 +3977,18 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body::before { inset: 0 5px 5px 5px; border-radius: 0 0 11px 11px; }
 }
 
-/* ---------- arcade on phones: smaller boxes and tighter spacing, so the bottom-left buttons (and the little door) don't cover them ---------- */
+/* ---------- arcade on phones: smaller boxes and tighter, even spacing; centered on the page, and (on short screens) kept up above the bottom-left buttons ---------- */
 @media (max-width: 40rem) {
-  .page[data-page="arcade"] { padding: 0.35rem 1rem 8.5rem; }
+  .page[data-page="arcade"] { padding: 0.35rem 1rem 0.35rem; }
   .arcade { margin: auto; }
   .arcade-title { font-size: clamp(1.15rem, 5vw, 1.4rem); margin-bottom: 0.15rem; }
   .arcade-sub { font-size: 0.75rem; }
-  .arcade-ring { margin: 0.8rem auto 0.4rem; gap: 0.5rem; }
+  .arcade-ring { margin: 0.8rem auto 0.4rem; gap: 0.6rem; }
   .arcade-card { width: min(15rem, 100%); min-height: 2.9rem; padding: 0.3rem 0.5rem; gap: 0.15rem; font-size: 0.8rem; }
   .arcade-tag { font-size: 0.6rem; }
-  .arcade-item-prize { margin: 0.7rem 0; }
+  .arcade-item-prize, .arcade-item-hy { margin: 0; }   /* (so every gap is the same) */
   .arcade-item-prize::before { height: calc(100% + 2rem); }
-  .arcade-item-hy { margin-top: 0.9rem; }
-  /* with the little secret door (once you own the key) there's even less room at the bottom left */
-  body:has(#sr-door:not([hidden])) .page[data-page="arcade"] { padding-top: 1rem; padding-bottom: 12.5rem; }
+}
+@media (max-width: 40rem) and (max-height: 41rem) {
+  .page[data-page="arcade"] { padding-bottom: 8.5rem; }   /* short phones: stay clear of the yeonbucks / inventory buttons at the bottom left */
 }
