@@ -3659,7 +3659,7 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 @media (min-width: 61rem) {
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { position: relative; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { display: none; }
-  .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 3.6rem; transform: translateX(-50%); z-index: 2; margin: 0; padding: 0.7rem 2rem 0.75rem; background: var(--bg); border: var(--bw, 1px) solid var(--line); border-radius: var(--radius); line-height: 1.15; text-align: center; }
+  .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 3.6rem; transform: translateX(-50%); z-index: 2; margin: 0; padding: 1.25rem 3.4rem 1.3rem; isolation: isolate; min-width: 12rem; box-sizing: border-box; line-height: 1.15; text-align: center; }   /* the ticket art (same as the homepage's) sits behind the count */
   .shop-roofbox strong { font-size: 2.1rem; }
   .shop-roofbox span { font-size: 0.95rem; }
 }
