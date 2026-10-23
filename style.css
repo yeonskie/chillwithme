@@ -2245,8 +2245,11 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 @media (prefers-reduced-motion: reduce) { .cz-arm { transition: none; } }
 
 /* under the machine: the bet, the instructions, and the buttons */
-.cz-have { margin: 0; font-size: 0.85rem; }
-.cz-have strong { font-weight: 700; }
+.cz-have { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; column-gap: 0.55rem; row-gap: 0; text-align: center; }
+.cz-hv-t { font-family: var(--font-mono); font-size: 0.8rem; }
+.cz-hv-n { font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: 2.6rem; line-height: 1.1; }
+.cz-hv-n[data-len="8"], .cz-hv-n[data-len="9"], .cz-hv-n[data-len="10"] { font-size: 2.1rem; }
+.cz-hv-n:is([data-len="11"], [data-len="12"], [data-len="13"], [data-len="14"], [data-len="15"]) { font-size: 1.7rem; }
 .cz-quick { display: flex; gap: 1.2rem; margin: -0.5rem 0 0; }
 .cz-quick button { font: inherit; font-size: 0.85rem; color: inherit; background: none; border: none; padding: 0.3rem 0.2rem; opacity: 0.6; cursor: pointer; text-decoration: underline; }
 .cz-quick button:hover, .cz-quick button:focus-visible { opacity: 1; outline: none; }

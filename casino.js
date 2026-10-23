@@ -258,6 +258,7 @@
 
   function refresh() {
     balEl.textContent = fmt(shown());
+    balEl.dataset.len = String(balEl.textContent.length);
     document.querySelectorAll("[data-earn]").forEach((el) => { el.textContent = earnAmt(); });   // the "+50" in the text (75 with the boost)
     document.querySelectorAll("[data-yb]").forEach((el) => { el.textContent = fmt(shown()); el.dataset.len = String(el.textContent.length); });   // "you have ___ yeonbucks" boxes on other pages
     const left = Math.max(0, Math.ceil(EVERY - progress()));
