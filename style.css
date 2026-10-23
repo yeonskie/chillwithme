@@ -2052,6 +2052,21 @@ body.has-yb .page[data-page="music"] { padding-bottom: 2.8rem; }
 .gi-end-title { font-size: 1.15rem; font-weight: 700; margin: 0 0 0.6rem; }
 .gi-end-score { font-size: 0.9rem; margin: 0 0 1rem; }
 @media (pointer: coarse) { .gi-input { font-size: 16px; } }
+/* phones: tighter, and sitting higher, so the yeonbucks / inventory buttons at the bottom left don't cover the game */
+@media (max-width: 40rem) {
+  .page[data-page="idol"] { padding: 0.35rem 1rem 8.5rem; }
+  .gi-wrap { margin: auto; }
+  .gi-wrap .hy-back { margin-bottom: 0.15rem; }
+  .gi-wrap .hy-hint { margin-bottom: 0.25rem; }
+  .gi-photo { --size: min(22rem, 100%, max(9rem, calc(100svh - 27.5rem))); margin: 0.5rem auto 0.4rem; }
+  .gi-msg { min-height: 1.6em; margin-bottom: 0.35rem; }
+  .gi-form { margin-bottom: 0.4rem; }
+  .gi-actions { margin-bottom: 0.3rem; }
+  .gi-hinttext { min-height: 1.1em; margin-bottom: 0.3rem; }
+  /* the little secret door (once you own the key) also sits at the bottom left, so leave room for it too */
+  body:has(#sr-door:not([hidden])) .page[data-page="idol"] { padding-top: 1.35rem; padding-bottom: 12.5rem; }
+  body:has(#sr-door:not([hidden])) .gi-photo { --size: min(22rem, 100%, max(8rem, calc(100svh - 32.5rem))); }
+}
 
 /* owner only: the "add an idol" box */
 .gi-dialog { position: fixed; top: var(--bar-height); bottom: var(--bar-height); left: 0; right: 0; z-index: 40; display: flex; align-items: center; justify-content: center; padding: 1rem; }
