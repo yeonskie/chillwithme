@@ -643,8 +643,21 @@
     // which is a 127.0.0.1 number when you're testing on your own computer (that only works for you)
     const home = (SITE_URL || (location.origin + location.pathname)).replace(/index\.html$/, "").replace(/[?#].*$/, "");
     const link = home + (home.endsWith("/") ? "" : "/") + "?room=" + st.room.code + "#scattergories";
-    try { await navigator.clipboard.writeText(link); say("invite link copied!"); }
-    catch (e) { say("share this code: " + st.room.code); }
+    // 1) copy the link. 2) if the browser won't let us (some phones), open the phone's share sheet with the link.
+    // 3) if that isn't possible either, try the old way of copying. 4) last resort: show the link itself so it can be copied by hand.
+    try { await navigator.clipboard.writeText(link); say("invite link copied!"); return; } catch (e) {}
+    if (navigator.share) {
+      try { await navigator.share({ title: "scattergories", text: "join my scattergories room!", url: link }); say("invite link shared!"); return; }
+      catch (e) { if (e && e.name === "AbortError") return; }   // (they closed the share sheet: nothing to say)
+    }
+    try {
+      const t = document.createElement("textarea");
+      t.value = link; t.setAttribute("readonly", ""); t.style.cssText = "position:fixed;top:0;left:0;opacity:0;font-size:16px";
+      document.body.appendChild(t); t.select(); t.setSelectionRange(0, link.length);
+      const ok = document.execCommand("copy"); t.remove();
+      if (ok) { say("invite link copied!"); return; }
+    } catch (e) {}
+    say("copy this link: " + link);
   });
 
   // ----- the first screen -----

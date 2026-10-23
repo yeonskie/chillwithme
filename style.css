@@ -3997,3 +3997,6 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 @media (max-width: 40rem) {
   body.has-yb:has(#sr-door:not([hidden])) .page[data-page="hyrax"] { padding-bottom: 9.7rem; }
 }
+
+/* scattergories: the name box is narrower and centered (it used to stretch across the whole page) */
+.gi-field input#sg-name { width: min(14rem, 100%); margin-left: auto; margin-right: auto; text-align: center; }
