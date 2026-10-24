@@ -4455,3 +4455,181 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 .jb-tag { animation: jb-rise 0.7s cubic-bezier(0.2, 0.9, 0.3, 1) 0.8s both; }
 @keyframes jb-rise { 0% { transform: translateY(1.2em); opacity: 0; } 100% { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .jb-tag { animation: none; } }
+
+/* ---------- Wishing well ---------- */
+.page[data-page="wishing-well"] { position: absolute; inset: 0; padding: 1rem 1rem 3.4rem; overflow: hidden; }
+.page[data-page="wishing-well"].active { display: flex; align-items: center; justify-content: center; }
+@media (max-width: 40rem) { .page[data-page="wishing-well"] { padding-bottom: 6.6rem; } }
+
+/* .ww is the stage: everything is sized from it, so the fountain (and the coin on it) scale together */
+.ww { position: relative; width: 100%; max-width: 56rem; height: 100%; container-type: size; --ww-top: 7.2rem; --ww-w: min(100cqw, (100cqh - var(--ww-top) - 7.4rem) * 0.862 * 0.96, 30rem); }
+.ww-title { position: absolute; top: 3.2rem; left: 0; right: 0; font-size: clamp(1.3rem, 5vw, 2rem); line-height: 1.2; text-align: center; animation: ww-rise 0.8s cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+.ww-fit { position: absolute; left: 0; right: 0; top: var(--ww-top); bottom: 7.4rem; margin: auto; width: var(--ww-w); height: calc(var(--ww-w) * 905 / 780); }
+.ww-art { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.ww-hint { position: absolute; left: 0; right: 0; top: calc(97% + 0.6rem); margin: 0; text-align: center; font-size: 1.05rem; opacity: 0.8; letter-spacing: 0.02em; transition: opacity 0.3s; pointer-events: none; }
+.ww.is-open .ww-hint { opacity: 0; }
+
+/* the page dims when the coin is opened; clipped to the page by its overflow */
+.ww-dim { position: absolute; inset: -100vmax; z-index: 2; background: color-mix(in srgb, var(--bg) 84%, transparent); opacity: 0; pointer-events: none; transition: opacity 0.5s ease; }
+.ww.is-open .ww-dim { opacity: 1; pointer-events: auto; }
+
+/* the hyrax coin: sits at the bottom of the fountain; opens big in the middle, turns around, and takes a wish */
+.ww-coin { position: absolute; z-index: 3; left: 50%; top: 85.1%; width: 27%; aspect-ratio: 1; transform: translate(-50%, -50%); container-type: inline-size; --hk-line: 0.8px; --hk-draw: 0.27px;
+  transition: left 0.6s cubic-bezier(0.3, 1.15, 0.5, 1), top 0.6s cubic-bezier(0.3, 1.15, 0.5, 1), width 0.6s cubic-bezier(0.3, 1.15, 0.5, 1); }
+.ww-coin[data-st="open"], .ww-coin[data-st="throw"] { top: 47%; width: 88%; --hk-line: 1.2px; --hk-draw: 0.6px; }
+.ww-coin[data-st="gone"] { opacity: 0; pointer-events: none; transition: none; }
+.ww-coin.ww-back-in { animation: ww-coin-in 0.8s ease both; }
+.ww-card { position: absolute; inset: 0; }
+.ww-front { position: absolute; inset: 0; padding: 0; margin: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; color: inherit; }
+.ww-front:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.ww-front svg { display: block; width: 100%; height: 100%; fill: var(--text); overflow: visible; pointer-events: none; }
+.ww-front svg * { vector-effect: non-scaling-stroke; }
+.ww-front .hk-1 { fill: var(--bg); stroke: var(--text); stroke-width: var(--hk-line); stroke-miterlimit: 10; }
+.ww-front .hk-2 { fill: var(--bg); }
+.ww-front path:not(.hk-1):not(.hk-2):not(.hk-3) { stroke: var(--text); stroke-width: var(--hk-draw, 0.3px); stroke-linejoin: round; }
+.ww-front .hk-3 { fill: none; stroke: var(--text); stroke-width: var(--hk-line); stroke-miterlimit: 10; }
+.ww-front .hk-solo { display: none; }
+.ww-coin[data-st="rest"] .ww-front:hover { animation: ww-wiggle 0.5s ease-in-out; }
+@keyframes ww-wiggle { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-12deg) scale(1.06); } 65% { transform: rotate(8deg) scale(1.06); } }
+@keyframes ww-coin-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* the back of the coin */
+.ww-back { position: absolute; inset: 0; display: none; }
+.ww-coin[data-face="back"] .ww-front { display: none; }
+.ww-coin[data-face="back"] .ww-back { display: block; }
+.ww-back svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.ww-back svg * { vector-effect: non-scaling-stroke; }
+.ww-bk-1 { fill: var(--bg); stroke: var(--text); stroke-width: 1.2px; }
+.ww-bk-2 { fill: none; stroke: var(--text); stroke-width: 1.2px; }
+.ww-bk-3 { fill: none; stroke: var(--text); stroke-width: 1.4px; stroke-dasharray: 5 8; stroke-linecap: round; }
+.ww-wish-wrap { position: absolute; left: 18%; right: 18%; top: 22%; bottom: 26%; display: flex; align-items: center; justify-content: center; }
+.ww-wish { width: 100%; max-height: 100%; box-sizing: border-box; padding: 0; margin: 0; border: 0; outline: 0; resize: none; overflow-y: auto; background: transparent; color: inherit; text-align: center; font-family: "Roboto Mono", var(--font-mono, monospace); font-size: max(13px, 5.2cqw); line-height: 1.35; -webkit-appearance: none; border-radius: 0; scrollbar-width: none; }
+.ww-wish::placeholder { color: inherit; opacity: 0.45; }
+.ww-count { position: absolute; left: 0; right: 0; bottom: 17%; margin: 0; text-align: center; font-size: max(10px, 3.3cqw); opacity: 0.5; pointer-events: none; }
+
+.ww-actions { position: absolute; top: calc(100% + 1rem); left: 50%; transform: translateX(-50%); display: flex; gap: 0.6rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+.ww-coin[data-st="open"][data-face="back"] .ww-actions { opacity: 1; pointer-events: auto; transition-delay: 0.15s; }
+.ww-btn { padding: 0.65rem 1.1rem; font: inherit; font-size: 0.8rem; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); cursor: pointer; }
+.ww-btn:hover, .ww-btn:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.ww-btn-go { border-color: var(--text); }
+.ww-wish.is-empty-shake { animation: ww-shake 0.4s ease; }
+@keyframes ww-shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+
+/* where the coin lands */
+.ww-art .ww-splash { fill: none; stroke: var(--text); transform-box: fill-box; transform-origin: 50% 50%; opacity: 0; animation: ww-rip 1.6s ease-out 1 both; }
+
+/* the drawing: white-filled shapes with an ink outline, the black shading in ink */
+.ww-art * { vector-effect: non-scaling-stroke; stroke-width: 1px; }
+.ww-art .ww-w { fill: var(--bg); stroke: var(--text); }
+.ww-art .ww-l { fill: none; stroke: var(--text); }
+.ww-art .ww-k { fill: var(--text); stroke: none; }
+.ww-art .ww-solid { fill: var(--bg); fill-rule: evenodd; }   /* the basin's outer wall: solid, not see-through to the page behind */
+
+/* water: solid sheets that spill over each tier, with a slow streak of light sliding down each one */
+.ww-art .ww-sheet { fill: var(--bg); stroke: var(--text); stroke-linejoin: round; }
+.ww-art .ww-streak { fill: none; stroke: var(--text); stroke-width: 1px; stroke-linecap: round; opacity: 0.55; stroke-dasharray: 26 74; animation: ww-streak calc(var(--t, 1.8s) * 3) cubic-bezier(0.45, 0, 0.9, 0.7) infinite; animation-delay: var(--d, 0s); }
+@keyframes ww-streak { from { stroke-dashoffset: 26; opacity: 0.2; } 20% { opacity: 0.6; } to { stroke-dashoffset: -74; opacity: 0.6; } }
+.ww-art .ww-jet { fill: none; stroke: var(--text); stroke-width: 1.2px; stroke-linecap: round; stroke-dasharray: 55 45; animation: ww-jet var(--t, 1.8s) linear infinite; animation-delay: var(--d, 0s); }
+@keyframes ww-jet { from { stroke-dashoffset: 55; } to { stroke-dashoffset: -45; } }
+
+/* rings spreading out from where the water lands */
+.ww-art .ww-rip { fill: none; stroke: var(--text); transform-box: fill-box; transform-origin: 50% 50%; opacity: 0; animation: ww-rip 9.5s ease-out infinite; animation-delay: var(--d, 0s); }
+.ww-art .ww-rip-s { animation-duration: 7s; }
+/* the ripples out on the top bowl's water, on the same beat as the streams */
+.ww-art .ww-pulse { animation: ww-rip calc(var(--t, 1.6s) * 3) ease-out infinite; animation-delay: var(--d, 0s); }
+/* each landing ring starts just as its stream arrives (same rhythm as the stream, shifted to the end of its cycle) */
+.ww-art .ww-foam { animation: ww-rip calc(var(--t, 1.6s) * 3) ease-out infinite; animation-delay: calc(var(--d, 0s) - var(--t, 1.6s) * 3 * 0.1); }
+/* little drops thrown up where the water lands */
+.ww-art .ww-drop { fill: var(--text); stroke: none; opacity: 0; animation: ww-drop 4.2s ease-out infinite; animation-delay: var(--d, 0s); }
+@keyframes ww-drop { 0% { transform: translate(0, 0); opacity: 0; } 12% { opacity: 0.8; } 45% { transform: translate(calc(var(--dx) * 0.7), calc(var(--h) * -1)); } 100% { transform: translate(var(--dx), 3px); opacity: 0; } }
+@keyframes ww-rip { 0% { transform: scale(0.2); opacity: 0; } 18% { opacity: 0.95; } 100% { transform: scale(1); opacity: 0; } }
+@keyframes ww-rise { from { opacity: 0; transform: translateY(0.8rem); } to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ww-title { animation: none; }
+  .ww-art .ww-streak, .ww-art .ww-jet, .ww-art .ww-drop { animation: none; }
+  .ww-coin, .ww-dim { transition: none; }
+  .ww-coin[data-st="rest"] .ww-front:hover { animation: none; }
+  .ww-art .ww-drop { opacity: 0; }
+  .ww-art .ww-rip { animation: none; opacity: 0.35; transform: scale(0.7); }
+}
+
+/* ---------- Wishing well: see other wishes ---------- */
+.ww-seeall { position: absolute; left: 50%; top: calc(97% + 3.2rem); transform: translateX(-50%); white-space: nowrap; }
+.ww.is-open .ww-seeall { opacity: 0; pointer-events: none; }
+/* the water in the basin can be tapped too */
+.ww-art .ww-pool { fill: transparent; stroke: var(--text); stroke-opacity: 0; stroke-dasharray: 2 6; stroke-linecap: round; cursor: pointer; pointer-events: all; outline: none; transition: stroke-opacity 0.25s; }
+.ww-art .ww-pool:hover, .ww-art .ww-pool:focus-visible { stroke-opacity: 0.7; }
+
+/* the grid of coins: sits in the middle and grows downward as more wishes are made */
+.ww-wishes { position: absolute; inset: 0; z-index: 5; overflow-y: auto; box-sizing: border-box; padding: 1.2rem 1rem 6.6rem; display: flex; flex-direction: column; align-items: center; background: none; animation: ww-fade 0.4s ease both; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.ww-wishes[hidden] { display: none; }
+/* the page behind (the tint / grid paper / stars you picked) shows through; the fountain just steps out of the way */
+body.ww-wishes-open .ww { visibility: hidden; }
+/* the title, the coins and the button sit in the middle as one group; with lots of wishes it just fills the page and scrolls */
+.ww-wishes::before, .ww-wishes::after { content: ""; flex: 1 0 0; }
+.ww-wh { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center; }
+.ww-wt { font-size: clamp(1.3rem, 5vw, 2rem); line-height: 1.2; }
+.ww-wc { margin: 0; font-size: 0.8rem; opacity: 0.65; min-height: 1.1em; }
+.ww-wmsg { margin: 1.5rem 0 0; font-size: 0.9rem; opacity: 0.75; text-align: center; }
+.ww-wmsg[hidden] { display: none; }
+.ww-grid { width: 100%; max-width: 46rem; margin: 0; padding: 1.4rem 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.9rem; }
+.ww-pager { flex: 0 0 auto; margin-top: 0.2rem; }
+.ww-pager[hidden] { display: none; }
+@keyframes ww-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* one coin: the back of the hyrax coin, with the wish on it */
+.ww-mini { --s: clamp(5.6rem, 26vw, 7.8rem); position: relative; flex: 0 0 auto; width: var(--s); height: var(--s); padding: 0; border: 1.2px solid var(--text); border-radius: 50%; background: var(--bg); color: inherit; cursor: pointer; container-type: inline-size; -webkit-tap-highlight-color: transparent;
+  transform: rotate(var(--r, 0deg)); animation: ww-mini-in 0.55s cubic-bezier(0.3, 1.5, 0.5, 1) both; animation-delay: calc(var(--i, 0) * 45ms); transition: transform 0.2s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.ww-mini::before { content: ""; position: absolute; inset: 5.5%; border: 1.2px solid var(--text); border-radius: 50%; pointer-events: none; }
+.ww-mini::after { content: ""; position: absolute; inset: 12%; border-radius: 50%; pointer-events: none; background: repeating-conic-gradient(var(--text) 0 7deg, transparent 7deg 14deg); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)); }
+.ww-mini:hover, .ww-mini:focus-visible { transform: rotate(var(--r, 0deg)) scale(1.07); outline: none; }
+.ww-mini:active { transform: rotate(var(--r, 0deg)) scale(0.95); }
+.ww-mini-t { position: absolute; left: 19%; right: 19%; top: 19%; bottom: 19%; display: flex; align-items: center; justify-content: center; text-align: center; font-family: "Roboto Mono", var(--font-mono, monospace); font-size: 8.5cqw; line-height: 1.3; overflow: hidden; z-index: 1; }
+.ww-mini-c { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 4; overflow: hidden; max-height: 100%; overflow-wrap: anywhere; }
+@keyframes ww-mini-in { from { opacity: 0; transform: rotate(calc(var(--r, 0deg) - 25deg)) scale(0.3) translateY(-1.5rem); } to { opacity: 1; transform: rotate(var(--r, 0deg)); } }
+
+/* reading one wish: the coin opens big in the middle */
+.ww-read { position: absolute; inset: 0; z-index: 6; display: flex; align-items: center; justify-content: center; padding: 1rem 1rem 5rem; background: color-mix(in srgb, var(--bg) 55%, transparent); cursor: pointer; animation: ww-fade 0.3s ease both; }
+.ww-read[hidden] { display: none; }
+.ww-bigcoin { position: relative; width: min(88vw, 62vh, 26rem); aspect-ratio: 1; box-sizing: border-box; border: 1.2px solid var(--text); border-radius: 50%; background: var(--bg); container-type: inline-size; text-align: center; }
+.ww-bigcoin::before { content: ""; position: absolute; inset: 3.5%; border: 1.2px solid var(--text); border-radius: 50%; pointer-events: none; }
+.ww-bigcoin::after { content: ""; position: absolute; inset: 8%; border-radius: 50%; pointer-events: none; background: repeating-conic-gradient(var(--text) 0 4deg, transparent 4deg 8deg); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px)); }
+.ww-bigin { position: absolute; inset: 19%; display: flex; align-items: center; justify-content: center; z-index: 1; }
+.ww-bigt { position: relative; z-index: 1; margin: 0; max-height: 100%; overflow-y: auto; font-family: "Roboto Mono", var(--font-mono, monospace); font-size: max(13px, 5.6cqw); line-height: 1.38; overflow-wrap: anywhere; scrollbar-width: none; }
+.ww-bigd { position: absolute; z-index: 1; left: 0; right: 0; bottom: 14%; margin: 0; font-size: max(10px, 3.2cqw); opacity: 0.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ww-wishes, .ww-read, .ww-mini { animation: none; }
+  .ww-mini { transition: none; }
+}
+
+/* previous confessions: kept, in a little pop up */
+.ww-conf-link { position: absolute; left: 50%; top: calc(97% + 6.2rem); transform: translateX(-50%); white-space: nowrap; padding: 0.2rem 0.4rem; margin: 0; border: 0; background: none; font: inherit; font-size: 0.7rem; color: inherit; opacity: 0.75; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; transition: opacity 0.2s; }
+.ww-conf-link:hover, .ww-conf-link:focus-visible { opacity: 1; outline: none; }
+.ww.is-open .ww-conf-link { opacity: 0; pointer-events: none; }
+.ww-conf { position: absolute; inset: 0; z-index: 7; display: flex; align-items: center; justify-content: center; padding: 1rem 1rem 4rem; background: color-mix(in srgb, var(--bg) 60%, transparent); animation: ww-fade 0.3s ease both; }
+.ww-conf[hidden] { display: none; }
+.ww-conf-card { position: relative; box-sizing: border-box; width: min(100%, 32rem); max-height: 100%; overflow-y: auto; padding: 1.6rem 1.4rem 1.4rem; border: 1px solid var(--text); border-radius: var(--radius); background: var(--bg); text-align: center; animation: ww-rise 0.5s cubic-bezier(0.2, 0.9, 0.3, 1) both; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.ww-conf-t { font-size: clamp(1.05rem, 4vw, 1.4rem); line-height: 1.2; }
+.ww-conf-sub { margin: 0.4rem 0 0.9rem; font-size: 0.68rem; opacity: 0.6; }
+.ww-conf-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.9rem; }
+.ww-conf-list li { padding-top: 0.8rem; border-top: 1px dashed var(--line); font-size: 0.72rem; line-height: 1.5; overflow-wrap: anywhere; }
+.ww-conf-x { position: absolute; top: 0.5rem; right: 0.6rem; width: 2rem; height: 2rem; padding: 0; border: 0; background: none; font: inherit; font-size: 1rem; color: inherit; cursor: pointer; opacity: 0.7; }
+.ww-conf-x:hover, .ww-conf-x:focus-visible { opacity: 1; outline: none; }
+@media (prefers-reduced-motion: reduce) { .ww-conf, .ww-conf-card { animation: none; } }
+
+@media (max-width: 700px) { .ww-conf { padding-bottom: 9rem; } .ww-conf-card { padding: 1.4rem 1.1rem 1.2rem; } }
+
+.ww-title { font-size: 0; line-height: 0; }
+.ww-arc { display: block; width: min(92%, 24rem); height: auto; margin: 0 auto; overflow: visible; }
+.ww-arc text { font-family: var(--font-heading); font-size: 38px; fill: var(--text); }
+
+.ww-sub { position: absolute; left: 0; right: 0; top: calc(3.2rem + min(92cqw, 24rem) * 0.16 - 0.2rem); margin: 0; text-align: center; font-size: 0.85rem; line-height: 1.3; opacity: 0.75; animation: ww-rise 0.8s cubic-bezier(0.2, 0.9, 0.3, 1) 0.15s both; }
+@media (prefers-reduced-motion: reduce) { .ww-sub { animation: none; } }
+.ww-hint { white-space: nowrap; }
+@media (min-width: 700px) {
+  .ww { --ww-top: 5.8rem; }
+  .ww-title { top: 1.2rem; }
+  .ww-sub { top: calc(1.2rem + min(92cqw, 24rem) * 0.16 - 0.2rem); }
+}
