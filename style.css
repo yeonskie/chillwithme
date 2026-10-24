@@ -4294,9 +4294,9 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 @keyframes ac-token-in {
   0%   { left: 51.1%; top: 53.4%; width: 52cqw; opacity: 1; transform: translate(-50%, -50%) perspective(600px) rotateX(0deg) rotate(0deg) scale(1); filter: drop-shadow(0 0 0 var(--text)); animation-timing-function: cubic-bezier(0.35, 0, 0.6, 0.85); }
   32%  { left: 57.9%; top: 87.9%; width: 9.78cqw; opacity: 1; transform: translate(-50%, -50%) perspective(600px) rotateX(0deg) rotate(-8deg) scale(1); filter: drop-shadow(0 0 0 var(--text)); animation-timing-function: cubic-bezier(0.35, 0.1, 0.6, 0.9); }
-  54%  { left: 74.7%; top: 89.2%; width: 9.78cqw; opacity: 1; transform: translate(-50%, -50%) perspective(600px) rotateX(76deg) rotate(0deg) scale(1); filter: drop-shadow(0 2.8cqw 0 var(--text)); animation-timing-function: cubic-bezier(0.4, 0, 0.5, 1); }
-  94%  { left: 74.7%; top: 89.2%; width: 9.78cqw; opacity: 1; transform: translate(-50%, -50%) perspective(600px) rotateX(76deg) rotate(0deg) scale(0.45); filter: drop-shadow(0 2.8cqw 0 var(--text)); animation-timing-function: ease; }
-  100% { left: 74.7%; top: 89.2%; width: 9.78cqw; opacity: 0; transform: translate(-50%, -50%) perspective(600px) rotateX(76deg) rotate(0deg) scale(0.4); filter: drop-shadow(0 2.8cqw 0 var(--text)); animation-timing-function: ease; }
+  54%  { left: 74.7%; top: 89.2%; width: 9.78cqw; opacity: 1; transform: translate(-50%, -50%) perspective(600px) rotateX(76deg) rotate(0deg) scale(1); filter: drop-shadow(0 4.4cqw 0 var(--text)); animation-timing-function: cubic-bezier(0.4, 0, 0.5, 1); }
+  94%  { left: 74.7%; top: 89.2%; width: 9.78cqw; opacity: 1; transform: translate(-50%, -50%) perspective(600px) rotateX(76deg) rotate(0deg) scale(0.45); filter: drop-shadow(0 4.4cqw 0 var(--text)); animation-timing-function: ease; }
+  100% { left: 74.7%; top: 89.2%; width: 9.78cqw; opacity: 0; transform: translate(-50%, -50%) perspective(600px) rotateX(76deg) rotate(0deg) scale(0.4); filter: drop-shadow(0 4.4cqw 0 var(--text)); animation-timing-function: ease; }
 }
 .ac-token[data-st="gone"] { opacity: 0; pointer-events: none; transition: none; }
 .ac-token.ac-back { animation: ac-coin-back 0.5s ease-out; }
