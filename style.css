@@ -4201,3 +4201,48 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 /* less space between the tickets and the big title under them */
 .mb-top { margin-bottom: 1.1rem; }
 @media (max-width: 40rem) { .mb-top { margin-bottom: 0.4rem; } }
+
+/* arcade cabinet: little animations */
+.ac-art .ac-spk, .ac-art .ac-stick { transform-box: fill-box; transform-origin: 50% 50%; }
+.ac-art .ac-spk { animation: ac-twinkle 4.2s ease-in-out var(--d, 0s) infinite; }
+@keyframes ac-twinkle {
+  0%, 60%, 100% { transform: scale(1); opacity: 1; }
+  80% { transform: scale(0.88); opacity: 0.6; }
+}
+
+/* joysticks lean toward the side of the game you're pointing at */
+.ac-art .ac-stick { transform-origin: 50% 100%; transition: transform 0.22s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.ac:has(.ac-casino:is(:hover, :focus-visible), .ac-hy:is(:hover, :focus-visible)) .ac-stick { transform: rotate(-17deg); }
+.ac:has(.ac-sg:is(:hover, :focus-visible), .ac-idol:is(:hover, :focus-visible)) .ac-stick { transform: rotate(17deg); }
+.ac:has(.ac-prize:is(:hover, :focus-visible)) .ac-joy-l .ac-stick { transform: rotate(17deg); }
+.ac:has(.ac-prize:is(:hover, :focus-visible)) .ac-joy-r .ac-stick { transform: rotate(-17deg); }
+
+/* after a few quiet seconds, one game gives a little nudge (arcade.js adds the class) */
+.ac-btn.ac-nudge { animation: ac-nudge 0.9s ease-in-out; }
+@keyframes ac-nudge {
+  0%, 100% { transform: none; }
+  15% { transform: translateY(-5%) rotate(-3deg); }
+  30% { transform: translateY(0) rotate(2.5deg); }
+  45% { transform: translateY(-3%) rotate(-2deg); }
+  60% { transform: translateY(0) rotate(1.5deg); }
+  80% { transform: none; }
+}
+
+/* the title bounces in letter by letter whenever the page opens */
+.ac-w { display: inline-block; white-space: nowrap; }
+.ac-ch { display: inline-block; animation: ac-drop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both; animation-delay: calc(0.08s * var(--i)); }
+@keyframes ac-drop {
+  0% { transform: translateY(-1.1em) scale(0.6); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-art .ac-spk, .ac-btn.ac-nudge, .ac-ch { animation: none; }
+  .ac-art .ac-stick { transition: none; }
+}
+
+/* computers: the cabinet's side lines carry on down to the bottom bar */
+.ac-art .ac-ext, .ac-art .ac-cover { display: none; }
+.ac-art .ac-cover { fill: none; stroke: var(--bg); stroke-width: 3px; }
+@media (min-width: 40.01rem) { .ac-art .ac-ext, .ac-art .ac-cover { display: inline; } }

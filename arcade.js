@@ -24,3 +24,32 @@
     timer = setTimeout(() => { status.textContent = ""; }, 5000);
   });
 })();
+
+// ---------- The arcade cabinet: after a few quiet seconds one game gives a little nudge ----------
+(function () {
+  const page = document.querySelector('.page[data-page="arcade"]');
+  const btns = page ? Array.from(page.querySelectorAll(".ac-btn")) : [];
+  if (!btns.length) return;
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  let timer = null, last = -1;
+  function nudge() {
+    if (page.classList.contains("active") && !document.hidden) {
+      let i;
+      do { i = Math.floor(Math.random() * btns.length); } while (i === last && btns.length > 1);
+      last = i;
+      const b = btns[i];
+      b.classList.remove("ac-nudge");
+      void b.offsetWidth;                       // restart the animation
+      b.classList.add("ac-nudge");
+      b.addEventListener("animationend", () => b.classList.remove("ac-nudge"), { once: true });
+    }
+    timer = setTimeout(nudge, 6000);            // still quiet: another one in a bit
+  }
+  function wake() { clearTimeout(timer); timer = setTimeout(nudge, 5000); }
+
+  ["pointerdown", "pointermove", "keydown", "touchstart", "scroll"].forEach((ev) =>
+    window.addEventListener(ev, wake, { passive: true, capture: true }));
+  window.addEventListener("hashchange", wake);
+  wake();
+})();
