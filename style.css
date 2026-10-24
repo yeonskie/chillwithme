@@ -4633,3 +4633,4 @@ body.ww-wishes-open .ww { visibility: hidden; }
   .ww-title { top: 1.2rem; }
   .ww-sub { top: calc(1.2rem + min(92cqw, 24rem) * 0.16 - 0.2rem); }
 }
+@media (max-width: 700px) { .ww-hint { font-size: 0.85rem; } }
