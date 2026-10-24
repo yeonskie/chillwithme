@@ -92,10 +92,10 @@
   const nav = ac.querySelector(".ac-screen");
   const note = ac.querySelector(".ac-insert");
   let unlocked = false;
-  try { unlocked = sessionStorage.getItem("arcade-token") === "1"; } catch (e) {}
+  try { unlocked = localStorage.getItem("arcade-token") === "1"; } catch (e) {}
   const lock = (on) => { ac.classList.toggle("is-locked", on); if (nav) nav.inert = on; };
   lock(!unlocked);
-  const unlock = () => { lock(false); try { sessionStorage.setItem("arcade-token", "1"); } catch (e) {} };
+  const unlock = () => { lock(false); try { localStorage.setItem("arcade-token", "1"); } catch (e) {} };
   if (note) note.addEventListener("click", () => {      // a nudge toward the coin
     if (tok.dataset.st !== "rest") return;
     tok.classList.remove("ac-wiggle"); void tok.offsetWidth; tok.classList.add("ac-wiggle");
