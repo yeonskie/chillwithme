@@ -119,8 +119,8 @@
       tok.removeEventListener("animationend", done);
       setState("gone");
       unlock();
-      flash.classList.remove("on"); void flash.offsetWidth; flash.classList.add("on");
-      flash.addEventListener("animationend", () => flash.classList.remove("on"), { once: true });
+      flash.classList.remove("on"); void flash.offsetWidth; flash.classList.add("on"); ac.classList.add("flashing");
+      flash.addEventListener("animationend", () => { flash.classList.remove("on"); ac.classList.remove("flashing"); }, { once: true });
       setTimeout(() => { tok.classList.add("ac-back"); setState("rest"); }, 2000);
     };
     tok.addEventListener("animationend", done);

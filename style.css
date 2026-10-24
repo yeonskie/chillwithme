@@ -4297,7 +4297,18 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 @keyframes ac-coin-back { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } 70% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
 
 /* the screen flashes inverse (a white layer that "differences" what's under it) */
-.ac-flash { position: absolute; z-index: 3; inset: 0; width: 100%; height: 100%; overflow: visible; fill: #fff; stroke: none; mix-blend-mode: difference; opacity: 0; pointer-events: none; }
+.ac-flash { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; opacity: 0; pointer-events: none; }
+.ac-flash .ac-flash-fill { fill: var(--text); stroke: var(--text); stroke-width: 3px; vector-effect: non-scaling-stroke; }
+.ac-flash .ac-flash-dash { fill: none; stroke: var(--bg); stroke-dasharray: 5; vector-effect: non-scaling-stroke; }
+/* the game buttons swap colours in time with the flash */
+.ac.flashing .ac-btn { animation: ac-flash-btn 1.4s linear; }
+@keyframes ac-flash-btn {
+  0%, 100% { background-color: var(--bg); color: var(--text); border-color: var(--text); }
+  5%, 32% { background-color: var(--text); color: var(--bg); border-color: var(--bg); }
+  38%, 52% { background-color: var(--bg); color: var(--text); border-color: var(--text); }
+  58%, 84% { background-color: var(--text); color: var(--bg); border-color: var(--bg); }
+  91% { background-color: var(--bg); color: var(--text); border-color: var(--text); }
+}
 .ac-flash.on { animation: ac-flash 1.4s linear; }
 @keyframes ac-flash { 0% { opacity: 0; } 5% { opacity: 1; } 32% { opacity: 1; } 38% { opacity: 0; } 52% { opacity: 0; } 58% { opacity: 1; } 84% { opacity: 1; } 91% { opacity: 0; } 100% { opacity: 0; } }
 
@@ -4307,6 +4318,8 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
   .ac-token[data-st="in"] { animation: ac-token-fade 0.4s forwards; }
   @keyframes ac-token-fade { from { opacity: 1; } to { opacity: 0; } }
   .ac-flash.on { animation: ac-flash-soft 1s ease; }
+  .ac.flashing .ac-btn { animation: ac-flash-btn-soft 1s ease; }
+  @keyframes ac-flash-btn-soft { 0%, 100% { background-color: var(--bg); color: var(--text); border-color: var(--text); } 25%, 75% { background-color: var(--text); color: var(--bg); border-color: var(--bg); } }
   @keyframes ac-flash-soft { 0%, 100% { opacity: 0; } 25%, 75% { opacity: 1; } }
 }
 
