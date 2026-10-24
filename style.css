@@ -4637,3 +4637,4 @@ body.ww-wishes-open .ww { visibility: hidden; }
 
 /* casino on computers: the leaderboard sits halfway down the side, a bit in from the left edge */
 @media (min-width: 701px) { .cz-lb { top: 50%; left: clamp(16px, 7vw, 100px); transform: translateY(-50%); } }
+@media (min-width: 701px) { .cz-lb { width: clamp(190px, 22vw, 280px); } }

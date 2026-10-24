@@ -361,11 +361,22 @@
     if (w > avail) { betEl.style.width = Math.ceil(w) + "px"; betEl.style.transform = "scale(" + (avail / w).toFixed(3) + ")"; }
   }
 
-  betEl.addEventListener("input", fitBet);
+  // the bet shows commas as you type (100,000), so it's a text box that only keeps the digits
+  const betDigits = () => String(betEl.value).replace(/\D/g, "").replace(/^0+(?=\d)/, "").slice(0, 12);
+  const betFormat = (d) => (d ? Number(d).toLocaleString("en-US") : "");
+  betEl.addEventListener("input", () => {
+    const pos = betEl.selectionStart == null ? betEl.value.length : betEl.selectionStart;
+    const before = betEl.value.slice(0, pos).replace(/\D/g, "").length;      // digits left of the cursor
+    betEl.value = betFormat(betDigits());
+    let n = 0, p = 0;
+    while (p < betEl.value.length && n < before) { if (/\d/.test(betEl.value[p])) n++; p++; }
+    try { betEl.setSelectionRange(p, p); } catch (e) {}
+    fitBet();
+  });
   window.addEventListener("resize", fitBet);
   fitBet();
   function readBet() {
-    let b = Math.floor(Number(betEl.value) / BET_STEP) * BET_STEP;
+    let b = Math.floor(Number(betDigits() || 0) / BET_STEP) * BET_STEP;
     if (!Number.isFinite(b) || b < BET_STEP) b = BET_STEP;
     return b;
   }
@@ -373,7 +384,7 @@
     const b = e.target.closest("button");
     if (!b) return;
     const v = b.dataset.bet === "max" ? Math.floor(balance() / BET_STEP) * BET_STEP : Number(b.dataset.bet);
-    betEl.value = Math.max(BET_STEP, v);
+    betEl.value = betFormat(String(Math.max(BET_STEP, v)));
     fitBet();
   });
 
@@ -389,7 +400,7 @@
     if (spinning) return;
     if (hold()) { say("another tab is spinning. wait a sec!"); return; }
     const bet = readBet();
-    betEl.value = bet;
+    betEl.value = betFormat(String(bet));
     fitBet();
     if (bet > balance()) { say("you only have " + fmt(balance()) + " yeonbucks. try a smaller bet.", "cz-bad"); return; }
 
