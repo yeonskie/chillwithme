@@ -9,6 +9,8 @@ const UPDATES = [
     date: "10.24.26",
     items: [
       "revamped arcade page",
+      "hyrax coin animation in arcade room",
+      "added animations to joystick/buttons/title in arcade room",
     ],
   },
   {
