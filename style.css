@@ -4176,10 +4176,9 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 .ac-art .ac-7 { fill: var(--bg); }
 
 /* "the arcade" sits in the marquee box */
-.ac-title {
-  position: absolute; left: 50.6%; top: 24.6%; transform: translate(-50%, -50%); margin: 0; white-space: nowrap;
-  font-size: 7.9cqw; line-height: 1; font-weight: 400;
-}
+.ac-sign { position: absolute; left: 50.6%; top: 24.6%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 0.7cqw; width: max-content; }
+.ac-title { margin: 0; white-space: nowrap; font-size: 6.4cqw; line-height: 1; font-weight: 400; }
+.ac-sub { margin: 0; white-space: nowrap; font-family: var(--font-mono, "Roboto Mono", monospace); font-size: max(11px, 2.625cqw); line-height: 1; opacity: 0.75; }
 
 /* the games: buttons on the screen */
 .ac-btn {
@@ -4246,3 +4245,110 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 .ac-art .ac-ext, .ac-art .ac-cover { display: none; }
 .ac-art .ac-cover { fill: none; stroke: var(--bg); stroke-width: 3px; }
 @media (min-width: 40.01rem) { .ac-art .ac-ext, .ac-art .ac-cover { display: inline; } }
+
+/* the buttons on the control panel can be pressed (they don't do anything) */
+.ac-art .ac-key, .ac-art .ac-coin, .ac-art .ac-joy { pointer-events: all; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.ac-art .ac-key { stroke: transparent; stroke-width: 14px; transform-box: fill-box; transform-origin: 50% 50%; transition: transform 0.12s ease-out; }
+.ac-art .ac-key.ac-hit-on { transform: translateY(2px) scale(0.86, 0.7); }
+.ac-art .ac-hit { fill: transparent; stroke: none; }
+.ac-art .ac-coin { transform-box: fill-box; transform-origin: 50% 100%; }
+.ac-art .ac-coin.ac-hit-on { animation: ac-coin 0.35s ease-out; }
+@keyframes ac-coin { 0% { transform: none; } 35% { transform: translateY(-4px) scale(1.04); } 100% { transform: none; } }
+.ac-art .ac-stick.ac-flick-l { transform: rotate(-22deg); }
+.ac-art .ac-stick.ac-flick-r { transform: rotate(22deg); }
+@media (prefers-reduced-motion: reduce) { .ac-art .ac-key { transition: none; } .ac-art .ac-coin.ac-hit-on { animation: none; } }
+
+/* the hyrax token: click it to take it out, click again to put it in the coin slot */
+.ac-token {
+  position: absolute; z-index: 4; left: 57.9%; top: 87.9%; width: 9.78cqw; aspect-ratio: 1; padding: 0; margin: 0; border: 0; background: none;
+  transform: translate(-50%, -50%); cursor: pointer; -webkit-tap-highlight-color: transparent; --hk-line: 0.69px; --hk-draw: 0.23px; border-radius: 50%;
+}
+.ac-token::before { content: ""; position: absolute; inset: -0.6rem; border-radius: 50%; }
+.ac-token:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+.ac-token svg { display: block; width: 100%; height: 100%; fill: var(--text); overflow: visible; pointer-events: none; }
+.ac-token svg * { vector-effect: non-scaling-stroke; }
+.ac-token .hk-1 { fill: var(--bg); stroke: var(--text); stroke-width: var(--hk-line); stroke-miterlimit: 10; }
+.ac-token .hk-2 { fill: var(--bg); }
+.ac-token path:not(.hk-1):not(.hk-2):not(.hk-3) { stroke: var(--text); stroke-width: var(--hk-draw, 0.3px); stroke-linejoin: round; }
+.ac-token .hk-3 { fill: none; stroke: var(--text); stroke-width: var(--hk-line); stroke-miterlimit: 10; }
+.ac-token[data-st="rest"]:hover { animation: ac-coin-wiggle 0.5s ease-in-out; }
+@keyframes ac-coin-wiggle { 0%, 100% { transform: translate(-50%, -50%) rotate(0); } 30% { transform: translate(-50%, -50%) rotate(-14deg) scale(1.08); } 65% { transform: translate(-50%, -50%) rotate(9deg) scale(1.08); } }
+
+/* taken out: it grows over the screen */
+.ac-token[data-st="up"] { left: 51.1%; top: 53.4%; width: 52cqw; --hk-line: 1.2px; --hk-draw: 0.6px; cursor: pointer; transition: left 0.5s cubic-bezier(0.3, 1.25, 0.5, 1), top 0.5s cubic-bezier(0.3, 1.25, 0.5, 1), width 0.5s cubic-bezier(0.3, 1.25, 0.5, 1); }
+.ac-token[data-st="rest"] { transition: left 0.4s ease, top 0.4s ease, width 0.4s ease; }
+.ac-token[data-st="up"]:hover { animation: none; }
+.ac-token-hint { position: absolute; left: 51.1%; top: 71.4%; transform: translateX(-50%); z-index: 4; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.3s; font-family: var(--font-mono, "Roboto Mono", monospace); font-size: max(10px, 2.5cqw); opacity: 0; }
+.ac[data-coin="up"] .ac-token-hint { opacity: 0.75; transition-delay: 0.3s; }
+.ac .ac-screen { transition: opacity 0.3s; }
+.ac[data-coin="up"] .ac-screen { opacity: 0.25; pointer-events: none; }
+
+/* put in: it flies to the slot, turns on its edge and drops in */
+.ac-token[data-st="in"] { left: 51.1%; top: 53.4%; width: 52cqw; --hk-line: 1.2px; --hk-draw: 0.6px; pointer-events: none; animation: ac-token-in 2.7s forwards, ac-token-fade-in 2.7s forwards; }
+@keyframes ac-token-in {
+  0%   { left: 51.1%; top: 53.4%; width: 52cqw; opacity: 1; transform: translate(-50%, -50%) perspective(600px) rotateX(0deg) rotate(0deg) scale(1); filter: drop-shadow(0 0 0 var(--text)); animation-timing-function: cubic-bezier(0.35, 0, 0.6, 0.85); }
+  32%  { left: 57.9%; top: 87.9%; width: 9.78cqw; opacity: 1; transform: translate(-50%, -50%) perspective(600px) rotateX(0deg) rotate(-8deg) scale(1); filter: drop-shadow(0 0 0 var(--text)); animation-timing-function: cubic-bezier(0.35, 0.1, 0.6, 0.9); }
+  54%  { left: 74.7%; top: 89.2%; width: 9.78cqw; opacity: 1; transform: translate(-50%, -50%) perspective(600px) rotateX(76deg) rotate(0deg) scale(1); filter: drop-shadow(0 2.8cqw 0 var(--text)); animation-timing-function: cubic-bezier(0.4, 0, 0.5, 1); }
+  94%  { left: 74.7%; top: 89.2%; width: 9.78cqw; opacity: 1; transform: translate(-50%, -50%) perspective(600px) rotateX(76deg) rotate(0deg) scale(0.45); filter: drop-shadow(0 2.8cqw 0 var(--text)); animation-timing-function: ease; }
+  100% { left: 74.7%; top: 89.2%; width: 9.78cqw; opacity: 0; transform: translate(-50%, -50%) perspective(600px) rotateX(76deg) rotate(0deg) scale(0.4); filter: drop-shadow(0 2.8cqw 0 var(--text)); animation-timing-function: ease; }
+}
+.ac-token[data-st="gone"] { opacity: 0; pointer-events: none; transition: none; }
+.ac-token.ac-back { animation: ac-coin-back 0.5s ease-out; }
+@keyframes ac-coin-back { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); } 70% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); } 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+
+/* the screen flashes inverse (a white layer that "differences" what's under it) */
+.ac-flash { position: absolute; z-index: 3; inset: 0; width: 100%; height: 100%; overflow: visible; fill: #fff; stroke: none; mix-blend-mode: difference; opacity: 0; pointer-events: none; }
+.ac-flash.on { animation: ac-flash 1.4s linear; }
+@keyframes ac-flash { 0% { opacity: 0; } 5% { opacity: 1; } 32% { opacity: 1; } 38% { opacity: 0; } 52% { opacity: 0; } 58% { opacity: 1; } 84% { opacity: 1; } 91% { opacity: 0; } 100% { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-token, .ac-token[data-st] { transition: none; }
+  .ac-token[data-st="rest"]:hover, .ac-token.ac-back { animation: none; }
+  .ac-token[data-st="in"] { animation: ac-token-fade 0.4s forwards; }
+  @keyframes ac-token-fade { from { opacity: 1; } to { opacity: 0; } }
+  .ac-flash.on { animation: ac-flash-soft 1s ease; }
+  @keyframes ac-flash-soft { 0%, 100% { opacity: 0; } 25%, 75% { opacity: 1; } }
+}
+
+/* the small coin has no text (the big one has everything) */
+.ac-token .hk-solo { display: none; }
+.ac-token:is([data-st="rest"], [data-st="gone"]) .hk-text { display: none; }
+
+/* going in: the coin gets a rim (thickness) and the slot's lip sits in front of it, so it sinks into the slot */
+.ac-lip { display: none; position: absolute; z-index: 3; left: 66.45%; top: 88.5%; width: 16.44cqw; height: 2.59cqw; border-radius: 1.3cqw; background: var(--text); pointer-events: none; }
+.ac[data-coin="in"] .ac-lip { display: block; }
+
+/* first time in: the games are locked until the token goes in the slot */
+.ac-insert {
+  display: none; position: absolute; z-index: 2; left: 51.1%; top: 53.4%; transform: translate(-50%, -50%); box-sizing: border-box;
+  width: 56cqw; margin: 0; padding: 4.2cqw 2cqw; align-items: center; justify-content: center; text-align: center;
+  border: 1px solid var(--text); border-radius: 1.76cqw; background: var(--bg); color: var(--text);
+  font-family: "Roboto Mono", var(--font-mono, monospace); font-size: max(11px, 3.3cqw); line-height: 1.2; white-space: nowrap; cursor: pointer;
+}
+.ac-insert span { animation: ac-insert-blink 2.4s ease-in-out infinite; }
+.ac.is-locked .ac-insert { display: flex; }
+.ac[data-coin="up"] .ac-insert span { animation: none; }
+@keyframes ac-insert-blink { 0%, 55%, 100% { opacity: 1; } 75% { opacity: 0.45; } }
+.ac-token.ac-wiggle[data-st="rest"] { animation: ac-coin-wiggle 0.5s ease-in-out; }
+@media (prefers-reduced-motion: reduce) { .ac-insert span { animation: none; } .ac-token.ac-wiggle[data-st="rest"] { animation: none; } }
+.ac.is-locked .ac-screen { opacity: 0.3; }
+
+/* coin taken out: the cabinet fades away so you just see the coin and the text */
+.ac-art, .ac-sign, .ac-screen, .ac-insert { transition: opacity 0.45s ease; }
+.ac[data-coin="up"] :is(.ac-art, .ac-sign, .ac-screen, .ac-insert) { opacity: 0.07; }
+.ac[data-coin="up"] .ac-token-hint { opacity: 1; }
+.ac-coinbox { position: absolute; inset: 0; pointer-events: none; }
+.ac-coinbox .ac-token { pointer-events: auto; }
+
+/* it fades as it goes into the slot */
+@keyframes ac-token-fade-in { 0%, 58% { opacity: 1; animation-timing-function: ease-in; } 100% { opacity: 0; } }
+
+/* while the games are locked, the coin glows so people know where to look */
+.ac-token::after { content: ""; position: absolute; inset: -2px; border-radius: 50%; pointer-events: none; opacity: 0; }
+.ac.is-locked .ac-token[data-st="rest"]::after { opacity: 1; animation: ac-coin-glow 2.2s ease-out infinite; }
+@keyframes ac-coin-glow {
+  0%   { box-shadow: 0 0 7px 1px color-mix(in srgb, var(--text) 38%, transparent), 0 0 0 0 color-mix(in srgb, var(--text) 40%, transparent); }
+  70%  { box-shadow: 0 0 13px 4px color-mix(in srgb, var(--text) 16%, transparent), 0 0 0 0.9rem transparent; }
+  100% { box-shadow: 0 0 7px 1px color-mix(in srgb, var(--text) 38%, transparent), 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) { .ac.is-locked .ac-token[data-st="rest"]::after { animation: none; box-shadow: 0 0 10px 3px color-mix(in srgb, var(--text) 30%, transparent); } }
