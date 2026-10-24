@@ -4385,3 +4385,73 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
   80% { transform: translateY(-1%) rotate(-0.5deg); }
 }
 @media (prefers-reduced-motion: reduce) { .ac-btn:hover { animation: none; } }
+
+/* ---------- jukebox animations ---------- */
+
+/* 1. bulbs round the arch: dim and still when nothing plays, chasing when a song does */
+.jb-art .jb-bulb { fill: none; stroke: var(--bg); stroke-width: 5px; stroke-linecap: round; stroke-dasharray: 0 42px; stroke-dashoffset: calc(var(--o) * -1); opacity: 0.5; }
+.music.is-playing .jb-bulb { animation: jb-bulb 1.2s ease-in-out infinite; animation-delay: var(--d); }
+@keyframes jb-bulb { 0%, 28% { opacity: 1; } 40%, 100% { opacity: 0.15; } }
+
+/* 3. the pills on the sides press in when tapped */
+.jb-art .jb-pill { pointer-events: all; cursor: pointer; transform-box: fill-box; transform-origin: 50% 50%; transition: transform 0.14s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.jb-art .jb-pill.hit { transform: translateY(1.5px) scale(0.97, 0.85); }
+/* 6. the top cap pulses faintly */
+.jb-art .jb-cap { transform-box: fill-box; transform-origin: 50% 100%; }
+.music.is-playing .jb-cap { animation: jb-cap 1.2s ease-in-out infinite; }
+@keyframes jb-cap { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.035, 1.05); } 40% { transform: scale(1); } }
+
+/* 7. the grille bars ripple like speaker cones */
+.jb-art .jb-bar { transform-box: fill-box; transform-origin: 50% 50%; }
+.music.is-playing .jb-bar { animation: jb-bar 0.9s ease-in-out infinite; animation-delay: var(--d); }
+@keyframes jb-bar { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.2); } }
+
+/* 5. the logo's letters bounce in one by one, then wobble a little while a song plays */
+.jb-logo path { transform-box: fill-box; transform-origin: 50% 100%; --wob: 0; animation: jb-pop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both, jb-wob 1.8s ease-in-out infinite; animation-delay: calc(0.07s * var(--i, 0)), calc(0.9s + 0.12s * var(--i, 0)); }
+.music.is-playing .jb-logo path { --wob: 2.2; }
+@keyframes jb-pop { 0% { transform: translateY(45%) scale(0.6); opacity: 0; } 60% { opacity: 1; } 100% { transform: none; opacity: 1; } }
+@keyframes jb-wob { 0%, 100% { transform: none; } 30% { transform: translateY(calc(var(--wob) * -0.9%)) rotate(calc(var(--wob) * -1deg)); } 65% { transform: rotate(calc(var(--wob) * 0.8deg)); } }
+
+/* 2. a title or artist that's too long scrolls gently while the song plays */
+.music.is-playing .jb-title.is-long, .music.is-playing .jb-artist.is-long { text-overflow: clip; animation: jb-scroll 9s ease-in-out infinite; }
+@keyframes jb-scroll { 0%, 14% { text-indent: 0; } 46%, 62% { text-indent: calc(var(--jb-over, 0px) * -1); } 94%, 100% { text-indent: 0; } }
+
+/* 4. tapping a song presses it in; the one playing gets little equalizer bars */
+.jb-cell { transition: transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.jb-cell:has(.song-main:active) { transform: scale(0.96); }
+.jb-cell.current::before {
+  content: ""; position: absolute; z-index: 1; left: calc(var(--u) * 8); top: 50%; width: calc(var(--u) * 11); height: calc(var(--u) * 11); transform: translateY(-50%); pointer-events: none;
+  background:
+    linear-gradient(var(--bg), var(--bg)) 0 100% / 26% 40% no-repeat,
+    linear-gradient(var(--bg), var(--bg)) 50% 100% / 26% 90% no-repeat,
+    linear-gradient(var(--bg), var(--bg)) 100% 100% / 26% 60% no-repeat;
+  animation: jb-eq 0.9s ease-in-out infinite, jb-eq-in 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+.jb-cell.current.paused::before { animation: none; background-size: 26% 30%, 26% 30%, 26% 30%; }
+@keyframes jb-eq {
+  0%, 100% { background-size: 26% 40%, 26% 90%, 26% 60%; }
+  33% { background-size: 26% 95%, 26% 45%, 26% 85%; }
+  66% { background-size: 26% 60%, 26% 80%, 26% 35%; }
+}
+@keyframes jb-eq-in { 0% { transform: translateY(-50%) scale(0.2) rotate(-90deg); opacity: 0; } 100% { transform: translateY(-50%); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .music.is-playing .jb-bulb, .music.is-playing .jb-pill-k, .music.is-playing .jb-pill-w, .music.is-playing .jb-cap, .music.is-playing .jb-bar,
+  .jb-logo path, .music.is-playing .jb-title.is-long, .music.is-playing .jb-artist.is-long, .jb-cell.current::before { animation: none; }
+  .jb-art .jb-pill, .jb-cell { transition: none; }
+}
+.jb-logo g > path:nth-child(1) { --i: 0; }
+.jb-logo g > path:nth-child(2) { --i: 1; }
+.jb-logo g > path:nth-child(3) { --i: 2; }
+.jb-logo g > path:nth-child(4) { --i: 3; }
+.jb-logo g > path:nth-child(5) { --i: 4; }
+.jb-logo g > path:nth-child(6) { --i: 5; }
+.jb-logo g > path:nth-child(7) { --i: 6; }
+.jb-logo g > path:nth-child(8) { --i: 7; }
+.jb-logo g > path:nth-child(9) { --i: 8; }
+.jb-logo g > path:nth-child(10) { --i: 9; }
+
+/* the description rises in from below, after the logo letters land */
+.jb-tag { animation: jb-rise 0.7s cubic-bezier(0.2, 0.9, 0.3, 1) 0.8s both; }
+@keyframes jb-rise { 0% { transform: translateY(1.2em); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .jb-tag { animation: none; } }

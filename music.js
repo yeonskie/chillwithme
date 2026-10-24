@@ -137,7 +137,7 @@ function current() {
 
 // fills the bar up to where the song is
 function paintSeek() {
-  el.seek.style.setProperty("--p", (el.seek.value / 10) + "%");
+  el.seek.style.setProperty("--p", (el.seek.value / 100) + "%");
 }
 
 function fmt(sec) {
@@ -222,13 +222,24 @@ function prevSong() {
   else audio.currentTime = 0;
 }
 
-audio.addEventListener("play", syncUI);
+// while a song plays the little dot glides along the bar (timeupdate only fires a few times a second)
+let glideId = 0;
+function glide() {
+  glideId = 0;
+  if (audio.paused || audio.ended || !audio.duration || document.hidden) return;
+  if (!el.seek.matches(":active")) { el.seek.value = (audio.currentTime / audio.duration) * 10000; paintSeek(); }
+  glideId = requestAnimationFrame(glide);
+}
+function startGlide() { if (!glideId) glideId = requestAnimationFrame(glide); }
+document.addEventListener("visibilitychange", () => { if (!document.hidden) startGlide(); });
+
+audio.addEventListener("play", () => { syncUI(); startGlide(); });
 audio.addEventListener("pause", syncUI);
 audio.addEventListener("ended", () => nextSong(true));
 audio.addEventListener("loadedmetadata", () => { el.dur.textContent = fmt(audio.duration); });
 audio.addEventListener("timeupdate", () => {
   el.cur.textContent = fmt(audio.currentTime);
-  if (audio.duration) el.seek.value = Math.round((audio.currentTime / audio.duration) * 1000);
+  if (audio.duration) el.seek.value = Math.round((audio.currentTime / audio.duration) * 10000);
   paintSeek();
 });
 audio.addEventListener("error", () => {
@@ -243,7 +254,7 @@ el.miniPrev.addEventListener("click", prevSong);
 el.miniPlay.addEventListener("click", togglePlay);
 el.miniNext.addEventListener("click", () => nextSong(false));
 el.seek.addEventListener("input", () => {
-  if (audio.duration) audio.currentTime = (el.seek.value / 1000) * audio.duration;
+  if (audio.duration) audio.currentTime = (el.seek.value / 10000) * audio.duration;
   paintSeek();
 });
 el.shuffle.addEventListener("click", () => {
@@ -286,6 +297,9 @@ function syncUI() {
   setIcon(el.play, playing ? "pause" : "play", playing ? "pause" : "play");
   setIcon(el.miniPlay, playing ? "pause" : "play", playing ? "pause" : "play");
   const song = current();
+  const music = document.querySelector(".music");
+  if (music) music.classList.toggle("is-playing", playing);
+  markLong();
   el.mini.hidden = !song || location.hash === "#music";
   el.miniTitle.textContent = song ? song.title : "";
   el.list.querySelectorAll("li[data-src]").forEach((li) => {
@@ -330,6 +344,16 @@ function fitText(node) {
 }
 function fitAll() {
   document.querySelectorAll(".jb .song-title, .jb .song-artist, .jb .jb-title, .jb .jb-artist").forEach(fitText);
+  markLong();
+}
+// a title or artist that is still too long after shrinking scrolls gently back and forth while the song plays
+function markLong() {
+  [el.title, el.artist].forEach((n) => {
+    if (!n) return;
+    const over = n.scrollWidth - n.clientWidth;
+    n.classList.toggle("is-long", over > 1);
+    n.style.setProperty("--jb-over", Math.max(0, over) + "px");
+  });
 }
 whenReady(() => {
   const box = document.querySelector(".jb-main");
@@ -699,4 +723,16 @@ whenReady(async () => { if (await loadOnline()) mergeOnline(); });
 
 renderTabs();
 renderList();
+})();
+
+// ----- the little buttons on the sides of the jukebox press in when you tap them (they don't do anything) -----
+(function () {
+  const art = document.querySelector(".jb-art");
+  if (!art) return;
+  art.addEventListener("pointerdown", (e) => {
+    const pill = e.target.closest(".jb-pill");
+    if (!pill) return;
+    pill.classList.remove("hit"); void pill.getBoundingClientRect(); pill.classList.add("hit");
+    setTimeout(() => pill.classList.remove("hit"), 170);
+  });
 })();
