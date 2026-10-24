@@ -4229,15 +4229,20 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 
 /* the title bounces in letter by letter whenever the page opens */
 .ac-w { display: inline-block; white-space: nowrap; }
-.ac-ch { display: inline-block; animation: ac-drop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both; animation-delay: calc(0.08s * var(--i)); }
+.ac-ch { display: inline-block; animation: ac-drop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both, ac-wiggle 3.4s ease-in-out infinite; animation-delay: calc(0.08s * var(--i)), calc(0.9s + 0.17s * var(--i)); }
+@keyframes ac-wiggle {
+  0%, 100% { transform: none; }
+  25% { transform: translateY(-0.05em) rotate(-2.2deg); }
+  60% { transform: translateY(0.03em) rotate(1.6deg); }
+}
 @keyframes ac-drop {
-  0% { transform: translateY(-1.1em) scale(0.6); opacity: 0; }
+  0% { transform: translateX(-1.3em) scale(0.6); opacity: 0; }
   60% { opacity: 1; }
   100% { transform: none; opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ac-art .ac-spk, .ac-btn.ac-nudge, .ac-ch { animation: none; }
+  .ac-art .ac-spk, .ac-btn.ac-nudge, .ac-ch, .ac-sub { animation: none; }
   .ac-art .ac-stick { transition: none; }
 }
 
@@ -4365,3 +4370,17 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
   100% { box-shadow: 0 0 7px 1px color-mix(in srgb, var(--text) 38%, transparent), 0 0 0 0 transparent; }
 }
 @media (prefers-reduced-motion: reduce) { .ac.is-locked .ac-token[data-st="rest"]::after { animation: none; box-shadow: 0 0 10px 3px color-mix(in srgb, var(--text) 30%, transparent); } }
+
+/* "which one will you choose?" rises in under the title */
+.ac-sub { animation: ac-rise 0.8s cubic-bezier(0.2, 0.8, 0.3, 1) 1.1s both; }
+@keyframes ac-rise { 0% { transform: translateY(1.1em); opacity: 0; } 100% { transform: none; opacity: 0.75; } }
+
+/* hovering a game gives the same little wiggle as the idle nudge */
+@media (hover: hover) { .ac-btn:hover { animation: ac-hover-wig 0.7s ease-in-out; } }
+@keyframes ac-hover-wig {
+  0%, 100% { transform: none; }
+  25% { transform: translateY(-2%) rotate(-1.2deg); }
+  55% { transform: translateY(0) rotate(1deg); }
+  80% { transform: translateY(-1%) rotate(-0.5deg); }
+}
+@media (prefers-reduced-motion: reduce) { .ac-btn:hover { animation: none; } }
