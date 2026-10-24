@@ -2193,7 +2193,7 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .page[data-page="casino"] { padding-top: 0.5rem; padding-bottom: 0.5rem; text-align: center; }
 .page[data-page="casino"].active { display: flex; flex-direction: column; min-height: 100%; box-sizing: border-box; }
 .page[data-page="casino"] .cz-back { align-self: center; margin: 0.2rem 0 0; }
-.cz-wrap { width: 100%; margin: 0.8rem auto auto; display: flex; flex-direction: column; align-items: center; gap: 0.7rem; flex: none; }
+.cz-wrap { width: 100%; margin: auto; display: flex; flex-direction: column; align-items: center; gap: 0.7rem; flex: none; }
 .cz-wrap .hy-btn:not(:hover):not(:focus-visible) { background: var(--bg); }   /* solid, so patterned backgrounds don't show through */
 @media (max-width: 40rem) { .cz-wrap { margin: auto; } }   /* phones: everything sits in the middle of the screen */
 .cz-machine {
@@ -2283,7 +2283,7 @@ button.sg-cell:hover, button.sg-cell:focus-visible { background: var(--text); co
 .cz-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin: 0; }
 .cz-links .hy-btn { font-size: 0.78rem; }
 @media (max-width: 40rem) { .cz-machine { transform: none; width: min(calc((100% + 1.4rem) * 0.92), 32rem, max(16rem, calc((100svh - 22rem) * 0.96))); } .cz-wrap { gap: 0.4rem; } .cz-quick { margin-top: -0.3rem; } }   /* phones: the whole machine (lever included) sits in the true middle */
-@media (min-width: 40.01rem) { .cz-machine { width: calc(min(100%, 32rem, max(16rem, calc((100svh - 24rem) * 0.92))) * 0.92); } }   /* computers: the machine is 8% smaller */
+@media (min-width: 40.01rem) { .cz-machine { width: calc(min(100%, 32rem, max(16rem, calc((100svh - 24rem) * 0.92))) * 0.883); } }   /* computers: the machine is a bit smaller (0.92 before, now 4% under that) */
 /* the pop-up lives outside the page, so it keeps normal sizes */
 .cz-pay { list-style: none; margin: 0.6rem 0 0.8rem; padding: 0; display: grid; gap: 0.3rem; }
 .cz-pay-item { display: flex; align-items: center; gap: 0.8rem; font-size: 0.78rem; text-align: left; }
