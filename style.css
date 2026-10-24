@@ -4197,3 +4197,7 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 
 /* phones: the whole cabinet sits a little higher */
 @media (max-width: 40rem) { .ac { transform: translateY(-1.6rem); } }
+
+/* less space between the tickets and the big title under them */
+.mb-top { margin-bottom: 1.1rem; }
+@media (max-width: 40rem) { .mb-top { margin-bottom: 0.4rem; } }
