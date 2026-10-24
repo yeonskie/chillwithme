@@ -73,7 +73,26 @@ const WWDB = (function () {
 
   // the coin's drawing, copied from the arcade
   const src = document.querySelector(".ac-token svg");
-  if (src) front.appendChild(src.cloneNode(true));
+  if (src) {
+    const art = src.cloneNode(true);
+    art.querySelectorAll(".hk-text").forEach((t) => t.remove());          // no "hyrax token" lettering on this one
+    art.querySelectorAll("g").forEach((g) => { if (!g.children.length) g.remove(); });
+    // the hyrax and its sparkles sit a little lower, now that the lettering is gone
+    const NS = "http://www.w3.org/2000/svg";
+    const lower = [];
+    [...art.children].forEach((el) => {
+      if (el.tagName !== "g") return;
+      if (el.querySelector(".hk-ring")) { [...el.children].forEach((c) => { if (c.tagName === "g") lower.push(c); }); }
+      else lower.push(el);
+    });
+    lower.forEach((el) => {
+      const wrap = document.createElementNS(NS, "g");
+      wrap.setAttribute("transform", "translate(0 38)");
+      el.parentNode.insertBefore(wrap, el);
+      wrap.appendChild(el);
+    });
+    front.appendChild(art);
+  }
 
   const isOpen = () => coin.dataset.st === "open";
   const setFace = (f) => { coin.dataset.face = f; };
