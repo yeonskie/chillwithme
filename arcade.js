@@ -131,3 +131,27 @@
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") putBack(); });
   window.addEventListener("hashchange", putBack);
 })();
+
+
+// ---------- The arcade cabinet: how far its side lines have to run to reach the bottom bar (phones) ----------
+(function () {
+  const page = document.querySelector('.page[data-page="arcade"]');
+  const ac = page && page.querySelector(".ac");
+  if (!ac) return;
+  function measure() {
+    if (!page.classList.contains("active")) return;
+    const p = page.getBoundingClientRect(), c = ac.getBoundingClientRect();
+    // the side lines are drawn in the cabinet svg, so they join its base exactly: lengthen them down to the bottom bar
+    const ext = ac.querySelector(".ac-ext");
+    if (ext && c.width) {
+      const len = Math.max(0, p.bottom - c.bottom) * 630 / c.width;
+      const fill = ac.querySelector(".ac-extfill");
+      if (fill) fill.setAttribute("d", "M242.05,1080H842.83V" + (1080 + len + 2).toFixed(1) + "H242.05Z");
+      ext.setAttribute("d", "M242.05,1080V" + (1080 + len + 2).toFixed(1) + "M842.83,1080V" + (1080 + len + 2).toFixed(1));
+    }
+  }
+  window.addEventListener("resize", measure);
+  window.addEventListener("hashchange", () => setTimeout(measure, 0));
+  window.addEventListener("load", measure);
+  measure();
+})();

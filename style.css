@@ -4247,9 +4247,10 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 }
 
 /* computers: the cabinet's side lines carry on down to the bottom bar */
-.ac-art .ac-ext, .ac-art .ac-cover { display: none; }
+.ac-art .ac-ext, .ac-art .ac-cover { display: inline; }
+.ac-art .ac-ext { stroke-linecap: round; }
+.ac-art .ac-extfill { fill: var(--bg); stroke: none; }
 .ac-art .ac-cover { fill: none; stroke: var(--bg); stroke-width: 3px; }
-@media (min-width: 40.01rem) { .ac-art .ac-ext, .ac-art .ac-cover { display: inline; } }
 
 /* the buttons on the control panel can be pressed (they don't do anything) */
 .ac-art .ac-key, .ac-art .ac-coin, .ac-art .ac-joy { pointer-events: all; cursor: pointer; -webkit-tap-highlight-color: transparent; }
