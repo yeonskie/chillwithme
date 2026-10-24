@@ -6,10 +6,17 @@
 
 const UPDATES = [
   {
+    date: "10.24.26",
+    items: [
+      "revamped arcade page",
+    ],
+  },
+  {
     date: "10.23.26",
     items: [
       "revamped casino design",
       "added tickets as moodboard titles",
+      "added two additional boosts: jackpot boost, cashback",
     ],
   },
   {

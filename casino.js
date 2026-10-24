@@ -31,7 +31,7 @@
   const JACKPOT_BOOST = 0.03;        // the jackpot boost (prize shop, 50k) adds this much on top of the lucky charm
   const CHARM_BONUS = 0.05;          // the lucky charm adds this much to the jackpot chance (0.05 = 5 percentage points)
   const PRIZE_BONUS = 0.10;          // the prize bonus adds this much to every game prize (0.10 = +10%)
-  const CASHBACK_CHANCE = 0.05;      // the cashback item (prize shop): this chance on every spin...
+  const CASHBACK_CHANCE = 0.10;      // the cashback item (prize shop): this chance on every spin...
   const CASHBACK_PART = 0.10;        // ...to get this much of the bet back (0.10 = 10%)
   const JACKPOT_MIN = 0.0025;        // ...and it never goes below this
 
