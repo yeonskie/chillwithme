@@ -4155,3 +4155,45 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-note { font-size: max(0.62rem, calc(10px / var(--shop-s, 1))); }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-prev { height: 2.4rem; }
 }
+
+/* ---------- the arcade: a cabinet with the games on its screen (index.html; the old turning circle is gone) ---------- */
+.page[data-page="arcade"] { --ac-pt: calc(var(--lights-h, 2.8rem) + 0.4rem); --ac-pb: 3.8rem; position: absolute; inset: 0; padding: var(--ac-pt) 1rem var(--ac-pb); overflow: auto; }
+@media (max-width: 40rem) { .page[data-page="arcade"] { --ac-pb: 6.6rem; padding-left: 0.6rem; padding-right: 0.6rem; } }   /* phones: room under the cabinet for the yeonbucks box */
+.page[data-page="arcade"].active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ac {
+  position: relative; flex: none; container-type: inline-size; aspect-ratio: 630 / 1030;
+  width: min(100%, 34rem, calc((100svh - var(--bar-height, 3rem) * 2 - var(--ac-pt) - var(--ac-pb)) * 0.6117));
+  margin: auto;
+}
+.ac-art { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; fill: var(--text); stroke-miterlimit: 10; pointer-events: none; }
+.ac-art * { vector-effect: non-scaling-stroke; }
+.ac-art .ac-1 { fill: none; stroke: var(--bg); }
+.ac-art .ac-2 { fill: var(--bg); stroke: var(--text); stroke-width: 5px; vector-effect: none; }
+.ac-art .ac-3 { fill: var(--bg); stroke: var(--text); }
+.ac-art .ac-4 { fill: none; stroke: var(--text); }
+.ac-art .ac-5 { stroke: var(--bg); }
+.ac-art .ac-6 { fill: none; stroke: var(--text); stroke-dasharray: 5; }
+.ac-art .ac-7 { fill: var(--bg); }
+
+/* "the arcade" sits in the marquee box */
+.ac-title {
+  position: absolute; left: 50.6%; top: 24.6%; transform: translate(-50%, -50%); margin: 0; white-space: nowrap;
+  font-size: 7.9cqw; line-height: 1; font-weight: 400;
+}
+
+/* the games: buttons on the screen */
+.ac-btn {
+  position: absolute; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  border: 1px solid var(--text); border-radius: 1.76cqw; background: var(--bg); color: var(--text); text-decoration: none;
+  font-family: var(--font-heading); font-size: 3.17cqw; line-height: 1.2; -webkit-tap-highlight-color: transparent;
+}
+.ac-btn:hover, .ac-btn:focus-visible { background: var(--text); color: var(--bg); outline: none; text-decoration: none; }
+.ac-tag { font-family: var(--font-mono, "Roboto Mono", monospace); font-size: max(9px, 1.7cqw); opacity: 0.75; margin-top: 0.15em; }
+.ac-prize { font-size: 4.76cqw; text-decoration: underline; text-underline-offset: 0.12em; }
+.ac-prize:hover, .ac-prize:focus-visible { text-decoration: underline; }
+
+/* computers: the arcade never scrolls, the cabinet is sized to fit the screen */
+@media (min-width: 40.01rem) { .page[data-page="arcade"] { overflow: hidden; } }
+
+/* phones: the whole cabinet sits a little higher */
+@media (max-width: 40rem) { .ac { transform: translateY(-1.6rem); } }
