@@ -4638,3 +4638,14 @@ body.ww-wishes-open .ww { visibility: hidden; }
 /* casino on computers: the leaderboard sits halfway down the side, a bit in from the left edge */
 @media (min-width: 701px) { .cz-lb { top: 50%; left: clamp(16px, 7vw, 100px); transform: translateY(-50%); } }
 @media (min-width: 701px) { .cz-lb { width: clamp(190px, 22vw, 280px); } }
+
+/* purchase animation (shop.js buyFx): a stamp, a burst of little stars, and the price floating away */
+.shop-fx { position: relative; }
+.shop-stamp { position: absolute; left: 50%; top: 42%; z-index: 4; padding: 0.15rem 0.6rem 0.25rem; border: 2px solid var(--text); border-radius: var(--radius); background: var(--bg); color: var(--text); font-family: var(--font-heading); font-size: 1.15rem; line-height: 1.2; white-space: nowrap; pointer-events: none; transform: translate(-50%, -50%) rotate(-10deg); }
+.shop-spark { position: absolute; left: 50%; top: 42%; z-index: 3; font-size: 0.9rem; line-height: 1; color: var(--text); pointer-events: none; opacity: 0; }
+.shop-float { position: absolute; left: 50%; bottom: 2.4rem; z-index: 4; font-size: 0.8rem; font-weight: 700; white-space: nowrap; color: var(--text); pointer-events: none; opacity: 0; }
+
+/* the stamp stays on everything you own, in the top left corner of the card */
+.shop-item.is-owned { position: relative; }
+.shop-item.is-owned::before { content: "yours!"; position: absolute; left: 2rem; top: 0.95rem; z-index: 4; padding: 0.15rem 0.6rem 0.25rem; border: 2px solid var(--text); border-radius: var(--radius); background: var(--bg); color: var(--text); font-family: var(--font-heading); font-size: 1.15rem; line-height: 1.2; white-space: nowrap; pointer-events: none; transform: translate(-50%, -50%) rotate(-10deg) scale(0.9); }
+.shop-item.is-owned.shop-fx::before { display: none; }

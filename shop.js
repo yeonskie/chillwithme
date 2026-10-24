@@ -330,6 +330,51 @@ const SHOP_CATS = [
   window.addEventListener("storage", (e) => { if (e.key === "yb-rare-shift") rareTick(); });
   if (phone.addEventListener) phone.addEventListener("change", build);
 
+  // ----- the purchase animation: the card squishes, a "yours!" stamp slams down, stars burst out and the price floats away -----
+  function buyFx(item) {
+    const card = document.querySelector('.shop-item[data-id="' + item.id + '"]');
+    if (!card) return;
+    const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    card.classList.add("shop-fx");
+    card.querySelectorAll(".shop-stamp, .shop-spark, .shop-float").forEach((n) => n.remove());
+    const stamp = document.createElement("span");
+    stamp.className = "shop-stamp";
+    stamp.textContent = "yours!";
+    stamp.setAttribute("aria-hidden", "true");
+    card.appendChild(stamp);
+    const gone = () => { stamp.remove(); card.classList.remove("shop-fx"); };   // (the little stamp that stays is drawn by the css on every owned card, in the very spot this one ends up)
+    if (still || !card.animate) { gone(); return; }
+    card.animate([{ transform: "scale(1)" }, { transform: "scale(0.93)", offset: 0.2 }, { transform: "scale(1.05)", offset: 0.55 }, { transform: "scale(1)" }], { duration: 480, easing: "ease-out" });
+    const R = " rotate(-10deg)";
+    stamp.animate([
+      { left: "50%", top: "42%", transform: "translate(-50%, -50%)" + R + " scale(2.6)", opacity: 0 },
+      { left: "50%", top: "42%", transform: "translate(-50%, -50%)" + R + " scale(0.9)", opacity: 1, offset: 0.14 },
+      { left: "50%", top: "42%", transform: "translate(-50%, -50%)" + R + " scale(1.06)", opacity: 1, offset: 0.22 },
+      { left: "50%", top: "42%", transform: "translate(-50%, -50%)" + R + " scale(1)", opacity: 1, offset: 0.5 },
+      { left: "2rem", top: "0.95rem", transform: "translate(-50%, -50%)" + R + " scale(0.9)", opacity: 1 }
+    ], { duration: 1500, easing: "ease-out", fill: "forwards" }).finished.then(gone).catch(gone);
+    const glyphs = ["\u2726", "\u2605", "\u2727", "\u2665"];
+    for (let i = 0; i < 12; i++) {                                   // stars burst out of where the stamp lands
+      const p = document.createElement("span");
+      p.className = "shop-spark";
+      p.textContent = glyphs[i % glyphs.length];
+      p.setAttribute("aria-hidden", "true");
+      card.appendChild(p);
+      const ang = (i / 12) * Math.PI * 2 + Math.random() * 0.4, dist = 55 + Math.random() * 45;
+      p.animate([
+        { transform: "translate(-50%, -50%) scale(0.4) rotate(0deg)", opacity: 0 },
+        { transform: "translate(-50%, -50%) scale(1.1) rotate(0deg)", opacity: 1, offset: 0.15 },
+        { transform: "translate(calc(-50% + " + Math.cos(ang) * dist + "px), calc(-50% + " + Math.sin(ang) * dist + "px)) scale(0.3) rotate(" + (Math.random() * 240 - 120) + "deg)", opacity: 0 }
+      ], { duration: 750 + Math.random() * 250, delay: 120, easing: "cubic-bezier(0.2, 0.7, 0.3, 1)", fill: "backwards" }).finished.then(() => p.remove()).catch(() => p.remove());
+    }
+    const fl = document.createElement("span");                       // the price floats up and away
+    fl.className = "shop-float";
+    fl.textContent = "-" + fmt(item.price);
+    fl.setAttribute("aria-hidden", "true");
+    card.appendChild(fl);
+    fl.animate([{ transform: "translate(-50%, 0)", opacity: 0 }, { transform: "translate(-50%, -10px)", opacity: 1, offset: 0.2 }, { transform: "translate(-50%, -36px)", opacity: 0 }], { duration: 1100, easing: "ease-out" }).finished.then(() => fl.remove()).catch(() => fl.remove());
+  }
+
   function act(item) {
     if (item.kind === "soon") return;
     if (!owns(item.id)) {
@@ -338,6 +383,7 @@ const SHOP_CATS = [
       save("yb-own", own);
       if (EQKEY[item.kind]) eq[EQKEY[item.kind]] = item.value;     // switch it on right away
       save("yb-eq", eq);
+      buyFx(item);
       const nm = /^the /.test(item.name) ? item.name : "the " + item.name;
       say(item.kind === "pet" ? "you got " + nm + "! give it a name in your inventory." : "you got " + nm + "!");
     } else if (item.value === "rat" && isOn(item) && window.Remy) {
