@@ -6,6 +6,12 @@
 
 const UPDATES = [
   {
+    date: "10.25.26",
+    items: [
+      "made carousel horses 3d",
+    ],
+  },
+  {
     date: "10.24.26",
     items: [
       "revamped arcade page",
