@@ -196,6 +196,29 @@
     return '<span class="shop-prev shop-prev-glyph">' + (item.tag || "") + "</span>";
   }
 
+  // ----- the shop signs and awnings: the sign swings (harder when you buy something) and the awning's scalloped edge flutters -----
+  function swing(page, hard) {
+    if (!page || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+    page.querySelectorAll(".pp-sign, .shop-sign svg").forEach((el) => {
+      el.classList.remove("swing", "hard"); void el.getBoundingClientRect();
+      el.classList.add("swing"); if (hard) el.classList.add("hard");
+      el.addEventListener("animationend", () => el.classList.remove("swing", "hard"), { once: true });
+    });
+  }
+  function flutter(page) {
+    const tent = page && page.querySelector(".shop-tent");
+    if (!tent) return;
+    tent.classList.remove("flutter"); void tent.getBoundingClientRect();
+    tent.classList.add("flutter");
+    clearTimeout(tent._fl); tent._fl = setTimeout(() => tent.classList.remove("flutter"), 1600);
+  }
+  function opened() {
+    const pg = document.querySelector(".page.active");
+    if (pg && /^(shop|rare-shop)$/.test(pg.dataset.page || "")) { swing(pg); flutter(pg); }
+  }
+  window.addEventListener("hashchange", () => setTimeout(opened, 80));
+  window.addEventListener("load", () => setTimeout(opened, 200));
+
   // a "shelf" is one shop's grid of cards. It shows 9 at a time (3 x 3), or 6 on a phone, with arrows to the other pages.
   // list() says what's on it right now. The prize shop and the rare items shop each have one.
   const phone = window.matchMedia ? window.matchMedia("(max-width: 40rem)") : { matches: false };
@@ -203,7 +226,7 @@
   // catOf (optional): says which category an item is in. when it's given, the shelf is split by category: every category starts on its own
   // page (a category with more than a page of items takes a few pages) and its name is the little heading under the roof.
   function makeShelf(box, list, catOf, partOf) {
-    let page = 0;
+    let page = 0, lastKey = null;
     function pagesOf(items) {
       const out = [];
       if (!catOf) {
@@ -230,6 +253,9 @@
       const pages = shelf.length;
       page = Math.min(Math.max(page, 0), pages - 1);
       box.innerHTML = "";
+      const key = page + "|" + shelf[page].title;                   // a new page or category: the awning flutters
+      if (lastKey !== null && key !== lastKey) flutter(box.closest(".page"));
+      lastKey = key;
       if (shelf[page].title) {                      // the category's name, in a small heading under the roof
         const cat = document.createElement("h2");
         cat.className = "shop-cat";
@@ -351,6 +377,7 @@ const SHOP_CATS = [
     if (!card) return;
     const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     card.classList.add("shop-fx");
+    swing(card.closest(".page"), true);
     card.querySelectorAll(".shop-stamp, .shop-spark, .shop-float").forEach((n) => n.remove());
     const stamp = document.createElement("span");
     stamp.className = "shop-stamp";

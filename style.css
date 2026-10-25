@@ -3908,7 +3908,7 @@ main { margin-top: var(--lights-h); }
 }
 .hb-fx { z-index: 2; }
 @media (max-width: 640px) { .hb-layer:not(.hb-fx) { z-index: 0; } }   /* on a phone the balloons float in front of the page (so they're easy to tap), but behind the bottom left box, the door and the flags */
-.hb { position: absolute; top: 0; pointer-events: none; will-change: transform; }
+.hb { position: absolute; top: 0; pointer-events: none; }
 .hb-sway { display: block; width: 100%; height: 100%; transform-origin: 50% 100%; }
 .hb svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .hb-body, .hb-shine, .hb-string { vector-effect: non-scaling-stroke; stroke-width: 1px; }   /* (the outlines stay a clear thin line, even on the small balloons) */
@@ -4701,3 +4701,35 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .shop-prev-glyph[data-g="paw"] .paw-svg:nth-child(3) { transform: rotate(-12deg) translateY(2px); }
 @media (prefers-reduced-motion: reduce) { .trail-paw { animation: none; } }
 
+/* ---------- the shop signs swing a little and the awning's scalloped edge flutters (shop.js adds .swing / .flutter) ---------- */
+.shop-post .pp-sign { --base: translate(0, 90.35px); transform-origin: 325px 309.65px; animation: ppIdle 3.2s ease-in-out infinite alternate; }
+.shop-sign svg { --base: translateX(-50%); transform-origin: 50% 3%; animation: ppIdle 3.2s ease-in-out infinite alternate; }
+.shop-post .pp-sign.swing, .shop-sign svg.swing { --sw: 1.6deg; animation: ppSwing 1.6s ease-out; }
+.shop-post .pp-sign.swing.hard, .shop-sign svg.swing.hard { --sw: 7deg; animation-duration: 2.4s; }
+@keyframes ppIdle { from { transform: var(--base) rotate(-0.9deg); } to { transform: var(--base) rotate(0.9deg); } }
+@keyframes ppSwing {
+  0% { transform: var(--base) rotate(0deg); }
+  16% { transform: var(--base) rotate(var(--sw)); }
+  38% { transform: var(--base) rotate(calc(var(--sw) * -0.7)); }
+  58% { transform: var(--base) rotate(calc(var(--sw) * 0.42)); }
+  78% { transform: var(--base) rotate(calc(var(--sw) * -0.2)); }
+  100% { transform: var(--base) rotate(0deg); }
+}
+.shop-tent .tw > path, .shop-tent .tk > path { transform-box: fill-box; transform-origin: 50% 0; }
+.shop-tent .tw > path:nth-child(1) { --k: 9; } .shop-tent .tw > path:nth-child(2) { --k: 7; } .shop-tent .tw > path:nth-child(3) { --k: 5; }
+.shop-tent .tw > path:nth-child(4) { --k: 3; } .shop-tent .tw > path:nth-child(5) { --k: 1; }
+.shop-tent .tk > path:nth-child(12) { --k: 10; } .shop-tent .tk > path:nth-child(13) { --k: 8; } .shop-tent .tk > path:nth-child(14) { --k: 6; }
+.shop-tent .tk > path:nth-child(15) { --k: 4; } .shop-tent .tk > path:nth-child(16) { --k: 2; } .shop-tent .tk > path:nth-child(17) { --k: 0; }
+.shop-tent .tw > path, .shop-tent .tk > path { animation: tentSway 3.4s ease-in-out infinite alternate; animation-delay: calc(var(--k) * 140ms); }
+@keyframes tentSway { from { transform: translateX(-1.6%) skewX(-6deg); } to { transform: translateX(1.6%) skewX(6deg); } }
+.shop-tent.flutter .tw > path, .shop-tent.flutter .tk > path { animation: tentSway 3.4s ease-in-out infinite alternate, tentFlutter 0.95s ease-in-out backwards; animation-delay: calc(var(--k) * 140ms), calc(var(--k) * 45ms); }
+@keyframes tentFlutter {   /* uses scale, so it runs on top of the sway (which uses transform) with no jump when it ends */
+  0% { scale: 1 1; }
+  25% { scale: 1 0.82; }
+  55% { scale: 1 1.12; }
+  80% { scale: 1 0.96; }
+  100% { scale: 1 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shop-post .pp-sign, .shop-sign svg, .shop-tent .tw > path, .shop-tent .tk > path { animation: none !important; }
+}
