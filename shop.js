@@ -205,13 +205,6 @@
       el.addEventListener("animationend", () => el.classList.remove("swing", "hard"), { once: true });
     });
   }
-  function flutter(page) {
-    const tent = page && page.querySelector(".shop-tent");
-    if (!tent) return;
-    tent.classList.remove("flutter"); void tent.getBoundingClientRect();
-    tent.classList.add("flutter");
-    clearTimeout(tent._fl); tent._fl = setTimeout(() => tent.classList.remove("flutter"), 1600);
-  }
 
   // a "shelf" is one shop's grid of cards. It shows 9 at a time (3 x 3), or 6 on a phone, with arrows to the other pages.
   // list() says what's on it right now. The prize shop and the rare items shop each have one.
@@ -220,7 +213,7 @@
   // catOf (optional): says which category an item is in. when it's given, the shelf is split by category: every category starts on its own
   // page (a category with more than a page of items takes a few pages) and its name is the little heading under the roof.
   function makeShelf(box, list, catOf, partOf) {
-    let page = 0, lastKey = null;
+    let page = 0;
     function pagesOf(items) {
       const out = [];
       if (!catOf) {
@@ -247,9 +240,6 @@
       const pages = shelf.length;
       page = Math.min(Math.max(page, 0), pages - 1);
       box.innerHTML = "";
-      const key = page + "|" + shelf[page].title;                   // a new page or category: the awning flutters
-      if (lastKey !== null && key !== lastKey) flutter(box.closest(".page"));
-      lastKey = key;
       if (shelf[page].title) {                      // the category's name, in a small heading under the roof
         const cat = document.createElement("h2");
         cat.className = "shop-cat";

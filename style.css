@@ -4720,16 +4720,8 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .shop-tent .tw > path:nth-child(4) { --k: 3; } .shop-tent .tw > path:nth-child(5) { --k: 1; }
 .shop-tent .tk > path:nth-child(12) { --k: 10; } .shop-tent .tk > path:nth-child(13) { --k: 8; } .shop-tent .tk > path:nth-child(14) { --k: 6; }
 .shop-tent .tk > path:nth-child(15) { --k: 4; } .shop-tent .tk > path:nth-child(16) { --k: 2; } .shop-tent .tk > path:nth-child(17) { --k: 0; }
-.shop-tent .tw > path, .shop-tent .tk > path { animation: tentSway 3.4s ease-in-out infinite alternate; animation-delay: calc(var(--k) * -140ms); }
+.shop-tent .tw > path, .shop-tent .tk > path { animation: tentSway 4s ease-in-out infinite alternate; animation-delay: calc(var(--k) * -140ms); }
 @keyframes tentSway { from { transform: translateX(-1.6%) skewX(-6deg); } to { transform: translateX(1.6%) skewX(6deg); } }
-.shop-tent.flutter .tw > path, .shop-tent.flutter .tk > path { animation: tentSway 3.4s ease-in-out infinite alternate, tentFlutter 0.95s ease-in-out backwards; animation-delay: calc(var(--k) * -140ms), calc(var(--k) * 45ms); }
-@keyframes tentFlutter {   /* uses scale, so it runs on top of the sway (which uses transform) with no jump when it ends */
-  0% { scale: 1 1; }
-  25% { scale: 1 0.82; }
-  55% { scale: 1 1.12; }
-  80% { scale: 1 0.96; }
-  100% { scale: 1 1; }
-}
 @media (prefers-reduced-motion: reduce) {
   .shop-post .pp-sign, .shop-sign svg, .shop-tent .tw > path, .shop-tent .tk > path { animation: none !important; }
 }
