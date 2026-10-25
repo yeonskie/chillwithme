@@ -13,6 +13,7 @@ const UPDATES = [
       "added animations to joystick/buttons/title in arcade room",
       "replaced confession booth with wishing well",
       "new shop items: flower trail, paw print trail",
+      "animated jukebox while playing songs",
     ],
   },
   {
