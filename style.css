@@ -4670,3 +4670,33 @@ body.ww-wishes-open .ww { visibility: hidden; }
 /* the arcade token: its own drawing hides while the 3D one spins, and it's a size container so the edge scales with it */
 .ac-token { container-type: inline-size; }
 .ac-token.is-spinning > svg { visibility: hidden; }
+
+/* flower trail: little flowers that bloom behind the cursor, sway down a bit and fade (drawn by shop.js) */
+.trail-flower { width: 16px; height: 16px; font-size: 0; animation: trail-bloom 0.9s ease-out forwards; }
+.trail-flower .flower-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.trail-petal { color: #f48fb1; }
+@keyframes trail-bloom {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0) rotate(calc(var(--r, 0deg) - 40deg)); }
+  18%  { opacity: 1; transform: translate(0, 0) scale(calc(var(--s, 1) * 1.15)) rotate(var(--r, 0deg)); }
+  30%  { opacity: 1; transform: translate(0, 0) scale(var(--s, 1)) rotate(var(--r, 0deg)); }
+  62%  { opacity: 1; transform: translate(calc(var(--dx, 0px) * 0.4), 6px) scale(var(--s, 1)) rotate(calc(var(--r, 0deg) * -0.5)); }
+  100% { opacity: 0; transform: translate(var(--dx, 0px), 22px) scale(calc(var(--s, 1) * 0.5)) rotate(calc(var(--r, 0deg) * 1.5)); }
+}
+.shop-prev-glyph[data-g="flower"] .flower-svg { width: 1.5rem; height: 1.5rem; margin: 0 0.15rem; }
+
+/* paw print trail: little prints that walk behind the cursor (drawn by shop.js), pop in, wait a moment and fade */
+.trail-paw { width: 18px; height: 18px; font-size: 0; color: var(--text); animation: trail-paw 1.1s ease-out forwards; }
+.trail-paw .paw-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+@keyframes trail-paw {
+  0%   { opacity: 0; transform: rotate(var(--r, 0deg)) scale(0.5); }
+  10%  { opacity: 0.85; transform: rotate(var(--r, 0deg)) scale(1.1); }
+  18%  { opacity: 0.85; transform: rotate(var(--r, 0deg)) scale(1); }
+  50%  { opacity: 0.8; transform: rotate(var(--r, 0deg)) scale(1); }
+  100% { opacity: 0; transform: rotate(var(--r, 0deg)) scale(0.9); }
+}
+.shop-prev-glyph[data-g="paw"] { color: var(--text); }
+.shop-prev-glyph[data-g="paw"] .paw-svg { width: 1.2rem; height: 1.2rem; margin: 0 0.3rem; opacity: 0.85; }
+.shop-prev-glyph[data-g="paw"] .paw-svg:nth-child(1) { transform: rotate(-18deg) translateY(2px); }
+.shop-prev-glyph[data-g="paw"] .paw-svg:nth-child(2) { transform: rotate(14deg) translateY(-2px); }
+.shop-prev-glyph[data-g="paw"] .paw-svg:nth-child(3) { transform: rotate(-12deg) translateY(2px); }
+@media (prefers-reduced-motion: reduce) { .trail-paw { animation: none; } }

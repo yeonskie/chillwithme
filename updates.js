@@ -12,6 +12,7 @@ const UPDATES = [
       "hyrax coin animation in arcade room",
       "added animations to joystick/buttons/title in arcade room",
       "replaced confession booth with wishing well",
+      "new shop items: flower trail, paw print trail",
     ],
   },
   {
