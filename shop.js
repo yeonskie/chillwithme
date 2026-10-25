@@ -212,12 +212,6 @@
     tent.classList.add("flutter");
     clearTimeout(tent._fl); tent._fl = setTimeout(() => tent.classList.remove("flutter"), 1600);
   }
-  function opened() {
-    const pg = document.querySelector(".page.active");
-    if (pg && /^(shop|rare-shop)$/.test(pg.dataset.page || "")) { swing(pg); flutter(pg); }
-  }
-  window.addEventListener("hashchange", () => setTimeout(opened, 80));
-  window.addEventListener("load", () => setTimeout(opened, 200));
 
   // a "shelf" is one shop's grid of cards. It shows 9 at a time (3 x 3), or 6 on a phone, with arrows to the other pages.
   // list() says what's on it right now. The prize shop and the rare items shop each have one.
