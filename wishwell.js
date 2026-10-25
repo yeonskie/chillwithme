@@ -9,6 +9,10 @@ const WWDB = (function () {
   const PAGE = 48;                         // wishes per load
   const COOLDOWN_MS = 20 * 1000;           // one wish every 20 seconds from the same browser
   const LAST_KEY = "wish-last";
+  const MINE_KEY = "ww-mine";              // the wishes this browser has thrown in (kept here so they can sparkle in the grid)
+  function mineList() {
+    try { const a = JSON.parse(localStorage.getItem(MINE_KEY) || "[]"); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
 
   function headers(extra) {
     const h = { apikey: KEY, ...extra };
@@ -36,8 +40,13 @@ const WWDB = (function () {
         headers: headers({ "Content-Type": "application/json", Prefer: "return=minimal" }),
         body: JSON.stringify({ body: text.slice(0, 120) }),
       });
-      try { localStorage.setItem(LAST_KEY, String(Date.now())); } catch (e) {}
+      try {
+        localStorage.setItem(LAST_KEY, String(Date.now()));
+        const a = mineList(); a.push(text.slice(0, 120));
+        localStorage.setItem(MINE_KEY, JSON.stringify(a.slice(-100)));
+      } catch (e) {}
     },
+    isMine(body) { return mineList().indexOf(body) !== -1; },
     waitLeft() {
       let last = 0;
       try { last = Number(localStorage.getItem(LAST_KEY)) || 0; } catch (e) {}
@@ -97,16 +106,17 @@ const WWDB = (function () {
   const isOpen = () => coin.dataset.st === "open";
   const setFace = (f) => { coin.dataset.face = f; };
 
-  // turn the coin around: it narrows to an edge, swaps faces, and widens again
+  // turn the coin around: it's a little 3D disc with an edge (see coinrig.js), so it spins half a turn and you see its edge go by
   function flip(toFace) {
     if (coin.dataset.face === toFace) return Promise.resolve();
-    if (reduce || !card.animate) { setFace(toFace); return Promise.resolve(); }
-    const out = card.animate([{ transform: "scaleX(1)" }, { transform: "scaleX(0.02)" }], { duration: 260, easing: "ease-in", fill: "forwards" });
-    return out.finished.then(() => {
-      setFace(toFace);
-      const back = card.animate([{ transform: "scaleX(0.02)" }, { transform: "scaleX(1)" }], { duration: 260, easing: "ease-out" });
-      return back.finished.then(() => { out.cancel(); back.cancel(); });
-    }).catch(() => { setFace(toFace); });
+    const faceArt = front.querySelector("svg"), backArt = card.querySelector(".ww-back > svg");
+    if (reduce || !coin.animate || !window.CoinRig || !faceArt) { setFace(toFace); return Promise.resolve(); }
+    const rig = CoinRig.build(coin, faceArt, backArt, "ww-front");
+    coin.classList.add("ww-tossing");
+    const toBack = toFace === "back";
+    const a = CoinRig.spin(rig, toBack ? 0 : 180, toBack ? 180 : 360, { duration: 750, easing: "ease-in-out" });
+    const finish = () => { setFace(toFace); a.cancel(); rig.remove(); coin.classList.remove("ww-tossing"); };
+    return a.finished.then(finish).catch(finish);
   }
 
   function open() {
@@ -227,7 +237,7 @@ const WWDB = (function () {
         return;
       }
       // a proper toss: a little dip as it's wound up, then a parabola (quick off the hand, slow at the top,
-      // quicker on the way down), flipping end over end like a coin, shrinking as it travels away
+      // quicker on the way down), spinning like a coin (see the little 3D rig below), shrinking as it travels away
       const DUR = 1500, T0 = 0.1, T1 = 0.9, N = 30;
       const H = 0.34 * fr.height;                      // how high above the straight line it goes
       const frames = [{ offset: 0, transform: base + "translate(0px, 0px) scale(1)", opacity: 1 },
@@ -237,13 +247,18 @@ const WWDB = (function () {
         const x = dx * t;
         const y = dy * t - 4 * H * t * (1 - t);
         const sc = 1 + (endScale - 1) * Math.pow(t, 0.75);
-        const flip = Math.cos(t * Math.PI * 2 * 1);   // one flip
         const tilt = 45 * t;
-        frames.push({ offset: T0 + (T1 - T0) * t, transform: base + "translate(" + x + "px, " + y + "px) scale(" + sc + ") rotate(" + tilt + "deg) scaleY(" + (Math.abs(flip) < 0.06 ? 0.06 * Math.sign(flip || 1) : flip) + ")", opacity: 1 });
+        frames.push({ offset: T0 + (T1 - T0) * t, transform: base + "translate(" + x + "px, " + y + "px) scale(" + sc + ") rotate(" + tilt + "deg)", opacity: 1 });
       }
-      frames.push({ offset: 1, transform: base + "translate(" + dx + "px, " + (dy + endScale * cr.height * 0.3) + "px) scale(" + endScale * 0.75 + ") rotate(45deg) scaleY(0.8)", opacity: 0 });   // it only fades as it sinks into the water
+      frames.push({ offset: 1, transform: base + "translate(" + dx + "px, " + (dy + endScale * cr.height * 0.3) + "px) scale(" + endScale * 0.75 + ") rotate(45deg)", opacity: 0 });   // it only fades as it sinks into the water
+      // for the flight the coin is the same little 3D disc, spinning one full turn on the way down
+      const faceArt = front.querySelector("svg");
+      const rig = CoinRig.build(coin, faceArt, null, "ww-front");
+      coin.classList.add("ww-tossing");
+      const spin = CoinRig.spin(rig, 0, 360, { duration: (T1 - T0) * DUR, delay: T0 * DUR });
+      const cleanup = () => { spin.cancel(); rig.remove(); coin.classList.remove("ww-tossing"); };
       const a = coin.animate(frames, { duration: DUR, fill: "forwards", easing: "linear" });
-      a.finished.then(() => { done(); a.cancel(); }).catch(done);
+      a.finished.then(() => { cleanup(); done(); a.cancel(); }).catch(() => { cleanup(); done(); });
     });
   }
 
@@ -330,7 +345,15 @@ const WWDB = (function () {
       b.className = "ww-mini";
       b.style.setProperty("--r", tilt(w.id) + "deg");
       b.style.setProperty("--i", Math.min(i, 24));
-      b.setAttribute("aria-label", "read this wish");
+      b.setAttribute("aria-label", WWDB.isMine(w.body) ? "read this wish (yours)" : "read this wish");
+      if (WWDB.isMine(w.body)) {
+        b.classList.add("is-mine");
+        const sp = document.createElement("span");
+        sp.className = "ww-spark";
+        sp.textContent = "\u2726";
+        sp.setAttribute("aria-hidden", "true");
+        b.appendChild(sp);
+      }
       const t = document.createElement("span");
       t.className = "ww-mini-t";
       const c = document.createElement("span");
@@ -388,7 +411,7 @@ const WWDB = (function () {
   function openRead(w, mini) {
     from = mini;
     bigText.textContent = w.body;
-    bigDate.textContent = dateText(w.created_at);
+    bigDate.textContent = dateText(w.created_at) + (WWDB.isMine(w.body) ? " \u00b7 yours \u2726" : "");
     read.hidden = false;
     if (reduce || !big.animate) return;
     const a = mini.getBoundingClientRect(), b = big.getBoundingClientRect();

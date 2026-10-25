@@ -114,9 +114,19 @@
     if (st === "rest") { tok.classList.remove("ac-back"); setState("up"); return; }
     if (st !== "up") return;
     setState("in");
+    // on the way to the slot the token is a little 3D coin (coinrig.js) that spins one full turn, edge and all
+    let rig = null, spin = null;
+    const still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const art = tok.querySelector("svg");
+    if (window.CoinRig && art && tok.animate && !still) {
+      rig = CoinRig.build(tok, art, null);
+      tok.classList.add("is-spinning");
+      spin = CoinRig.spin(rig, 0, 360, { duration: 1450, easing: "ease-in-out" });
+    }
     const done = (e) => {
       if (e.target !== tok) return;
       tok.removeEventListener("animationend", done);
+      if (rig) { spin.cancel(); rig.remove(); tok.classList.remove("is-spinning"); }
       setState("gone");
       unlock();
       flash.classList.remove("on"); void flash.offsetWidth; flash.classList.add("on"); ac.classList.add("flashing");
