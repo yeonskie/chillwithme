@@ -111,7 +111,7 @@ const WWDB = (function () {
     if (coin.dataset.face === toFace) return Promise.resolve();
     const faceArt = front.querySelector("svg"), backArt = card.querySelector(".ww-back > svg");
     if (reduce || !coin.animate || !window.CoinRig || !faceArt) { setFace(toFace); return Promise.resolve(); }
-    const rig = CoinRig.build(coin, faceArt, backArt, "ww-front");
+    const rig = CoinRig.build(coin, faceArt, backArt);
     coin.classList.add("ww-tossing");
     const toBack = toFace === "back";
     const a = CoinRig.spin(rig, toBack ? 0 : 180, toBack ? 180 : 360, { duration: 750, easing: "ease-in-out" });
@@ -253,7 +253,7 @@ const WWDB = (function () {
       frames.push({ offset: 1, transform: base + "translate(" + dx + "px, " + (dy + endScale * cr.height * 0.3) + "px) scale(" + endScale * 0.75 + ") rotate(45deg)", opacity: 0 });   // it only fades as it sinks into the water
       // for the flight the coin is the same little 3D disc, spinning one full turn on the way down
       const faceArt = front.querySelector("svg");
-      const rig = CoinRig.build(coin, faceArt, null, "ww-front");
+      const rig = CoinRig.build(coin, faceArt, null);
       coin.classList.add("ww-tossing");
       const spin = CoinRig.spin(rig, 0, 360, { duration: (T1 - T0) * DUR, delay: T0 * DUR });
       const cleanup = () => { spin.cancel(); rig.remove(); coin.classList.remove("ww-tossing"); };

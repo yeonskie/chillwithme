@@ -4662,6 +4662,11 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .coin-tface { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; pointer-events: none; }
 .coin-tface svg { display: block; width: 100%; height: 100%; fill: var(--text); overflow: visible; pointer-events: none; }
 .coin-tface svg * { vector-effect: non-scaling-stroke; }
+.coin-tface .hk-1 { fill: var(--bg); stroke: var(--text); stroke-width: var(--hk-line); stroke-miterlimit: 10; }
+.coin-tface .hk-2 { fill: var(--bg); }
+.coin-tface path:not(.hk-1):not(.hk-2):not(.hk-3) { stroke: var(--text); stroke-width: var(--hk-draw, 0.3px); stroke-linejoin: round; }
+.coin-tface .hk-3 { fill: none; stroke: var(--text); stroke-width: var(--hk-line); stroke-miterlimit: 10; }
+.coin-tface .hk-solo { display: none; }
 /* the arcade token: its own drawing hides while the 3D one spins, and it's a size container so the edge scales with it */
 .ac-token { container-type: inline-size; }
 .ac-token.is-spinning > svg { visibility: hidden; }
