@@ -1,7 +1,7 @@
 // ---------- Home page: the little carousel ----------
 // Four poles, each with a horse on it, go round together on a loop: they get a little smaller at the back, pass behind the
-// middle (the drape), and come round the front again. The horses bob up and down along their poles, and turn around
-// (squashing flat for a moment, like a real one seen from the front) at the two sides. The stripes on the poles turn
+// middle (the drape), and come round the front again. The horses bob up and down along their poles, and turn right
+// round as they go (side on, head on, side on, tail on) (each horse is built from 3D parts, see merryhorse.js). The stripes on the poles turn
 // (that part is css, see style.css). It stops when the home page isn't showing, and stays still if "reduce motion" is on.
 // Tap or click it (or the < > buttons below) to make it spin faster for a moment.
 //
@@ -26,6 +26,11 @@
 
   const poles = units.map((u) => u.querySelector(".mg-pole"));
   const horses = units.map((u) => u.querySelector(".mg-horse"));
+  // each horse is built from a few 3D parts (merryhorse.js) so it can turn all the way round
+  const rigs = horses.map((h) => {
+    const p = h.querySelector("path");
+    return window.MerryHorse ? window.MerryHorse.build(h, p && p.getAttribute("class") && p.getAttribute("class").indexOf("mc3") > -1 ? "mc3" : "mc1") : null;
+  });
   // the stripes on the poles are moved here too (not by a separate css animation), so they always move in step with the
   // horses, including when you tap to spin it faster
   const stripes = units.map((u) => u.querySelector(".mg-stripes"));
@@ -37,9 +42,10 @@
   // into a dark smudge; this keeps that line about 0.9px thick on screen whatever size the drawing is shown at
   // (it was 1.2px; change HORSE_LINE to make the horses' lines thicker or thinner)
   const HORSE_LINE = 0.9;
+  let lineUnits = 1;
   function lineWidth() {
     const w = svg.getBoundingClientRect().width;
-    if (w > 0) svg.style.setProperty("--hsw", (HORSE_LINE / (w / 880)).toFixed(2) + "px");
+    if (w > 0) { lineUnits = HORSE_LINE / (w / 880); svg.style.setProperty("--hsw", lineUnits.toFixed(2) + "px"); }
   }
   lineWidth();
   if (window.ResizeObserver) new ResizeObserver(lineWidth).observe(svg); else window.addEventListener("resize", lineWidth);
@@ -52,10 +58,12 @@
       const y = CY + 22 * d + BOB * Math.sin(2 * a + i * 1.3);
       const poleScale = 1.2 * (1 + 0.17 * d);          // thicker at the front
       const horseScale = 0.91 + 0.09 * d;              // bigger at the front
-      const turn = (d < 0 ? -1 : 1) * Math.max(Math.pow(Math.abs(d), 0.75), 0.002);   // squashes flat at the sides, then faces the other way
+      // the horse turns for real as the ride goes round: side on at the front (facing right, the way it moves), tail on at the right-hand
+      // side, side on again at the back (facing left), head on at the left-hand side
+      if (rigs[i]) rigs[i].update(Math.PI / 2 - a, lineUnits);
       u.setAttribute("transform", "translate(" + x.toFixed(1) + " 0)");
       poles[i].setAttribute("transform", "translate(0 " + POLE_TOP + ") scale(" + poleScale.toFixed(3) + ")");
-      horses[i].setAttribute("transform", "translate(0 " + y.toFixed(1) + ") scale(" + (horseScale * turn).toFixed(3) + " " + horseScale.toFixed(3) + ")");
+      horses[i].setAttribute("transform", "translate(0 " + y.toFixed(1) + ") scale(" + horseScale.toFixed(3) + ")");
       if (stripes[i]) {
         const slide = (angle * STRIPE_SPEED) % STRIPE_GAP;
         stripes[i].setAttribute("transform", "translate(0 " + (stripes[i].classList.contains("mg-down") ? slide : -slide).toFixed(2) + ")");

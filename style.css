@@ -4725,3 +4725,4 @@ body.ww-wishes-open .ww { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .shop-post .pp-sign, .shop-sign svg, .shop-tent .tw > path, .shop-tent .tk > path { animation: none !important; }
 }
+
