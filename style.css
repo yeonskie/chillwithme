@@ -4700,3 +4700,4 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .shop-prev-glyph[data-g="paw"] .paw-svg:nth-child(2) { transform: rotate(14deg) translateY(-2px); }
 .shop-prev-glyph[data-g="paw"] .paw-svg:nth-child(3) { transform: rotate(-12deg) translateY(2px); }
 @media (prefers-reduced-motion: reduce) { .trail-paw { animation: none; } }
+
