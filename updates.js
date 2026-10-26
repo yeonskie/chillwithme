@@ -8,6 +8,7 @@ const UPDATES = [
   {
     date: "10.25.26",
     items: [
+      "new url! yipee!!",
       "made carousel horses 3d",
     ],
   },
