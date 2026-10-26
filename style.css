@@ -4726,3 +4726,7 @@ body.ww-wishes-open .ww { visibility: hidden; }
   .shop-post .pp-sign, .shop-sign svg, .shop-tent .tw > path, .shop-tent .tk > path { animation: none !important; }
 }
 
+/* ---------- the little "did you play before?" box (transfer.js) ---------- */
+.xfer { position: fixed; left: 50%; bottom: calc(var(--bar-height) + 1rem); transform: translateX(-50%); z-index: 90; width: min(22rem, calc(100vw - 2rem)); box-sizing: border-box; padding: 0.8rem 1rem; background: var(--bg); color: var(--text); border: 1px solid var(--text); border-radius: var(--radius); font-size: 0.8rem; text-align: center; }
+.xfer p { margin: 0 0 0.6rem; }
+.xfer-row { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; }

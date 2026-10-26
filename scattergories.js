@@ -32,9 +32,9 @@
   ];
   const LETTERS = "ABCDEFGHIJKLMNOPRSTW";
   const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ";      // no I or O, they look like 1 and 0
-  // The address of your live site, used for invite links, e.g. "https://yeonskie.github.io/chillwithme/"
+  // The address of your live site, used for invite links, e.g. "https://www.yeonskie.com/"
   // Leave it as "" to use whatever address the page is on.
-  const SITE_URL = "https://yeonskie.github.io/chillwithme/";
+  const SITE_URL = "https://www.yeonskie.com/";
   const START_CATEGORIES = 8;
   const POINTS_ALONE = 10, POINTS_SHARED = 5;
   const WIN_PRIZE = 5000;                              // yeonbucks for winning a game
