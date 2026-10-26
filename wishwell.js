@@ -410,6 +410,7 @@ const WWDB = (function () {
   // read one wish in full: the coin grows out of its place in the grid
   function openRead(w, mini) {
     from = mini;
+    resetFace();
     bigText.textContent = w.body;
     bigDate.textContent = dateText(w.created_at) + (WWDB.isMine(w.body) ? " \u00b7 yours \u2726" : "");
     read.hidden = false;
@@ -436,6 +437,52 @@ const WWDB = (function () {
     anim.finished.then(() => { read.hidden = true; from = null; }).catch(() => { read.hidden = true; });
   }
 
+  // tap the wish coin and it turns over to the hyrax side (tap again and it turns back to the wish)
+  let face = "wish", flipping = false;
+  function setFace(f) { face = f; if (f === "hyrax") big.dataset.face = "hyrax"; else delete big.dataset.face; }
+  function resetFace() {
+    flipping = false;
+    big.classList.remove("ww-flipping");
+    big.querySelectorAll(".coin-rig").forEach((r) => r.remove());
+    setFace("wish");
+  }
+  function hyraxSide() {
+    let d = big.querySelector(".ww-bigface");
+    if (!d) {
+      const svg = document.querySelector("#ww-front svg");
+      if (!svg) return null;
+      d = document.createElement("div");
+      d.className = "ww-front ww-bigface";
+      d.appendChild(svg.cloneNode(true));
+      big.appendChild(d);
+    }
+    return d.querySelector("svg");
+  }
+  // a copy of the wish coin as it looks right now, to be the other side of the spinning coin
+  function wishSnapshot() {
+    const c = big.cloneNode(true);
+    c.removeAttribute("id");
+    c.removeAttribute("data-face");
+    c.classList.remove("ww-flipping");
+    c.querySelectorAll("[id]").forEach((n) => n.removeAttribute("id"));
+    c.querySelectorAll(".coin-rig, .ww-bigface, .ww-bigx").forEach((n) => n.remove());
+    return c;
+  }
+  function flipBig() {
+    if (flipping) return;
+    const to = face === "wish" ? "hyrax" : "wish";
+    const hy = hyraxSide();
+    if (!hy) return;
+    if (reduce || !big.animate || !window.CoinRig) { setFace(to); return; }
+    flipping = true;
+    const rig = CoinRig.build(big, hy, wishSnapshot());
+    big.classList.add("ww-flipping");
+    const toHyrax = to === "hyrax";
+    const a = CoinRig.spin(rig, toHyrax ? 180 : 0, toHyrax ? 360 : 180, { duration: 750, easing: "ease-in-out" });
+    const finish = () => { setFace(to); a.cancel(); rig.remove(); big.classList.remove("ww-flipping"); flipping = false; };
+    a.finished.then(finish).catch(finish);
+  }
+
   seeBtn && seeBtn.addEventListener("click", openPanel);
   if (pool) {
     pool.addEventListener("click", openPanel);
@@ -452,7 +499,7 @@ const WWDB = (function () {
     }
     if ((pg + 1) * per < wishes.length) { pg++; render(); panel.scrollTop = 0; }
   });
-  read.addEventListener("click", () => closeRead());
+  read.addEventListener("click", (e) => { if (e.target.closest("#ww-bigx")) closeRead(); else if (e.target.closest("#ww-bigcoin")) flipBig(); else closeRead(); });
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
     if (isReadOpen()) { e.stopPropagation(); closeRead(); }
