@@ -83,7 +83,7 @@
       return;
     }
     if (/[?&]transfer(=|&|$)/.test(location.search) || (wasNew && !asked())) {
-      const d = box('<p>did you play before? i can bring your stuff over from the old address.</p><div class="xfer-row"><button type="button" class="hy-btn" data-go>yes, bring it over</button><button type="button" class="hy-btn" data-no>no, i\'m new</button></div>');
+      const d = box('<p><b>did you play before?</b></p><p>our url recently changed to yeonskie.com. please indicate if you would like to continue with the same account.</p><div class="xfer-row"><button type="button" class="hy-btn" data-go>yes, same account</button><button type="button" class="hy-btn" data-no>no, i\'m new</button></div>');
       d.querySelector("[data-go]").addEventListener("click", () => { location.href = HELPER + "?go=1"; });
       d.querySelector("[data-no]").addEventListener("click", () => { markAsked(); d.remove(); });
     }
