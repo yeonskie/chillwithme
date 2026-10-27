@@ -19,6 +19,7 @@ window.CoinRig = (function () {
       const f = document.createElement("div");
       f.className = "coin-tface" + (faceClass ? " " + faceClass : "");
       const art = back && backNode ? backNode.cloneNode(true) : frontSvg.cloneNode(true);
+      if (window.RemyCoin) RemyCoin.uniq(art);                       // (the wishing well coin has masks with names, which have to stay unique)
       f.appendChild(art);
       f.style.transform = (back ? "rotateY(180deg) " : "") + "translateZ(2.7cqw)";
       rig.appendChild(f);
