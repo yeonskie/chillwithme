@@ -4801,3 +4801,11 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .cm-remy .remy-body .hk-2 { fill: var(--bg); }
 .cm-remy .remy-body .hk-3 { fill: none; stroke: var(--text); stroke-width: 1.2px; stroke-linecap: round; }
 .cm-remy .remy-body .hk-6 { fill: var(--text); stroke: var(--text); stroke-width: 1.2px; stroke-linejoin: round; }
+
+/* community board: remy sits above the title on phones, beside it on desktop */
+.cm-head { flex-direction: column-reverse; gap: 0.5rem; }
+.cm-remy { transform: none; height: clamp(7rem, 38vw, 10rem); }
+@media (min-width: 701px) {
+  .cm-head { flex-direction: row; gap: clamp(0.6rem, 3vw, 2rem); }
+  .cm-remy { transform: translateY(-10%); height: clamp(7rem, 20vw, 9.5rem); }
+}
