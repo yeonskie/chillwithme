@@ -4740,7 +4740,8 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .ww-bigcoin[data-face="hyrax"] .ww-bigface { display: block; pointer-events: none; }
 .ww-bigcoin[data-face="hyrax"], .ww-bigcoin.ww-flipping { border-color: transparent; background: transparent; }
 .ww-bigcoin[data-face="hyrax"]::before, .ww-bigcoin[data-face="hyrax"]::after, .ww-bigcoin.ww-flipping::before, .ww-bigcoin.ww-flipping::after { display: none; }
-.ww-bigcoin[data-face="hyrax"] .ww-bigin, .ww-bigcoin[data-face="hyrax"] .ww-bigd, .ww-bigcoin.ww-flipping .ww-bigin, .ww-bigcoin.ww-flipping .ww-bigd { visibility: hidden; }
+.ww-bigcoin[data-face="hyrax"] > .ww-bigin, .ww-bigcoin[data-face="hyrax"] > .ww-bigd, .ww-bigcoin.ww-flipping > .ww-bigin, .ww-bigcoin.ww-flipping > .ww-bigd { visibility: hidden; }
 .coin-tface > .ww-bigcoin { width: 100%; height: 100%; aspect-ratio: auto; cursor: auto; }
 
-.ww-bigx { top: 0; right: 0; width: 2.4rem; height: 2.4rem; z-index: 3; opacity: 1; font-size: 1.3rem; line-height: 1; border: 1px solid var(--text); border-radius: var(--radius); background: var(--bg); display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+.ww-bigx { top: 0; right: 0; width: 1.8rem; height: 1.8rem; z-index: 3; opacity: 1; font-size: 1rem; line-height: 1; border: 1px solid var(--text); border-radius: var(--radius); background: var(--bg); display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
+.ww-bigcoin.ww-flipping > .ww-bigface, .ww-bigcoin[data-face="hyrax"].ww-flipping > .ww-bigface { display: none; }
