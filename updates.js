@@ -6,6 +6,13 @@
 
 const UPDATES = [
   {
+    date: "10.27.26",
+    items: [
+      "redesigned wishing well coin",
+      "created remy redesign, now on community board",
+    ],
+  },
+  {
     date: "10.25.26",
     items: [
       "new url! yipee!!",

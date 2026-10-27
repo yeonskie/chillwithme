@@ -4702,10 +4702,21 @@ body.ww-wishes-open .ww { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) { .trail-paw { animation: none; } }
 
 /* ---------- the shop signs swing a little and the awning's scalloped edge flutters (shop.js adds .swing / .flutter) ---------- */
-.shop-post .pp-sign { --base: translate(0, 90.35px); transform-origin: 325px 309.65px; animation: ppIdle 3.2s ease-in-out infinite alternate; }
+/* on a big screen the sign hangs from two chains. the chains swing from the arm and the sign just slides along with their ends (like a real
+   hanging sign, so it stays level and the chains stay joined to it). --sw is how far the chains swing; --L is how long they are. */
+.shop-post .pp-sign, .shop-post .pp-ch { --sw: 0.9deg; --L: 90px; }
+.shop-post .pp-sign { transform-origin: 0 0; animation: ppIdleS 3.2s ease-in-out infinite alternate; }
+.shop-post .pp-ch { animation: ppIdleC 3.2s ease-in-out infinite alternate; }
+.shop-post .pp-chl { transform-origin: 235.5px 401px; }
+.shop-post .pp-chr { transform-origin: 408.5px 401px; }
+/* on a phone the whole sign and its chain swing as one piece */
 .shop-sign svg { --base: translateX(-50%); transform-origin: 50% 3%; animation: ppIdle 3.2s ease-in-out infinite alternate; }
-.shop-post .pp-sign.swing, .shop-sign svg.swing { --sw: 1.6deg; animation: ppSwing 1.6s ease-out; }
-.shop-post .pp-sign.swing.hard, .shop-sign svg.swing.hard { --sw: 7deg; animation-duration: 2.4s; }
+.shop-post .pp-sign.swing, .shop-post .pp-ch.swing, .shop-sign svg.swing { --sw: 1.6deg; }
+.shop-post .pp-sign.swing { animation: ppSwingS 1.6s ease-out; }
+.shop-post .pp-ch.swing { animation: ppSwingC 1.6s ease-out; }
+.shop-sign svg.swing { animation: ppSwing 1.6s ease-out; }
+.shop-post .pp-sign.swing.hard, .shop-post .pp-ch.swing.hard, .shop-sign svg.swing.hard { --sw: 7deg; animation-duration: 2.4s; }
+.shop-post .pp-sign.swing.poke, .shop-post .pp-ch.swing.poke, .shop-sign svg.swing.poke { --sw: 3.6deg; animation-duration: 1.8s; }
 @keyframes ppIdle { from { transform: var(--base) rotate(-0.9deg); } to { transform: var(--base) rotate(0.9deg); } }
 @keyframes ppSwing {
   0% { transform: var(--base) rotate(0deg); }
@@ -4715,6 +4726,28 @@ body.ww-wishes-open .ww { visibility: hidden; }
   78% { transform: var(--base) rotate(calc(var(--sw) * -0.2)); }
   100% { transform: var(--base) rotate(0deg); }
 }
+/* the chains turn by the angle; the sign's hanging ends move by (length x sine) sideways and (length x (1 - cosine)) up */
+@keyframes ppIdleC { from { transform: rotate(calc(var(--sw) * -1)); } to { transform: rotate(var(--sw)); } }
+@keyframes ppIdleS {
+  from { transform: translate(calc(var(--L) * sin(var(--sw))), calc(90.35px + var(--L) * (1 - cos(var(--sw))))); }
+  to { transform: translate(calc(var(--L) * sin(var(--sw)) * -1), calc(90.35px + var(--L) * (1 - cos(var(--sw))))); }
+}
+@keyframes ppSwingC {
+  0% { transform: rotate(0deg); }
+  16% { transform: rotate(var(--sw)); }
+  38% { transform: rotate(calc(var(--sw) * -0.7)); }
+  58% { transform: rotate(calc(var(--sw) * 0.42)); }
+  78% { transform: rotate(calc(var(--sw) * -0.2)); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes ppSwingS {
+  0% { transform: translate(0, 90.35px); }
+  16% { transform: translate(calc(var(--L) * sin(var(--sw)) * -1), calc(90.35px + var(--L) * (1 - cos(var(--sw))))); }
+  38% { transform: translate(calc(var(--L) * sin(calc(var(--sw) * -0.7)) * -1), calc(90.35px + var(--L) * (1 - cos(calc(var(--sw) * -0.7))))); }
+  58% { transform: translate(calc(var(--L) * sin(calc(var(--sw) * 0.42)) * -1), calc(90.35px + var(--L) * (1 - cos(calc(var(--sw) * 0.42))))); }
+  78% { transform: translate(calc(var(--L) * sin(calc(var(--sw) * -0.2)) * -1), calc(90.35px + var(--L) * (1 - cos(calc(var(--sw) * -0.2))))); }
+  100% { transform: translate(0, 90.35px); }
+}
 .shop-tent .tw > path, .shop-tent .tk > path { transform-box: fill-box; transform-origin: 50% 0; }
 .shop-tent .tw > path:nth-child(1) { --k: 9; } .shop-tent .tw > path:nth-child(2) { --k: 7; } .shop-tent .tw > path:nth-child(3) { --k: 5; }
 .shop-tent .tw > path:nth-child(4) { --k: 3; } .shop-tent .tw > path:nth-child(5) { --k: 1; }
@@ -4723,7 +4756,7 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .shop-tent .tw > path, .shop-tent .tk > path { animation: tentSway 4s ease-in-out infinite alternate; animation-delay: calc(var(--k) * -140ms); }
 @keyframes tentSway { from { transform: translateX(-1.6%) skewX(-6deg); } to { transform: translateX(1.6%) skewX(6deg); } }
 @media (prefers-reduced-motion: reduce) {
-  .shop-post .pp-sign, .shop-sign svg, .shop-tent .tw > path, .shop-tent .tk > path { animation: none !important; }
+  .shop-post .pp-sign, .shop-post .pp-ch, .shop-sign svg, .shop-tent .tw > path, .shop-tent .tk > path { animation: none !important; }
 }
 
 /* ---------- the little "did you play before?" box (transfer.js) ---------- */
@@ -4748,3 +4781,23 @@ body.ww-wishes-open .ww { visibility: hidden; }
 
 /* the community board's title (Shrikhand, like the other headings) */
 .cm-title { margin: 0 0 0.75rem; font-size: clamp(1.7rem, 6vw, 2.4rem); line-height: 1.15; text-align: center; }
+
+/* on a phone the sign's picture ignores taps (it's fixed over the page), but its drawn parts can be tapped to make it wiggle (shop.js) */
+.shop-sign svg path, .shop-sign svg rect, .shop-sign svg circle, .shop-sign svg text { pointer-events: auto; }
+/* the sign and its chains can be tapped, so the mouse turns into the pointing hand over them */
+.shop-post .pp-sign, .shop-post .pp-ch, .shop-sign svg path, .shop-sign svg rect, .shop-sign svg circle, .shop-sign svg text { cursor: pointer; }
+
+/* the community board's heading: the title and the line under it, with remy standing to the right (remybody.js draws him), all centred together */
+.cm-head { display: flex; align-items: center; justify-content: center; gap: clamp(0.6rem, 3vw, 2rem); margin-bottom: 1.5rem; }
+.cm-head-text { min-width: 0; flex: 0 1 auto; }
+.cm-head .cm-title { text-wrap: balance; }
+.cm-head .cm-intro { margin-bottom: 1rem; }
+.cm-head .cm-top { flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.25rem; margin-bottom: 0; }
+.cm-remy { transform: translateY(-10%); flex: none; height: clamp(7rem, 28vw, 12.5rem); aspect-ratio: 670 / 805; }
+.cm-remy .remy-body { display: block; width: 100%; height: 100%; fill: var(--text); overflow: visible; }
+.cm-remy .remy-body * { vector-effect: non-scaling-stroke; }
+.cm-remy .remy-body path:not(.hk-1):not(.hk-2):not(.hk-3):not(.hk-6), .cm-remy .remy-body circle:not(.hk-1) { stroke: var(--text); stroke-width: 0.4px; stroke-linejoin: round; }
+.cm-remy .remy-body .hk-1 { fill: var(--bg); stroke: var(--text); stroke-width: 1.2px; stroke-linejoin: round; stroke-linecap: round; }
+.cm-remy .remy-body .hk-2 { fill: var(--bg); }
+.cm-remy .remy-body .hk-3 { fill: none; stroke: var(--text); stroke-width: 1.2px; stroke-linecap: round; }
+.cm-remy .remy-body .hk-6 { fill: var(--text); stroke: var(--text); stroke-width: 1.2px; stroke-linejoin: round; }

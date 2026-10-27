@@ -197,14 +197,20 @@
   }
 
   // ----- the shop signs and awnings: the sign swings (harder when you buy something) and the awning's scalloped edge flutters -----
-  function swing(page, hard) {
+  function swing(page, hard, poke) {
     if (!page || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
-    page.querySelectorAll(".pp-sign, .shop-sign svg").forEach((el) => {
-      el.classList.remove("swing", "hard"); void el.getBoundingClientRect();
-      el.classList.add("swing"); if (hard) el.classList.add("hard");
-      el.addEventListener("animationend", () => el.classList.remove("swing", "hard"), { once: true });
+    page.querySelectorAll(".pp-sign, .pp-ch, .shop-sign svg").forEach((el) => {
+      el.classList.remove("swing", "hard", "poke"); void el.getBoundingClientRect();
+      el.classList.add("swing"); if (hard) el.classList.add("hard"); if (poke) el.classList.add("poke");
+      el.addEventListener("animationend", () => el.classList.remove("swing", "hard", "poke"), { once: true });
     });
   }
+
+  // tapping a shop sign (or its chains) makes it wiggle a little
+  document.addEventListener("click", (e) => {
+    if (!(e.target.closest && e.target.closest(".pp-sign, .pp-ch, .shop-sign svg"))) return;
+    swing(e.target.closest(".page"), false, true);
+  });
 
   // a "shelf" is one shop's grid of cards. It shows 9 at a time (3 x 3), or 6 on a phone, with arrows to the other pages.
   // list() says what's on it right now. The prize shop and the rare items shop each have one.
