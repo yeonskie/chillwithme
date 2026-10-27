@@ -4809,3 +4809,7 @@ body.ww-wishes-open .ww { visibility: hidden; }
   .cm-head { flex-direction: row; gap: clamp(0.6rem, 3vw, 2rem); }
   .cm-remy { transform: translateY(-10%); height: clamp(7rem, 20vw, 9.5rem); }
 }
+
+/* the small x that closes the little music player */
+.mini .mini-x { flex: 0 0 auto; width: 1.3rem; height: 1.3rem; display: grid; place-items: center; margin-left: 0.2rem; font-size: 0.65rem; line-height: 1; border: 1px solid var(--text); border-radius: var(--radius); }
+.mini .mini-x:hover { text-decoration: none; background: var(--text); color: var(--bg); }

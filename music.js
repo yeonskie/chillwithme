@@ -233,7 +233,8 @@ function glide() {
 function startGlide() { if (!glideId) glideId = requestAnimationFrame(glide); }
 document.addEventListener("visibilitychange", () => { if (!document.hidden) startGlide(); });
 
-audio.addEventListener("play", () => { syncUI(); startGlide(); });
+let miniClosed = false;   // true after the x on the small player is pressed
+audio.addEventListener("play", () => { miniClosed = false; syncUI(); startGlide(); });
 audio.addEventListener("pause", syncUI);
 audio.addEventListener("ended", () => nextSong(true));
 audio.addEventListener("loadedmetadata", () => { el.dur.textContent = fmt(audio.duration); });
@@ -291,6 +292,9 @@ if ("mediaSession" in navigator) {
   });
 }
 
+// the little x on the small player: stops the music and tucks the player away until a song is played again
+$("mini-x").addEventListener("click", () => { audio.pause(); miniClosed = true; syncUI(); });
+
 // keeps the buttons, the highlighted row and the small player in step with what's happening
 function syncUI() {
   const playing = !audio.paused && !audio.ended && !!current();
@@ -300,7 +304,7 @@ function syncUI() {
   const music = document.querySelector(".music");
   if (music) music.classList.toggle("is-playing", playing);
   markLong();
-  el.mini.hidden = !song || location.hash === "#music";
+  el.mini.hidden = !song || miniClosed || location.hash === "#music";
   el.miniTitle.textContent = song ? song.title : "";
   el.list.querySelectorAll("li[data-src]").forEach((li) => {
     const isNow = !!song && li.dataset.src === song.src;
