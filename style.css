@@ -163,7 +163,7 @@ main {
 /* ---------- Menu that opens in the middle of the screen ---------- */
 .bar-bottom {
   position: relative;
-  z-index: 10;               /* keeps the open menu above the page content */
+  z-index: 60;               /* keeps the open menu above the page content, and above an open post/pop-up (the middle of the page is lifted to 31 while one is open) */
 }
 
 .cell-menu { position: relative; }
