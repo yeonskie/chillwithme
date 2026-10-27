@@ -4745,3 +4745,6 @@ body.ww-wishes-open .ww { visibility: hidden; }
 
 .ww-bigx { top: 0; right: 0; width: 1.8rem; height: 1.8rem; z-index: 3; opacity: 1; font-size: 1rem; line-height: 1; border: 1px solid var(--text); border-radius: var(--radius); background: var(--bg); display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent; }
 .ww-bigcoin.ww-flipping > .ww-bigface, .ww-bigcoin[data-face="hyrax"].ww-flipping > .ww-bigface { display: none; }
+
+/* the community board's title (Shrikhand, like the other headings) */
+.cm-title { margin: 0 0 0.75rem; font-size: clamp(1.7rem, 6vw, 2.4rem); line-height: 1.15; text-align: center; }
