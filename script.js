@@ -1117,6 +1117,7 @@ async function pictureFromFile(file, forSite) {
 
 // adds several uploaded pictures in one go (the caption, if there is one, goes on every box).
 // they end up in the order they were picked; a picture that fails is skipped and the rest still go in
+// (each entry is either a File from the device or a picture address typed in; addresses go first, then the files)
 async function addManyPictures(files, alt) {
   addGo.disabled = true;
   let done = 0, failed = 0;
@@ -1125,7 +1126,7 @@ async function addManyPictures(files, alt) {
   for (let i = 0; i < list.length; i++) {
     addMsg.textContent = "adding picture " + (done + failed + 1) + " of " + list.length + "...";
     try {
-      const src = await pictureFromFile(list[i], addForSite);
+      const src = typeof list[i] === "string" ? list[i] : await pictureFromFile(list[i], addForSite);
       const raw = { type: "image", src, alt };
       if (addForSite) {
         const test = normalizeItem(raw);
@@ -1155,8 +1156,10 @@ addForm.addEventListener("submit", async (e) => {
     const files = [...document.getElementById("mb-add-file").files];
     const file = files[0];
     if (!src && !file) { addMsg.textContent = "paste a picture address or choose a file first"; return; }
-    if (files.length > 1) {                        // several pictures at once: each one becomes its own box
-      await addManyPictures(files, document.getElementById("mb-add-alt").value.trim());
+    // several addresses (one per line, or separated by spaces or commas) and/or several files: each one becomes its own box
+    const addresses = src.split(/[\s,]+/).filter(Boolean);
+    if (addresses.length > 1 || files.length > 1 || (addresses.length && files.length)) {
+      await addManyPictures([...addresses, ...files], document.getElementById("mb-add-alt").value.trim());
       return;
     }
     if (file) {                                    // an uploaded file wins over an address
