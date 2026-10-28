@@ -4840,3 +4840,11 @@ body.ww-wishes-open .ww { visibility: hidden; }
 }
 @media (max-width: 700px) and (max-height: 50rem) { .ww-grid { max-width: calc(3 * var(--gs) + 2 * 1rem + 0.2rem); } }
 @media (max-width: 700px) and (max-height: 38rem) { .ww-grid { max-width: calc(3 * var(--gs) + 2 * 0.85rem + 0.2rem); } }
+
+/* leaderboard popup: shorter, the list scrolls inside instead of the box growing tall */
+#lb-pop .lb-card { padding-top: 2rem; }
+#lb-pop .cz-lb-title { margin-bottom: 0.3rem !important; }
+#lb-pop .cz-lb-list { max-height: min(21rem, 50vh); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-right: 0.3rem; }
+#lb-pop .cz-lb-list li { padding: 2px 0; }
+#lb-pop .cz-lb-me { margin-top: 0.3rem !important; }
+#lb-pop .cz-lb-link { margin-top: 0.4rem; }

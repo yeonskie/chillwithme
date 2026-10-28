@@ -496,7 +496,7 @@
     const g = (s) => $(p + "-" + s);
     return { list: g("list"), me: g("me"), note: g("note"), name: g("name"), form: g("form"), remove: g("remove"), edit: g("edit"), save: g("save"), cancel: g("cancel"), rows: rows, unit: unit || "" };
   }
-  const VIEWS = [lbView("cz-lb", 100), lbView("lb2", 100, " yeonbucks")].filter((v) => v.list);     // (both show everyone the board sends back: up to 100)
+  const VIEWS = [lbView("cz-lb", 100), lbView("lb2", 100, " yeonbucks")].filter((v) => v.list);     // (both show everyone the board sends back: up to 100; the popup list scrolls inside after about 15 rows)
   const lbList = VIEWS[0].list;
   let lastSent = null, lastSentAt = 0, sending = false, joined = false;
 
