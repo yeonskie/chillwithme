@@ -499,10 +499,37 @@ const SHOP_CATS = [
   function drawInv() {
     if (!invBody) return;
     invBody.innerHTML = "";
-    invBody.appendChild(group("cursor trail (desktop only)", "cursor", "no trail"));
-    invBody.appendChild(group("mouse pointer (desktop only)", "pointer", "default"));
+    // the order top to bottom: secret door, boosts, background, color tint, tap effect, pets, pet accessory, desktop only items, found items
+    if (owns("key") && window.SR_DOOR) {                      // the secret door in the corner and the prize shop: shown or hidden
+      const dw = document.createElement("div");
+      dw.className = "inv-group";
+      const dh = document.createElement("h3");
+      dh.textContent = "secret door";
+      dw.appendChild(dh);
+      const dr = document.createElement("div");
+      dr.className = "inv-opts";
+      const b = document.createElement("button");              // one button: it says what tapping it will do
+      b.type = "button";
+      b.className = "inv-opt";
+      b.textContent = window.SR_DOOR.isHidden() ? "show the door" : "hide the door";
+      b.addEventListener("click", () => { window.SR_DOOR.setHidden(!window.SR_DOOR.isHidden()); drawInv(); });
+      dr.appendChild(b);
+      dw.appendChild(dr);
+      invBody.appendChild(dw);
+    }
+    const perks = ITEMS.filter((i) => i.kind === "perk" && owns(i.id));
+    const bw = document.createElement("div");
+    bw.className = "inv-group";
+    const bh = document.createElement("h3");
+    bh.textContent = "boosts (always on)";
+    bw.appendChild(bh);
+    const bp = document.createElement("p");
+    bp.className = perks.length ? "inv-perks" : "inv-empty";
+    bp.textContent = perks.length ? perks.map((i) => i.name).join(", ") : "nothing yet.";
+    bw.appendChild(bp);
+    invBody.appendChild(bw);
     invBody.appendChild(group("background", "bg", "plain"));
-    invBody.appendChild(group("color accent", "accent", "none"));
+    invBody.appendChild(group("color tint", "accent", "none"));
     invBody.appendChild(group("tap effect", "tap", "none"));
     const pets = group("pet", "pet", "no pet");
     const kind = eq.pet;                                     // the name box is for the pet that's out
@@ -526,34 +553,8 @@ const SHOP_CATS = [
     }
     invBody.appendChild(pets);
     invBody.appendChild(group("pet accessory", "acc", "none"));
-    if (owns("key") && window.SR_DOOR) {                      // the secret door in the corner and the prize shop: shown or hidden
-      const dw = document.createElement("div");
-      dw.className = "inv-group";
-      const dh = document.createElement("h3");
-      dh.textContent = "secret door";
-      dw.appendChild(dh);
-      const dr = document.createElement("div");
-      dr.className = "inv-opts";
-      const b = document.createElement("button");              // one button: it says what tapping it will do
-      b.type = "button";
-      b.className = "inv-opt";
-      b.textContent = window.SR_DOOR.isHidden() ? "show the door" : "hide the door";
-      b.addEventListener("click", () => { window.SR_DOOR.setHidden(!window.SR_DOOR.isHidden()); drawInv(); });
-      dr.appendChild(b);
-      dw.appendChild(dr);
-      invBody.appendChild(dw);
-    }
-    const perks = ITEMS.filter((i) => i.kind === "perk" && owns(i.id));
-    const wrap = document.createElement("div");
-    wrap.className = "inv-group";
-    const h = document.createElement("h3");
-    h.textContent = "boosts (always on)";
-    wrap.appendChild(h);
-    const p = document.createElement("p");
-    p.className = perks.length ? "inv-perks" : "inv-empty";
-    p.textContent = perks.length ? perks.map((i) => i.name).join(", ") : "nothing yet.";
-    wrap.appendChild(p);
-    invBody.appendChild(wrap);
+    invBody.appendChild(group("cursor trail (desktop only)", "cursor", "no trail"));
+    invBody.appendChild(group("mouse pointer (desktop only)", "pointer", "default"));
     const found = window.YBItems ? window.YBItems.summary() : [];          // timed boosts and 1-use items from the lost and found (lostfound.js)
     if (found.length) {
       const fw = document.createElement("div");

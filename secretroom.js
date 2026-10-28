@@ -201,7 +201,7 @@
   const spinItems = () => (window.YBItems ? window.YBItems.count("spin") : 0);     // free spin items from the lost and found
   function rainbowLabel() {                                    // once you own the rainbow sparkle tap, that slice says "random pet accessory" (it gives you one instead)
     const t = $("sw-rainbow");
-    if (!t) return;
+    if (!t || spinning) return;   // (not while the wheel is turning: the slice keeps its name until it has landed, so the tap can be won; it changes right after)
     const have = !!(window.YBShop && window.YBShop.owns("tap-rainbow"));
     if (t.dataset.have === String(have)) return;
     t.dataset.have = String(have);
