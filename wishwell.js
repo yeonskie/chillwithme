@@ -123,19 +123,20 @@ const WWDB = (function () {
 
   function close(instant) {
     clearTimers();
-    ww.classList.remove("is-open");
     if (instant) {
+      ww.classList.remove("is-open");
       setFace("front");
       coin.dataset.st = "rest";
       busy = false;
       return;
     }
-    if (busy && coin.dataset.st !== "open") return;
+    if (busy && coin.dataset.st !== "open") { ww.classList.remove("is-open"); return; }
     busy = true;
     wish.blur();
+    // the page stays faded while the coin turns back around and travels home; it only comes back once the coin is in its place
     flip("front").then(() => {
       coin.dataset.st = "rest";
-      later(() => { busy = false; }, reduce ? 0 : 600);
+      later(() => { ww.classList.remove("is-open"); busy = false; }, reduce ? 0 : 600);
     });
   }
 
