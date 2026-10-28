@@ -7,6 +7,7 @@
 //   desc   - the little line under the name
 //   price  - cost in yeonbucks
 //   wheel  - (optional) true = not sold in the shop, it's a prize from the secret room wheel
+//   skipIf - (optional) an item id: if you own that one, this one can't be bought any more (it would do nothing, so it just shows as owned)
 //   until  - (optional) "2026-10-31" = only sold up to and including that day, then it leaves the shop (people who bought it keep it)
 //   lost   - (optional) true = not sold anywhere, it is a find in the secret room's lost and found (see lostfound.js)
 //   daily  - (optional) true = not sold anywhere, it is a gift in the daily reward (see the DAILY list in daily.js)
@@ -76,7 +77,7 @@
     { id: "acc-blue",     group: "accents",      name: "blue",           desc: "a cool blue tint over the site",      price: 2500,  kind: "accent", value: "blue" },
     { id: "acc-green",    group: "accents",      name: "ncity in the house", desc: "a fresh green tint over the site", price: 2500,  kind: "accent", value: "green" },
     { id: "acc-lavender", group: "accents",      name: "lavender",       desc: "a dreamy purple tint over the site",  price: 2500,  kind: "accent", value: "lavender" },
-    { id: "boost",      group: "boosts",       name: "earn boost",      desc: "+75 every 30 seconds instead of +50", price: 10000, kind: "perk", tag: "+75" },
+    { id: "boost",      group: "boosts",       name: "earn boost",      desc: "+75 every 30 seconds instead of +50", price: 10000, kind: "perk", tag: "+75", skipIf: "boost2" },
     { id: "boost2",     group: "boosts",       name: "super earn boost", desc: "+100 every 30 seconds instead of +50", price: 35000, kind: "perk", tag: "+100" },
     { id: "charm",      group: "boosts",       name: "lucky charm",     desc: "+5% chance of the casino jackpot",    price: 20000, kind: "perk", tag: "+5%" },
     { id: "charm2",     group: "boosts",       name: "jackpot boost",   desc: "+3% chance of the casino jackpot, on top of the lucky charm", price: 50000, kind: "perk", tag: "+3%" },
@@ -174,6 +175,7 @@
 
   function label(item) {
     if (item.kind === "soon") return { text: "coming soon", disabled: true };
+    if (!owns(item.id) && item.skipIf && owns(item.skipIf)) return { text: "owned", disabled: true };   // (e.g. the earn boost, once you have the super one: it already does more)
     if (!owns(item.id)) return { text: "buy", disabled: have() < item.price };
     if (item.kind === "perk") return { text: "owned", disabled: true };
     if (item.value === "rat" && isOn(item)) return { text: "play time", disabled: false };   // the rat opens her panel instead of "turn off" (turn her off in the inventory)
@@ -301,9 +303,9 @@
         const b = card.querySelector(".shop-buy");
         b.textContent = l.text;
         b.disabled = l.disabled;
-        card.classList.toggle("is-owned", owns(item.id));
+        card.classList.toggle("is-owned", owns(item.id) || !!(item.skipIf && owns(item.skipIf)));
         card.classList.toggle("is-on", isOn(item));
-        card.classList.toggle("is-short", !owns(item.id) && item.kind !== "soon" && have() < item.price);
+        card.classList.toggle("is-short", !owns(item.id) && item.kind !== "soon" && !(item.skipIf && owns(item.skipIf)) && have() < item.price);
       });
     }
     return { build: build, update: update };
@@ -409,6 +411,7 @@ const SHOP_CATS = [
 
   function act(item) {
     if (item.kind === "soon") return;
+    if (!owns(item.id) && item.skipIf && owns(item.skipIf)) { update(); return; }
     if (!owns(item.id)) {
       if (!window.YB || !window.YB.spend(item.price)) { say("not enough yeonbucks yet!"); update(); return; }
       own.push(item.id);
