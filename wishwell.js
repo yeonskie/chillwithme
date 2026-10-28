@@ -136,7 +136,7 @@ const WWDB = (function () {
     // the page stays faded while the coin turns back around and travels home; it only comes back once the coin is in its place
     flip("front").then(() => {
       coin.dataset.st = "rest";
-      later(() => { ww.classList.remove("is-open"); busy = false; }, reduce ? 0 : 600);
+      later(() => { ww.classList.remove("is-open"); busy = false; }, reduce ? 0 : 250);
     });
   }
 
