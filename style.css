@@ -4575,6 +4575,9 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .ww-wmsg[hidden] { display: none; }
 .ww-grid { width: 100%; max-width: 46rem; margin: 0; padding: 1.4rem 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.9rem; }
 .ww-pager { flex: 0 0 auto; margin-top: 0.2rem; }
+/* the next / back buttons stay just above the yeonbucks box in the bottom left (they used to scroll underneath it on some screens) */
+.ww-pager { position: sticky; bottom: -3.6rem; z-index: 2; align-self: center; padding: 0.3rem 0.6rem; background: var(--bg); border-radius: var(--radius); }
+@media (max-width: 30rem) { .ww-pager { bottom: -1.4rem; } }   /* (the page keeps 6.6rem free at its bottom, so these are measured from there) */
 .ww-pager[hidden] { display: none; }
 @keyframes ww-fade { from { opacity: 0; } to { opacity: 1; } }
 
