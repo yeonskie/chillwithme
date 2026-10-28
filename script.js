@@ -980,9 +980,6 @@ function openAdd(forSite) {
   setAddKind("image");
   addColors = ["#e8b4c8"];
   drawSwatches();
-  document.getElementById("mb-add-filehint").textContent = addForSite
-    ? "uploaded pictures are saved online, so everyone can see them."
-    : "uploaded pictures stay in your browser. no one else can see.";
   document.getElementById("mb-add-title").textContent = addForSite ? "add for everyone" : "add more";
   document.getElementById("mb-add-sub").textContent = addForSite
     ? "goes onto " + boardTitle(currentBoard) + " for everyone to see"
