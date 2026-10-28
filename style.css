@@ -2562,7 +2562,7 @@ html[data-bg="rain"] body, .shop-prev[data-p="rain"] {
 .inv-close:hover, .inv-close:focus-visible { opacity: 0.6; outline: none; }
 .inv-title { font-size: 1.1rem; margin: 0 0 0.6rem; }
 .inv-group { margin-top: 0.8rem; }
-.inv-group h3 { font-size: 0.7rem; font-weight: 400; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7; margin: 0 0 0.35rem; }
+.inv-group h3 { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7; margin: 0 0 0.35rem; }
 .inv-opts { display: flex; flex-wrap: wrap; gap: 0.4rem; }
 .inv-opt { font: inherit; font-size: 0.78rem; color: inherit; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); padding: 0.25rem 0.65rem; cursor: pointer; }
 .inv-opt:hover, .inv-opt:focus-visible { background: var(--text); color: var(--bg); outline: none; }
@@ -4575,9 +4575,6 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .ww-wmsg[hidden] { display: none; }
 .ww-grid { width: 100%; max-width: 46rem; margin: 0; padding: 1.4rem 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.9rem; }
 .ww-pager { flex: 0 0 auto; margin-top: 0.2rem; }
-/* the next / back buttons stay just above the yeonbucks box in the bottom left (they used to scroll underneath it on some screens) */
-.ww-pager { position: sticky; bottom: -3.6rem; z-index: 2; align-self: center; padding: 0.3rem 0.6rem; background: var(--bg); border-radius: var(--radius); }
-@media (max-width: 30rem) { .ww-pager { bottom: -1.4rem; } }   /* (the page keeps 6.6rem free at its bottom, so these are measured from there) */
 .ww-pager[hidden] { display: none; }
 @keyframes ww-fade { from { opacity: 0; } to { opacity: 1; } }
 
@@ -4826,3 +4823,20 @@ body.ww-wishes-open .ww { visibility: hidden; }
 #inv .inv-panel { display: flex; flex-direction: column; overflow: hidden; max-height: min(30rem, 78vh); }
 #inv .inv-title { flex: 0 0 auto; }
 #inv #inv-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-right: 0.4rem; margin-right: -0.4rem; }
+
+/* wishes page on short screens (phones): coins sit closer together and a bit smaller so more of them show, and the list always scrolls with a finger.
+   --gs is the coin size here; on a phone the grid is only as wide as 3 coins, so it's always rows of three */
+.ww-wishes { touch-action: pan-y; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+@media (max-height: 50rem) {
+  .ww-wishes { padding-top: 0.1rem; }
+  .ww-wh { gap: 0.3rem; }
+  .ww-grid { --gs: clamp(3.8rem, min(25vw, 15.5vh), 6.4rem); padding: 0.7rem 0; gap: 0.45rem 1rem; }
+  .ww-mini { --s: var(--gs); }
+  .ww-wt { font-size: clamp(1.15rem, 4.4vw, 1.6rem); }
+  #ww-wclose { font-size: 0.72rem; padding: 0.2rem 0.65rem; min-height: 0; }
+}
+@media (max-height: 38rem) {
+  .ww-grid { --gs: clamp(3.4rem, min(23vw, 14vh), 5.2rem); padding: 0.4rem 0; gap: 0.3rem 0.85rem; }
+}
+@media (max-width: 700px) and (max-height: 50rem) { .ww-grid { max-width: calc(3 * var(--gs) + 2 * 1rem + 0.2rem); } }
+@media (max-width: 700px) and (max-height: 38rem) { .ww-grid { max-width: calc(3 * var(--gs) + 2 * 0.85rem + 0.2rem); } }
