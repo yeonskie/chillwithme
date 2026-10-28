@@ -546,7 +546,9 @@
         const li = document.createElement("li");
         if (p.me) li.className = "cz-lb-you";
         const rank = document.createElement("span"); rank.className = "cz-lb-rank"; rank.textContent = i + 1;
-        const nm = document.createElement("span"); nm.className = "cz-lb-name"; nm.textContent = p.name;
+        const nm = document.createElement("span"); nm.className = "cz-lb-name";
+        const nt = document.createElement("span"); nt.className = "cz-lb-nt"; nt.textContent = p.name; nm.appendChild(nt);
+        if (i < 3) { const md = document.createElement("span"); md.className = "cz-lb-medal"; md.textContent = ["\u{1F947}", "\u{1F948}", "\u{1F949}"][i]; nm.appendChild(md); }     // gold, silver, bronze right after the name
         const bl = document.createElement("span"); bl.className = "cz-lb-bal"; bl.textContent = Number(p.balance).toLocaleString("en-US");
         if (v.unit) { const u = document.createElement("span"); u.className = "cz-lb-unit"; u.textContent = v.unit; bl.appendChild(u); }
         li.append(rank, nm, bl);

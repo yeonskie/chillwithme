@@ -4848,3 +4848,8 @@ body.ww-wishes-open .ww { visibility: hidden; }
 #lb-pop .cz-lb-list li { padding: 2px 0; }
 #lb-pop .cz-lb-me { margin-top: 0.3rem !important; }
 #lb-pop .cz-lb-link { margin-top: 0.4rem; }
+
+/* top 3 medals sit right after the name (the name text still shortens with ... if it's long) */
+.cz-lb-name { display: flex; align-items: baseline; gap: 0.3em; }
+.cz-lb-nt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cz-lb-medal { flex: none; }
