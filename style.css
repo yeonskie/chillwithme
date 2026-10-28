@@ -4816,3 +4816,8 @@ body.ww-wishes-open .ww { visibility: hidden; }
 /* the small x that closes the little music player */
 .mini .mini-x { flex: 0 0 auto; width: 1.3rem; height: 1.3rem; display: grid; place-items: center; margin-left: 0.2rem; font-size: 0.65rem; line-height: 1; border: 1px solid var(--text); border-radius: var(--radius); }
 .mini .mini-x:hover { text-decoration: none; background: var(--text); color: var(--bg); }
+
+/* a small note under a category's name (e.g. under "pets" in the prize shop) */
+.shop-cat.has-note { margin-bottom: 0.4rem; }
+.shop-cat-note { margin: 0 0 1.1rem; text-align: center; font-size: 0.72rem; line-height: 1.5; opacity: 0.7; }
+@media (min-width: 61rem) { :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-cat-note { font-size: max(0.62rem, calc(11px / var(--shop-s, 1))); } }

@@ -253,6 +253,14 @@
         cat.className = "shop-cat";
         cat.textContent = shelf[page].title;
         box.appendChild(cat);
+        const catNote = CAT_NOTES[shelf[page].title];   // a small line or two under a category's name (see CAT_NOTES)
+        if (catNote) {
+          cat.classList.add("has-note");
+          const n = document.createElement("p");
+          n.className = "shop-cat-note";
+          catNote.forEach((line, i) => { if (i) n.appendChild(document.createElement("br")); n.appendChild(document.createTextNode(line)); });
+          box.appendChild(n);
+        }
       }
       const grid = document.createElement("div");   // everything in one set of rows
       grid.className = "shop-grid";
@@ -310,6 +318,10 @@
     }
     return { build: build, update: update };
   }
+  // a small note under a category's name in the prize shop (each line is its own line)
+  const CAT_NOTES = {
+    pets: ["**all pets will be redesigned over time", "credits page for current svgs at bottom right"],
+  };
   // the prize shop's categories, in the order they show. an item goes in the first one it fits.
 // (the color tints are under backgrounds too, on their own page. the secret room key is the secret door.)
 const SHOP_CATS = [
