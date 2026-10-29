@@ -4861,5 +4861,5 @@ body.ww-wishes-open .ww { visibility: hidden; }
 /* updates pop-up: the "what's new" line sits on the left like the list under it */
 #updates-pop .credits-note { text-align: left; }
 
-/* casino leaderboard: about 25 rows tall, then the list scrolls inside the box */
-#cz-lb-list { max-height: min(515px, 60vh); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-right: 0.25rem; }
+/* casino leaderboard: about 20 rows tall, then the list scrolls inside the box */
+#cz-lb-list { max-height: min(412px, 60vh); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-right: 0.25rem; }
