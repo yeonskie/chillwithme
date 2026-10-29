@@ -257,7 +257,7 @@
     window.YBShop.give("pet-" + k, true);
     setPending(pending() - 1);
     wRes.textContent = "";
-    if (!showPick()) { wRes.textContent = k + " came home with you! find them in your inventory (they're out now if no pet was)"; wDraw(); }
+    if (!showPick()) { wRes.textContent = k + " came home with you! find them in your inventory"; wDraw(); }
   });
   function showResult(msg, sub) {                                             // the message (bold), and optionally a plain line under it
     wRes.textContent = "";
