@@ -4938,3 +4938,7 @@ body.pond-dimmed .thoughts-toolbar, body.pond-dimmed .yb-box, body.pond-dimmed .
 @media (max-width: 40rem) {
   .thoughts-canvas.pond .thoughts-toolbar { margin-top: -0.7rem; margin-bottom: 0.45rem; }   /* the three buttons ride a little higher, closer to the description */
 }
+.pond-br { display: none; }
+@media (max-width: 40rem) { .pond-br { display: inline; } .pond-hint { text-align: center; } }
+@media (max-width: 40rem) { .thoughts-canvas.pond { padding-bottom: 5.2rem; } }   /* nudges the whole stack up a touch while keeping it centered */
+@media (max-width: 40rem) { .thoughts-canvas.pond { padding-top: 1.7rem; padding-bottom: 5.4rem; } }   /* the whole group sits a touch higher */

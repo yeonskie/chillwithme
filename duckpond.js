@@ -48,7 +48,7 @@
     const rings = svg.querySelector(".pd-rings"), layer = svg.querySelector(".pd-ducks");
     const hint = document.createElement("p");
     hint.className = "pond-hint";
-    hint.textContent = "the ducks hold my thoughts. look around to find them.";
+    hint.append("the ducks hold my thoughts.", Object.assign(document.createElement("br"), { className: "pond-br" }), " look around to find them.");   // the line break only shows on phones
     hint.hidden = !E;
     const title = document.createElement("h1"); title.className = "pond-title"; title.textContent = "the duck pond";
     container.append(title, hint); if (tools) container.appendChild(tools); container.appendChild(svg);
