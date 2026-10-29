@@ -122,7 +122,16 @@ function shuffleArray(list) {
 }
 
 function buildEntries() {
+  const tools = document.querySelector(".thoughts-toolbar");     // the shuffle / pick buttons can live inside the canvas (duck pond), so don't wipe them
+  if (tools && canvas.contains(tools)) document.body.appendChild(tools);
   canvas.innerHTML = "";
+  // the duck pond (duckpond.js) shows the entries as ducks; the old grid below is only used if that file is missing
+  if (window.DuckPond) {
+    canvas.classList.add("pond");
+    entryEls = [];
+    DuckPond.build(canvas, entries, openFeatured);
+    return;
+  }
   entryEls = entries.map((entry, i) => {
     const el = document.createElement("button");
     el.type = "button";
@@ -202,8 +211,9 @@ function pickOne() {
   openFeatured(i);
 }
 
-// shuffle just mixes up the order of the boxes
+// shuffle mixes up the order of the boxes (or, in the duck pond, which ducks have the thoughts)
 document.getElementById("btn-shuffle").addEventListener("click", () => {
+  if (window.DuckPond) { DuckPond.shuffle(); return; }
   shuffleArray([...entryEls]).forEach((el) => canvas.appendChild(el));
   thoughtsScroll.scrollTop = 0;
 });
@@ -2049,3 +2059,29 @@ themeBtn.addEventListener("click", () => {
 let saved = "light";
 try { saved = localStorage.getItem("theme") || "light"; } catch (e) {}
 setTheme(saved);
+
+// ----- "check out all posts": a menu of every entry -----
+(function () {
+  const ov = document.getElementById("posts-pop"), openBtn = document.getElementById("btn-allposts");
+  const closeBtn = document.getElementById("posts-close"), list = document.getElementById("posts-list"), note = document.getElementById("posts-note");
+  if (!ov || !openBtn || !closeBtn || !list) return;
+  function fill() {
+    list.innerHTML = "";
+    note.textContent = entries.length ? entries.length + (entries.length === 1 ? " post so far" : " posts so far") : "no posts yet";
+    entries.forEach((en, i) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "posts-row";
+      const d = document.createElement("span"); d.className = "posts-date"; d.textContent = en.date || "";
+      const t = document.createElement("span"); t.className = "posts-title"; t.textContent = en.title || "untitled";
+      b.append(d, t);
+      b.addEventListener("click", () => { ov.hidden = true; openFeatured(i); });
+      list.appendChild(b);
+    });
+  }
+  function open() { fill(); ov.hidden = false; list.scrollTop = 0; closeBtn.focus(); }
+  function close() { if (ov.hidden) return; ov.hidden = true; openBtn.focus(); }
+  openBtn.addEventListener("click", open);
+  closeBtn.addEventListener("click", close);
+  ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+})();

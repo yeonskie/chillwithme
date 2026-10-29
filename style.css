@@ -4863,3 +4863,75 @@ body.ww-wishes-open .ww { visibility: hidden; }
 
 /* casino leaderboard: about 20 rows tall, then the list scrolls inside the box */
 #cz-lb-list { max-height: min(412px, 60vh); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-right: 0.25rem; }
+
+/* ---------- the duck pond (thoughts to consume; duckpond.js) ---------- */
+:root { --duck-glow: #f0b400; }
+:root { --duck-body: var(--bg); --duck-ink: var(--text); }
+:root:not([data-theme="light"]) { --duck-glow: #ffd95a; --duck-body: #f4f1ea; --duck-ink: #151400; }   /* dark mode: a white duck with black lines and eyes */
+.thoughts-canvas.pond { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: center; align-content: center; justify-content: center; gap: 0.5rem; max-width: none; min-height: 100%; padding: 2.6rem clamp(0.5rem, 3vw, 2rem) 3.4rem; box-sizing: border-box; }
+.pond-wrap { position: relative; width: min(100%, clamp(18.4rem, calc((100svh - var(--bar-height, 3rem) * 2 - 19.2rem) * 1.27 * 1.15), 34.5rem)); }
+.pond-svg { display: block; overflow: visible; width: 100%; height: auto; user-select: none; -webkit-user-select: none; }
+.pond-hint { margin: 0; font-size: 0.78rem; opacity: 0.6; text-align: center; }
+.pond-hint[hidden] { display: none; }
+.pd-pool { fill: var(--bg); stroke: var(--text); stroke-width: 1.2px; vector-effect: non-scaling-stroke; }
+.pd-shade { fill: var(--text); }
+.pd-sil { fill: var(--duck-body); }
+.pd-lines { fill: var(--duck-ink); fill-rule: evenodd; stroke: var(--duck-ink); stroke-width: 0.9px; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.pd-ring { fill: none; stroke: var(--line); stroke-width: 1px; vector-effect: non-scaling-stroke; opacity: 0.7; pointer-events: none; transition: stroke-width 0.25s ease, fill-opacity 0.25s ease; }
+.pd-ring.has { stroke: var(--duck-glow); opacity: 1; fill: var(--duck-glow); fill-opacity: 0.14; stroke-width: 1.4px; }   /* the ring of water under a duck with a thought glows */
+.pd-ring.hot { stroke-width: 2.2px; fill-opacity: 0.3; }
+.pd-duck { outline: none; }
+.pd-duck { cursor: pointer; }
+.pd-duck:focus-visible .pd-hit { stroke: var(--text); stroke-width: 2px; stroke-dasharray: 8 8; vector-effect: non-scaling-stroke; }
+@media (max-width: 40rem) { .thoughts-canvas.pond { padding-top: 2.2rem; } }
+.pd-ripple { fill: none; stroke: var(--text); stroke-width: 1px; vector-effect: non-scaling-stroke; pointer-events: none; opacity: 0; transform-box: fill-box; transform-origin: center; animation: pd-rip 0.9s ease-out 1 both; }
+@keyframes pd-rip { 0% { transform: scale(0.8); opacity: 0.6; } 100% { transform: scale(1.9); opacity: 0; } }
+
+/* the little duck (her drawing of the duck from below, with its shadow) in the top right corner of an open entry; it takes the site's colors like the pond ducks */
+.featured-duck { position: absolute; top: 0.75rem; right: 0.85rem; width: 4rem; height: auto; pointer-events: none; }
+.featured-duck .fd-body { fill: var(--duck-body); }
+.featured-duck .fd-ink { fill: var(--duck-ink); }
+.featured-duck .fd-out { fill: var(--duck-ink); stroke: var(--duck-ink); stroke-width: 0.9px; vector-effect: non-scaling-stroke; }
+.featured-duck .fd-shadow { fill: var(--text); opacity: 0.85; }
+:root[data-theme="dark"] .featured-duck .fd-shadow { opacity: 0.18; }
+.featured-card .featured-date, .featured-card h2 { padding-right: 4.2rem; }
+
+/* the magnifying box */
+.pond-lens { position: absolute; width: 36%; aspect-ratio: 1.2; transform: translate(-50%, -50%); border: 1.5px solid var(--text); border-radius: var(--radius); background: var(--bg); box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.22); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; z-index: 2; }
+.pond-lens.drag { cursor: grabbing; box-shadow: 0 0.6rem 1.4rem rgba(0, 0, 0, 0.3); }
+.pond-lens::after { content: ""; position: absolute; right: -0.55rem; bottom: -1.05rem; width: 0.38rem; height: 1.7rem; background: var(--text); border-radius: 0.2rem; transform: rotate(-42deg); transform-origin: top center; pointer-events: none; }
+.pond-lens:focus-visible { outline: 1.5px dashed var(--text); outline-offset: 3px; }
+.pond-lens-in { position: absolute; inset: 0; overflow: hidden; border-radius: calc(var(--radius) - 1.5px); }
+.pond-lens-svg { display: block; width: 100%; height: 100%; }
+.pond-lens[hidden] { display: none; }
+.pond-lens-x { position: absolute; top: 0.3rem; right: 0.3rem; z-index: 3; width: 1.4rem; height: 1.4rem; padding: 0; display: grid; place-items: center; font: inherit; font-size: 1rem; line-height: 1; color: var(--text); background: var(--bg); border: 1px solid var(--text); border-radius: 50%; cursor: pointer; }
+.pond-wrap { z-index: 51; }
+.pond-dim { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, 0.32); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
+.thoughts-canvas.pond.lens-on .pond-dim { opacity: 1; pointer-events: auto; }
+.thoughts-canvas.pond.lens-on .pond-hint { position: relative; z-index: 51; }
+@media (prefers-reduced-motion: reduce) { .pond-dim { transition: none; } }
+body.pond-dimmed .thoughts-toolbar, body.pond-dimmed .yb-box, body.pond-dimmed .bar-bottom, body.pond-dimmed .sr-door { filter: brightness(0.68); }
+.pond-title { margin: 0; font-family: "Shrikhand", Georgia, serif; font-weight: 400; font-size: clamp(1.6rem, 4.2vw, 2.3rem); line-height: 1.1; text-align: center; color: var(--text); }
+.thoughts-canvas.pond .thoughts-toolbar { position: static; transform: none; top: auto; left: auto; padding: 0.35rem 0.9rem 1.1rem; }
+
+/* check out all posts: a small outlined button on its own line under shuffle / pick one */
+.thoughts-toolbar { flex-wrap: wrap; justify-content: center; row-gap: 0.25rem; }
+.thoughts-toolbar .tb-break { flex-basis: 100%; height: 0; }
+.thoughts-toolbar .tb-all { padding: 0.28rem 0.8rem; border: 1px solid var(--text); border-radius: var(--radius); line-height: 1.2; }
+.thoughts-toolbar .tb-all:hover { text-decoration: none; background: var(--text); color: var(--bg); }
+.thoughts-canvas.pond .thoughts-toolbar { padding-bottom: 0.9rem; }
+#posts-pop .credits-note { text-align: left; }
+.posts-list { max-height: min(60vh, 26rem); overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; }
+.posts-row { display: flex; gap: 0.9rem; align-items: baseline; width: 100%; padding: 0.55rem 0.2rem; font: inherit; color: inherit; text-align: left; background: none; border: none; border-top: 1px solid var(--line); cursor: pointer; }
+.posts-row:first-child { border-top: none; }
+.posts-row:hover .posts-title, .posts-row:focus-visible .posts-title { text-decoration: underline; }
+.posts-date { flex: 0 0 5.6rem; opacity: 0.6; font-size: 0.72rem; }
+.posts-title { flex: 1; min-width: 0; }
+.thoughts-toolbar .tb-all { order: -2; }
+.thoughts-toolbar .tb-break { order: -1; }
+/* even vertical rhythm on the pond page: title, description, buttons, pond all the same distance apart */
+.thoughts-canvas.pond { gap: 0.75rem; }
+.thoughts-canvas.pond .thoughts-toolbar { row-gap: 0.75rem; padding: 0 0.9rem; }
+.thoughts-canvas.pond .thoughts-toolbar { row-gap: 0; }
+.thoughts-canvas.pond .thoughts-toolbar .tb-all { margin-top: 0.55rem; margin-bottom: 0.3rem; }
+.thoughts-canvas.pond .thoughts-toolbar { background: none; }
