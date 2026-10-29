@@ -4933,3 +4933,4 @@ body.ww-wishes-open .ww { visibility: hidden; }
 @keyframes pd-rip-big { 0% { transform: scale(0.2); opacity: 0.55; } 100% { transform: scale(3.4); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .pd-ripple { animation: none; opacity: 0; } }
 .thoughts-toolbar .tb-all { background: var(--bg); }
+@media (max-width: 700px) { .cz-lb { width: min(21rem, calc(100% - 16px)); } }   /* wider on phones so the names fit */
