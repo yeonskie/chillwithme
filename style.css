@@ -4935,3 +4935,6 @@ body.pond-dimmed .thoughts-toolbar, body.pond-dimmed .yb-box, body.pond-dimmed .
 .thoughts-canvas.pond .thoughts-toolbar { row-gap: 0; }
 .thoughts-canvas.pond .thoughts-toolbar .tb-all { margin-top: 0.55rem; margin-bottom: 0.3rem; }
 .thoughts-canvas.pond .thoughts-toolbar { background: none; }
+@media (max-width: 40rem) {
+  .thoughts-canvas.pond .thoughts-toolbar { margin-top: -0.7rem; margin-bottom: 0.45rem; }   /* the three buttons ride a little higher, closer to the description */
+}
