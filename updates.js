@@ -10,6 +10,7 @@ const UPDATES = [
     items: [
       "reordered inventory",
       "emojis added to top 3 in leaderboard",
+      "redesigned thoughts to consume page",
     ],
   },
   {
