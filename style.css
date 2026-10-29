@@ -4932,3 +4932,4 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .pd-ripple.big { animation: pd-rip-big 1.1s ease-out 1 both; }
 @keyframes pd-rip-big { 0% { transform: scale(0.2); opacity: 0.55; } 100% { transform: scale(3.4); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .pd-ripple { animation: none; opacity: 0; } }
+.thoughts-toolbar .tb-all { background: var(--bg); }
