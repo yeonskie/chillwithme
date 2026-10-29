@@ -3653,7 +3653,7 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 @media (min-width: 61rem) {
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) { padding: 0 clamp(1rem, 4vw, 5rem) 0 calc(clamp(1rem, 7vw, 9rem) + 18.2rem); overflow: hidden; }
   /* the whole shop is sized to fit the screen height (shop.js sets --shop-s; the text stays the normal size), so it never scrolls and sits in the middle */
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap { flex: none; width: 1100px; zoom: var(--shop-s, 1); margin: auto 0; padding: 30px 0; display: block; text-align: left; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap { flex: none; width: var(--shop-w, 1100px); zoom: var(--shop-s, 1); margin: auto 0; padding: 30px 0; display: block; text-align: left; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-head { display: none; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { align-self: start; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-grid { --gx: 26px; gap: 12px var(--gx); }
@@ -3668,6 +3668,9 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-pager { font-size: 0.9rem; margin-top: 0.9rem; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-arrow { font-size: 1rem; padding: 0.2rem 1rem; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body { padding: 6.6% 4.3% 2.4%; }
+
+  /* narrower computer windows: two items across (the shop gets taller instead of smaller, and the page scrolls) */
+  html.shop-2col :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item { flex-basis: calc((100% - var(--gx)) / 2); }
 
   /* the left side (back link, buttons, signpost, door) is small, not scaled with the shop, and stays at the left edge of the screen */
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-side { position: absolute; left: clamp(1rem, 7vw, 9rem); top: clamp(2rem, 7vh, 5rem); bottom: 0; width: 17rem; zoom: calc(1 / var(--shop-s, 1)); --bw: 1px; display: grid; grid-template-columns: 1fr; grid-template-rows: auto auto auto auto auto 1fr; align-content: start; align-items: start; }
@@ -4154,6 +4157,7 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-price { font-size: max(0.9rem, calc(11.5px / var(--shop-s, 1))); }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-note { font-size: max(0.62rem, calc(10px / var(--shop-s, 1))); }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-prev { height: 2.4rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item .hy-btn { font-size: max(0.85rem, calc(12.5px / var(--shop-s, 1))); }
 }
 
 /* ---------- the arcade: a cabinet with the games on its screen (index.html; the old turning circle is gone) ---------- */
@@ -4856,3 +4860,6 @@ body.ww-wishes-open .ww { visibility: hidden; }
 
 /* updates pop-up: the "what's new" line sits on the left like the list under it */
 #updates-pop .credits-note { text-align: left; }
+
+/* casino leaderboard: about 25 rows tall, then the list scrolls inside the box */
+#cz-lb-list { max-height: min(515px, 60vh); overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-right: 0.25rem; }

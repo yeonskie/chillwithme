@@ -828,15 +828,27 @@ const SHOP_CATS = [
     if (!wrap) return;
     const h = page.clientHeight, cs = getComputedStyle(page), w = page.clientWidth - parseFloat(cs.paddingLeft || 0) - parseFloat(cs.paddingRight || 0);
     if (!h || !w || !wide.matches) return;
-    root.style.setProperty("--shop-s", "1");
-    page.style.setProperty("--shop-body-h", "0px");          // measure with no minimum first...
-    let designH = tallestPage(page, wrap);
-    if (!designH) return;
-    page.style.setProperty("--shop-body-h", tallBody + "px"); // ...then every page of the shop is as tall as the tallest, so the roof doesn't jump around
-    designH = Math.max(designH, wrap.offsetHeight);
-    // 0.96: a little breathing room under the shop, so the bottom edge never gets cut off
-    const s = Math.max(0.5, Math.min(1, (h / designH) * 0.96, (w * 0.96) / wrap.offsetWidth));
-    root.style.setProperty("--shop-s", s.toFixed(3));
+    // the shop always fits the window (no scrolling). it's tried both three across (wide and short) and two across (narrower and
+    // taller), and whichever one can be drawn bigger on this window wins, so a narrow window doesn't squish it as much
+    function measure(twoCol) {
+      root.classList.toggle("shop-2col", twoCol);
+      root.style.setProperty("--shop-w", (twoCol ? 760 : 1100) + "px");
+      root.style.setProperty("--shop-s", "1");
+      page.style.setProperty("--shop-body-h", "0px");          // measure with no minimum first...
+      let designH = tallestPage(page, wrap);
+      if (!designH) return null;
+      const body = tallBody;
+      page.style.setProperty("--shop-body-h", body + "px");    // ...then every page of the shop is as tall as the tallest, so the roof doesn't jump around
+      designH = Math.max(designH, wrap.offsetHeight);
+      // 0.96: a little breathing room under the shop, so the bottom edge never gets cut off
+      return { twoCol, s: Math.max(0.5, Math.min(1, (h / designH) * 0.96, (w * 0.96) / wrap.offsetWidth)) };
+    }
+    const three = measure(false);
+    if (!three) return;
+    const two = measure(true);
+    const best = two && two.s > three.s + 0.02 ? two : three;
+    if (best !== two) measure(false);                           // (put it back to three across)
+    root.style.setProperty("--shop-s", best.s.toFixed(3));
   }
   window.addEventListener("resize", fit);
   window.addEventListener("hashchange", () => { fit(); setTimeout(fit, 60); });
