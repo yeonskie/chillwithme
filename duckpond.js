@@ -52,71 +52,26 @@
     hint.hidden = !E;
     const title = document.createElement("h1"); title.className = "pond-title"; title.textContent = "the duck pond";
     container.append(title, hint); if (tools) container.appendChild(tools); container.appendChild(svg);
-    // a magnifying box: drag it round the pool to see the ducks close up (it just re-draws the live pool, zoomed)
-    const ZOOM = 2.3, FW = 0.36, ASPECT = 1.2;
-    const pwrap = document.createElement("div"); pwrap.className = "pond-wrap";
-    const lens = document.createElement("div"); lens.className = "pond-lens"; lens.tabIndex = 0; lens.setAttribute("role", "img"); lens.setAttribute("aria-label", "a magnifying box, drag it around the pool");
-    const inner = document.createElement("div"); inner.className = "pond-lens-in";
-    const lsvg = el("svg", { class: "pond-lens-svg", viewBox: "0 0 100 100", "aria-hidden": "true", focusable: "false" });
-    lsvg.innerHTML = '<use href="#pd-scene"/>';
-    inner.appendChild(lsvg); lens.appendChild(inner);
-    container.removeChild(svg); pwrap.append(svg, lens); container.append(pwrap);
-    lens.hidden = true;
-    
-    const xb = document.createElement("button"); xb.type = "button"; xb.className = "pond-lens-x"; xb.setAttribute("aria-label", "close the magnifying box"); xb.textContent = "\u00d7";
-    lens.appendChild(xb);
-    const dim = document.createElement("div"); dim.className = "pond-dim"; container.insertBefore(dim, pwrap);
-    dim.addEventListener("click", () => closeLens());
-    const closeLens = () => { lens.hidden = true; container.classList.remove("lens-on"); document.body.classList.remove("pond-dimmed");  };
-    xb.addEventListener("pointerdown", (e) => e.stopPropagation());
-    xb.addEventListener("click", (e) => { e.stopPropagation(); closeLens(); });
+    // touching the water: a ripple spreads from your finger and the ducks nearby drift away a little
+    const ripple = (x, y, big) => {                  // x, y in drawing coordinates
+      if (reduce) return;
+      const rp = el("ellipse", { class: "pd-ripple" + (big ? " big" : ""), cx: x.toFixed(1), cy: y.toFixed(1), rx: big ? 46 : 30, ry: (big ? 46 : 30) * K });
+      rp.addEventListener("animationend", () => rp.remove());
+      rings.appendChild(rp);
+    };
     svg.addEventListener("click", (e) => {
-      if (e.target.closest('[role="button"]')) return;       // a duck with a thought just opens its post
-      if (!lens.hidden) { closeLens(); return; }              // click off the box: put it away
-      const r = pwrap.getBoundingClientRect();
-      fx = (e.clientX - r.left) / r.width; fy = (e.clientY - r.top) / r.height;
-      lens.hidden = false; container.classList.add("lens-on"); document.body.classList.add("pond-dimmed"); place();
+      if (e.target.closest(".pd-duck")) return;
+      const m = svg.getScreenCTM(); if (!m) return;
+      const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+      const p = pt.matrixTransform(m.inverse());
+      ripple(p.x, p.y, true);
+      setTimeout(() => ripple(p.x, p.y, true), 220);
+      const px = p.x - WATER.cx, py = (p.y - WATER.cy) / K;
+      state.ducks.forEach((d) => {
+        const dx = d.x - px, dy = d.y - py, q = Math.hypot(dx, dy) || 1;
+        if (q < 260) { const f = 38 * (1 - q / 260); d.vx += dx / q * f; d.vy += dy / q * f; d.wobV += (Math.random() < 0.5 ? -1 : 1) * f * 0.6; }
+      });
     });
-    if (window.__pdKey) document.removeEventListener("keydown", window.__pdKey);
-    window.__pdKey = (e) => { if (e.key === "Escape" && !lens.hidden && document.getElementById("featured").hidden) closeLens(); };
-    document.addEventListener("keydown", window.__pdKey);
-    let fx = 0.5, fy = 0.56, rw = 1150 * FW / ZOOM, rh = rw / ASPECT;
-    const place = () => {
-      const r = pwrap.getBoundingClientRect(); if (!r.width) return;
-      fx = Math.max(0, Math.min(1, fx)); fy = Math.max(0, Math.min(1, fy));     // the box may hang over the edge so its middle can reach the very top and bottom of the pool
-      lens.style.left = (fx * 100) + "%"; lens.style.top = (fy * 100) + "%";
-      const cx = 385 + fx * 1150, cy = 125 + fy * 905;
-      lsvg.setAttribute("viewBox", (cx - rw / 2).toFixed(1) + " " + (cy - rh / 2).toFixed(1) + " " + rw.toFixed(1) + " " + rh.toFixed(1));
-    };
-    let drag = null;
-    lens.addEventListener("pointerdown", (e) => {
-      const r = pwrap.getBoundingClientRect();
-      drag = { dx: e.clientX - (r.left + fx * r.width), dy: e.clientY - (r.top + fy * r.height), x0: e.clientX, y0: e.clientY, moved: false };
-      lens.setPointerCapture(e.pointerId); lens.classList.add("drag"); e.preventDefault();
-    });
-    lens.addEventListener("pointermove", (e) => {
-      if (!drag) return;
-      if (Math.abs(e.clientX - drag.x0) + Math.abs(e.clientY - drag.y0) > 4) drag.moved = true;
-      const r = pwrap.getBoundingClientRect();
-      fx = (e.clientX - drag.dx - r.left) / r.width; fy = (e.clientY - drag.dy - r.top) / r.height; place();
-    });
-    const endDrag = (e) => {
-      if (!drag) return;
-      const was = drag; drag = null; lens.classList.remove("drag");
-      if (was.moved || e.type === "pointercancel") return;
-      // a plain tap on a duck in the magnifier works like tapping it in the pool
-      const lr = lens.getBoundingClientRect(), vb = lsvg.viewBox.baseVal;
-      const px = vb.x + (e.clientX - lr.left) / lr.width * vb.width, py = vb.y + (e.clientY - lr.top) / lr.height * vb.height;
-      let best = null, bd = Infinity;
-      ducks.forEach((d) => { const q = Math.hypot(WATER.cx + d.x - px, WATER.cy + d.y * K - py + rr * 0.3); if (q < rr * 1.25 && q < bd) { bd = q; best = d; } });
-      if (best) { if (best.entry >= 0) onOpen(best.entry); else { startSpin(best); best.wobV += (Math.random() < 0.5 ? -1 : 1) * rand(30, 50); } }
-    };
-    lens.addEventListener("pointerup", endDrag); lens.addEventListener("pointercancel", endDrag);
-    lens.addEventListener("keydown", (e) => {
-      const m = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
-      if (m) { e.preventDefault(); fx += m[0] * 0.04; fy += m[1] * 0.04; place(); }
-    });
-    window.addEventListener("resize", place);
 
     const ducks = [];
     for (let i = 0; i < N; i++) {
@@ -171,7 +126,11 @@
       d.g.addEventListener("pointerleave", () => { d.hot = false; if (d.entry >= 0) { d.ring.classList.remove("hot"); d.ring.setAttribute("filter", "url(#pd-ringglow)"); } });
       const act = () => {
         if (d.entry >= 0) onOpen(d.entry);
-        else { startSpin(d); d.wobV += (Math.random() < 0.5 ? -1 : 1) * rand(30, 50); }   // just a duck: it spins all the way around, and the pond zooms
+        else {                                                  // just a duck: a little hop, a spin and a ripple
+          startSpin(d); d.wobV += (Math.random() < 0.5 ? -1 : 1) * rand(30, 50);
+          d.hopAt = performance.now() / 1000;
+          ripple(+d.ring.getAttribute("cx"), +d.ring.getAttribute("cy"), false);
+        }
       };
       d.g.addEventListener("click", act);
       d.g.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && d.entry >= 0) { e.preventDefault(); act(); } });
@@ -192,8 +151,10 @@
         const fi = Math.round(wrap(f)) % FRAMES;
         if (fi !== d.shown) { d.shown = fi; d.use.setAttribute("href", "#pd-f" + fi); }
         const bob = Math.sin(t * 1.4 + d.phase) * 2.4;
+        const hu = (t - (d.hopAt || -9)) / 0.5, hop = hu >= 0 && hu <= 1 ? Math.sin(Math.PI * hu) * H * 0.3 : 0;     // the little hop when you tap it
+        d.sx = sx; d.sy = sy; d.H = H;
         const rot = d.wob + Math.sin(t * 1.1 + d.phase * 1.7) * 1.4;
-        d.g.setAttribute("transform", "translate(" + sx.toFixed(1) + " " + (sy - H * (0.1 + 0.09 * d.hv) + bob).toFixed(1) + ") rotate(" + rot.toFixed(2) + ") scale(" + s.toFixed(4) + ")");
+        d.g.setAttribute("transform", "translate(" + sx.toFixed(1) + " " + (sy - H * (0.1 + 0.09 * d.hv) + bob - hop).toFixed(1) + ") rotate(" + rot.toFixed(2) + ") scale(" + s.toFixed(4) + ")");
         d.ring.setAttribute("cx", sx.toFixed(1)); d.ring.setAttribute("cy", (sy + H * 0.34).toFixed(1));
         d.ring.setAttribute("rx", (W * 0.7 + Math.sin(t * 1.4 + d.phase) * 2).toFixed(1)); d.ring.setAttribute("ry", (W * 0.24).toFixed(1));
       }

@@ -4869,8 +4869,8 @@ body.ww-wishes-open .ww { visibility: hidden; }
 :root { --duck-body: var(--bg); --duck-ink: var(--text); }
 :root:not([data-theme="light"]) { --duck-glow: #ffd95a; --duck-body: #f4f1ea; --duck-ink: #151400; }   /* dark mode: a white duck with black lines and eyes */
 .thoughts-canvas.pond { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: center; align-content: center; justify-content: center; gap: 0.5rem; max-width: none; min-height: 100%; padding: 2.6rem clamp(0.5rem, 3vw, 2rem) 3.4rem; box-sizing: border-box; }
-.pond-wrap { position: relative; width: min(100%, clamp(18.4rem, calc((100svh - var(--bar-height, 3rem) * 2 - 19.2rem) * 1.27 * 1.15), 34.5rem)); }
-.pond-svg { display: block; overflow: visible; width: 100%; height: auto; user-select: none; -webkit-user-select: none; }
+.pond-svg { width: min(100%, clamp(18.4rem, calc((100svh - var(--bar-height, 3rem) * 2 - 19.2rem) * 1.27 * 1.15), 34.5rem)); }
+.pond-svg { user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
 .pond-hint { margin: 0; font-size: 0.78rem; opacity: 0.6; text-align: center; }
 .pond-hint[hidden] { display: none; }
 .pd-pool { fill: var(--bg); stroke: var(--text); stroke-width: 1.2px; vector-effect: non-scaling-stroke; }
@@ -4897,20 +4897,6 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .featured-card .featured-date, .featured-card h2 { padding-right: 4.2rem; }
 
 /* the magnifying box */
-.pond-lens { position: absolute; width: 36%; aspect-ratio: 1.2; transform: translate(-50%, -50%); border: 1.5px solid var(--text); border-radius: var(--radius); background: var(--bg); box-shadow: 0 0.35rem 1rem rgba(0, 0, 0, 0.22); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; z-index: 2; }
-.pond-lens.drag { cursor: grabbing; box-shadow: 0 0.6rem 1.4rem rgba(0, 0, 0, 0.3); }
-.pond-lens::after { content: ""; position: absolute; right: -0.55rem; bottom: -1.05rem; width: 0.38rem; height: 1.7rem; background: var(--text); border-radius: 0.2rem; transform: rotate(-42deg); transform-origin: top center; pointer-events: none; }
-.pond-lens:focus-visible { outline: 1.5px dashed var(--text); outline-offset: 3px; }
-.pond-lens-in { position: absolute; inset: 0; overflow: hidden; border-radius: calc(var(--radius) - 1.5px); }
-.pond-lens-svg { display: block; width: 100%; height: 100%; }
-.pond-lens[hidden] { display: none; }
-.pond-lens-x { position: absolute; top: 0.3rem; right: 0.3rem; z-index: 3; width: 1.4rem; height: 1.4rem; padding: 0; display: grid; place-items: center; font: inherit; font-size: 1rem; line-height: 1; color: var(--text); background: var(--bg); border: 1px solid var(--text); border-radius: 50%; cursor: pointer; }
-.pond-wrap { z-index: 51; }
-.pond-dim { position: fixed; inset: 0; z-index: 50; background: rgba(0, 0, 0, 0.32); opacity: 0; pointer-events: none; transition: opacity 0.25s ease; }
-.thoughts-canvas.pond.lens-on .pond-dim { opacity: 1; pointer-events: auto; }
-.thoughts-canvas.pond.lens-on .pond-hint { position: relative; z-index: 51; }
-@media (prefers-reduced-motion: reduce) { .pond-dim { transition: none; } }
-body.pond-dimmed .thoughts-toolbar, body.pond-dimmed .yb-box, body.pond-dimmed .bar-bottom, body.pond-dimmed .sr-door { filter: brightness(0.68); }
 .pond-title { margin: 0; font-family: "Shrikhand", Georgia, serif; font-weight: 400; font-size: clamp(1.6rem, 4.2vw, 2.3rem); line-height: 1.1; text-align: center; color: var(--text); }
 .thoughts-canvas.pond .thoughts-toolbar { position: static; transform: none; top: auto; left: auto; padding: 0.35rem 0.9rem 1.1rem; }
 
@@ -4942,3 +4928,7 @@ body.pond-dimmed .thoughts-toolbar, body.pond-dimmed .yb-box, body.pond-dimmed .
 @media (max-width: 40rem) { .pond-br { display: inline; } .pond-hint { text-align: center; } }
 @media (max-width: 40rem) { .thoughts-canvas.pond { padding-bottom: 5.2rem; } }   /* nudges the whole stack up a touch while keeping it centered */
 @media (max-width: 40rem) { .thoughts-canvas.pond { padding-top: 1.7rem; padding-bottom: 5.4rem; } }   /* the whole group sits a touch higher */
+.pond-svg { display: block; overflow: visible; height: auto; }
+.pd-ripple.big { animation: pd-rip-big 1.1s ease-out 1 both; }
+@keyframes pd-rip-big { 0% { transform: scale(0.2); opacity: 0.55; } 100% { transform: scale(3.4); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pd-ripple { animation: none; opacity: 0; } }
