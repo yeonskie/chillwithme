@@ -6,6 +6,13 @@
 
 const UPDATES = [
   {
+    date: "10.28.26",
+    items: [
+      "reordered inventory",
+      "emojis added to top 3 in leaderboard",
+    ],
+  },
+  {
     date: "10.27.26",
     items: [
       "redesigned wishing well coin",
