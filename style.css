@@ -4853,3 +4853,6 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .cz-lb-name { display: flex; align-items: baseline; gap: 0.3em; }
 .cz-lb-nt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cz-lb-medal { flex: none; }
+
+/* updates pop-up: the "what's new" line sits on the left like the list under it */
+#updates-pop .credits-note { text-align: left; }
