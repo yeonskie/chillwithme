@@ -188,6 +188,7 @@ function openFeatured(i) {
   isExpanded = false;
   renderFeatured();
   featured.hidden = false;
+  document.body.classList.add("entry-open");   // the secret door steps out of the way
   featuredCard.scrollTop = 0;
   expandBtn.focus();
   // journal.js listens for this, to show edit / delete when you're signed in
@@ -197,6 +198,7 @@ function openFeatured(i) {
 function closeFeatured() {
   if (featured.hidden) return;
   featured.hidden = true;
+  document.body.classList.remove("entry-open");
   if (lastFocus && lastFocus.focus) lastFocus.focus();
 }
 

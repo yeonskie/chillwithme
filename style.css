@@ -4934,3 +4934,5 @@ body.ww-wishes-open .ww { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) { .pd-ripple { animation: none; opacity: 0; } }
 .thoughts-toolbar .tb-all { background: var(--bg); }
 @media (max-width: 700px) { .cz-lb { width: min(21rem, calc(100% - 16px)); } }   /* wider on phones so the names fit */
+body.entry-open .sr-door { display: none; }
+@media (max-width: 40rem) { body.has-yb .featured { padding-bottom: 5.8rem; } }   /* an open entry stops above the yeonbucks box so its buttons stay reachable */
