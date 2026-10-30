@@ -76,8 +76,8 @@ revoke all on public.rrm_rooms, public.rrm_players from public, anon, authentica
 -- ---------- the numbers to play with ----------
 create or replace function public.rrm_cfg(k text) returns bigint language sql immutable as $$
   select case k
-    when 'min_bet'     then 10
-    when 'max_bet'     then 5000
+    when 'min_bet'     then 50
+    when 'max_bet'     then 100000
     when 'max_players' then 6
     when 'countdown'   then 8        -- seconds from "start" to the race starting (everyone's screen needs time to get ready)
     when 'idle_player' then 90       -- seconds quiet before a player is dropped from a room that isn't racing

@@ -26,7 +26,7 @@
     configured = /^https:\/\/[^\s/]+/i.test(BASE) && KEY.length > 20;
   }
   const POLL_MS = 1200;
-  const MIN_BET = 10, MAX_BET = 5000;       // (the server enforces the real limits: keep these the same as rrm_cfg in the sql file)
+  const MIN_BET = 50, MAX_BET = 100000;       // (the server enforces the real limits: keep these the same as rrm_cfg in the sql file)
   const REALTIME_LIB = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js";
   const store = {
     get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
