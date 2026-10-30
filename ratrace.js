@@ -74,7 +74,6 @@
   const howModal = $("#rr-how"), countEl = $("#rr-count"), pausedEl = $("#rr-paused");
   const placesEl = $("#rr-places"), resBox = $("#rr-result"), resTitle = $("#rr-result-title"), resText = $("#rr-result-text"), resBtn = $("#rr-result-btn"), resChange = $("#rr-result-change");
   const livesEl = $("#rr-lives"), boostEl = $("#rr-boost"), placeEl = $("#rr-place"), pauseBtn = $("#rr-pause");
-  const buyPuff = $("#rr-buy-puff"), buyCheese = $("#rr-buy-cheese");
 
   const store = {
     get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
@@ -88,11 +87,11 @@
   // ----- power ups (each is good for one race: bought in the upgrade shop or won in "test your luck") and rat levels -----
   const UPS = [
     { id: "train",  name: "training",      desc: "pick one stat to boost by +1 until your game ends", price: 1500 },
-    { id: "shield", name: "trap shield",   desc: "next race only: your first trip costs nothing", price: 1000 },
-    { id: "soft",   name: "soft landing",  desc: "next race only: a trip costs 0.5s instead of 1s", price: 250 },
-    { id: "magnet", name: "cheese magnet", desc: "next race only: grab cheese from further away", price: 1500 },
-    { id: "hang",   name: "hang time",     desc: "next race only: your jump stays in the air longer", price: 500 },
-    { id: "stash",  name: "cheese stash",  desc: "next race only: start with a free cheese boost", price: 1000 },
+    { id: "shield", name: "trap shield",   desc: "your first trip costs nothing", price: 1000 },
+    { id: "soft",   name: "soft landing",  desc: "a trip costs 0.5s instead of 1s", price: 250 },
+    { id: "magnet", name: "cheese magnet", desc: "grab cheese from further away", price: 1500 },
+    { id: "hang",   name: "hang time",     desc: "your jump stays in the air longer", price: 500 },
+    { id: "stash",  name: "cheese stash",  desc: "start with a free cheese boost", price: 1000 },
   ];
   const STATS = ["speed", "jump", "hunger"];
   const ups = Object.assign({ shield: 0, soft: 0, magnet: 0, hang: 0, stash: 0 }, store.get("rr-ups", {}));   // held for the next race (0 or 1 each)
@@ -542,8 +541,6 @@
     $("#rr-lv").textContent = level(round);
     $("#rr-bet-rat").textContent = myRat().id;
     $("#rr-have").textContent = fmt(have());
-    buyPuff.textContent = items.puff ? "+1 gerber puff · added" : "+1 gerber puff · " + fmt(TUNING.puffPrice);
-    buyCheese.textContent = "cheesy head start · " + fmt(TUNING.cheesePrice) + (items.cheese ? " (have " + items.cheese + ")" : "");
     $("#rr-bet-xp").innerHTML = xpBar();
     $("#rr-stats-line").textContent = STATS.map((k) => k + " " + myRat().stats[k]).join(" · ");
     const act1 = UPS.find((u) => u.id === activeUp);
@@ -551,8 +548,6 @@
     renderPickers();
     changeBtns();
     $("#rr-luck-open").textContent = "test your luck" + (tries ? " (" + tries + ")" : "");
-    buyPuff.disabled = items.puff >= TUNING.puffMax;
-    buyCheese.disabled = items.cheese >= TUNING.cheeseMax;
   }
 
   function start() {
@@ -586,17 +581,6 @@
     countEl.hidden = false; countEl.textContent = "3";
     render(0);
   }
-
-  // ----- stocking up between rounds -----
-  function buy(kind, price, max, label) {
-    if (items[kind] >= max) return;
-    if (!window.YB || !window.YB.spend(price)) { msg.textContent = "not enough yeonbucks for " + label + "."; return; }
-    items[kind]++; store.set("rr-items", items);
-    msg.textContent = "";
-    refreshBet();
-  }
-  buyPuff.addEventListener("click", () => buy("puff", TUNING.puffPrice, TUNING.puffMax, "a puff"));
-  buyCheese.addEventListener("click", () => buy("cheese", TUNING.cheesePrice, TUNING.cheeseMax, "cheese"));
 
   // ----- buttons -----
   $$("[data-how]").forEach((b) => b.addEventListener("click", () => openHow()));
