@@ -793,6 +793,7 @@
       show("menu");
     }
   }
+  setInterval(() => { if (location.hash === "#ratrace" && !betModal.hidden) $("#rr-have").textContent = fmt(have()); }, 300);   // "you have" keeps up with tap bonuses etc.
   window.addEventListener("hashchange", onRoute);
   window.addEventListener("resize", () => { if (screen === "race") layout(); });
   buildHero();

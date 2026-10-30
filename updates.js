@@ -6,6 +6,12 @@
 
 const UPDATES = [
   {
+    date: "10.30.26",
+    items: [
+      "new rat race game!",
+    ],
+  },
+  {
     date: "10.28.26",
     items: [
       "reordered inventory",
