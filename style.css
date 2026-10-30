@@ -5177,3 +5177,6 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
   .rr-extra { margin-top: 0; gap: 0.35rem; }
   .rr-box .rr-text { padding: 0.1rem 0; font-size: 0.85rem; }
 }
+#rr-go { background: var(--text); color: var(--bg); }
+#rr-go:hover, #rr-go:focus-visible { background: var(--bg); color: var(--text); }
+#rr-go:disabled { opacity: 0.5; }
