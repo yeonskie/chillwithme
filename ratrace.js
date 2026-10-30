@@ -108,7 +108,7 @@
   const xpNeed = (l) => 60 + 30 * (l - 1);                           // xp to get from level l to the next one
   const saveProg = () => {};                                         // (level, xp and +1s are not saved: a refresh or a lost game starts fresh)
   let played = !!store.get("rr-played", false);     // after the first round the upgrade shop and "test your luck" show up
-  let tries = Math.max(0, store.get("rr-tries", 0) | 0);   // one try at "test your luck" for every round you finish
+  let tries = Math.max(0, store.get("rr-tries", 1) | 0);   // one try at "test your luck" for every round you finish
   const rnd10 = () => 1 + Math.floor(Math.random() * 10);
   function applyStats() { ROSTER.forEach((r) => { r.stats = {}; STATS.forEach((k) => { r.stats[k] = Math.min(10, r.base[k] + bonus[k]); }); }); }
   function rollStats() {                                             // every rat gets fresh random stats (1-10) each time; your +1s are added on top
@@ -550,7 +550,6 @@
     $("#rr-held").textContent = act1 ? "activated for this race: " + act1.name : "";
     renderPickers();
     changeBtns();
-    $("#rr-extra").hidden = !played;
     $("#rr-luck-open").textContent = "test your luck" + (tries ? " (" + tries + ")" : "");
     buyPuff.disabled = items.puff >= TUNING.puffMax;
     buyCheese.disabled = items.cheese >= TUNING.cheeseMax;

@@ -5165,3 +5165,15 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .rr-uplist .hy-btn { flex: none; padding: 0.25rem 0.8rem; border-color: var(--text); }
 .rr-uplist .hy-btn.on { background: var(--text); color: var(--bg); }
 .rr-shop-note { text-align: center; margin: 0.8rem 0 0; }
+.rr-extra { gap: 0.45rem; } .rr-extra .hy-btn { font-size: 0.74rem; padding: 0.3rem 0.55rem; }
+@media (max-width: 40rem) {
+  .rr-modal { padding: 0.6rem; }
+  .rr-box { gap: 0.4rem; padding: 0.9rem 0.9rem; }
+  .rr-box-title { font-size: 1.5rem; line-height: 1.1; }
+  .rr-box .rr-box-sub, .rr-box .rr-msg { margin: 0; }
+  .rr-box .rr-msg { min-height: 0; }
+  .rr-box .rr-opt { padding: 0.5rem 1.6rem; font-size: 1.05rem; }
+  .rr-cols { gap: 0.6rem; }
+  .rr-extra { margin-top: 0; gap: 0.35rem; }
+  .rr-box .rr-text { padding: 0.1rem 0; font-size: 0.85rem; }
+}
