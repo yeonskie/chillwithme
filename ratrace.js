@@ -22,7 +22,7 @@
     tripTime: 1.0,         // seconds lost when you trip
     cheeseBoost: 0.5,      // seconds of boost per piece of cheese (at full hunger)
     boostMul: 1.7,         // how much faster a boost is
-    payTie: 1,
+    payTie: 1, gameRounds: 3,
     puffPrice: 450, puffMax: 1,
     cheesePrice: 200, cheeseMax: 8,
     opponents: 4,          // computer rats in the race
@@ -473,30 +473,36 @@
   function finish(kind) {
     phase = "done";
     played = true; store.set("rr-played", true); tries = 1; store.set("rr-tries", tries);
-    const over = kind === "lose" || kind === "out";                                    // a lost game ends the run, so no xp for it
-    const gain = over ? 0 : kind === "win" ? 30 + 10 * (round - 1) : 20;                 // wins pay more xp, and later rounds more again
+    const early = round <= TUNING.gameRounds;                                          // the first 3 rounds are one game: a bad round does not end it
+    const over = (kind === "lose" || kind === "out") && !early;                        // after that, a lost round ends the run (no xp for it)
+    const gain = kind === "lose" || kind === "out" ? 0 : kind === "win" ? 30 + 10 * (round - 1) : 20;   // wins pay more xp, and later rounds more again
     let leveled = 0;
     xp += gain;
     while (xp >= xpNeed(plevel)) { xp -= xpNeed(plevel); plevel++; points++; leveled++; }
     resBox.dataset.kind = kind;
+    resChange.dataset.new = "";
+    let pay = 0;
+    if (kind === "win") { pay = bet * winMult(round); if (window.YB) window.YB.add(pay); }
+    else if (kind === "tie") { if (window.YB) window.YB.add(bet * TUNING.payTie); }
+    if (kind === "win" || early) { round++; store.set("rr-round", round); }          // (a tie after round 3 is a rematch of the same round)
+    const complete = early && round > TUNING.gameRounds;                               // that was the last round of the game
+    const next = complete ? "that's all " + TUNING.gameRounds + " rounds! keep playing with the same rat, or start a new game." : "round " + round + " next.";
     if (kind === "win") {
-      const pay = bet * winMult(round);
-      if (window.YB) window.YB.add(pay);
-      round++; store.set("rr-round", round);
       resTitle.textContent = "you won!";
-      resText.innerHTML = "+" + fmt(pay) + " yeonbucks. the rats are getting faster...<br>round " + round + " next.";
-      resBtn.textContent = "next round";
+      resText.innerHTML = "+" + fmt(pay) + " yeonbucks. the rats are getting faster...<br>" + next;
+      resBtn.textContent = complete ? "keep playing" : "next round";
     } else if (kind === "tie") {
-      if (window.YB) window.YB.add(bet * TUNING.payTie);
       resTitle.textContent = "photo finish: a tie";
-      resText.textContent = "your bet (" + fmt(bet) + ") comes back to you.";
-      resBtn.textContent = "run it back";
+      resText.innerHTML = "your bet (" + fmt(bet) + ") comes back to you.<br>" + (early ? next : "");
+      resBtn.textContent = complete ? "keep playing" : early ? "next round" : "run it back";
     } else {
-      newGame();
+      if (over) newGame();
       resTitle.textContent = kind === "out" ? "out of puffs" : "the rats won this one";
-      resText.textContent = (kind === "out" ? "you tripped " + TUNING.lives + " times. " : "") + "you lost " + fmt(bet) + " yeonbucks.";
-      resBtn.textContent = "try again";
+      resText.innerHTML = (kind === "out" ? "you tripped " + TUNING.lives + " times. " : "") + "you lost " + fmt(bet) + " yeonbucks." + (over ? "" : "<br>" + next);
+      resBtn.textContent = over ? "try again" : complete ? "keep playing" : "next round";
     }
+    if (complete) { resChange.textContent = "new game"; resChange.dataset.new = "1"; resChange.hidden = false; }
+    else { resChange.textContent = "change rat"; changeBtns(); }
     $("#rr-res-xp").innerHTML = gain ? "<b>+" + gain + " xp</b>" + (leveled ? " · level up!" : "") + xpBar() : "";
     renderPickers();
     clearTimeout(resultTimer);
@@ -612,7 +618,7 @@
   $("#rr-bet-back").addEventListener("click", () => { betModal.hidden = true; phase = "pick"; buildCards(); show("pick"); });
   goBtn.addEventListener("click", start);
   resBtn.addEventListener("click", openBet);
-  resChange.addEventListener("click", () => { resBox.hidden = true; phase = "pick"; buildCards(); show("pick"); page.classList.remove("racing"); });
+  resChange.addEventListener("click", () => { if (resChange.dataset.new) newGame(); resBox.hidden = true; phase = "pick"; buildCards(); show("pick"); page.classList.remove("racing"); });
   betIn.addEventListener("input", () => { fmtBetInput(); msg.textContent = ""; });
   betIn.addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
   $$(".rr-quick button").forEach((b) => b.addEventListener("click", () => {

@@ -5032,9 +5032,9 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
   .rr-hero { order: -1; width: min(26rem, 100%); aspect-ratio: 770 / 340; position: relative; inset: auto; margin: 0 0 1.2rem; }
   .rr-hero-rat { position: absolute; width: 53%; }
   .rr-hero-0 { left: 47%; top: 0; } .rr-hero-1 { left: 23.5%; top: 28.7%; } .rr-hero-2 { left: 0; top: 57.4%; }
-  .rr-cards { flex-direction: column; align-items: center; gap: 0.7rem; margin-top: 0.8rem; }
-  .rr-card { width: min(21rem, 100%); display: grid; grid-template-columns: 38% 1fr; grid-template-rows: auto auto auto; column-gap: 0.8rem; align-items: center; justify-items: center; }
-  .rr-card-name { grid-column: 1; grid-row: 1; font-size: 0.74rem; margin: 0 0 0.2rem; padding: 0.15em 0.6em; align-self: end; max-width: 100%; box-sizing: border-box; text-align: center; }
+  .rr-cards { flex-direction: column; align-items: center; gap: 1.1rem; margin-top: 1rem; }
+  .rr-card { width: min(21rem, 100%); display: grid; grid-template-columns: 38% 1fr; grid-template-rows: auto auto auto; column-gap: 1.3rem; align-items: center; justify-items: center; }
+  .rr-card-name { grid-column: 1; grid-row: 1; font-size: 0.74rem; margin: 0 0 0.5rem; padding: 0.15em 0.6em; align-self: end; max-width: 100%; box-sizing: border-box; text-align: center; }
   .rr-card-rat { grid-column: 1; grid-row: 2 / 4; width: 100%; }
   .rr-stats { grid-column: 2; grid-row: 1 / 3; font-size: 0.72rem; gap: 0.25rem 0.5rem; margin: 0; }
   .rr-stats dd { gap: 0.4rem; }
@@ -5048,8 +5048,8 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
   .rr-hero { width: min(17rem, 100%); margin-bottom: 0.7rem; }
   .rr-pick .rr-title { font-size: min(1.9rem, 5.4vw); }
   .rr-pick { padding: calc(0.4rem + 1.4rem) 0 0.4rem; }
-  .rr-cards { gap: 0.3rem; margin-top: 0.5rem; }
-  .rr-card-name { font-size: 0.7rem; margin-bottom: 0.1rem; padding: 0.1em 0.5em; }
+  .rr-cards { gap: 0.55rem; margin-top: 0.6rem; }
+  .rr-card-name { font-size: 0.7rem; margin-bottom: 0.3rem; padding: 0.1em 0.5em; }
   .rr-stats { font-size: 0.66rem; gap: 0.15rem 0.45rem; }
   .rr-meter { height: 0.6rem; }
   .rr-pickbtn { margin-top: 0.25rem; padding: 0.22rem 0.6rem; font-size: 0.82rem; }
