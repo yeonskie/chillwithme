@@ -5005,7 +5005,7 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .rr-pick .rr-tag { left: 0; right: 0; top: 31.6%; text-align: center; font-size: max(11px, 1.3cqw); }
 .rr-cards { left: 0; right: 0; top: 39.2%; display: flex; justify-content: center; gap: 3.4cqw; }
 .rr-card { width: 21.5cqw; display: flex; flex-direction: column; align-items: center; }
-.rr-card-name { margin: 0 0 0.7cqw; font-size: max(11px, 1.3cqw); }
+.rr-card-name { margin: 0 0 1.1cqw; padding: 0.35em 0.9em; border: 1px solid var(--text); border-radius: var(--radius); font-weight: 700; font-size: max(11px, 1.3cqw); }
 .rr-card-rat { width: 80%; }
 .rr-card-rat svg { display: block; width: 100%; height: auto; overflow: visible; }
 .rr-stats { margin: 2.4cqw 0 0; display: grid; grid-template-columns: auto auto; gap: 0.55cqw 1.1cqw; align-items: center; font-size: max(10px, 1.3cqw); text-transform: uppercase; letter-spacing: 0.08em; }
@@ -5032,14 +5032,27 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
   .rr-hero { order: -1; width: min(26rem, 100%); aspect-ratio: 770 / 340; position: relative; inset: auto; margin: 0 0 1.2rem; }
   .rr-hero-rat { position: absolute; width: 53%; }
   .rr-hero-0 { left: 47%; top: 0; } .rr-hero-1 { left: 23.5%; top: 28.7%; } .rr-hero-2 { left: 0; top: 57.4%; }
-  .rr-cards { flex-direction: column; align-items: center; gap: 1.4rem; margin-top: 1.2rem; }
-  .rr-card { width: min(17rem, 100%); }
-  .rr-card-rat { width: 72%; }
-  .rr-card-name { font-size: 0.95rem; margin-bottom: 0.3rem; }
-  .rr-stats { font-size: 0.8rem; gap: 0.35rem 0.6rem; margin-top: 0.7rem; }
-  .rr-stats dd { gap: 0.5rem; }
-  .rr-meter { width: 6.4rem; height: 0.85rem; border-radius: 4px; }
-  .rr-pickbtn { width: 80%; height: auto; margin-top: 0.8rem; padding: 0.7rem 1rem; font-size: 1.15rem; border-radius: var(--radius); }
+  .rr-cards { flex-direction: column; align-items: center; gap: 0.7rem; margin-top: 0.8rem; }
+  .rr-card { width: min(21rem, 100%); display: grid; grid-template-columns: 38% 1fr; grid-template-rows: auto auto auto; column-gap: 0.8rem; align-items: center; justify-items: center; }
+  .rr-card-name { grid-column: 1 / -1; font-size: 0.95rem; margin: 0 0 0.45rem; padding: 0.2em 0.8em; }
+  .rr-card-rat { grid-column: 1; grid-row: 2 / 4; width: 100%; }
+  .rr-stats { grid-column: 2; grid-row: 2; font-size: 0.72rem; gap: 0.25rem 0.5rem; margin: 0; }
+  .rr-stats dd { gap: 0.4rem; }
+  .rr-meter { width: 4.6rem; height: 0.7rem; border-radius: 4px; }
+  .rr-pick { padding-bottom: 3.2rem; }
+  .rr-pickbtn { grid-column: 2; grid-row: 3; width: 100%; height: auto; margin-top: 0.45rem; padding: 0.4rem 0.8rem; font-size: 1rem; border-radius: var(--radius); }
+}
+
+@media (max-width: 40rem) and (max-height: 760px) {   /* short phones: squeeze the pick screen so it still fits without scrolling */
+  .rr-pick .rr-tag { display: none; }
+  .rr-pick .rr-title { font-size: min(1.9rem, 5.4vw); }
+  .rr-pick { padding-bottom: 3.2rem; }
+  .rr-cards { gap: 0.3rem; margin-top: 0.5rem; }
+  .rr-card-name { font-size: 0.82rem; margin-bottom: 0.3rem; padding: 0.1em 0.7em; }
+  .rr-stats { font-size: 0.66rem; gap: 0.15rem 0.45rem; }
+  .rr-meter { height: 0.6rem; }
+  .rr-pickbtn { margin-top: 0.3rem; padding: 0.3rem 0.6rem; font-size: 0.9rem; }
+  .rr-pick .rr-backlink { margin-top: 0.5rem; }
 }
 
 /* the race: fits the height of the page */

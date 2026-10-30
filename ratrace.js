@@ -60,6 +60,7 @@
     { id: "gouda", coat: "white", pat: "rr-stripes" },
     { id: "nibbles", coat: "grey", pat: "rr-dots" },
   ];
+  const NAMES = ["momo","miso","bean","mochi","olive","diego","stitch","charlotte","rascal","sniffer","gouda","blue cheese","havarti","rapunzel","chez","bob","ketamine","nitrogen","goldfish","phant","penelope","sonnet","geek","piper","annabeth","percy","blue","randy","jake","jungwon","karina","kitty snatcher","nayeon","dahyun","jay","zhang hao","matthew","ted","barney","robin","lily pad","rhaenyra"];   // every rat gets a random name from here (rolled with the stats)
   const COAT = {
     grey: { body: "#b2b2b2", eo: "#b2b2b2", es: "var(--text)", ei: "#000", eye: "#000", belly: true },
     white: { body: "#fff", eo: "#fff", es: "var(--text)", ei: "#000", eye: "#000" },
@@ -111,7 +112,13 @@
   let tries = Math.min(1, Math.max(0, store.get("rr-tries", 1) | 0));   // one try at "test your luck" per round (unused tries do not stack)
   const rnd10 = () => 1 + Math.floor(Math.random() * 10);
   function applyStats() { ROSTER.forEach((r) => { r.stats = {}; STATS.forEach((k) => { r.stats[k] = Math.min(10, r.base[k] + bonus[k]); }); }); }
-  function rollStats() {                                             // every rat gets fresh random stats (1-10) each time; your +1s are added on top
+  function rollNames() {   // seven different names: the three you choose from, then the computer rats
+    const p = NAMES.slice();
+    for (let i = p.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [p[i], p[j]] = [p[j], p[i]]; }
+    ROSTER.concat(OTHERS).forEach((r, i) => { r.name = p[i]; });
+  }
+  function rollStats() {
+    rollNames();                                             // every rat gets fresh random stats (1-10) each time; your +1s are added on top
     ROSTER.forEach((r) => { r.base = {}; STATS.forEach((k) => { r.base[k] = rnd10(); }); });
     applyStats();
   }
@@ -184,7 +191,7 @@
     ROSTER.forEach((r) => {
       const c = document.createElement("div");
       c.className = "rr-card";
-      c.innerHTML = '<p class="rr-card-name">' + r.id + "</p>" +
+      c.innerHTML = '<p class="rr-card-name">' + r.name + "</p>" +
         '<div class="rr-card-rat">' + ratSVG(r.coat) + "</div>" +
         '<dl class="rr-stats">' +
         "<dt>speed:</dt><dd>" + bar(r.stats.speed) + "<b>" + r.stats.speed + "/10</b></dd>" +
@@ -215,7 +222,7 @@
 
   function chooseOpponents() {
     const mine = myRat().id;
-    const pool = ROSTER.filter((r) => r.id !== mine).map((r) => ({ id: r.id, coat: r.coat })).concat(OTHERS);
+    const pool = ROSTER.filter((r) => r.id !== mine).map((r) => ({ id: r.id, name: r.name, coat: r.coat })).concat(OTHERS);
     for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
     return pool.slice(0, TUNING.opponents);
   }
@@ -223,17 +230,17 @@
   function buildLanes() {
     track.innerHTML = "";
     const me = myRat();
-    const list = [{ id: me.id, coat: me.coat }].concat(chooseOpponents());
+    const list = [{ id: me.id, name: me.name, coat: me.coat }].concat(chooseOpponents());
     lanes = list.map((r, i) => {
       const el = document.createElement("div");
       el.className = "rr-lane" + (i === 0 ? " me" : "");
-      el.innerHTML = '<span class="rr-nm">' + (i === 0 ? "you · " : "") + r.id + "</span>";
+      el.innerHTML = '<span class="rr-nm">' + (i === 0 ? "you · " : "") + r.name + "</span>";
       const ratEl = document.createElement("div");
       ratEl.className = "rr-rat";
       ratEl.innerHTML = '<div class="rr-shadow"></div>' + ratSVG(r.coat, r.pat);
       el.appendChild(ratEl);
       track.appendChild(el);
-      return { i, name: r.id, el, ratEl, x: 0, y: 0, stun: 0, boost: 0, inv: 0, jt: -1, air: 0.8, peak: 176, trips: 0, fin: null, speedMul: 1, phase: Math.random() * 6, obEls: [], chEls: [], passedO: [], passedC: [], tripSet: {}, cheeseSet: {}, hopped: {}, flagEl: null };
+      return { i, name: r.name, el, ratEl, x: 0, y: 0, stun: 0, boost: 0, inv: 0, jt: -1, air: 0.8, peak: 176, trips: 0, fin: null, speedMul: 1, phase: Math.random() * 6, obEls: [], chEls: [], passedO: [], passedC: [], tripSet: {}, cheeseSet: {}, hopped: {}, flagEl: null };
     });
     layout();
   }
@@ -541,7 +548,7 @@
     $("#rr-round").textContent = round;
     $("#rr-odds").innerHTML = "win " + winMult(round) + "x &nbsp;·&nbsp; tie 1x &nbsp;·&nbsp; lose 0x";
     $("#rr-lv").textContent = level(round);
-    $("#rr-bet-rat").textContent = myRat().id;
+    $("#rr-bet-rat").textContent = myRat().name;
     $("#rr-have").textContent = fmt(have());
     $("#rr-bet-xp").innerHTML = xpBar();
     $("#rr-stats-line").textContent = STATS.map((k) => k + " " + myRat().stats[k]).join(" · ");
