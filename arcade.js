@@ -165,3 +165,31 @@
   window.addEventListener("load", measure);
   measure();
 })();
+
+
+// ---------- The arcade cabinet: the screen has pages of games (the arrows on the sides flip between them) ----------
+(function () {
+  const ac = document.querySelector(".ac");
+  const pages = ac ? Array.from(ac.querySelectorAll(".ac-pg")) : [];
+  if (pages.length < 2) return;
+  const prev = ac.querySelector(".ac-prev"), next = ac.querySelector(".ac-next");
+  const dots = Array.from(ac.querySelectorAll(".ac-dots span"));
+  let cur = 0;
+  try { cur = Math.min(pages.length - 1, Math.max(0, parseInt(sessionStorage.getItem("ac-page"), 10) || 0)); } catch (e) {}   // coming back from a game puts you on the page you left
+  function show(i) {
+    cur = Math.min(pages.length - 1, Math.max(0, i));
+    pages.forEach((p, n) => { p.hidden = n !== cur; });
+    dots.forEach((d, n) => d.classList.toggle("on", n === cur));
+    prev.disabled = cur === 0;
+    next.disabled = cur === pages.length - 1;
+    try { sessionStorage.setItem("ac-page", String(cur)); } catch (e) {}
+  }
+  prev.addEventListener("click", () => show(cur - 1));
+  next.addEventListener("click", () => show(cur + 1));
+  document.addEventListener("keydown", (e) => {
+    if (!ac.closest(".page.active") || ac.classList.contains("is-locked") || ac.dataset.coin) return;
+    if (e.key === "ArrowLeft") show(cur - 1);
+    else if (e.key === "ArrowRight") show(cur + 1);
+  });
+  show(cur);
+})();
