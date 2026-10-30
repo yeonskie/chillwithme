@@ -997,9 +997,9 @@ body.has-yb .page[data-page="music"] { padding-bottom: 2.8rem; }
   .page[data-page="music"], body.has-yb .page[data-page="music"] { padding-bottom: 6.5rem; }
 }
 
-/* the title sits beside the jukebox; the jukebox shrinks to fit the screen height (but never below 24rem), and on a phone it goes below the title and fills the width */
-.music { width: 100%; display: flex; align-items: center; justify-content: center; gap: clamp(1.5rem, 6vw, 6rem); margin: 0 auto; text-align: center; }
-.jb-main { position: relative; width: min(42rem, calc((100vh - 12rem) * 0.637)); max-width: 100%; flex: 0 0 auto; container-type: inline-size; }
+/* "jukebox" runs down the left side of the machine, one letter a row; the title and the jukebox sit together in the middle of the screen */
+.music { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0; margin: 0 auto; text-align: center; }
+.jb-main { position: relative; width: min(42rem, calc((100vh - 12rem) * 0.637)); max-width: 100%; min-width: 0; flex: 0 1 auto; container-type: inline-size; }
 
 /* the drawing is stretched sideways to make the jukebox wider: --sx is how much (1.2 = 20% wider). --u is one design unit
    up and down (and for text), --ux is one design unit across. if you change --sx, change the 600 in aspect-ratio to 500 x --sx */
@@ -1024,14 +1024,17 @@ body.has-yb .page[data-page="music"] { padding-bottom: 2.8rem; }
 
 .jb > :not(.jb-art) { position: absolute; margin: 0; }
 
-/* the title and the little line under it, above the machine */
-.jb-head { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; width: clamp(13rem, 24vw, 20rem); flex: 0 1 auto; }
-.jb-logo { width: 78%; height: auto; display: block; fill: var(--text); }
-.jb-tag { margin: 0; font-size: 0.95rem; line-height: 1.35; }
+/* the vertical title: one letter on each row, down the left side of the machine, from just under the three rectangles to just above the bottom pedestal.
+   the head is as tall as the machine, so the heights below (cqh) are percentages of the machine's height */
+.jb-head { flex: 0 0 auto; align-self: stretch; position: relative; width: 2rem; container-type: size; }
+.jb-vtitle {
+  position: absolute; left: 0; right: 0; top: 43cqh; bottom: 13cqh; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  font-family: "Shrikhand", Georgia, serif; font-weight: 400; font-size: 6cqh; line-height: 1; color: var(--text);
+}
+.jb-vtitle span { display: block; }
 @media (max-width: 50rem) {
-  .music { flex-direction: column; gap: 0.5rem; }
-  .jb-head { width: 13rem; gap: 0.3rem; }
-  .jb-tag { font-size: 0.75rem; }
+  .jb-head { width: 1.7rem; }
+  .music { gap: 0.1rem; }
 }
 
 /* what's playing, inside the half-round screen */
@@ -4410,9 +4413,9 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 .music.is-playing .jb-bar { animation: jb-bar 0.9s ease-in-out infinite; animation-delay: var(--d); }
 @keyframes jb-bar { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.2); } }
 
-/* 5. the logo's letters bounce in one by one, then wobble a little while a song plays */
-.jb-logo path { transform-box: fill-box; transform-origin: 50% 100%; --wob: 0; animation: jb-pop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both, jb-wob 1.8s ease-in-out infinite; animation-delay: calc(0.07s * var(--i, 0)), calc(0.9s + 0.12s * var(--i, 0)); }
-.music.is-playing .jb-logo path { --wob: 2.2; }
+/* 5. the title's letters bounce in one by one, then wobble a little while a song plays */
+.jb-vtitle span { --wob: 0; transform-origin: 50% 80%; animation: jb-pop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both, jb-wob 1.8s ease-in-out infinite; animation-delay: calc(0.07s * var(--i, 0)), calc(0.9s + 0.12s * var(--i, 0)); }
+.music.is-playing .jb-vtitle span { --wob: 2.2; }
 @keyframes jb-pop { 0% { transform: translateY(45%) scale(0.6); opacity: 0; } 60% { opacity: 1; } 100% { transform: none; opacity: 1; } }
 @keyframes jb-wob { 0%, 100% { transform: none; } 30% { transform: translateY(calc(var(--wob) * -0.9%)) rotate(calc(var(--wob) * -1deg)); } 65% { transform: rotate(calc(var(--wob) * 0.8deg)); } }
 
@@ -4441,24 +4444,11 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 
 @media (prefers-reduced-motion: reduce) {
   .music.is-playing .jb-bulb, .music.is-playing .jb-pill-k, .music.is-playing .jb-pill-w, .music.is-playing .jb-cap, .music.is-playing .jb-bar,
-  .jb-logo path, .music.is-playing .jb-title.is-long, .music.is-playing .jb-artist.is-long, .jb-cell.current::before { animation: none; }
+  .jb-vtitle span, .music.is-playing .jb-title.is-long, .music.is-playing .jb-artist.is-long, .jb-cell.current::before { animation: none; }
   .jb-art .jb-pill, .jb-cell { transition: none; }
 }
-.jb-logo g > path:nth-child(1) { --i: 0; }
-.jb-logo g > path:nth-child(2) { --i: 1; }
-.jb-logo g > path:nth-child(3) { --i: 2; }
-.jb-logo g > path:nth-child(4) { --i: 3; }
-.jb-logo g > path:nth-child(5) { --i: 4; }
-.jb-logo g > path:nth-child(6) { --i: 5; }
-.jb-logo g > path:nth-child(7) { --i: 6; }
-.jb-logo g > path:nth-child(8) { --i: 7; }
-.jb-logo g > path:nth-child(9) { --i: 8; }
-.jb-logo g > path:nth-child(10) { --i: 9; }
 
-/* the description rises in from below, after the logo letters land */
-.jb-tag { animation: jb-rise 0.7s cubic-bezier(0.2, 0.9, 0.3, 1) 0.8s both; }
-@keyframes jb-rise { 0% { transform: translateY(1.2em); opacity: 0; } 100% { transform: none; opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .jb-tag { animation: none; } }
+
 
 /* ---------- Wishing well ---------- */
 .page[data-page="wishing-well"] { position: absolute; inset: 0; padding: 1rem 1rem 3.4rem; overflow: hidden; }
