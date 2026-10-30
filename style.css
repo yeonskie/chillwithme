@@ -3713,12 +3713,19 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 @media (min-width: 61rem) {
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { position: relative; }
   :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { display: none; }
-  .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 5.7rem; transform: translate(-50%, -50%); z-index: 2; margin: 0; justify-content: center; padding: 0 2rem; isolation: isolate; min-width: 10.8rem; aspect-ratio: 1.877; box-sizing: border-box; line-height: 1.15; text-align: center; }   /* the ticket art (same as the homepage's) sits behind the count; it keeps its shape and grows evenly, and the number gets smaller as it gets longer */
+  .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 5.7rem; transform: translate(-50%, -50%); z-index: 2; margin: 0; justify-content: center; padding: 0 2rem; isolation: isolate; min-width: 12.2rem; aspect-ratio: 1.877; box-sizing: border-box; line-height: 1.15; text-align: center; }   /* the ticket art (same as the homepage's) sits behind the count; it keeps its shape and grows evenly, and the number gets smaller as it gets longer */
   .shop-roofbox strong { font-size: 2.1rem; }
   .shop-roofbox strong[data-len="6"], .shop-roofbox strong[data-len="7"] { font-size: 1.7rem; }
   .shop-roofbox strong[data-len="8"], .shop-roofbox strong[data-len="9"] { font-size: 1.4rem; }
   .shop-roofbox strong:is([data-len="10"], [data-len="11"], [data-len="12"], [data-len="13"], [data-len="14"]) { font-size: 1.15rem; }
   .shop-roofbox span { font-size: 0.95rem; }
+  /* really big balances (the leaderboard's top spots): keep shrinking the number so the ticket doesn't swell up with it */
+  .shop-roofbox strong:is([data-len="15"], [data-len="16"], [data-len="17"]) { font-size: 1.1rem; }
+  .shop-roofbox strong:is([data-len="18"], [data-len="19"], [data-len="20"]) { font-size: 0.96rem; }
+  .shop-roofbox strong:is([data-len="21"], [data-len="22"], [data-len="23"]) { font-size: 0.84rem; }
+  .shop-roofbox strong:is([data-len="24"], [data-len="25"], [data-len="26"], [data-len="27"], [data-len="28"]) { font-size: 0.72rem; }
+  .shop-roofbox { max-width: 18rem; }
+  .shop-roofbox strong { white-space: nowrap; }
 }
 
 /* prize shop buttons: a slightly heavier outline (desktop), and the greyed-out ones a bit less faded */
@@ -3754,12 +3761,16 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
   .page[data-page="rare-shop"] .shop-body::before { bottom: 1.6%; }
 }
 @media (min-width: 61rem) {
-  .page[data-page="rare-shop"] .shop-roofbox { top: 3.13rem; padding: 0 1.4rem; min-width: 8.6rem; }
+  .page[data-page="rare-shop"] .shop-roofbox { top: 3.13rem; padding: 0 1.4rem; min-width: 9.8rem; max-width: 13rem; }
   .page[data-page="rare-shop"] .shop-roofbox strong { font-size: 1.7rem; }
   .page[data-page="rare-shop"] .shop-roofbox strong[data-len="6"], .page[data-page="rare-shop"] .shop-roofbox strong[data-len="7"] { font-size: 1.35rem; }
   .page[data-page="rare-shop"] .shop-roofbox strong[data-len="8"], .page[data-page="rare-shop"] .shop-roofbox strong[data-len="9"] { font-size: 1.1rem; }
   .page[data-page="rare-shop"] .shop-roofbox strong:is([data-len="10"], [data-len="11"], [data-len="12"], [data-len="13"], [data-len="14"]) { font-size: 0.92rem; }
   .page[data-page="rare-shop"] .shop-roofbox span { font-size: 0.8rem; }
+  .page[data-page="rare-shop"] .shop-roofbox strong:is([data-len="15"], [data-len="16"], [data-len="17"]) { font-size: 0.82rem; }
+  .page[data-page="rare-shop"] .shop-roofbox strong:is([data-len="18"], [data-len="19"], [data-len="20"]) { font-size: 0.72rem; }
+  .page[data-page="rare-shop"] .shop-roofbox strong:is([data-len="21"], [data-len="22"], [data-len="23"]) { font-size: 0.62rem; }
+  .page[data-page="rare-shop"] .shop-roofbox strong:is([data-len="24"], [data-len="25"], [data-len="26"], [data-len="27"], [data-len="28"]) { font-size: 0.54rem; }
 }
 
 /* carnival heading font (Shrikhand): titles only, meaning every h1 and h2 on the site.
@@ -4926,3 +4937,10 @@ body.ww-wishes-open .ww { visibility: hidden; }
 @media (max-width: 700px) { .cz-lb { width: min(21rem, calc(100% - 16px)); } }   /* wider on phones so the names fit */
 body.entry-open .sr-door { display: none; }
 @media (max-width: 40rem) { body.has-yb .featured { padding-bottom: 5.8rem; } }   /* an open entry stops above the yeonbucks box so its buttons stay reachable */
+
+/* phones: the yeonbucks count stays pinned under the sign (fixed, like the sign) while the shop scrolls beneath it; the page starts below it, with the soft fade under the count */
+@media (max-width: 40rem) {
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { position: fixed; left: 0; right: 0; top: calc(var(--bar-height) + var(--lights-h) + 10.5rem); height: 2.5rem; margin: 0; padding: 0; box-sizing: border-box; justify-content: center; align-items: center; z-index: 4; pointer-events: none; }
+  .page.active:is([data-page="shop"], [data-page="rare-shop"]) { top: 13rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-sign::after { top: calc(var(--bar-height) + var(--lights-h) + 13rem); }
+}
