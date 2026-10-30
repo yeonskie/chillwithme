@@ -993,8 +993,10 @@ body.has-yb .page[data-page="music"] { padding-bottom: 2.8rem; }
 @media (min-width: 50.01rem) and (pointer: fine) { main:has(.page[data-page="music"].active) { overflow-y: hidden; } }
 /* phones and tablets: scroll with extra room at the bottom, so the last bit clears the yeonbucks buttons and the pet */
 @media (max-width: 50rem), (pointer: coarse) {
-  .jb-main { width: min(100%, 30rem); }
-  .page[data-page="music"], body.has-yb .page[data-page="music"] { padding-bottom: 6.5rem; }
+  /* the whole jukebox (and the volume line under it) fits the height of the phone, so it doesn't scroll: the width is worked out from the
+     height that's left (the jukebox is 785 tall for every 440 wide). it only stops shrinking at 15rem wide, so very short screens scroll instead */
+  .music .jb-main { width: min(100%, 30rem, max(15rem, calc((100dvh - var(--bar-height) * 2 - var(--lights-h) - 3.9rem) * 0.5605))); }
+  .page[data-page="music"], body.has-yb .page[data-page="music"] { padding-top: 0.6rem; padding-bottom: 3.3rem; }
 }
 
 /* "jukebox" runs down the left side of the machine, one letter a row; the title and the jukebox sit together in the middle of the screen */
@@ -1033,7 +1035,7 @@ body.has-yb .page[data-page="music"] { padding-bottom: 2.8rem; }
 }
 .jb-vtitle span { display: block; }
 @media (max-width: 50rem) {
-  .jb-head { width: 1.7rem; }
+  .jb-head { width: 1.7rem; margin-right: -0.8rem; }
   .music { gap: 0.1rem; }
 }
 
