@@ -994,9 +994,9 @@ body.has-yb .page[data-page="music"] { padding-bottom: 2.8rem; }
 /* phones and tablets: scroll with extra room at the bottom, so the last bit clears the yeonbucks buttons and the pet */
 @media (max-width: 50rem), (pointer: coarse) {
   /* the whole jukebox (and the volume line under it) fits the height of the phone, so it doesn't scroll: the width is worked out from the
-     height that's left (the jukebox is 785 tall for every 440 wide). it only stops shrinking at 15rem wide, so very short screens scroll instead */
-  .music .jb-main { width: min(100%, 30rem, max(15rem, calc((100dvh - var(--bar-height) * 2 - var(--lights-h) - 3.9rem) * 0.5605))); }
-  .page[data-page="music"], body.has-yb .page[data-page="music"] { padding-top: 0.6rem; padding-bottom: 3.3rem; }
+     height that's left (the jukebox is 785 tall for every 440 wide). it never gets narrower than 21rem (so the buttons stay easy to tap), so short screens scroll instead */
+  .music .jb-main { width: min(100%, 30rem, max(21rem, calc((100dvh - 15.6rem) * 0.5605))); }
+  .page[data-page="music"], body.has-yb .page[data-page="music"] { padding-top: 0.2rem; padding-bottom: 7.2rem; }   /* room under the jukebox for the volume line and then the yeonbucks buttons, so none of the jukebox is covered */
 }
 
 /* "jukebox" runs down the left side of the machine, one letter a row; the title and the jukebox sit together in the middle of the screen */
