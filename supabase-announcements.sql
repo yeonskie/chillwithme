@@ -41,3 +41,41 @@ grant insert, update, delete on public.announcements to authenticated;
 
 -- a first one to try (delete or untick it when you're done looking):
 -- insert into public.announcements (title, body) values ('hello!', 'a megaphone for news from yeon. check back here for updates.');
+
+-- ----------------------------------------------------------------------------
+-- Reactions: visitors can tap a heart, thumbs up or party popper on an announcement (once each per browser, tap again to undo).
+-- No sign-in needed: each browser has a random id. Safe to run again.
+-- ----------------------------------------------------------------------------
+create table if not exists public.announcement_reactions (
+  ann_id     bigint not null references public.announcements(id) on delete cascade,
+  kind       text   not null check (kind in ('heart', 'thumbs', 'party')),
+  client     text   not null check (char_length(client) between 8 and 64),
+  created_at timestamptz not null default now(),
+  primary key (ann_id, kind, client)
+);
+alter table public.announcement_reactions enable row level security;
+revoke all on public.announcement_reactions from anon, authenticated;   -- (only the two functions below touch it)
+
+create or replace function public.ann_react(p_ann bigint, p_kind text, p_client text, p_on boolean) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if p_kind not in ('heart', 'thumbs', 'party') or p_client is null or char_length(p_client) not between 8 and 64 then return; end if;
+  if coalesce(p_on, false) then
+    insert into public.announcement_reactions (ann_id, kind, client)
+    select a.id, p_kind, p_client from public.announcements a where a.id = p_ann and a.active
+    on conflict do nothing;
+  else
+    delete from public.announcement_reactions where ann_id = p_ann and kind = p_kind and client = p_client;
+  end if;
+end $$;
+
+-- every announcement's counts, plus which ones are mine
+create or replace function public.ann_reactions(p_client text) returns jsonb
+language sql security definer set search_path = public as $$
+  select coalesce(jsonb_agg(jsonb_build_object('ann', t.ann_id, 'kind', t.kind, 'n', t.n, 'mine', t.mine)), '[]'::jsonb)
+  from (select ann_id, kind, count(*) as n, coalesce(bool_or(client = p_client), false) as mine
+          from public.announcement_reactions group by ann_id, kind) t;
+$$;
+
+revoke all on function public.ann_react(bigint, text, text, boolean), public.ann_reactions(text) from public;
+grant execute on function public.ann_react(bigint, text, text, boolean), public.ann_reactions(text) to anon, authenticated;

@@ -26,6 +26,52 @@
   const seen = () => read("ann-seen");
   const visible = () => { const h = hidden(); return items.filter((a) => h.indexOf(a.id) === -1).slice(0, MAX_SHOWN); };
 
+  // ----- reactions: heart / thumbs up / party popper, once each per browser (tap again to undo) -----
+  const KINDS = [["heart", "\u2764\uFE0F", "heart"], ["thumbs", "\uD83D\uDC4D", "thumbs up"], ["party", "\uD83C\uDF89", "celebrate"]];
+  let me = ""; try { me = localStorage.getItem("ann-me") || ""; } catch (e) {}
+  if (me.length < 8) { me = "a" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); try { localStorage.setItem("ann-me", me); } catch (e) {} }
+  let reacts = {};                           // { announcement id: { heart: {n, mine}, ... } }
+  const slot = (id, kind) => ((reacts[id] = reacts[id] || {})[kind] = reacts[id][kind] || { n: 0, mine: false });
+  async function rpc(fn, args) {
+    const res = await fetch(COMMUNITY.url.replace(/\/$/, "") + "/rest/v1/rpc/" + fn, { method: "POST", headers: { apikey: COMMUNITY.key, "Content-Type": "application/json" }, body: JSON.stringify(args) });
+    if (!res.ok) throw new Error("rpc " + res.status);
+    return res.status === 204 ? null : res.json();
+  }
+  async function loadReacts() {
+    try {
+      const rows = await rpc("ann_reactions", { p_client: me });
+      if (!Array.isArray(rows)) return;
+      reacts = {};
+      rows.forEach((r) => { const s = slot(r.ann, r.kind); s.n = +r.n || 0; s.mine = !!r.mine; });
+      if (!pop.hidden) build();
+    } catch (e) { /* no reactions yet (the sql wasn't run?): the announcements still work */ }
+  }
+  function reactBar(a) {
+    const bar = document.createElement("div");
+    bar.className = "ann-react";
+    KINDS.forEach(([kind, icon, label]) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "ann-rx"; b.setAttribute("aria-label", label);
+      const paintBtn = () => {
+        const s = slot(a.id, kind);
+        b.setAttribute("aria-pressed", s.mine ? "true" : "false");
+        b.innerHTML = "";
+        const i = document.createElement("span"); i.className = "ann-rx-i"; i.textContent = icon; b.appendChild(i);
+        if (s.n > 0) { const n = document.createElement("span"); n.className = "ann-rx-n"; n.textContent = s.n; b.appendChild(n); }
+      };
+      paintBtn();
+      b.addEventListener("click", () => {
+        const s = slot(a.id, kind), on = !s.mine;
+        s.mine = on; s.n = Math.max(0, s.n + (on ? 1 : -1)); paintBtn();
+        rpc("ann_react", { p_ann: a.id, p_kind: kind, p_client: me, p_on: on }).catch(() => {
+          s.mine = !on; s.n = Math.max(0, s.n + (on ? -1 : 1)); paintBtn();   // (it didn't go through: put it back)
+        });
+      });
+      bar.appendChild(b);
+    });
+    return bar;
+  }
+
   function onHome() { const n = location.hash.replace("#", "") || "home"; return n === "home" || !document.querySelector('.page[data-page="' + n + '"]'); }
 
   // which megaphone shows (home page one or top bar one), and whether the dot is on
@@ -110,6 +156,7 @@
     sign.className = "ann-sign";
     sign.textContent = "— " + SIGNED;
     box.appendChild(sign);
+    box.appendChild(reactBar(a));
     const row = document.createElement("div");
     row.className = "ann-actions";
     const ok = document.createElement("button");
@@ -207,8 +254,9 @@
       if (!pop.hidden) { if (visible().length) build(); else close(); }
     } catch (e) { /* offline or not set up: no megaphone */ }
   }
-  document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - lastLoad > REFRESH_MS) load(); });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - lastLoad > REFRESH_MS) { load(); loadReacts(); } });
   load();
+  loadReacts();
 
   // ----- owner only: the + next to refresh writes a new announcement (posting is checked by the database too) -----
   const addBtn = document.getElementById("btn-ann-add"), dlg = document.getElementById("ann-new"), form = document.getElementById("ann-form");
