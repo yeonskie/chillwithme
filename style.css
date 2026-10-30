@@ -5180,3 +5180,8 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 #rr-go { background: var(--text); color: var(--bg); }
 #rr-go:hover, #rr-go:focus-visible { background: var(--bg); color: var(--text); }
 #rr-go:disabled { opacity: 0.5; }
+/* bigger tap area for the booth arrows (the drawn arrow stays small, the part you can press is much bigger) */
+.ac-arrow::before { content: ""; position: absolute; top: -1.1rem; bottom: -1.1rem; left: -0.9rem; right: -0.9rem; }
+.ac-prev::before { left: -1.5rem; right: -0.4rem; }
+.ac-next::before { left: -0.1rem; right: -1.5rem; }
+@media (max-width: 40rem) { .ac-arrow { font-size: 8.4cqw; width: 8cqw; } }
