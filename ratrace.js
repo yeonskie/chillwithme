@@ -60,7 +60,7 @@
     { id: "gouda", coat: "white", pat: "rr-stripes" },
     { id: "nibbles", coat: "grey", pat: "rr-dots" },
   ];
-  const NAMES = ["momo","miso","bean","mochi","olive","diego","stitch","charlotte","rascal","sniffer","gouda","blue cheese","havarti","rapunzel","chez","bob","ketamine","nitrogen","goldfish","phant","penelope","sonnet","geek","piper","annabeth","percy","blue","randy","jake","jungwon","karina","kitty snatcher","nayeon","dahyun","jay","zhang hao","matthew","ted","barney","robin","lily pad","rhaenyra"];   // every rat gets a random name from here (rolled with the stats)
+  const NAMES = ["momo","miso","bean","mochi","olive","diego","stitch","charlotte","rascal","sniffer","gouda","blue cheese","havarti","rapunzel","chez","bob","ketamine","nitrogen","goldfish","phant","penelope","sonnet","geek","piper","annabeth","percy","blue","randy","jake","jungwon","karina","kitty snatcher","nayeon","dahyun","jay","zhang hao","matthew","ted","barney","robin","lily pad","rhaenyra","the flash","batman","muenster","baby shark","lil rem","nancy","fancy rat #1","bella","celsius packet","gyub","wonhee","moka","sakura","chaewon","sprite","dr. pepper","sea monster","angel","devil","drowsy","jupiter","minerva","zeus","poseidon","demeter","hades","persephone","nugget","chicken","goat","bunny","hopper"];   // every rat gets a random name from here (rolled with the stats)
   const COAT = {
     grey: { body: "#b2b2b2", eo: "#b2b2b2", es: "var(--text)", ei: "#000", eye: "#000", belly: true },
     white: { body: "#fff", eo: "#fff", es: "var(--text)", ei: "#000", eye: "#000" },
