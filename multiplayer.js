@@ -127,7 +127,7 @@
   let offset = 0;              // the server's clock minus mine
   let poll = null, busy = false, ticking = false;
   let sig = "";                // what the screen shows right now (it only redraws when this changes)
-  let betVal = "100", notice = "", racing = false, raceKey = "";
+  let betVal = "50", notice = "", racing = false, raceKey = "";
   let myRat = null;            // the rat I picked for this race: { name, coat, stats }
   try { myRat = JSON.parse(sessionStorage.getItem("rr-mp-rat")); } catch (e) {}
   const keepRat = (r) => { myRat = r; try { if (r) sessionStorage.setItem("rr-mp-rat", JSON.stringify(r)); else sessionStorage.removeItem("rr-mp-rat"); } catch (e) {} };
@@ -269,7 +269,7 @@
       mineBox = '<div class="mp-mine"><span class="mp-ratimg">' + ratImg(myRat.coat) + "</span><b>" + esc(myRat.name) + "</b><small>" + statsLine(myRat) + "</small>" +
         '<button type="button" class="rr-text mp-swap" data-mp="pick">pick a different rat</button></div>' +
         '<div class="mp-row"><input id="mp-bet" type="text" inputmode="numeric" autocomplete="off" value="' + esc(fmt(+betVal)) + '" aria-label="your bet"><button type="button" class="hy-btn" data-mp="bet">place bet</button></div>' +
-        '<span class="rr-quick"><button type="button" data-q="50">50</button><button type="button" data-q="100">100</button><button type="button" data-q="500">500</button><button type="button" data-q="max">max</button></span>';
+        '<span class="rr-quick"><button type="button" data-q="50">50</button><button type="button" data-q="500">500</button><button type="button" data-q="5000">5000</button><button type="button" data-q="max">max</button></span>';
     } else {
       mineBox = '<button type="button" class="rr-opt rr-start" data-mp="pick">choose your rat</button>';
     }
