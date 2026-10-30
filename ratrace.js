@@ -73,7 +73,7 @@
   const betModal = $("#rr-bet-modal"), betIn = $("#rr-bet"), goBtn = $("#rr-go");
   const howModal = $("#rr-how"), countEl = $("#rr-count"), pausedEl = $("#rr-paused");
   const placesEl = $("#rr-places"), resBox = $("#rr-result"), resTitle = $("#rr-result-title"), resText = $("#rr-result-text"), resBtn = $("#rr-result-btn"), resChange = $("#rr-result-change");
-  const livesEl = $("#rr-lives"), boostEl = $("#rr-boost"), placeEl = $("#rr-place"), pauseBtn = $("#rr-pause");
+  const livesEl = $("#rr-lives"), placeEl = $("#rr-place"), pauseBtn = $("#rr-pause");
 
   const store = {
     get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
@@ -332,7 +332,7 @@
     });
     if (phase === "race" || phase === "count") {
       const me = lanes[0];
-      boostEl.textContent = me.boost > 0 ? "boost " + me.boost.toFixed(1) + "s" : "";
+      // the "boost 1.2s" readout was removed: it pushed the header down while it showed
       const rank = lanes.filter((L) => L.x > me.x + 0.01).length + 1;
       placeEl.textContent = rank + (rank === 1 ? "st" : rank === 2 ? "nd" : rank === 3 ? "rd" : "th");
     }
@@ -504,7 +504,7 @@
     show("race");
     buildLanes(); course = null; render(0);
     page.classList.remove("racing");
-    startLives = TUNING.lives; lives = startLives; drawLives(); boostEl.textContent = ""; placeEl.textContent = "1st"; $("#rr-betshow").textContent = "";
+    startLives = TUNING.lives; lives = startLives; drawLives(); placeEl.textContent = "1st"; $("#rr-betshow").textContent = "";
     refreshBet();
     betModal.hidden = false;
     betIn.focus({ preventScroll: true });
@@ -576,7 +576,7 @@
     rollRats();
     lanes[0].boost = headStart;
     page.classList.add("racing");
-    drawLives(); boostEl.textContent = ""; placeEl.textContent = "1st";
+    drawLives(); placeEl.textContent = "1st";
     phase = "count"; countT = 3 * 0.75;
     countEl.hidden = false; countEl.textContent = "3";
     render(0);
