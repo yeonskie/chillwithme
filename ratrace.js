@@ -110,7 +110,7 @@
   const saveProg = () => {};                                         // (level, xp and +1s are not saved: a refresh or a lost game starts fresh)
   let played = !!store.get("rr-played", false);     // after the first round the upgrade shop and "test your luck" show up
   let tries = Math.min(1, Math.max(0, store.get("rr-tries", 1) | 0));   // one try at "test your luck" per round (unused tries do not stack)
-  const rnd10 = () => 1 + Math.floor(Math.random() * 10);
+  const rnd10 = () => 1 + Math.floor(Math.random() * 8);   // starting stats roll 1-8 (still shown out of 10) so there is room to train
   function applyStats() { ROSTER.forEach((r) => { r.stats = {}; STATS.forEach((k) => { r.stats[k] = Math.min(10, r.base[k] + bonus[k]); }); }); }
   function rollNames() {   // seven different names: the three you choose from, then the computer rats
     const p = NAMES.slice();
@@ -118,7 +118,7 @@
     ROSTER.concat(OTHERS).forEach((r, i) => { r.name = p[i]; });
   }
   function rollStats() {
-    rollNames();                                             // every rat gets fresh random stats (1-10) each time; your +1s are added on top
+    rollNames();                                             // every rat gets fresh random stats (1-8) each time; your +1s are added on top
     ROSTER.forEach((r) => { r.base = {}; STATS.forEach((k) => { r.base[k] = rnd10(); }); });
     applyStats();
   }
@@ -625,6 +625,11 @@
     paused = !paused;
     pauseBtn.textContent = paused ? "resume" : "pause";
     pausedEl.hidden = !paused;
+    if (paused) {
+      $("#rr-p-round").textContent = round;
+      $("#rr-p-bet").textContent = fmt(bet);
+      $("#rr-p-win").textContent = winMult(round) + "x = " + fmt(bet * winMult(round));
+    }
   });
   $("#rr-resume").addEventListener("click", () => pauseBtn.click());
   $("#rr-restart").addEventListener("click", () => {   // giving up counts as a loss: the bet is gone and you start again from round 1
