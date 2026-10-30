@@ -793,7 +793,7 @@
       // popping over to the upgrade shop: keep the screen as it is so you land back where you were
       cancelAnimationFrame(raf); raf = 0;
     } else {
-      if (phase === "count" || phase === "race") { newGame(); }
+      newGame();   // leaving the game for anywhere but the upgrade shop ends the run, so single player lets you pick a new rat again
       phase = "menu"; decided = false; firstFin = null; allFin = null; paused = false;
       cancelAnimationFrame(raf); raf = 0;
       clearTimeout(resultTimer);
