@@ -802,7 +802,7 @@ const SHOP_CATS = [
 
 // big screens: the prize shop is laid out at one size and scaled to fit the screen height (no scrolling, see .shop-wrap in style.css)
 (function () {
-  const pages = [document.querySelector('.page[data-page="shop"]'), document.querySelector('.page[data-page="rare-shop"]')].filter(Boolean);
+  const pages = [document.querySelector('.page[data-page="shop"]'), document.querySelector('.page[data-page="rare-shop"]'), document.querySelector('.page[data-page="rat-shop"]')].filter(Boolean);
   if (!pages.length) return;
   const root = document.documentElement;
   const wide = window.matchMedia ? window.matchMedia("(min-width: 61rem)") : { matches: true };

@@ -2452,8 +2452,8 @@ body.has-yb .page { padding-bottom: 4.5rem; }
 }
 
 /* ---------- Prize shop ---------- */
-.page[data-page="shop"], .page[data-page="rare-shop"] { position: absolute; inset: 0; padding: 0.5rem 1rem 1.2rem; overflow: auto; }
-.page[data-page="shop"].active, .page[data-page="rare-shop"].active { display: flex; flex-direction: column; align-items: center; }
+.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"] { position: absolute; inset: 0; padding: 0.5rem 1rem 1.2rem; overflow: auto; }
+.page[data-page="shop"].active, .page[data-page="rare-shop"].active, .page[data-page="rat-shop"].active { display: flex; flex-direction: column; align-items: center; }
 .shop-wrap { width: min(60rem, 100%); text-align: center; }
 .shop-wrap .hy-back { margin-bottom: 0; }
 
@@ -3577,8 +3577,8 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 
 /* shop + rare items shop on phones: leave room at the bottom (the yeonbucks box and music player sit on top of it) so the last items can scroll up above them */
 @media (max-width: 40rem) {
-  .page[data-page="shop"] .shop-wrap, .page[data-page="rare-shop"] .shop-wrap { margin-bottom: 5rem; }
-  body.has-mini .page[data-page="shop"] .shop-wrap, body.has-mini .page[data-page="rare-shop"] .shop-wrap { margin-bottom: 9rem; }
+  .page[data-page="shop"] .shop-wrap, .page[data-page="rare-shop"] .shop-wrap, .page[data-page="rat-shop"] .shop-wrap { margin-bottom: 5rem; }
+  body.has-mini .page[data-page="shop"] .shop-wrap, body.has-mini .page[data-page="rare-shop"] .shop-wrap, body.has-mini .page[data-page="rat-shop"] .shop-wrap { margin-bottom: 9rem; }
 }
 
 /* the prize shop title is my hanging sign drawing */
@@ -3604,23 +3604,23 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 }
 
 /* the sign hangs from the very top of the page, with the back link and the rest underneath it */
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) { padding-top: 0; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap { display: flex; flex-direction: column; align-items: center; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-head { order: -1; margin: 0 0 1.2rem; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap > .hy-back { margin-top: 0.3rem; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) { padding-top: 0; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-wrap { display: flex; flex-direction: column; align-items: center; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-head { order: -1; margin: 0 0 1.2rem; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-wrap > .hy-back { margin-top: 0.3rem; }
 
 /* a tighter top so the items are higher up the page */
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.2rem 1.2rem; margin-top: 0.3rem; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar p { margin: 0; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { flex-direction: row; align-items: baseline; gap: 0.4rem; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have strong { font-size: 1.4rem; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-msg { margin: 0; min-height: 0.8em; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-awning { height: clamp(2rem, 5vw, 3rem); }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.2rem 1.2rem; margin-top: 0.3rem; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-bar p { margin: 0; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-have { flex-direction: row; align-items: baseline; gap: 0.4rem; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-have strong { font-size: 1.4rem; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-msg { margin: 0; min-height: 0.8em; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-awning { height: clamp(2rem, 5vw, 3rem); }
 /* ---------- the redesigned prize shop (her drawing): signpost on the left, striped shop on the right ---------- */
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-side { display: contents; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-side > .hy-back { order: 0; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-side { display: contents; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-side > .hy-back { order: 0; }
 .shop-post, .shop-pole { display: none; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) #sr-door-shop { flex: none; order: 9; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) #sr-door-shop { flex: none; order: 9; }
 
 /* the sign drawing: black = text, white = bg, lines stay 1px */
 .shop-post * { vector-effect: non-scaling-stroke; stroke-width: 1px; }
@@ -3636,71 +3636,71 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 .shop-post .pp2 { fill: var(--text); }
 
 /* the awning and the framed shop (all screen sizes) */
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { width: 100%; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-store { width: 100%; }
 .shop-tent { display: block; width: 100%; height: auto; overflow: visible; margin-bottom: -4.53%; position: relative; z-index: 1; pointer-events: none; }
 .shop-tent .tk { fill: var(--text); stroke: var(--text); stroke-width: 1px; stroke-linejoin: miter; }
 .shop-tent .tk > :not(.tw) { vector-effect: non-scaling-stroke; }
 .shop-tent .tw { fill: var(--bg); stroke: var(--text); stroke-width: 1px; vector-effect: non-scaling-stroke; }
 .shop-tent polygon.tw, .shop-tent path.tw { vector-effect: non-scaling-stroke; }
 .shop-tent .tw path { vector-effect: non-scaling-stroke; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body { position: relative; width: 92.4%; margin: 0 auto; box-sizing: border-box; padding: 6.7% 5.5% 4%; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 1rem 1rem; background: var(--bg); }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body::before { content: ""; position: absolute; inset: 0 1.6% 2.3% 1.6%; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 0.7rem 0.7rem; pointer-events: none; }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-grid { --gx: 0.6rem; gap: 0.6rem var(--gx); }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item { flex-basis: calc((100% - 2 * var(--gx)) / 3); }
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-pager { margin-top: 1.2rem; gap: 2rem; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-body { position: relative; width: 92.4%; margin: 0 auto; box-sizing: border-box; padding: 6.7% 5.5% 4%; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 1rem 1rem; background: var(--bg); }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-body::before { content: ""; position: absolute; inset: 0 1.6% 2.3% 1.6%; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 0.7rem 0.7rem; pointer-events: none; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-grid { --gx: 0.6rem; gap: 0.6rem var(--gx); }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-item { flex-basis: calc((100% - 2 * var(--gx)) / 3); }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-pager { margin-top: 1.2rem; gap: 2rem; }
 @media (max-width: 40rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item { flex-basis: calc((100% - var(--gx)) / 2); }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body { padding: 8% 5% 5%; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-item { flex-basis: calc((100% - var(--gx)) / 2); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-body { padding: 8% 5% 5%; }
 }
 
 @media (min-width: 61rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) { padding: 0 clamp(1rem, 4vw, 5rem) 0 calc(clamp(1rem, 7vw, 9rem) + 18.2rem); overflow: hidden; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) { padding: 0 clamp(1rem, 4vw, 5rem) 0 calc(clamp(1rem, 7vw, 9rem) + 18.2rem); overflow: hidden; }
   /* the whole shop is sized to fit the screen height (shop.js sets --shop-s; the text stays the normal size), so it never scrolls and sits in the middle */
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap { flex: none; width: var(--shop-w, 1100px); zoom: var(--shop-s, 1); margin: auto 0; padding: 30px 0; display: block; text-align: left; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-head { display: none; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { align-self: start; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-grid { --gx: 26px; gap: 12px var(--gx); }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item { aspect-ratio: 276 / 128; justify-content: center; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-desc { font-size: 0.86rem; line-height: 1.15rem; min-height: 0; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-name { font-size: 1.08rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-name small { font-size: 0.7rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-price { font-size: 0.9rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-buy { font-size: 0.9rem; padding: 0.25rem 1.2rem; margin-top: 0.25rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-prev { height: 2.4rem; margin-bottom: 0.1rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item { gap: 0.15rem; padding: 0.4rem 0.6rem 0.45rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-pager { font-size: 0.9rem; margin-top: 0.9rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-arrow { font-size: 1rem; padding: 0.2rem 1rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body { padding: 6.6% 4.3% 2.4%; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-wrap { flex: none; width: var(--shop-w, 1100px); zoom: var(--shop-s, 1); margin: auto 0; padding: 30px 0; display: block; text-align: left; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-head { display: none; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-store { align-self: start; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-grid { --gx: 26px; gap: 12px var(--gx); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-item { aspect-ratio: 276 / 128; justify-content: center; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-desc { font-size: 0.86rem; line-height: 1.15rem; min-height: 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-name { font-size: 1.08rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-name small { font-size: 0.7rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-price { font-size: 0.9rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-buy { font-size: 0.9rem; padding: 0.25rem 1.2rem; margin-top: 0.25rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-prev { height: 2.4rem; margin-bottom: 0.1rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-item { gap: 0.15rem; padding: 0.4rem 0.6rem 0.45rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-pager { font-size: 0.9rem; margin-top: 0.9rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-arrow { font-size: 1rem; padding: 0.2rem 1rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-body { padding: 6.6% 4.3% 2.4%; }
 
   /* narrower computer windows: two items across (the shop gets taller instead of smaller, and the page scrolls) */
-  html.shop-2col :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item { flex-basis: calc((100% - var(--gx)) / 2); }
+  html.shop-2col :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-item { flex-basis: calc((100% - var(--gx)) / 2); }
 
   /* the left side (back link, buttons, signpost, door) is small, not scaled with the shop, and stays at the left edge of the screen */
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-side { position: absolute; left: clamp(1rem, 7vw, 9rem); top: clamp(2rem, 7vh, 5rem); bottom: 0; width: 17rem; zoom: calc(1 / var(--shop-s, 1)); --bw: 1px; display: grid; grid-template-columns: 1fr; grid-template-rows: auto auto auto auto auto 1fr; align-content: start; align-items: start; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-side > .hy-back { grid-row: 2; grid-column: 1; margin: 0.8rem 0 0; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar { display: contents; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { grid-row: 2; grid-column: 1; margin: 0.3rem 0 0; flex-direction: row; align-items: baseline; gap: 0.4rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have strong { font-size: 1.1rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row { grid-row: 1; grid-column: 1; width: max-content; max-width: 100%; margin: 0.3rem 0 0; display: grid; grid-template-columns: 1fr 1fr; justify-items: stretch; gap: 0.5rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row .hy-btn { width: 100%; text-align: center; padding: 0.35rem 0.4rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row .hy-btn:first-child { width: 100%; grid-column: 1 / -1; padding: 0.35rem 0.8rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-msg { grid-row: 3; grid-column: 1; margin: 0.4rem 0 0; min-height: 1em; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-side { position: absolute; left: clamp(1rem, 7vw, 9rem); top: clamp(2rem, 7vh, 5rem); bottom: 0; width: 17rem; zoom: calc(1 / var(--shop-s, 1)); --bw: 1px; display: grid; grid-template-columns: 1fr; grid-template-rows: auto auto auto auto auto 1fr; align-content: start; align-items: start; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-side > .hy-back { grid-row: 2; grid-column: 1; margin: 0.8rem 0 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-bar { display: contents; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-have { grid-row: 2; grid-column: 1; margin: 0.3rem 0 0; flex-direction: row; align-items: baseline; gap: 0.4rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-have strong { font-size: 1.1rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-inv-row { grid-row: 1; grid-column: 1; width: max-content; max-width: 100%; margin: 0.3rem 0 0; display: grid; grid-template-columns: 1fr 1fr; justify-items: stretch; gap: 0.5rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-inv-row .hy-btn { width: 100%; text-align: center; padding: 0.35rem 0.4rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-inv-row .hy-btn:first-child { width: 100%; grid-column: 1 / -1; padding: 0.35rem 0.8rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-msg { grid-row: 3; grid-column: 1; margin: 0.4rem 0 0; min-height: 1em; }
   .shop-post { display: block; grid-row: 5; grid-column: 1; width: 88%; height: auto; overflow: visible; margin-top: 8%; }
   /* the pole: runs from the top of the sign down to the bottom of the page */
   .shop-pole { display: block; grid-row: 5 / 7; grid-column: 1; justify-self: start; align-self: stretch; width: 4.95%; margin-top: 8%; position: relative; box-sizing: border-box; border: 1px solid var(--text); border-bottom: 0; border-radius: 3px 3px 0 0; background: linear-gradient(90deg, var(--text) 0 84%, var(--bg) 84%); }
   .shop-pole::after { content: ""; position: absolute; left: -1px; right: -1px; top: 100%; height: 100vh; border: 1px solid var(--text); border-top: 0; background: inherit; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) #sr-door-shop { grid-row: 6; grid-column: 1; align-self: end; justify-self: start; position: relative; left: auto; bottom: auto; transform: none; z-index: 1; width: 45.6%; height: auto; margin: 0 0 1rem 29.1%; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) #sr-door-shop svg.sr-art { width: 100%; height: auto; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) #sr-door-shop { grid-row: 6; grid-column: 1; align-self: end; justify-self: start; position: relative; left: auto; bottom: auto; transform: none; z-index: 1; width: 45.6%; height: auto; margin: 0 0 1rem 29.1%; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) #sr-door-shop svg.sr-art { width: 100%; height: auto; }
 }
 
 /* the shop is scaled with zoom, so thin lines are made slightly thicker to stay as dark as the rest of the site */
 @media (min-width: 61rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) { --bw: calc(1px / var(--shop-s, 1)); }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap .hy-btn,
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item,
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-prev { border-width: var(--bw); }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body { border-width: var(--bw); border-top-width: 0; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body::before { border-width: var(--bw); border-top-width: 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) { --bw: calc(1px / var(--shop-s, 1)); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-wrap .hy-btn,
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-item,
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-prev { border-width: var(--bw); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-body { border-width: var(--bw); border-top-width: 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-body::before { border-width: var(--bw); border-top-width: 0; }
   .shop-pole, .shop-pole::after { border-width: var(--bw); }
   .shop-pole { border-bottom-width: 0; }
   .shop-pole::after { border-top-width: 0; }
@@ -3711,8 +3711,8 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 /* the yeonbucks box on the middle of the awning (big screens; phones keep the count next to the buttons) */
 .shop-roofbox { display: none; }
 @media (min-width: 61rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-store { position: relative; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { display: none; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-store { position: relative; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-have { display: none; }
   .shop-roofbox { display: flex; flex-direction: column; align-items: center; position: absolute; left: 50%; top: 5.7rem; transform: translate(-50%, -50%); z-index: 2; margin: 0; justify-content: center; padding: 0 2rem; isolation: isolate; min-width: 12.2rem; aspect-ratio: 1.877; box-sizing: border-box; line-height: 1.15; text-align: center; }   /* the ticket art (same as the homepage's) sits behind the count; it keeps its shape and grows evenly, and the number gets smaller as it gets longer */
   .shop-roofbox strong { font-size: 2.1rem; }
   .shop-roofbox strong[data-len="6"], .shop-roofbox strong[data-len="7"] { font-size: 1.7rem; }
@@ -3730,8 +3730,8 @@ body:has(#pet:not([hidden])) .mini { right: calc(1rem + 4.2rem + 0.5rem); }
 
 /* prize shop buttons: a slightly heavier outline (desktop), and the greyed-out ones a bit less faded */
 @media (min-width: 61rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap .hy-btn { box-shadow: 0 0 0 calc(var(--bw, 1px) * 0.5) var(--line); }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-buy:disabled, :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-arrow:disabled { opacity: 0.6; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-wrap .hy-btn { box-shadow: 0 0 0 calc(var(--bw, 1px) * 0.5) var(--line); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-buy:disabled, :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-arrow:disabled { opacity: 0.6; }
 }
 
 /* the rare items shop: the "new stock in ..." line sits under the buttons */
@@ -3813,7 +3813,7 @@ a.home-ul:hover, a.home-ul:focus-visible { text-decoration-thickness: 2px; outli
 @media (max-width: 40rem) { .ft-note { left: 12%; right: 12%; } .ft-front .ft-text { font-size: 0.78rem; line-height: 1.45; } }
 
 /* lighter outline on the buy buttons in both shops (the other shop buttons keep the darker one) */
-:is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-wrap .shop-buy { box-shadow: none; }
+:is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-wrap .shop-buy { box-shadow: none; }
 /* the secret door sits above the page, so it used to cover the buttons in pop-ups (add yours, owner posts, etc.).
    while one of those pop-ups is open, the middle of the page is lifted above the door, so the door goes behind the pop-up. */
 main:has(.mb-add:not([hidden]), .mb-light:not([hidden]), .gi-dialog:not([hidden]), .hy-intro:not([hidden])) { z-index: 31; }
@@ -3864,8 +3864,8 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
 /* phones and tablets (the prize shop and the rare shop): "how to earn more yeonbucks" gets its own line, and "inventory" and
    "leaderboard" sit side by side under it. (big screens have their own layout further up) */
 @media (max-width: 60.99rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row { display: grid; grid-template-columns: auto auto; justify-content: center; gap: 0.5rem; width: 100%; flex: 0 0 100%; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-inv-row .hy-btn:first-child { grid-column: 1 / -1; justify-self: center; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-inv-row { display: grid; grid-template-columns: auto auto; justify-content: center; gap: 0.5rem; width: 100%; flex: 0 0 100%; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-inv-row .hy-btn:first-child { grid-column: 1 / -1; justify-self: center; }
 }
 
 /* phones and tablets, both shops:
@@ -3873,27 +3873,27 @@ body:has(#sr-door:not([hidden])) .page[data-page="community"] { padding-bottom: 
    - "back to the arcade / secret room" sits under the buttons (the order of things in the column is set here)
    - in the rare shop, "inventory" is centered under "how to earn" */
 @media (max-width: 60.99rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-head { order: -5; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar { order: -4; margin-top: 0.9rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-restock { order: -3; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-side > .hy-back { order: -2; margin: 0.9rem 0 0; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-msg { order: -1; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { padding: 0.7rem 0; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-awning { margin-top: 1.4rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-head { order: -5; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-bar { order: -4; margin-top: 0.9rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-restock { order: -3; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-side > .hy-back { order: -2; margin: 0.9rem 0 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-msg { order: -1; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-have { padding: 0.7rem 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-awning { margin-top: 1.4rem; }
 }
 
 /* phones and tablets, both shops: half the space between the sign and the number of yeonbucks (the space under the number stays) */
 @media (max-width: 60.99rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-head { margin-bottom: 0.6rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar { margin-top: 0.45rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { padding-top: 0.35rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-head { margin-bottom: 0.6rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-bar { margin-top: 0.45rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-have { padding-top: 0.35rem; }
 }
 
 /* a little less again between the sign and the number of yeonbucks */
 @media (max-width: 60.99rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-head { margin-bottom: 0.4rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-bar { margin-top: 0.3rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { padding-top: 0.25rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-head { margin-bottom: 0.4rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-bar { margin-top: 0.3rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-have { padding-top: 0.25rem; }
 }
 @media (max-width: 60.99rem) { .page[data-page="rare-shop"] .shop-restock { margin-top: 0.5rem; } }
 
@@ -3948,9 +3948,9 @@ html.sr-door-off .sr-door { display: none !important; }
 .shop-cat { margin: 0.35rem 0 1.1rem; text-align: center; font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: 1.4rem; line-height: 1.2; letter-spacing: 0.01em; }
 
 /* the prize shop's pages are all as tall as the tallest one (shop.js sets --shop-body-h), with the arrows along the bottom */
-.page[data-page="shop"] .shop-body { display: flex; flex-direction: column; min-height: var(--shop-body-h, 0); }
-.page[data-page="shop"] .shop-body .shop-pager { margin-top: auto; }
-.page[data-page="shop"] .shop-body .shop-grid { margin-bottom: 1.2rem; }
+:is(.page[data-page="shop"], .page[data-page="rat-shop"]) .shop-body { display: flex; flex-direction: column; min-height: var(--shop-body-h, 0); }
+:is(.page[data-page="shop"], .page[data-page="rat-shop"]) .shop-body .shop-pager { margin-top: auto; }
+:is(.page[data-page="shop"], .page[data-page="rat-shop"]) .shop-body .shop-grid { margin-bottom: 1.2rem; }
 
 /* secret room on phones: the flags and the background pattern scroll up with the page (secretroom.js sets --sr-y while you scroll) */
 html.sr-scroll .hl-lights { transform: translateY(var(--sr-y, 0px)); }
@@ -3991,7 +3991,7 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 
 /* phones: the inner line of the shop frame is the same distance from the outer one on the sides and the bottom */
 @media (max-width: 40rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-body::before { inset: 0 5px 5px 5px; border-radius: 0 0 11px 11px; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-body::before { inset: 0 5px 5px 5px; border-radius: 0 0 11px 11px; }
 }
 
 /* ---------- arcade on phones: smaller boxes and tighter, even spacing; centered on the page, and (on short screens) kept up above the bottom-left buttons ---------- */
@@ -4166,12 +4166,12 @@ html.sr-scroll body { background-position: 0 var(--sr-y, 0px); }
 /* bigger computer screens zoom the shop out to fit the window (--shop-s, set by shop.js), which shrinks these words too.
    the words keep their normal size, and only get bigger when the zoom drops low enough that they'd be under about 13px (names) / 11px (the rest) on screen */
 @media (min-width: 61rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-name { font-size: max(1.08rem, calc(13px / var(--shop-s, 1))); }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-desc { font-size: max(0.86rem, calc(11px / var(--shop-s, 1))); line-height: 1.15rem; min-height: 0; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-price { font-size: max(0.9rem, calc(11.5px / var(--shop-s, 1))); }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-note { font-size: max(0.62rem, calc(10px / var(--shop-s, 1))); }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-prev { height: 2.4rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-item .hy-btn { font-size: max(0.85rem, calc(12.5px / var(--shop-s, 1))); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-name { font-size: max(1.08rem, calc(13px / var(--shop-s, 1))); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-desc { font-size: max(0.86rem, calc(11px / var(--shop-s, 1))); line-height: 1.15rem; min-height: 0; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-price { font-size: max(0.9rem, calc(11.5px / var(--shop-s, 1))); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-note { font-size: max(0.62rem, calc(10px / var(--shop-s, 1))); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-prev { height: 2.4rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-item .hy-btn { font-size: max(0.85rem, calc(12.5px / var(--shop-s, 1))); }
 }
 
 /* ---------- the arcade: a cabinet with the games on its screen (index.html; the old turning circle is gone) ---------- */
@@ -4822,7 +4822,7 @@ body.ww-wishes-open .ww { visibility: hidden; }
 /* a small note under a category's name (e.g. under "pets" in the prize shop) */
 .shop-cat.has-note { margin-bottom: 0.4rem; }
 .shop-cat-note { margin: 0 0 1.1rem; text-align: center; font-size: 0.72rem; line-height: 1.5; opacity: 0.7; }
-@media (min-width: 61rem) { :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-cat-note { font-size: max(0.62rem, calc(11px / var(--shop-s, 1))); } }
+@media (min-width: 61rem) { :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-cat-note { font-size: max(0.62rem, calc(11px / var(--shop-s, 1))); } }
 
 /* inventory: a shorter box; the title and the x stay put and the list inside scrolls */
 #inv .inv-panel { display: flex; flex-direction: column; overflow: hidden; max-height: min(30rem, 78vh); }
@@ -4940,9 +4940,9 @@ body.entry-open .sr-door { display: none; }
 
 /* phones: the yeonbucks count stays pinned under the sign (fixed, like the sign) while the shop scrolls beneath it; the page starts below it, with the soft fade under the count */
 @media (max-width: 40rem) {
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-have { position: fixed; left: 0; right: 0; top: calc(var(--bar-height) + var(--lights-h) + 10.5rem); height: 2.5rem; margin: 0; padding: 0; box-sizing: border-box; justify-content: center; align-items: center; z-index: 4; pointer-events: none; }
-  .page.active:is([data-page="shop"], [data-page="rare-shop"]) { top: 13rem; }
-  :is(.page[data-page="shop"], .page[data-page="rare-shop"]) .shop-sign::after { top: calc(var(--bar-height) + var(--lights-h) + 13rem); }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-have { position: fixed; left: 0; right: 0; top: calc(var(--bar-height) + var(--lights-h) + 10.5rem); height: 2.5rem; margin: 0; padding: 0; box-sizing: border-box; justify-content: center; align-items: center; z-index: 4; pointer-events: none; }
+  .page.active:is([data-page="shop"], [data-page="rare-shop"], [data-page="rat-shop"]) { top: 13rem; }
+  :is(.page[data-page="shop"], .page[data-page="rare-shop"], .page[data-page="rat-shop"]) .shop-sign::after { top: calc(var(--bar-height) + var(--lights-h) + 13rem); }
 }
 
 /* ---------- the arcade screen has pages: arrows on the sides + page dots ---------- */
@@ -5015,14 +5015,15 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .rr-meter { display: block; width: 9cqw; height: 1.2cqw; border: 1px solid var(--text); border-radius: 0.25cqw; padding: 2px; box-sizing: border-box; }
 .rr-meter i { display: block; height: 100%; background: var(--text); border-radius: 1px; }
 .rr-pickbtn { margin-top: 1.9cqw; width: 13.2cqw; height: 3.07cqw; padding: 0; font-size: max(13px, 1.82cqw); border-radius: 0.3cqw; }
-.rr-pick .rr-backlink { left: 3%; top: 93%; font-size: max(11px, 0.95cqw); }
+.rr-pick .rr-backlink { left: 0; right: 0; top: 84%; text-align: center; font-size: max(11px, 0.95cqw); }
 
 @media (max-width: 40rem) {
   .rr-menu, .rr-pick { container-type: normal; display: flex; align-items: center; justify-content: center; height: auto; min-height: 100%; box-sizing: border-box; padding-bottom: 7rem; }
   .rr-stage { width: 100%; aspect-ratio: auto; container-type: normal; display: flex; flex-direction: column; align-items: center; text-align: center; }
   .rr-stage > * { position: static; }
   .rr-menu .rr-title { font-size: 2.8rem; }
-  .rr-pick .rr-title { font-size: 2.2rem; }
+  .rr-pick .rr-title { font-size: min(2.2rem, 5.8vw); white-space: nowrap; }
+  .rr-pick .rr-tag { font-size: min(0.85rem, 3.1vw); }
   .rr-menu .rr-tag, .rr-pick .rr-tag { font-size: 0.85rem; margin-top: 0.4rem; }
   .rr-opts { width: min(22rem, 100%); margin-top: 1.6rem; gap: 0.8rem; }
   .rr-opts .rr-opt { height: auto; padding: 0.9rem 1rem; font-size: 1.2rem; border-radius: var(--radius); }
@@ -5128,3 +5129,39 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .rr-places { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; font-size: 0.85rem; border-top: 1px solid var(--text); }
 .rr-places li { display: grid; grid-template-columns: 2.6rem 1fr auto; gap: 0.5rem; padding: 0.35rem 0.2rem; border-bottom: 1px solid color-mix(in srgb, var(--text) 25%, transparent); text-align: left; }
 .rr-places li.me { font-weight: 700; }
+
+/* bottom of the bet pop-up: the upgrade shop and test your luck */
+.rr-extra { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin-top: 0.3rem; }
+.rr-extra[hidden] { display: none; }
+.rr-extra .hy-btn { text-decoration: none; padding: 0.3rem 0.8rem; border-color: var(--text); }
+/* test your luck */
+.rr-luck-bar { position: relative; width: 100%; height: 2.4rem; border: 1px solid var(--text); border-radius: var(--radius); background: var(--bg); touch-action: manipulation; cursor: pointer; overflow: hidden; }
+.rr-luck-zone { position: absolute; top: 0; bottom: 0; background: #9fd49a; border-left: 1px solid var(--text); border-right: 1px solid var(--text); box-sizing: border-box; }
+.rr-luck-puff { position: absolute; top: 50%; width: 1.6rem; height: 1.6rem; margin: -0.8rem 0 0 -0.8rem; pointer-events: none; }
+.rr-luck-puff svg { display: block; width: 100%; height: 100%; fill: #f8d34a; stroke: var(--text); stroke-width: 1.4px; stroke-linejoin: round; }
+.rr-msg.win { font-weight: 700; opacity: 1; }
+
+/* xp bar and stat points */
+.rr-xprow { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; width: 100%; font-size: 0.8rem; }
+.rr-xprow:empty { display: none; }
+.rr-xprow small { font-size: 0.72rem; opacity: 0.75; }
+.rr-xp { display: block; width: 100%; height: 0.8rem; border: 1px solid var(--text); border-radius: 0.25rem; padding: 2px; box-sizing: border-box; }
+.rr-xp i { display: block; height: 100%; background: var(--text); border-radius: 1px; transition: width 0.4s; }
+.rr-statsline { font-size: 0.78rem; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.06em; }
+.rr-pickpts { display: flex; flex-wrap: wrap; gap: 0.4rem 0.5rem; align-items: center; justify-content: center; font-size: 0.78rem; }
+.rr-pickpts:empty { display: none; }
+.rr-pickpts .hy-btn { padding: 0.25rem 0.7rem; border-color: var(--text); }
+.shop-cat:has(.shop-pick:not(:empty)) .shop-cat-t { display: none; }
+.shop-pick { font-size: 0.8rem; font-weight: 400; }
+
+/* upgrade inventory */
+.rr-disclaimer { margin: 0; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.8; }
+.rr-uplist { list-style: none; margin: 0; padding: 0; width: 100%; display: flex; flex-direction: column; border-top: 1px solid var(--text); }
+.rr-uplist li { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; padding: 0.55rem 0.2rem; border-bottom: 1px solid color-mix(in srgb, var(--text) 25%, transparent); text-align: left; }
+.rr-uplist .rr-up-empty { justify-content: center; text-align: center; font-size: 0.8rem; opacity: 0.75; }
+.rr-up-t { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.rr-up-t b { font-size: 0.9rem; }
+.rr-up-t small { font-size: 0.72rem; opacity: 0.75; }
+.rr-uplist .hy-btn { flex: none; padding: 0.25rem 0.8rem; border-color: var(--text); }
+.rr-uplist .hy-btn.on { background: var(--text); color: var(--bg); }
+.rr-shop-note { text-align: center; margin: 0.8rem 0 0; }

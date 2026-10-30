@@ -80,21 +80,48 @@
     get(k, d) { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
   };
-  let round = Math.max(1, store.get("rr-round", 1) | 0);
+  let round = 1;                                                     // a game starts at round 1 every time the page loads
   let items = Object.assign({ puff: 0, cheese: 0 }, store.get("rr-items", {}));
-  let myId = store.get("rr-rat", null);
-  let locked = !!store.get("rr-locked", false) && !!myId;            // rat can only be changed before the first round begins
+  let myId = null;
+  let locked = false;            // rat can only be changed before the first round begins
   const setLocked = (v) => { locked = v; store.set("rr-locked", v); if (typeof changeBtns === "function") changeBtns(); };
-  const savedStats = store.get("rr-stats", {});                      // upgrades will be saved here later
-  // every rat gets fresh random stats (1-10) each time; saved upgrades (rr-stats) are added on top later
-  function rollStats() {
-    ROSTER.forEach((r) => {
-      const up = savedStats[r.id] || {}, rnd = () => 1 + Math.floor(Math.random() * 10);
-      r.stats = {};
-      ["speed", "jump", "hunger"].forEach((k) => { r.stats[k] = Math.min(10, rnd() + (up[k] || 0)); });
-    });
+  // ----- power ups (each is good for one race: bought in the upgrade shop or won in "test your luck") and rat levels -----
+  const UPS = [
+    { id: "train",  name: "training",      desc: "pick one stat to boost by +1 until your game ends", price: 1500 },
+    { id: "shield", name: "trap shield",   desc: "next race only: your first trip costs nothing", price: 1000 },
+    { id: "soft",   name: "soft landing",  desc: "next race only: a trip costs 0.5s instead of 1s", price: 250 },
+    { id: "magnet", name: "cheese magnet", desc: "next race only: grab cheese from further away", price: 1500 },
+    { id: "hang",   name: "hang time",     desc: "next race only: your jump stays in the air longer", price: 500 },
+    { id: "stash",  name: "cheese stash",  desc: "next race only: start with a free cheese boost", price: 1000 },
+  ];
+  const STATS = ["speed", "jump", "hunger"];
+  const ups = Object.assign({ shield: 0, soft: 0, magnet: 0, hang: 0, stash: 0 }, store.get("rr-ups", {}));   // held for the next race (0 or 1 each)
+  let activeUp = store.get("rr-active", null);                       // the one upgrade switched on for the next race
+  if (!activeUp || !ups[activeUp]) activeUp = null;
+  let boughtAt = 0;       // the round you bought a boost in: you can buy one per game, then again 5 rounds later (a new game starts fresh)
+  const canBuyBoost = () => !boughtAt || round >= boughtAt + 5;
+  let act = {};                                                      // what is switched on in the race that's running
+  const saveUps = () => store.set("rr-ups", ups);
+  const bonus = { speed: 0, jump: 0, hunger: 0 };                    // +1s from level ups and training: they last until the game ends
+  let points = 0;           // stat points waiting to be spent
+  let xp = 0, plevel = 1;
+  const xpNeed = (l) => 60 + 30 * (l - 1);                           // xp to get from level l to the next one
+  const saveProg = () => {};                                         // (level, xp and +1s are not saved: a refresh or a lost game starts fresh)
+  let played = !!store.get("rr-played", false);     // after the first round the upgrade shop and "test your luck" show up
+  let tries = Math.max(0, store.get("rr-tries", 0) | 0);   // one try at "test your luck" for every round you finish
+  const rnd10 = () => 1 + Math.floor(Math.random() * 10);
+  function applyStats() { ROSTER.forEach((r) => { r.stats = {}; STATS.forEach((k) => { r.stats[k] = Math.min(10, r.base[k] + bonus[k]); }); }); }
+  function rollStats() {                                             // every rat gets fresh random stats (1-10) each time; your +1s are added on top
+    ROSTER.forEach((r) => { r.base = {}; STATS.forEach((k) => { r.base[k] = rnd10(); }); });
+    applyStats();
   }
   rollStats();
+  function newGame() {   // a lost game, a restart, leaving mid-race or a refresh: back to round 1 with new random rats and no +1s (power ups you are holding stay)
+    round = 1; setLocked(false); boughtAt = 0; store.set("rr-boughtat", 0);
+    STATS.forEach((k) => { bonus[k] = 0; });
+    points = 0; xp = 0; plevel = 1;
+    rollStats();
+  }
   const myRat = () => ROSTER.find((r) => r.id === myId) || ROSTER[0];
   const fmt = (n) => Number(n).toLocaleString("en-US");
   const have = () => (window.YB ? window.YB.have() : 0);
@@ -320,11 +347,14 @@
     me.jt = 0;
   }
 
+  let shieldReady = false;
   function trip(L) {
-    L.stun = TUNING.tripTime; L.inv = TUNING.tripTime + 0.35; L.jt = -1; L.y = 0; L.trips++;
+    if (L.i === 0 && shieldReady) { shieldReady = false; L.inv = 0.5; pop(L, "shield!", "good"); return; }   // the trap shield soaks up the first trip
+    const tt = L.i === 0 && act.soft ? TUNING.tripTime * 0.5 : TUNING.tripTime;                             // soft landing: half the time lost
+    L.stun = tt; L.inv = tt + 0.35; L.jt = -1; L.y = 0; L.trips++;
     if (L.i === 0) {
       lives--; drawLives();
-      pop(L, "oof -1s", "bad");
+      pop(L, "oof -" + tt + "s", "bad");
       if (lives <= 0) eliminate();
     } else pop(L, "oof", "bad");
   }
@@ -371,8 +401,8 @@
       course.cheese.forEach((c, k) => {
         if (L.passedC[k]) return;
         if (L.i === 0) {
-          if (L.x > c.x + TUNING.cheeseHalf) { L.passedC[k] = true; L.chEls[k].classList.add("missed"); return; }
-          if (lives > 0 && Math.abs(L.x - c.x) < TUNING.cheeseHalf && L.stun <= 0 && L.y + TUNING.ratH > c.y0 && L.y < c.y1) {
+          if (L.x > c.x + TUNING.cheeseHalf * (act.magnet ? 1.6 : 1)) { L.passedC[k] = true; L.chEls[k].classList.add("missed"); return; }
+          if (lives > 0 && Math.abs(L.x - c.x) < TUNING.cheeseHalf * (act.magnet ? 1.6 : 1) && L.stun <= 0 && L.y + TUNING.ratH + (act.magnet ? 60 : 0) > c.y0 && L.y < c.y1 + (act.magnet ? 40 : 0)) {
             L.passedC[k] = true; L.boost += myBoostDur; L.chEls[k].classList.add("got"); pop(L, "+" + myBoostDur.toFixed(1) + "s", "good");
           }
         } else if (L.x >= c.x) {
@@ -435,6 +465,12 @@
 
   function finish(kind) {
     phase = "done";
+    played = true; store.set("rr-played", true); tries++; store.set("rr-tries", tries);
+    const over = kind === "lose" || kind === "out";                                    // a lost game ends the run, so no xp for it
+    const gain = over ? 0 : kind === "win" ? 30 + 10 * (round - 1) : 20;                 // wins pay more xp, and later rounds more again
+    let leveled = 0;
+    xp += gain;
+    while (xp >= xpNeed(plevel)) { xp -= xpNeed(plevel); plevel++; points++; leveled++; }
     resBox.dataset.kind = kind;
     if (kind === "win") {
       const pay = bet * TUNING.payWin;
@@ -449,11 +485,13 @@
       resText.textContent = "your bet (" + fmt(bet) + ") comes back to you.";
       resBtn.textContent = "run it back";
     } else {
-      round = 1; store.set("rr-round", 1); setLocked(false);
+      newGame();
       resTitle.textContent = kind === "out" ? "out of puffs" : "the rats won this one";
       resText.textContent = (kind === "out" ? "you tripped " + TUNING.lives + " times. " : "") + "you lost " + fmt(bet) + " yeonbucks.";
       resBtn.textContent = "try again";
     }
+    $("#rr-res-xp").innerHTML = gain ? "<b>+" + gain + " xp</b>" + (leveled ? " · level up!" : "") + xpBar() : "";
+    renderPickers();
     clearTimeout(resultTimer);
     resultTimer = setTimeout(() => { resBox.hidden = false; resBtn.focus({ preventScroll: true }); }, kind === "out" ? 0 : 600);
   }
@@ -475,6 +513,30 @@
   function changeBtns() { $("#rr-bet-back").hidden = locked; resChange.hidden = locked; }
   function parseBet() { return Math.floor(Number(String(betIn.value).replace(/\D/g, "")) || 0); }
   function fmtBetInput() { const n = parseBet(); betIn.value = n ? fmt(n) : ""; }
+  function xpBar() {
+    return '<span class="rr-xp"><i style="width:' + Math.min(100, (xp / xpNeed(plevel)) * 100).toFixed(0) + '%"></i></span><small>level ' + plevel + " · " + xp + "/" + xpNeed(plevel) + " xp</small>";
+  }
+  function renderPickers() {
+    document.querySelectorAll("[data-pickpts]").forEach((box) => {
+      box.innerHTML = "";
+      if (points < 1) return;
+      const lab = document.createElement("span");
+      lab.textContent = points > 1 ? points + " stat points: pick a stat" : "pick a stat to boost by +1:";
+      box.appendChild(lab);
+      STATS.forEach((k) => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "hy-btn"; b.textContent = k + " " + myRat().stats[k];
+        b.addEventListener("click", () => spendPoint(k));
+        box.appendChild(b);
+      });
+    });
+    resBtn.disabled = points > 0; resChange.disabled = points > 0;      // pick your stat before moving on
+  }
+  function spendPoint(k) {
+    if (points < 1) return;
+    points--; bonus[k]++; applyStats(); saveProg();
+    renderPickers(); refreshBet(); if (typeof updateShop === "function") updateShop();
+  }
   function refreshBet() {
     $("#rr-round").textContent = round;
     $("#rr-lv").textContent = level(round);
@@ -482,7 +544,14 @@
     $("#rr-have").textContent = fmt(have());
     buyPuff.textContent = items.puff ? "+1 gerber puff · added" : "+1 gerber puff · " + fmt(TUNING.puffPrice);
     buyCheese.textContent = "cheesy head start · " + fmt(TUNING.cheesePrice) + (items.cheese ? " (have " + items.cheese + ")" : "");
+    $("#rr-bet-xp").innerHTML = xpBar();
+    $("#rr-stats-line").textContent = STATS.map((k) => k + " " + myRat().stats[k]).join(" · ");
+    const act1 = UPS.find((u) => u.id === activeUp);
+    $("#rr-held").textContent = act1 ? "activated for this race: " + act1.name : "";
+    renderPickers();
     changeBtns();
+    $("#rr-extra").hidden = !played;
+    $("#rr-luck-open").textContent = "test your luck" + (tries ? " (" + tries + ")" : "");
     buyPuff.disabled = items.puff >= TUNING.puffMax;
     buyCheese.disabled = items.cheese >= TUNING.cheeseMax;
   }
@@ -497,15 +566,17 @@
     bet = b;
     $("#rr-betshow").innerHTML = "<b>bet:</b> " + fmt(b);
     setLocked(true);
+    act = activeUp ? { [activeUp]: true } : {}; if (activeUp) ups[activeUp] = 0; activeUp = null; store.set("rr-active", null); saveUps();   // only the activated one is used, and it is used up
     const me = myRat();
     myStats = me.stats; myBoostDur = boostOf(myStats.hunger);
     startLives = TUNING.lives + items.puff; lives = startLives;
-    const headStart = items.cheese * myBoostDur;
+    const headStart = (items.cheese + (act.stash ? 1 : 0)) * myBoostDur;
+    shieldReady = !!act.shield;
     items.puff = 0; items.cheese = 0; store.set("rr-items", items);
     betModal.hidden = true;
     decided = false; firstFin = null; allFin = null; T = 0; cam = 0; jumpQ = 0;
     buildLanes();
-    lanes[0].air = airOf(myStats.jump); lanes[0].peak = peakOf(myStats.jump);
+    lanes[0].air = airOf(myStats.jump) * (act.hang ? 1.15 : 1); lanes[0].peak = peakOf(myStats.jump);
     course = makeCourse();
     layoutCourse();
     rollRats();
@@ -540,7 +611,6 @@
 
   $("[data-go=pick]").addEventListener("click", () => { if (locked) { openBet(); return; } phase = "pick"; buildCards(); show("pick"); });
   $("[data-go=multi]").addEventListener("click", () => { menuNote.textContent = "multi-player is coming soon: racing your friends is next!"; });
-  $("#rr-pick-back").addEventListener("click", () => { phase = "menu"; show("menu"); });
   $("#rr-cards").addEventListener("click", (e) => {
     const b = e.target.closest(".rr-pickbtn");
     if (!b) return;
@@ -567,7 +637,7 @@
   $("#rr-resume").addEventListener("click", () => pauseBtn.click());
   $("#rr-restart").addEventListener("click", () => {   // giving up counts as a loss: the bet is gone and you start again from round 1
     if (phase !== "race" && phase !== "count") return;
-    round = 1; store.set("rr-round", 1); setLocked(false);
+    newGame();
     openBet();
   });
   track.addEventListener("pointerdown", (e) => { if (phase === "race" && !paused) { e.preventDefault(); startJump(); } });
@@ -581,6 +651,143 @@
     if ((e.key === "p" || e.key === "P") && (phase === "race" || phase === "count") && howModal.hidden) pauseBtn.click();
   });
 
+  // ----- test your luck: stop the puff in the green zone for a random power up -----
+  const luckModal = $("#rr-luck"), luckBar = $("#rr-luck-bar"), luckZone = $("#rr-luck-zone"), luckPuff = $("#rr-luck-puff"), luckRes = $("#rr-luck-res"), luckGo = $("#rr-luck-go");
+  let luckState = "off", luckPos = 0, luckDir = 1, luckZ = [0.4, 0.6], luckLast = 0, luckRaf = 0;
+  function luckDraw() { luckPuff.style.left = (luckPos * 100).toFixed(2) + "%"; }
+  function luckTick(now) {
+    luckRaf = 0;
+    if (luckState !== "run") return;
+    const dt = Math.min(0.05, (now - luckLast) / 1000 || 0); luckLast = now;
+    luckPos += luckDir * dt * (0.9 + 0.1 * Math.min(tries, 5));
+    if (luckPos >= 1) { luckPos = 1; luckDir = -1; } else if (luckPos <= 0) { luckPos = 0; luckDir = 1; }
+    luckDraw();
+    luckRaf = requestAnimationFrame(luckTick);
+  }
+  function luckReady() {
+    luckRes.textContent = tries ? "tries left: " + tries : "";
+    if (!tries) { luckState = "off"; luckGo.textContent = "no tries left"; luckGo.disabled = true; luckRes.textContent = "you get one try for every round you finish."; return; }
+    const w = 0.2, st = 0.08 + Math.random() * (0.84 - w);
+    luckZ = [st, st + w]; luckZone.style.left = (st * 100).toFixed(1) + "%"; luckZone.style.width = (w * 100) + "%";
+    luckPos = 0; luckDir = 1; luckState = "run"; luckLast = performance.now();
+    luckGo.disabled = false; luckGo.textContent = "stop!";
+    luckDraw();
+    cancelAnimationFrame(luckRaf); luckRaf = requestAnimationFrame(luckTick);
+  }
+  function grantPowerUp() {
+    const pool = UPS.filter((u) => u.id === "train" || !ups[u.id]);   // training always, the one-race ones if you aren't already holding them
+    const u = pool[Math.floor(Math.random() * pool.length)];
+    if (u.id === "train") { points++; saveProg(); return "you got training! pick a stat to boost below."; }
+    ups[u.id] = 1; saveUps();
+    return "you got " + u.name + "! activate it in your upgrade inventory.";
+  }
+  function luckStop() {
+    if (luckState !== "run") return;
+    luckState = "done"; cancelAnimationFrame(luckRaf); luckRaf = 0;
+    tries--; store.set("rr-tries", tries);
+    const hit = luckPos >= luckZ[0] && luckPos <= luckZ[1];
+    luckRes.textContent = hit ? grantPowerUp() : "so close! not this time.";
+    luckRes.classList.toggle("win", hit);
+    luckGo.textContent = tries ? "try again (" + tries + ")" : "no tries left";
+    luckGo.disabled = !tries;
+    refreshBet();
+  }
+  function openLuck() { luckRes.classList.remove("win"); betModal.hidden = true; luckModal.hidden = false; luckReady(); }
+  function closeLuck() { luckState = "off"; cancelAnimationFrame(luckRaf); luckRaf = 0; luckModal.hidden = true; betModal.hidden = false; refreshBet(); }
+  $("#rr-luck-open").addEventListener("click", openLuck);
+  $("#rr-luck-close").addEventListener("click", closeLuck);
+  luckGo.addEventListener("click", () => { if (luckState === "run") luckStop(); else { luckRes.classList.remove("win"); luckReady(); } });
+  luckBar.addEventListener("pointerdown", () => luckStop());
+
+  // ----- upgrade inventory: the boosts you hold, and which one is switched on for the next race -----
+  const upInv = $("#rr-upinv");
+  const upInv2 = document.getElementById("rat-upinv");     // the same pop-up on the upgrade shop page
+  function renderUpInv() { document.querySelectorAll(".rr-uplist").forEach(renderUpList); }
+  function renderUpList(upList) {
+    upList.innerHTML = "";
+    const mine = UPS.filter((u) => u.id !== "train" && ups[u.id]);
+    if (!mine.length) { const li = document.createElement("li"); li.className = "rr-up-empty"; li.textContent = "no upgrades yet. get some in the upgrade shop or from test your luck."; upList.appendChild(li); return; }
+    mine.forEach((u) => {
+      const li = document.createElement("li");
+      li.innerHTML = '<span class="rr-up-t"><b></b><small></small></span><button type="button" class="hy-btn"></button>';
+      li.querySelector("b").textContent = u.name;
+      li.querySelector("small").textContent = u.desc.replace("next race only: ", "");
+      const b = li.querySelector("button");
+      b.textContent = activeUp === u.id ? "activated" : "activate";
+      b.classList.toggle("on", activeUp === u.id);
+      b.addEventListener("click", () => {
+        activeUp = activeUp === u.id ? null : u.id;     // only one at a time
+        store.set("rr-active", activeUp);
+        renderUpInv(); refreshBet();
+      });
+      upList.appendChild(li);
+    });
+  }
+  if (upInv2) {
+    document.getElementById("rat-upinv-open").addEventListener("click", () => { renderUpInv(); upInv2.hidden = false; });
+    document.getElementById("rat-upinv-close").addEventListener("click", () => { upInv2.hidden = true; });
+  }
+  page.addEventListener("click", (e) => { if (e.target.closest("[data-exit]")) location.hash = "#arcade"; });   // every "exit" leaves for the arcade
+  $("#rr-upinv-open").addEventListener("click", () => { betModal.hidden = true; renderUpInv(); upInv.hidden = false; });
+  $("#rr-upinv-close").addEventListener("click", () => { upInv.hidden = true; betModal.hidden = false; refreshBet(); });
+
+  // ----- the upgrade shop page (same look as the other shops) -----
+  const shopBox = document.getElementById("rat-items"), shopMsg = document.getElementById("rat-msg");
+  const SHOP_ICON = {
+    train: '<path d="M4 9v10M8 6v16M20 6v16M24 9v10M8 14h12"/>',
+    shield: '<path d="M14 3l9 3v7c0 6-4 10-9 12-5-2-9-6-9-12V6z"/>',
+    soft: '<path d="M4 22c4-2 6-2 10 0s6 2 10 0"/><path d="M14 4v12M9 11l5 5 5-5"/>',
+    magnet: '<path d="M6 4v10a8 8 0 0 0 16 0V4"/><path d="M4 8h5M19 8h5"/>',
+    hang: '<path d="M3 22c3-14 19-14 22 0" stroke-dasharray="2 3"/><path d="M14 8v-4M11 6l3-3 3 3"/>',
+    stash: '<path d="M3 20l22-4V10L3 20z"/><path d="M8 17l1 .2M16 15.5l1 .2"/>',
+  };
+  let shopMsgT = 0;
+  function say(t) { if (!shopMsg) return; shopMsg.textContent = t; clearTimeout(shopMsgT); shopMsgT = setTimeout(() => { shopMsg.textContent = ""; }, 3500); }
+  function buildShop() {
+    if (!shopBox) return;
+    shopBox.innerHTML = '<h2 class="shop-cat"><span class="shop-cat-t">rat upgrades</span><span class="rr-pickpts shop-pick" data-pickpts></span></h2><div class="shop-grid"></div>';
+    const grid = shopBox.querySelector(".shop-grid");
+    const note = document.createElement("p");
+    note.className = "shop-cat-note rr-shop-note";
+    note.innerHTML = "only one upgrade can be used per round<br>you can buy one boost per game, then again every 5 rounds";
+    shopBox.appendChild(note);
+    UPS.forEach((u) => {
+      const card = document.createElement("div");
+      card.className = "shop-item"; card.dataset.id = u.id;
+      card.innerHTML = '<span class="shop-prev shop-prev-glyph"><svg viewBox="0 0 28 28" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + SHOP_ICON[u.id] + "</svg></span>" +
+        '<span class="shop-name"></span><span class="shop-desc"></span><span class="shop-price"></span><button type="button" class="hy-btn shop-buy"></button>';
+      card.querySelector(".shop-name").textContent = u.name;
+      card.querySelector(".shop-desc").textContent = u.desc;
+      card.querySelector(".shop-buy").addEventListener("click", () => {
+        if (u.id !== "train" && (ups[u.id] || !canBuyBoost())) { updateShop(); return; }
+        if (!window.YB || !window.YB.spend(u.price)) { say("not enough yeonbucks yet!"); updateShop(); return; }
+        if (u.id === "train") { points++; saveProg(); say("pick a stat to boost!"); }
+        else { ups[u.id] = 1; boughtAt = round; store.set("rr-boughtat", boughtAt); saveUps(); say("you got " + u.name + "! activate it in your upgrade inventory."); }
+        if (window.YB) window.YB.redraw();
+        renderPickers(); updateShop();
+      });
+      grid.appendChild(card);
+    });
+    updateShop();
+  }
+  function updateShop() {
+    if (!shopBox) return;
+    shopBox.querySelectorAll(".shop-item").forEach((card) => {
+      const u = UPS.find((x) => x.id === card.dataset.id), maxed = u.id !== "train" && !!ups[u.id];
+      const b = card.querySelector(".shop-buy");
+      const capped = u.id !== "train" && !canBuyBoost() && !maxed;
+      const wait = boughtAt + 5 - round;
+      card.querySelector(".shop-price").textContent = maxed ? "in your upgrade inventory" : capped ? "next boost in " + wait + " round" + (wait === 1 ? "" : "s") : fmt(u.price) + " yeonbucks";
+      b.textContent = maxed ? "owned" : capped ? "one per game" : "buy";
+      b.disabled = maxed || capped || have() < u.price;
+      card.classList.toggle("is-owned", maxed);
+      card.classList.toggle("is-short", !maxed && !capped && have() < u.price);
+    });
+  }
+  buildShop(); renderPickers();
+  setInterval(() => { if (location.hash === "#rat-shop") updateShop(); }, 1000);
+  window.addEventListener("hashchange", () => { if (location.hash === "#rat-shop") updateShop(); });
+
   // leaving in the middle of a race counts as a loss (the bet is already in)
   function onRoute() {
     const here = location.hash === "#ratrace";
@@ -588,7 +795,7 @@
       if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
       if (phase === "menu" || screen === "menu") { buildHero(); show("menu"); }
     } else {
-      if (phase === "count" || phase === "race") { round = 1; store.set("rr-round", 1); setLocked(false); }
+      if (phase === "count" || phase === "race") { newGame(); }
       phase = "menu"; decided = false; firstFin = null; allFin = null; paused = false;
       cancelAnimationFrame(raf); raf = 0;
       clearTimeout(resultTimer);

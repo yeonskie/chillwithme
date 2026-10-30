@@ -111,7 +111,7 @@
   function updateBox() {
     if (!ybBox) return;
     const page = location.hash.replace("#", "");
-    const show = page !== "casino" && page !== "shop" && page !== "rare-shop";
+    const show = page !== "casino" && page !== "shop" && page !== "rare-shop" && page !== "rat-shop";
     ybBox.hidden = !show;
     document.body.classList.toggle("has-yb", show);
     if (!show) return;
