@@ -4,7 +4,7 @@
 //   2. pick your rat (diego, charlotte or stitch, each with speed / jump / hunger)
 //   3. place your bet (a pop-up over the track), then the race
 // The race never shows an end: the track just keeps scrolling past you until the flag shows up.
-// First rat over the flag wins: 3x your bet. A tie gives your bet back. Anything else is 0x.
+// First rat over the flag wins: 2x your bet in rounds 1-2, 3x in rounds 3-4, 5x from round 5 on. A tie gives your bet back. Anything else is 0x.
 // Jump the traps (tap the track or press space), jump up to grab cheese (0.5s boost each).
 // Every trip costs a gerber puff and a second. Out of puffs = out of the race.
 //
@@ -22,7 +22,7 @@
     tripTime: 1.0,         // seconds lost when you trip
     cheeseBoost: 0.5,      // seconds of boost per piece of cheese (at full hunger)
     boostMul: 1.7,         // how much faster a boost is
-    payWin: 3, payTie: 1,
+    payTie: 1,
     puffPrice: 450, puffMax: 1,
     cheesePrice: 200, cheeseMax: 8,
     opponents: 4,          // computer rats in the race
@@ -97,6 +97,7 @@
   const ups = Object.assign({ shield: 0, soft: 0, magnet: 0, hang: 0, stash: 0 }, store.get("rr-ups", {}));   // held for the next race (0 or 1 each)
   let activeUp = store.get("rr-active", null);                       // the one upgrade switched on for the next race
   if (!activeUp || !ups[activeUp]) activeUp = null;
+  const winMult = (r) => r >= 5 ? 5 : r >= 3 ? 3 : 2;   // what a win pays: rounds 1-2 pay 2x, rounds 3-4 pay 3x, round 5 and on pay 5x
   let boughtAt = 0;       // the round you bought a boost in: you can buy one per game, then again 5 rounds later (a new game starts fresh)
   const canBuyBoost = () => !boughtAt || round >= boughtAt + 5;
   let act = {};                                                      // what is switched on in the race that's running
@@ -472,7 +473,7 @@
     while (xp >= xpNeed(plevel)) { xp -= xpNeed(plevel); plevel++; points++; leveled++; }
     resBox.dataset.kind = kind;
     if (kind === "win") {
-      const pay = bet * TUNING.payWin;
+      const pay = bet * winMult(round);
       if (window.YB) window.YB.add(pay);
       round++; store.set("rr-round", round);
       resTitle.textContent = "you won!";
@@ -538,6 +539,7 @@
   }
   function refreshBet() {
     $("#rr-round").textContent = round;
+    $("#rr-odds").innerHTML = "win " + winMult(round) + "x &nbsp;·&nbsp; tie 1x &nbsp;·&nbsp; lose 0x";
     $("#rr-lv").textContent = level(round);
     $("#rr-bet-rat").textContent = myRat().id;
     $("#rr-have").textContent = fmt(have());
