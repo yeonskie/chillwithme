@@ -244,6 +244,7 @@
     c = String(c || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
     if (c.length < 4) { say("type the room code."); $("sg-code").focus(); return; }
     try {
+      try { await rpc("sg_cleanup"); } catch (e) {}              // closes rooms nobody's been in for 5 minutes
       const s = await rpc("sg_state", { p_code: c });
       if (!s || !s.room) { say("can't find a room with that code."); return; }
       const already = s.players.some((p) => p.id === me.id);
