@@ -262,6 +262,10 @@
         try { await asOwner("/storage/v1/object/music/" + s.slice((BASE + MUSIC_PUBLIC).length), { method: "DELETE" }); } catch (e) { /* a leftover file is harmless */ }
       }
     },
+    // a new announcement for the megaphone (see supabase-announcements.sql)
+    async addAnnouncement(row) {
+      await asOwner("/rest/v1/announcements", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(row) });
+    },
     // idols for the "guess the k-pop idol" game (see supabase-idols.sql)
     async addIdol(row) {
       await asOwner("/rest/v1/idols", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(row) });

@@ -4989,16 +4989,16 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .rr-menu, .rr-pick { height: 100%; container-type: size; display: flex; align-items: center; justify-content: center; }
 .rr-stage { position: relative; width: min(100cqw, 177.78cqh); aspect-ratio: 16 / 9; container-type: inline-size; }
 .rr-stage > * { position: absolute; margin: 0; }
-.rr-menu .rr-title { left: 14.42%; top: 25.2%; font-size: 3.96cqw; line-height: 1; white-space: nowrap; }
-.rr-menu .rr-tag { left: 14.42%; top: 35.3%; font-size: max(11px, 1.3cqw); }
-.rr-opts { left: 14.42%; top: 46.9%; width: 24.47%; display: flex; flex-direction: column; gap: 1.48cqw; }
+.rr-menu .rr-title { left: 14.42%; top: 30.2%; font-size: 3.1cqw; line-height: 1; white-space: nowrap; }
+.rr-menu .rr-tag { left: 14.42%; top: 37.2%; font-size: max(11px, 1.3cqw); }
+.rr-opts { left: 14.42%; top: 46.9%; width: 24.47%; display: flex; flex-direction: column; gap: 0.7cqw; }
 .rr-opts .rr-opt { height: 3.83cqw; padding: 0; font-size: 1.56cqw; border-radius: 0.64cqw; }
 .rr-menu .rr-note { left: 14.42%; top: 76.5%; font-size: max(11px, 0.95cqw); min-height: 0; }
-.rr-menu .rr-backlink { left: 14.42%; top: 81%; font-size: max(11px, 0.95cqw); }
+.rr-menu .rr-backlink { left: 14.42%; top: 72.8%; font-size: max(11px, 0.95cqw); }
 .rr-hero { inset: 0; pointer-events: none; }
 .rr-hero-rat { position: absolute; width: 26.4%; }
 .rr-hero-rat svg { display: block; width: 100%; height: auto; overflow: visible; }
-.rr-hero-0 { left: 59.4%; top: 43.1%; } .rr-hero-1 { left: 51.8%; top: 51.9%; } .rr-hero-2 { left: 44.8%; top: 60.7%; }
+.rr-hero-0 { left: 59.4%; top: 39.1%; } .rr-hero-1 { left: 51.8%; top: 47.9%; } .rr-hero-2 { left: 44.8%; top: 56.7%; }
 .rr-rat path, .rr-rat circle, .rr-hero-rat path, .rr-hero-rat circle, .rr-card-rat path, .rr-card-rat circle { vector-effect: non-scaling-stroke; stroke-width: 1.2px; }
 .rr-rat .r-tail path, .rr-hero-rat .r-tail path, .rr-card-rat .r-tail path { stroke: none; }
 
@@ -5205,3 +5205,62 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .ac-prev::before { left: -1.5rem; right: -0.4rem; }
 .ac-next::before { left: -0.1rem; right: -1.5rem; }
 @media (max-width: 40rem) { .ac-arrow { font-size: 8.4cqw; width: 8cqw; } }
+
+
+/* ---------- announcements: the megaphone and its pop-up (see announcements.js) ---------- */
+.ann-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 0.3rem; color: inherit; background: none; border: 0; cursor: pointer; line-height: 1; }
+.ann-btn[hidden] { display: none; }
+.ann-btn:hover svg, .ann-btn:focus-visible svg { transform: rotate(-8deg); }
+.ann-btn svg { display: block; transition: transform 0.15s; }
+.ann-dot { position: absolute; top: -2px; right: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--text); box-shadow: 0 0 0 2px var(--bg); }
+.ann-dot[hidden] { display: none; }
+.ann-home { display: flex; margin: 0 auto 0.3rem; }
+.ann-home svg { width: 38px; height: 32px; }
+.cell-left .ann-bar { margin-left: -0.3rem; padding: 0.3rem; }
+.ann-box { position: relative; width: min(24rem, 100%); max-height: 100%; overflow-y: auto; box-sizing: border-box; background: var(--bg); color: var(--text); border: 2px solid var(--text); border-radius: var(--radius); padding: 1.2rem 1.1rem 1.1rem; text-align: left; font-size: 0.85rem; line-height: 1.45; }
+.ann-title { margin: 0 0 0.9rem; text-align: center; font-family: var(--font-heading); font-size: 1.4rem; line-height: 1.1; }
+.ann-list { display: flex; flex-direction: column; gap: 1rem; }
+.ann-item { display: flex; flex-direction: column; gap: 0.35rem; padding-bottom: 1rem; border-bottom: 1px solid var(--text); }
+.ann-item:last-child { padding-bottom: 0; border-bottom: 0; }
+.ann-date { margin: 0; font-size: 0.7rem; letter-spacing: 0.06em; opacity: 0.6; }
+.ann-head { margin: 0; font-size: 1rem; font-weight: 700; }
+.ann-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ann-sign { margin: 0.2rem 0 0; text-align: right; font-style: italic; }
+.ann-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin-top: 0.5rem; }
+.ann-actions button { font: inherit; font-size: 0.78rem; color: var(--text); background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); padding: 0.4rem 0.9rem; cursor: pointer; }
+.ann-actions button:hover, .ann-actions button:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.ann-actions .ann-ok { flex: 0 0 auto; }
+.ann-actions .ann-hide { flex: 0 0 auto; }
+
+/* owner only: the + next to refresh, and the new announcement box */
+.cell-left .ann-add { font-size: 1.15rem; line-height: 1; padding: 0 0.1rem; }
+.ann-field { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.8rem; font-size: 0.75rem; letter-spacing: 0.04em; }
+.ann-field input, .ann-field textarea { font: inherit; font-size: 13px; letter-spacing: 0; color: var(--text); background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); padding: 0.5rem 0.6rem; box-sizing: border-box; width: 100%; resize: vertical; }
+.ann-msg { margin: 0 0 0.3rem; min-height: 1.2em; font-size: 0.75rem; }
+
+/* the little text editor in the new announcement box */
+.ann-tools { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.ann-tools button { font: inherit; font-size: 0.75rem; letter-spacing: 0; min-width: 2rem; padding: 0.25rem 0.5rem; color: var(--text); background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); cursor: pointer; }
+.ann-tools button:hover, .ann-tools button:focus-visible, .ann-tools button[aria-pressed="true"] { background: var(--text); color: var(--bg); outline: none; }
+.ann-link { display: flex; gap: 0.3rem; }
+.ann-link[hidden] { display: none; }
+.ann-link input { flex: 1 1 auto; min-width: 0; }
+.ann-link button { font: inherit; font-size: 0.75rem; letter-spacing: 0; padding: 0 0.8rem; color: var(--text); background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); cursor: pointer; }
+.ann-link button:hover { background: var(--text); color: var(--bg); }
+.ann-editor { min-height: 7rem; max-height: 14rem; overflow-y: auto; box-sizing: border-box; padding: 0.5rem 0.6rem; font-size: 13px; letter-spacing: 0; line-height: 1.45; color: var(--text); background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); overflow-wrap: anywhere; }
+.ann-editor:focus { outline: none; border-width: 2px; padding: calc(0.5rem - 1px) calc(0.6rem - 1px); }
+.ann-editor ul, .ann-body ul, .ann-body ol { margin: 0.3rem 0; padding-left: 1.3rem; }
+.ann-body a { color: inherit; text-decoration: underline; }
+.ann-editor a { color: inherit; text-decoration: underline; }
+@media (min-width: 40.01rem) { .ann-box { width: min(38rem, 100%); padding: 1.6rem 1.6rem 1.4rem; } }
+.ann-foot { position: absolute; top: 0.5rem; left: 0.6rem; display: flex; }
+.ann-foot[hidden], .ann-foot > [hidden] { display: none; }
+.ann-foot .tb-all { font: inherit; font-size: 0.78rem; color: var(--text); background: var(--bg); padding: 0.28rem 0.8rem; border: 1px solid var(--text); border-radius: var(--radius); line-height: 1.2; cursor: pointer; }
+.ann-foot .tb-all:hover, .ann-foot .tb-all:focus-visible { background: var(--text); color: var(--bg); outline: none; }
+.ann-box .inv-close { top: 0.5rem; right: 0.6rem; }
+.ann-menu { display: flex; flex-direction: column; max-height: min(60vh, 26rem); overflow-y: auto; overscroll-behavior: contain; }
+.ann-row { display: flex; gap: 0.9rem; align-items: baseline; width: 100%; padding: 0.55rem 0.2rem; font: inherit; color: inherit; text-align: left; background: none; border: none; border-top: 1px solid var(--text); cursor: pointer; }
+.ann-row:first-child { border-top: none; }
+.ann-row:hover .ann-row-title, .ann-row:focus-visible .ann-row-title { text-decoration: underline; }
+.ann-row-date { flex: 0 0 5.6rem; opacity: 0.6; font-size: 0.72rem; }
+.ann-row-title { flex: 1; min-width: 0; }
