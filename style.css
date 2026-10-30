@@ -5021,12 +5021,12 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
   .rr-menu, .rr-pick { container-type: normal; display: flex; align-items: center; justify-content: center; height: auto; min-height: 100%; box-sizing: border-box; padding-bottom: 7rem; }
   .rr-stage { width: 100%; aspect-ratio: auto; container-type: normal; display: flex; flex-direction: column; align-items: center; text-align: center; }
   .rr-stage > * { position: static; }
-  .rr-menu .rr-title { font-size: 2.8rem; }
+  .rr-menu .rr-title { font-size: 2.1rem; }
   .rr-pick .rr-title { font-size: min(2.2rem, 5.8vw); white-space: nowrap; }
   .rr-pick .rr-tag { font-size: min(0.85rem, 3.1vw); }
   .rr-menu .rr-tag, .rr-pick .rr-tag { font-size: 0.85rem; margin-top: 0.4rem; }
-  .rr-opts { width: min(22rem, 100%); margin-top: 1.6rem; gap: 0.8rem; }
-  .rr-opts .rr-opt { height: auto; padding: 0.9rem 1rem; font-size: 1.2rem; border-radius: var(--radius); }
+  .rr-opts { width: min(17rem, 100%); margin-top: 1.2rem; gap: 0.6rem; }
+  .rr-opts .rr-opt { height: auto; padding: 0.55rem 1rem; font-size: 1rem; border-radius: var(--radius); }
   .rr-menu .rr-note { margin-top: 0.7rem; font-size: 0.78rem; }
   .rr-menu .rr-backlink, .rr-pick .rr-backlink { margin-top: 1rem; font-size: 0.78rem; }
   .rr-hero { order: -1; width: min(26rem, 100%); aspect-ratio: 770 / 340; position: relative; inset: auto; margin: 0 0 1.2rem; }
@@ -5040,7 +5040,7 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
   .rr-stats dd { gap: 0.4rem; }
   .rr-meter { width: 4.6rem; height: 0.7rem; border-radius: 4px; }
   .rr-pick { padding-bottom: 3.2rem; }
-  .rr-pickbtn { grid-column: 2; grid-row: 3; width: 100%; height: auto; margin-top: 0.45rem; padding: 0.4rem 0.8rem; font-size: 1rem; border-radius: var(--radius); }
+  .rr-pickbtn { grid-column: 2; grid-row: 3; width: 78%; height: auto; margin-top: 0.4rem; padding: 0.28rem 0.7rem; font-size: 0.88rem; border-radius: var(--radius); }
 }
 
 @media (max-width: 40rem) and (max-height: 760px) {   /* short phones: squeeze the pick screen so it still fits without scrolling */
@@ -5051,7 +5051,7 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
   .rr-card-name { font-size: 0.7rem; margin-bottom: 0.1rem; padding: 0.1em 0.5em; }
   .rr-stats { font-size: 0.66rem; gap: 0.15rem 0.45rem; }
   .rr-meter { height: 0.6rem; }
-  .rr-pickbtn { margin-top: 0.3rem; padding: 0.3rem 0.6rem; font-size: 0.9rem; }
+  .rr-pickbtn { margin-top: 0.25rem; padding: 0.22rem 0.6rem; font-size: 0.82rem; }
   .rr-pick .rr-backlink { margin-top: 0.5rem; }
 }
 
