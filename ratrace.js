@@ -143,7 +143,7 @@
   const bb = (b) => b.map((v) => Math.round(v)).join(" ");
   const TRAP = '<svg viewBox="' + bb(ART.trapBB) + '" aria-hidden="true" focusable="false">' + ART.trap.map((d) => '<path d="' + d + '"/>').join("") + "</svg>";
   const CHEESE = '<svg viewBox="' + bb(ART.cheeseBB) + '" aria-hidden="true" focusable="false">' + ART.cheese.map((d) => '<path d="' + d + '"/>').join("") + "</svg>";
-  const PUFF = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4l4.6 9.6 10.4 1.4-7.6 7.3 1.9 10.4L20 27.7 10.7 32.7l1.9-10.4L5 15l10.4-1.4Z"/></svg>';
+  const PUFF = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 34C9 26 4.5 20 4.5 13.5a7.8 7.8 0 0 1 15.5-2 7.8 7.8 0 0 1 15.5 2C35.5 20 31 26 20 34Z"/></svg>';
   const FLAG = '<svg viewBox="0 0 120 200" aria-hidden="true"><path d="M14 4V196" class="fl-pole"/><path d="M14 8H112V76H14Z" class="fl-cloth"/><path d="M14 8h24v17H14zM62 8h25v17H62zM38 25h24v17H38zM87 25h25v17H87zM14 42h24v17H14zM62 42h25v17H62zM38 59h24v17H38zM87 59h25v17H87z" class="fl-sq"/></svg>';
 
   if (!document.getElementById("rr-defs")) {   // little patterns for the extra rats' coats
@@ -711,8 +711,10 @@
     document.getElementById("rat-upinv-close").addEventListener("click", () => { upInv2.hidden = true; });
   }
   page.addEventListener("click", (e) => { if (e.target.closest("[data-exit]")) location.hash = "#arcade"; });   // every "exit" leaves for the arcade
-  $("#rr-upinv-open").addEventListener("click", () => { betModal.hidden = true; renderUpInv(); upInv.hidden = false; });
-  $("#rr-upinv-close").addEventListener("click", () => { upInv.hidden = true; betModal.hidden = false; refreshBet(); });
+  let invFrom = betModal;   // which pop-up the inventory opened from, so closing it goes back there
+  $("#rr-upinv-open").addEventListener("click", () => { invFrom = betModal; betModal.hidden = true; renderUpInv(); upInv.hidden = false; });
+  $("#rr-res-upinv").addEventListener("click", () => { invFrom = resBox; resBox.hidden = true; renderUpInv(); upInv.hidden = false; });
+  $("#rr-upinv-close").addEventListener("click", () => { upInv.hidden = true; invFrom.hidden = false; if (invFrom === betModal) refreshBet(); });
 
   // ----- the upgrade shop page (same look as the other shops) -----
   const shopBox = document.getElementById("rat-items"), shopMsg = document.getElementById("rat-msg");
@@ -776,7 +778,11 @@
     const here = location.hash === "#ratrace";
     if (here) {
       if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
-      if (phase === "menu" || screen === "menu") { buildHero(); show("menu"); }
+      if (screen === "menu") { buildHero(); show("menu"); }
+      else if (screen === "race") layout();
+    } else if (location.hash === "#rat-shop" && phase !== "count" && phase !== "race") {
+      // popping over to the upgrade shop: keep the screen as it is so you land back where you were
+      cancelAnimationFrame(raf); raf = 0;
     } else {
       if (phase === "count" || phase === "race") { newGame(); }
       phase = "menu"; decided = false; firstFin = null; allFin = null; paused = false;
