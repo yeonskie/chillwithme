@@ -214,7 +214,7 @@
 
   function layout() {
     const W = track.clientWidth || 1000;
-    const laneH = (track.clientHeight || 500) / (TUNING.opponents + 1);
+    const laneH = (track.clientHeight || 500) / Math.max(2, lanes.length || TUNING.opponents + 1);
     sc = Math.min(W / Math.min(1920, Math.max(1000, W * 2.4)), laneH / 300);   // never bigger than fits in a lane (a full jump and floating cheese stay inside it)
     span = W / sc;
     track.style.setProperty("--sc", sc.toFixed(4));
@@ -227,10 +227,10 @@
     return pool.slice(0, TUNING.opponents);
   }
 
-  function buildLanes() {
+  function buildLanes(custom) {   // (custom: the rats of a multi-player race, me first)
     track.innerHTML = "";
-    const me = myRat();
-    const list = [{ id: me.id, name: me.name, coat: me.coat }].concat(chooseOpponents());
+    const me = custom ? null : myRat();
+    const list = custom || [{ id: me.id, name: me.name, coat: me.coat }].concat(chooseOpponents());
     lanes = list.map((r, i) => {
       const el = document.createElement("div");
       el.className = "rr-lane" + (i === 0 ? " me" : "");
@@ -242,24 +242,25 @@
       track.appendChild(el);
       return { i, name: r.name, el, ratEl, x: 0, y: 0, stun: 0, boost: 0, inv: 0, jt: -1, air: 0.8, peak: 176, trips: 0, fin: null, speedMul: 1, phase: Math.random() * 6, obEls: [], chEls: [], passedO: [], passedC: [], tripSet: {}, cheeseSet: {}, hopped: {}, flagEl: null };
     });
+    if (custom) lanes.forEach((L, i) => { L.remote = i > 0; L.pid = list[i].pid; });
     layout();
   }
 
   // the traps and cheese: the same spots in every lane, so it's a fair race
-  function makeCourse() {
+  function makeCourse(rand = Math.random) {
     const obs = [];
-    let x = 1500 + Math.random() * 300;
-    while (x < TUNING.trackLen - 1500) { obs.push({ x, kind: "trap" }); x += 700 + Math.random() * 330; }
+    let x = 1500 + rand() * 300;
+    while (x < TUNING.trackLen - 1500) { obs.push({ x, kind: "trap" }); x += 700 + rand() * 330; }
     const cheese = [];
     const G = TUNING.groundCheese, Hh = TUNING.highCheese;
     const add = (x, hi) => cheese.push({ x, y0: hi ? Hh[0] : G[0], y1: hi ? Hh[1] : G[1], hi });
     obs.forEach((o, i) => {
       const nx = obs[i + 1] ? obs[i + 1].x : o.x + 900;
       const mid = (o.x + nx) / 2;
-      if (Math.random() < 0.2) { add(o.x + 230, false); add(o.x + 330, false); }              // a pair on the ground after a trap
-      if (Math.random() < 0.25) add(mid, false);                                              // one on its own in the open
-      if (Math.random() < 0.25) { add(mid - 60, true); add(mid + 60, true); }                 // a pair floating: jump for it
-      if (Math.random() < 0.25) add(o.x, true);                                               // one right above a trap: jump high at the right moment
+      if (rand() < 0.2) { add(o.x + 230, false); add(o.x + 330, false); }              // a pair on the ground after a trap
+      if (rand() < 0.25) add(mid, false);                                              // one on its own in the open
+      if (rand() < 0.25) { add(mid - 60, true); add(mid + 60, true); }                 // a pair floating: jump for it
+      if (rand() < 0.25) add(o.x, true);                                               // one right above a trap: jump high at the right moment
     });
     cheese.sort((a, b) => a.x - b.x);
     return { obs, cheese };
@@ -369,6 +370,7 @@
   function step(dt) {
     T += dt;
     lanes.forEach((L) => {
+      if (L.remote) { stepRemote(L, dt); return; }   // (multi-player: other players' rats are moved by what they send)
       // jumping
       if (L.jt >= 0) {
         // the faster you go, the quicker the hop, so fast rats still land before the next trap
@@ -381,6 +383,7 @@
       const wob = L.i === 0 ? 1 : 1 + 0.025 * Math.sin(T * 1.3 + L.phase);
       let sp = TUNING.baseSpeed * (L.i === 0 ? speedOf(myStats.speed) : L.speedMul) * wob * (L.boost > 0 ? TUNING.boostMul : 1);
       if (L.stun > 0) { sp = 0; L.stun -= dt; }
+      if (L.out) sp = 0;
       if (L.boost > 0) L.boost -= dt;
       if (L.inv > 0) L.inv -= dt;
       if (L.fin == null) L.x += sp * dt;
@@ -422,9 +425,11 @@
       if (L.fin == null && L.x >= TUNING.trackLen) {
         L.fin = T - (L.x - TUNING.trackLen) / Math.max(sp, 1);
         if (firstFin == null) firstFin = L.fin;
+        if (mp && L.i === 0 && !mp.sentFin) { mp.sentFin = true; mp.onFinish(L.fin); }
       }
     });
     cam = Math.max(cam, Math.min(lanes[0].x, TUNING.trackLen + 400));
+    if (mp) { mpSend(); return; }   // (multi-player: the server decides who won)
     // who won? (a hair after the first rat crosses, so ties can show up)
     if (!decided && allFin == null && lanes.every((L) => L.fin != null)) allFin = T;
     // you cross first: the round ends right away (a hair later, so a photo finish can show up)
@@ -440,8 +445,8 @@
     if (screen !== "race") return;
     if (!paused) {
       if (phase === "count") {
-        countT -= dt;
-        const n = Math.ceil(countT / 0.75);
+        if (mp) countT = (mp.startAt - Date.now()) / 1000; else countT -= dt;
+        const n = mp ? (countT > 3 ? "get ready" : Math.ceil(countT)) : Math.ceil(countT / 0.75);
         if (countT <= 0) {
           phase = "race"; countEl.textContent = "go!"; setTimeout(() => { if (phase !== "count") countEl.hidden = true; }, 700);
           lanes.forEach((L) => { if (L.i === 0 && L.boost > 0) pop(L, "head start!", "good"); });
@@ -464,6 +469,7 @@
     finish("lose");
   }
   function eliminate() {   // out of puffs: the race stops right here, the bet is lost
+    if (mp) { mpOut(); return; }
     if (decided) return;
     decided = true; phase = "done";
     placesEl.innerHTML = "";
@@ -597,10 +603,85 @@
     render(0);
   }
 
+
+  // ----- multi-player (multiplayer.js runs the rooms; this is the race part) -----
+  // Everyone races the same course (made from a shared seed) and sends where their rat is about 10 times a second.
+  // Other players' rats are drawn from what they send. The server decides who won (see supabase-ratrace-mp.sql).
+  let mp = null, mpPick = null;
+  const seeded = (a) => () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  function stepRemote(L, dt) {
+    if (L.fin != null) { L.x = TUNING.trackLen + 1; L.jt = -1; L.y = 0; L.sp = 0; return; }
+    if (L.jt >= 0) { L.jt += dt; if (L.jt >= L.air) { L.jt = -1; } }
+    L.y = jumpY(L);
+    const sp = L.out ? 0 : (L.sp || 0);
+    L.x += sp * dt;
+    if (L.tx != null) {   // ease toward where the last message said they were (plus how far they've run since)
+      const target = L.tx + (L.sp || 0) * ((performance.now() - L.tt) / 1000);
+      L.x += (target - L.x) * Math.min(1, dt * 6);
+    }
+    L.x = Math.min(L.x, TUNING.trackLen + 1);
+    L.stun = L.stunned ? 1 : 0; L.boost = L.boosted ? 1 : 0;
+  }
+  function mpRemote(pid, m) {
+    if (!mp || !m) return;
+    const L = lanes.find((l) => l.pid === pid);
+    if (!L) return;
+    L.tx = +m.x || 0; L.tt = performance.now(); L.sp = +m.sp || 0;
+    L.stunned = !!m.stun; L.boosted = !!m.boost; L.out = !!m.out;
+    if (m.jt >= 0) { L.jt = +m.jt; L.air = +m.air || 0.8; L.peak = +m.peak || 176; } else L.jt = -1;
+    if (m.fin != null) L.fin = +m.fin;
+  }
+  function mpSend() {
+    const now = performance.now(), me = lanes[0];
+    if (!mp.onSend || now - mp.lastSend < 90 || phase === "count") return;
+    mp.lastSend = now;
+    mp.onSend({ x: Math.round(me.x), jt: me.jt >= 0 ? +me.jt.toFixed(3) : -1, air: +me.air.toFixed(3), peak: Math.round(me.peak), sp: Math.round(me.sp || 0),
+      stun: me.stun > 0 ? 1 : 0, boost: me.boost > 0 ? 1 : 0, lives, out: me.out ? 1 : 0, fin: me.fin });
+  }
+  function mpOut() {   // out of puffs: you stop, everyone else keeps racing
+    const me = lanes[0];
+    if (me.out) return;
+    me.out = true; me.jt = -1; me.y = 0; lives = 0; drawLives();
+    pop(me, "out!", "bad");
+    mp.onOut();
+  }
+  function mpRace(o) {
+    clearTimeout(resultTimer);
+    resBox.hidden = true; betModal.hidden = true; howModal.hidden = true; pausedEl.hidden = true;
+    mp = { startAt: o.startAt, onSend: o.onSend, onFinish: o.onFinish, onOut: o.onOut, lastSend: 0, sentFin: false };
+    paused = false; decided = true; firstFin = null; allFin = null; T = 0; cam = 0; jumpQ = 0; act = {}; shieldReady = false;
+    myStats = o.me.stats; myBoostDur = boostOf(myStats.hunger);
+    startLives = TUNING.lives; lives = startLives;
+    page.classList.add("mp");
+    show("race");
+    buildLanes([{ id: "me", name: o.me.name, coat: o.me.coat }].concat(o.others.map((x) => ({ id: x.pid, pid: x.pid, name: x.name, coat: x.coat }))));
+    lanes[0].air = airOf(myStats.jump); lanes[0].peak = peakOf(myStats.jump);
+    course = makeCourse(seeded(o.seed | 0)); layoutCourse();
+    page.classList.add("racing");
+    drawLives(); placeEl.textContent = "1st"; $("#rr-betshow").innerHTML = "<b>pot:</b> " + fmt(o.pot);
+    phase = "count"; countT = 99; countEl.hidden = false; countEl.textContent = "get ready";
+    render(0);
+    if (!raf && location.hash === "#ratrace") { last = performance.now(); raf = requestAnimationFrame(tick); }
+  }
+  function mpReset() {   // the race is over (or you left): back to a plain title screen
+    if (!mp && !mpPick) return;
+    mp = null; mpPick = null; decided = false; phase = "menu";
+    lanes = []; track.innerHTML = ""; course = null;
+    countEl.hidden = true;
+    page.classList.remove("racing", "mp");
+    show("menu");
+  }
+  window.RRMP = {
+    pickRat(cb) { mpPick = cb; phase = "pick"; buildCards(); show("pick"); },
+    cancelPick() { if (mpPick) { mpPick = null; phase = "menu"; show("menu"); } },
+    race: mpRace, remote: mpRemote, stop: mpReset,
+    get racing() { return !!mp; },
+  };
+
   // ----- buttons -----
   $$("[data-how]").forEach((b) => b.addEventListener("click", () => openHow()));
   function openHow() {
-    if (phase === "race" || phase === "count") paused = true, pauseBtn.textContent = "resume";
+    if (!mp && (phase === "race" || phase === "count")) paused = true, pauseBtn.textContent = "resume";
     howModal.hidden = false; $("#rr-how-close").focus({ preventScroll: true });
   }
   function closeHow() { howModal.hidden = true; if (paused && (phase === "race" || phase === "count")) { /* stays paused until they press resume */ pausedEl.hidden = false; } }
@@ -608,10 +689,11 @@
   howModal.addEventListener("click", (e) => { if (e.target === howModal) closeHow(); });
 
   $("[data-go=pick]").addEventListener("click", () => { if (locked) { openBet(); return; } phase = "pick"; buildCards(); show("pick"); });
-  $("[data-go=multi]").addEventListener("click", () => { menuNote.textContent = "multi-player is coming soon: racing your friends is next!"; });
+  $("[data-go=multi]").addEventListener("click", () => { if (window.RRMulti) window.RRMulti.open(); else menuNote.textContent = "multi-player isn't available right now."; });
   $("#rr-cards").addEventListener("click", (e) => {
     const b = e.target.closest(".rr-pickbtn");
     if (!b) return;
+    if (mpPick) { const cb = mpPick, r = ROSTER.find((x) => x.id === b.dataset.id); mpPick = null; show("menu"); cb({ name: r.name, coat: r.coat, stats: Object.assign({}, r.base) }); return; }   // (multi-player: just hand the rat back)
     myId = b.dataset.id; store.set("rr-rat", myId);
     openBet();
   });
@@ -651,7 +733,7 @@
       e.preventDefault();
       if (phase === "race" && !e.repeat) startJump();
     }
-    if ((e.key === "p" || e.key === "P") && (phase === "race" || phase === "count") && howModal.hidden) pauseBtn.click();
+    if ((e.key === "p" || e.key === "P") && !mp && (phase === "race" || phase === "count") && howModal.hidden) pauseBtn.click();
   });
 
   // ----- test your luck: stop the puff in the green zone for a random power up -----
@@ -804,6 +886,7 @@
       // popping over to the upgrade shop: keep the screen as it is so you land back where you were
       cancelAnimationFrame(raf); raf = 0;
     } else {
+      mpReset();
       newGame();   // leaving the game for anywhere but the upgrade shop ends the run, so single player lets you pick a new rat again
       phase = "menu"; decided = false; firstFin = null; allFin = null; paused = false;
       cancelAnimationFrame(raf); raf = 0;
@@ -818,4 +901,5 @@
   window.addEventListener("resize", () => { if (screen === "race") layout(); });
   buildHero();
   onRoute();
+  window.RRArt = { ratSVG, NAMES };   // multi-player (multiplayer.js) draws the same rats
 })();

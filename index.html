@@ -1172,6 +1172,11 @@
         </div>
       </div>
 
+      <!-- multi-player (multiplayer.js draws everything inside) -->
+      <div class="rr-modal" id="mp-modal" role="dialog" aria-modal="true" hidden>
+        <div class="rr-box mp-box"></div>
+      </div>
+
       <!-- how it works -->
       <div class="rr-modal" id="rr-how" role="dialog" aria-modal="true" aria-labelledby="rr-how-title" hidden>
         <div class="rr-box rr-how-box">
@@ -1184,6 +1189,7 @@
             <li>trip on a trap and you lose a second and a puff. you have 4 lives (hearts), so lose all 4 and you're out.</li>
             <li>a game is 3 rounds with the same rat, win or lose. after round 3 you can keep playing or start a new game, but from then on losing a round ends the game.</li>
             <li>every round, the rats get faster and trip less.</li>
+            <li><b>multi-player:</b> make a room, share the code, and everyone picks a rat and a bet. you all race the same course at once, and the first rat over the flag wins <b>everyone's bets</b>. run out of puffs and you're out. if everybody is out, the bets come back.</li>
             <li><b>speed</b> is how fast your rat runs. <b>jump</b> is how high and long it jumps. <b>hunger</b> is how much boost each cheese gives.</li>
           </ul>
           <button type="button" class="rr-opt" id="rr-how-close">got it</button>
@@ -1884,6 +1890,7 @@
   <script src="idols.js"></script>
   <script src="idol.js"></script>
   <script src="ratrace.js"></script>
+  <script src="multiplayer.js"></script>
   <script src="music.js"></script>
   <script src="community-config.js"></script>
   <script src="community.js"></script>
