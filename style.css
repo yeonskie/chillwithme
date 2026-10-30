@@ -4990,7 +4990,7 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .rr-stage { position: relative; width: min(100cqw, 177.78cqh); aspect-ratio: 16 / 9; container-type: inline-size; }
 .rr-stage > * { position: absolute; margin: 0; }
 .rr-menu .rr-title { left: 14.42%; top: 30.2%; font-size: 3.1cqw; line-height: 1; white-space: nowrap; }
-.rr-menu .rr-tag { left: 14.42%; top: 37.2%; font-size: max(11px, 1.3cqw); }
+.rr-menu .rr-tag { left: 14.42%; top: 37.2%; font-size: max(10px, 1.05cqw); }
 .rr-opts { left: 14.42%; top: 46.9%; width: 24.47%; display: flex; flex-direction: column; gap: 0.7cqw; }
 .rr-opts .rr-opt { height: 3.83cqw; padding: 0; font-size: 1.56cqw; border-radius: 0.64cqw; }
 .rr-menu .rr-note { left: 14.42%; top: 76.5%; font-size: max(11px, 0.95cqw); min-height: 0; }
