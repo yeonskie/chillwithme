@@ -107,7 +107,7 @@
   const xpNeed = (l) => 60 + 30 * (l - 1);                           // xp to get from level l to the next one
   const saveProg = () => {};                                         // (level, xp and +1s are not saved: a refresh or a lost game starts fresh)
   let played = !!store.get("rr-played", false);     // after the first round the upgrade shop and "test your luck" show up
-  let tries = Math.max(0, store.get("rr-tries", 1) | 0);   // one try at "test your luck" for every round you finish
+  let tries = Math.min(1, Math.max(0, store.get("rr-tries", 1) | 0));   // one try at "test your luck" per round (unused tries do not stack)
   const rnd10 = () => 1 + Math.floor(Math.random() * 10);
   function applyStats() { ROSTER.forEach((r) => { r.stats = {}; STATS.forEach((k) => { r.stats[k] = Math.min(10, r.base[k] + bonus[k]); }); }); }
   function rollStats() {                                             // every rat gets fresh random stats (1-10) each time; your +1s are added on top
@@ -464,7 +464,7 @@
 
   function finish(kind) {
     phase = "done";
-    played = true; store.set("rr-played", true); tries++; store.set("rr-tries", tries);
+    played = true; store.set("rr-played", true); tries = 1; store.set("rr-tries", tries);
     const over = kind === "lose" || kind === "out";                                    // a lost game ends the run, so no xp for it
     const gain = over ? 0 : kind === "win" ? 30 + 10 * (round - 1) : 20;                 // wins pay more xp, and later rounds more again
     let leveled = 0;
@@ -649,7 +649,7 @@
   }
   function luckReady() {
     luckRes.textContent = tries ? "tries left: " + tries : "";
-    if (!tries) { luckState = "off"; luckGo.textContent = "no tries left"; luckGo.disabled = true; luckRes.textContent = "you get one try for every round you finish."; return; }
+    if (!tries) { luckState = "off"; luckGo.textContent = "no tries left"; luckGo.disabled = true; luckRes.textContent = "you get one try per round."; return; }
     const w = 0.2, st = 0.08 + Math.random() * (0.84 - w);
     luckZ = [st, st + w]; luckZone.style.left = (st * 100).toFixed(1) + "%"; luckZone.style.width = (w * 100) + "%";
     luckPos = 0; luckDir = 1; luckState = "run"; luckLast = performance.now();
