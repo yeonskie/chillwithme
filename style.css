@@ -5341,3 +5341,5 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .rr-cnt-l { display: inline-block; white-space: pre; animation: jb-pop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both; animation-delay: calc(0.07s * var(--i, 0)); }
 @keyframes rr-num { 0% { transform: scale(2.6); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(0.9); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .rr-cnt-n, .rr-cnt-l { animation: none; } }
+/* hidden-away megaphone on the home page: still there to hover, but takes no room, so the page doesn't shift down */
+.ann-home.ann-ghost { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; }
