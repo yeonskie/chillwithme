@@ -672,17 +672,20 @@
     if (/^\d$|!$/.test(txt)) { const s = document.createElement("span"); s.className = "rr-cnt rr-cnt-n"; s.textContent = txt; countEl.appendChild(s); return; }
     Array.from(txt).forEach((ch, i) => { const s = document.createElement("span"); s.className = "rr-cnt-l"; s.style.setProperty("--i", i); s.textContent = ch; countEl.appendChild(s); });
   }
+  const pickBackBtn = $("#rr-pick-back");
+  let mpBack = null;
+  function endPick() { mpBack = null; pickBackBtn.innerHTML = "&larr; back to the arcade"; }
   function mpReset() {   // the race is over (or you left): back to a plain title screen
     if (!mp && !mpPick) return;
-    mp = null; mpPick = null; decided = false; phase = "menu";
+    mp = null; mpPick = null; endPick(); decided = false; phase = "menu";
     lanes = []; track.innerHTML = ""; course = null;
     countEl.hidden = true;
     page.classList.remove("racing", "mp", "counting");
     show("menu");
   }
   window.RRMP = {
-    pickRat(cb) { mpPick = cb; phase = "pick"; buildCards(); show("pick"); },
-    cancelPick() { if (mpPick) { mpPick = null; phase = "menu"; show("menu"); } },
+    pickRat(cb, back) { mpPick = cb; mpBack = back || null; pickBackBtn.innerHTML = "&larr; back"; phase = "pick"; buildCards(); show("pick"); },   // (multi-player: "back" returns to the room instead of leaving for the arcade)
+    cancelPick() { if (mpPick) { mpPick = null; endPick(); phase = "menu"; show("menu"); } },
     race: mpRace, remote: mpRemote, stop: mpReset,
     get racing() { return !!mp; },
   };
@@ -702,7 +705,7 @@
   $("#rr-cards").addEventListener("click", (e) => {
     const b = e.target.closest(".rr-pickbtn");
     if (!b) return;
-    if (mpPick) { const cb = mpPick, r = ROSTER.find((x) => x.id === b.dataset.id); mpPick = null; show("menu"); cb({ name: r.name, coat: r.coat, stats: Object.assign({}, r.base) }); return; }   // (multi-player: just hand the rat back)
+    if (mpPick) { const cb = mpPick, r = ROSTER.find((x) => x.id === b.dataset.id); mpPick = null; endPick(); show("menu"); cb({ name: r.name, coat: r.coat, stats: Object.assign({}, r.base) }); return; }   // (multi-player: just hand the rat back)
     myId = b.dataset.id; store.set("rr-rat", myId);
     openBet();
   });
@@ -821,7 +824,10 @@
     document.getElementById("rat-upinv-open").addEventListener("click", () => { renderUpInv(); upInv2.hidden = false; });
     document.getElementById("rat-upinv-close").addEventListener("click", () => { upInv2.hidden = true; });
   }
-  page.addEventListener("click", (e) => { if (e.target.closest("[data-exit]")) location.hash = "#arcade"; });   // every "exit" leaves for the arcade
+  page.addEventListener("click", (e) => {
+    if (mpPick && e.target.closest("#rr-pick-back")) { const back = mpBack; mpPick = null; endPick(); phase = "menu"; show("menu"); if (back) back(); return; }   // multi-player: back to the room
+    if (e.target.closest("[data-exit]")) location.hash = "#arcade";
+  });   // every "exit" leaves for the arcade
   let invFrom = betModal;   // which pop-up the inventory opened from, so closing it goes back there
   $("#rr-upinv-open").addEventListener("click", () => { invFrom = betModal; betModal.hidden = true; renderUpInv(); upInv.hidden = false; });
   $("#rr-res-upinv").addEventListener("click", () => { invFrom = resBox; resBox.hidden = true; renderUpInv(); upInv.hidden = false; });

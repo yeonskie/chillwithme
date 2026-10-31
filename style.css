@@ -5338,3 +5338,6 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .rr-how-table th, .rr-how-table td { text-align: left; padding: 0.3rem 0.2rem; border-bottom: 1px solid var(--text); }
 .rr-how-table th { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.72rem; }
 .rr-how-table th:last-child, .rr-how-table td:last-child { width: 40%; }
+
+/* multi-player pop-up open: the little buttons in the bottom left (yeonbucks, inventory, test mode) go away so they can't cover "leave room" */
+body:has(#mp-modal:not([hidden])) :is(.yb-box, .sr-door, #tm) { display: none; }

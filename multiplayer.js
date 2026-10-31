@@ -379,13 +379,16 @@
     if (act === "invite") return copyInvite();
     if (act === "pick") return run(async () => {   // the pick screen (3 rats with stats), then back here to bet
       if (!window.RRMP) throw new Error("the game isn't ready yet");
-      const mine = mineOf(st);
-      if (mine.ready) {                              // changing: take the old bet back first
-        await rpc("rrm_pick", { p_code: code, p_rat_name: null, p_coat: null, p_bet: 0 });
-        if (pending && pending.room === code) { give(pending.bet); setPending(null); }
-      }
+      const back = () => { modal.hidden = false; sig = ""; render(true); tick(true); };
       modal.hidden = true;
-      window.RRMP.pickRat((rat) => { keepRat(rat); modal.hidden = false; sig = ""; render(true); tick(true); });
+      window.RRMP.pickRat(async (rat) => {
+        keepRat(rat);
+        if (mineOf(st).ready) {                      // changing: the old bet comes back first
+          try { await rpc("rrm_pick", { p_code: code, p_rat_name: null, p_coat: null, p_bet: 0 }); } catch (e) {}
+          if (pending && pending.room === code) { give(pending.bet); setPending(null); }
+        }
+        back();
+      }, back);                                      // ("back" on the pick screen: return to the room, nothing changes)
     });
     if (act === "bet") return run(async () => {
       if (!myRat) throw new Error("pick a rat first");
