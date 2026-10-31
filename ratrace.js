@@ -448,9 +448,9 @@
         if (mp) countT = (mp.startAt - Date.now()) / 1000; else countT -= dt;
         const n = mp ? (countT > 3 ? "get ready" : Math.ceil(countT)) : Math.ceil(countT / 0.75);
         if (countT <= 0) {
-          phase = "race"; countEl.textContent = "go!"; setTimeout(() => { if (phase !== "count") countEl.hidden = true; }, 700);
+          phase = "race"; setCount("go!"); page.classList.remove("counting"); setTimeout(() => { if (phase !== "count") countEl.hidden = true; }, 700);
           lanes.forEach((L) => { if (L.i === 0 && L.boost > 0) pop(L, "head start!", "good"); });
-        } else countEl.textContent = n;
+        } else setCount(String(n));
       } else if (phase === "race") step(dt);
     }
     render(now / 1000);
@@ -659,16 +659,25 @@
     course = makeCourse(seeded(o.seed | 0)); layoutCourse();
     page.classList.add("racing");
     drawLives(); placeEl.textContent = "1st"; $("#rr-betshow").innerHTML = "<b>pot:</b> " + fmt(o.pot);
-    phase = "count"; countT = 99; countEl.hidden = false; countEl.textContent = "get ready";
+    phase = "count"; countT = 99; countEl.hidden = false; delete countEl.dataset.v; page.classList.add("counting"); setCount("get ready");
     render(0);
     if (!raf && location.hash === "#ratrace") { last = performance.now(); raf = requestAnimationFrame(tick); }
+  }
+  // the big text in the middle (multi-player only: letters rise in for "get ready", numbers and "go!" pop in big and settle)
+  function setCount(txt) {
+    if (!mp) { delete countEl.dataset.v; countEl.textContent = txt; return; }
+    if (countEl.dataset.v === txt) return;
+    countEl.dataset.v = txt;
+    countEl.innerHTML = "";
+    if (/^\d$|!$/.test(txt)) { const s = document.createElement("span"); s.className = "rr-cnt rr-cnt-n"; s.textContent = txt; countEl.appendChild(s); return; }
+    Array.from(txt).forEach((ch, i) => { const s = document.createElement("span"); s.className = "rr-cnt-l"; s.style.setProperty("--i", i); s.textContent = ch; countEl.appendChild(s); });
   }
   function mpReset() {   // the race is over (or you left): back to a plain title screen
     if (!mp && !mpPick) return;
     mp = null; mpPick = null; decided = false; phase = "menu";
     lanes = []; track.innerHTML = ""; course = null;
     countEl.hidden = true;
-    page.classList.remove("racing", "mp");
+    page.classList.remove("racing", "mp", "counting");
     show("menu");
   }
   window.RRMP = {

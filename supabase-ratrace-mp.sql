@@ -79,7 +79,7 @@ create or replace function public.rrm_cfg(k text) returns bigint language sql im
     when 'min_bet'     then 50
     when 'max_bet'     then 100000
     when 'max_players' then 6
-    when 'countdown'   then 8        -- seconds from "start" to the race starting (everyone's screen needs time to get ready)
+    when 'countdown'   then 5        -- seconds from "start" to the race starting (everyone's screen needs time to get ready)
     when 'idle_player' then 90       -- seconds quiet before a player is dropped from a room that isn't racing
     when 'host_away'   then 30       -- seconds quiet before anyone can start the race for the host
     when 'stale'       then 25       -- seconds quiet before a racing player counts as gone

@@ -82,10 +82,13 @@
     const home = onHome();
     buttons.forEach((b) => {
       const isHome = b.classList.contains("ann-home");
-      b.hidden = !v.length || isHome !== home;
+      const touch = window.matchMedia && window.matchMedia("(hover: none)").matches;
+      const parked = touch && !v.length;               // phones: everything's hidden, so the megaphone moves up to the top left for good
+      b.hidden = !items.length || (parked ? isHome : isHome !== home);
+      b.classList.toggle("ann-ghost", !v.length);      // everything's hidden: the megaphone fades out, and comes back when you hover over where it was
       const dot = b.querySelector(".ann-dot");
       if (dot) dot.hidden = !fresh;
-      b.setAttribute("aria-label", fresh ? "announcements (new)" : "announcements");
+      b.setAttribute("aria-label", fresh ? "announcements (new)" : v.length ? "announcements" : "announcements (hidden ones)");
     });
   }
 
@@ -135,7 +138,7 @@
     return p(d.getMonth() + 1) + "." + p(d.getDate()) + "." + String(d.getFullYear()).slice(2) + " · " + h + ":" + p(d.getMinutes()) + " " + ap;
   };
 
-  function item(a, withHide) {
+  function item(a) {
     const box = document.createElement("article");
     box.className = "ann-item";
     const date = document.createElement("p");
@@ -163,24 +166,27 @@
     ok.type = "button"; ok.className = "ann-ok"; ok.textContent = "understood";
     ok.addEventListener("click", close);
     row.appendChild(ok);
-    if (withHide) {
-      const hide = document.createElement("button");
-      hide.type = "button"; hide.className = "ann-hide"; hide.textContent = "hide this";
-      hide.addEventListener("click", () => {
-        write("ann-hidden", hidden().concat(a.id));
-        paint();
-        if (visible().length) build(); else close();
-      });
-      row.appendChild(hide);
-    }
+    const hide = document.createElement("button");
+    hide.type = "button"; hide.className = "ann-hide";
+    const label = () => { hide.textContent = hidden().indexOf(a.id) !== -1 ? "bring back" : "hide this"; };
+    label();
+    hide.addEventListener("click", () => {
+      if (hidden().indexOf(a.id) !== -1) write("ann-hidden", hidden().filter((id) => id !== a.id));
+      else { write("ann-hidden", hidden().concat(a.id)); if (kept.indexOf(a.id) === -1) kept.push(a.id); }   // (stays on screen until you close it, so you can change your mind)
+      label(); paint();
+    });
+    row.appendChild(hide);
     box.appendChild(row);
     return box;
   }
 
+  let kept = [];                              // hidden just now: still shown (as "bring back") until the pop-up closes
+  const shown = () => items.filter((a) => hidden().indexOf(a.id) === -1 || kept.indexOf(a.id) !== -1).slice(0, MAX_SHOWN);
   let view = "latest";                        // "latest" (the newest few), "all" (the menu) or "one" (one picked from the menu)
   function build() { draw(); allBtn.parentNode.hidden = allBtn.hidden; }
   function draw() {
     list.innerHTML = "";
+    if (view === "latest" && !shown().length) view = "all";   // everything's hidden: show the menu
     allBtn.hidden = false;
     if (view === "all") {
       titleEl.textContent = "all announcements";
@@ -203,22 +209,23 @@
     titleEl.textContent = "announcements";
     if (view === "one") {
       allBtn.textContent = "see all";
-      list.appendChild(item(one, false));
+      list.appendChild(item(one));
       return;
     }
     allBtn.textContent = "see all";
-    allBtn.hidden = items.length <= visible().length;      // only once there's more than what's showing
-    visible().forEach((a) => list.appendChild(item(a, true)));
+    allBtn.hidden = items.length <= shown().length;      // only once there's more than what's showing
+    shown().forEach((a) => list.appendChild(item(a)));
   }
   let one = null;
-  allBtn.addEventListener("click", () => { view = view === "all" ? "latest" : "all"; build(); pop.scrollTop = 0; const box = pop.querySelector(".ann-box"); if (box) box.scrollTop = 0; });
+  allBtn.addEventListener("click", () => { if (view === "all" && !shown().length) { close(); return; } view = view === "all" ? "latest" : "all"; build(); pop.scrollTop = 0; const box = pop.querySelector(".ann-box"); if (box) box.scrollTop = 0; });
   closeBtn.addEventListener("click", close);
 
   let opener = null;
   function open(from) {
-    if (!visible().length) return;
+    if (!items.length) return;
     opener = from || null;
-    view = "latest";
+    kept = [];
+    view = visible().length ? "latest" : "all";
     build();
     write("ann-seen", seen().concat(visible().map((a) => a.id).filter((id) => seen().indexOf(id) === -1)));   // opening it clears the dot
     paint();
@@ -229,6 +236,7 @@
   function close() {
     if (pop.hidden) return;
     pop.hidden = true;
+    kept = []; paint();
     if (opener && !opener.hidden) opener.focus();
   }
 
@@ -251,7 +259,7 @@
       write("ann-hidden", hidden().filter((id) => ids.indexOf(id) !== -1));
       write("ann-seen", seen().filter((id) => ids.indexOf(id) !== -1));
       paint();
-      if (!pop.hidden) { if (visible().length) build(); else close(); }
+      if (!pop.hidden) { if (items.length) build(); else close(); }
     } catch (e) { /* offline or not set up: no megaphone */ }
   }
   document.addEventListener("visibilitychange", () => { if (!document.hidden && Date.now() - lastLoad > REFRESH_MS) { load(); loadReacts(); } });

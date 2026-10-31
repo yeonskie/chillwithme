@@ -5327,3 +5327,17 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .ann-rx[aria-pressed="true"] { background: var(--text); color: var(--bg); }
 .ann-rx[aria-pressed="true"] .ann-rx-i { filter: none; opacity: 1; }
 .ann-rx:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+
+.ann-btn.ann-ghost { opacity: 0; transition: opacity 0.2s; }
+.ann-btn.ann-ghost:hover, .ann-btn.ann-ghost:focus-visible { opacity: 0.7; }
+@media (hover: none) { .ann-btn.ann-ghost { opacity: 1; } }
+
+/* multi-player countdown: the track fades back, "get ready" rises in letter by letter (like the jukebox title), then 3, 2, 1, go! pop in big and settle */
+.page.mp .rr-count { top: 50%; transform: translateY(-50%); }
+.page.mp .rr-race { transition: opacity 0.6s ease; }
+.page.mp.counting .rr-race { opacity: 0.08; }
+.rr-cnt { display: inline-block; }
+.rr-cnt-n { animation: rr-num 0.9s cubic-bezier(0.2, 0.8, 0.3, 1) both; }
+.rr-cnt-l { display: inline-block; white-space: pre; animation: jb-pop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both; animation-delay: calc(0.07s * var(--i, 0)); }
+@keyframes rr-num { 0% { transform: scale(2.6); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(0.9); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .rr-cnt-n, .rr-cnt-l { animation: none; } }
