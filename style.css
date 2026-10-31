@@ -4948,7 +4948,8 @@ body.entry-open .sr-door { display: none; }
 }
 
 /* ---------- the arcade screen has pages: arrows on the sides + page dots ---------- */
-.ac-pg { position: absolute; inset: 0; }
+.ac-pg { position: absolute; inset: 0; pointer-events: none; }   /* (the page itself lets clicks through to the joystick and buttons underneath; only the game buttons on it are clickable) */
+.ac-pg .ac-btn { pointer-events: auto; }
 .ac-pg[hidden] { display: none; }
 .ac-arrow {
   position: absolute; top: 54.5%; transform: translate(-50%, -50%); z-index: 2; margin: 0; padding: 0;
