@@ -26,8 +26,14 @@
   const seen = () => read("ann-seen");
   const visible = () => { const h = hidden(); return items.filter((a) => h.indexOf(a.id) === -1).slice(0, MAX_SHOWN); };
 
-  // ----- reactions: heart / thumbs up / party popper, once each per browser (tap again to undo) -----
-  const KINDS = [["heart", "\u2764\uFE0F", "heart"], ["thumbs", "\uD83D\uDC4D", "thumbs up"], ["party", "\uD83C\uDF89", "celebrate"]];
+  // ----- reactions: heart / smile / star / sad (same as the community board), once each per browser (tap again to undo) -----
+  // the same four reactions as the community board (glyphs are plain text; the keys are what the database accepts)
+  const KINDS = [
+    { key: "heart", glyph: "\u2665", label: "love" },
+    { key: "smile", glyph: "\u263A", label: "smile" },
+    { key: "star", glyph: "\u2726", label: "wow" },
+    { key: "sad", glyph: "\u2639", label: "sad" },
+  ];
   let me = ""; try { me = localStorage.getItem("ann-me") || ""; } catch (e) {}
   if (me.length < 8) { me = "a" + Math.random().toString(36).slice(2, 12) + Date.now().toString(36); try { localStorage.setItem("ann-me", me); } catch (e) {} }
   let reacts = {};                           // { announcement id: { heart: {n, mine}, ... } }
@@ -46,31 +52,69 @@
       if (!pop.hidden) build();
     } catch (e) { /* no reactions yet (the sql wasn't run?): the announcements still work */ }
   }
-  function reactBar(a) {
+  function toggle(a, key) {
+    const s = slot(a.id, key), on = !s.mine;
+    s.mine = on; s.n = Math.max(0, s.n + (on ? 1 : -1)); redrawReacts(a.id);
+    rpc("ann_react", { p_ann: a.id, p_kind: key, p_client: me, p_on: on }).catch(() => {
+      s.mine = !on; s.n = Math.max(0, s.n + (on ? -1 : 1)); redrawReacts(a.id);   // (it didn't go through: put it back)
+    });
+  }
+  function reactBar(a) {                     // like the community board: only the reactions people gave, then a "+" to add one
     const bar = document.createElement("div");
     bar.className = "ann-react";
-    KINDS.forEach(([kind, icon, label]) => {
+    bar.dataset.id = a.id;
+    let shown = 0;
+    KINDS.forEach((r) => {
+      const s = slot(a.id, r.key);
+      if (!(s.n > 0)) return;
+      shown++;
       const b = document.createElement("button");
-      b.type = "button"; b.className = "ann-rx"; b.setAttribute("aria-label", label);
-      const paintBtn = () => {
-        const s = slot(a.id, kind);
-        b.setAttribute("aria-pressed", s.mine ? "true" : "false");
-        b.innerHTML = "";
-        const i = document.createElement("span"); i.className = "ann-rx-i"; i.textContent = icon; b.appendChild(i);
-        if (s.n > 0) { const n = document.createElement("span"); n.className = "ann-rx-n"; n.textContent = s.n; b.appendChild(n); }
-      };
-      paintBtn();
-      b.addEventListener("click", () => {
-        const s = slot(a.id, kind), on = !s.mine;
-        s.mine = on; s.n = Math.max(0, s.n + (on ? 1 : -1)); paintBtn();
-        rpc("ann_react", { p_ann: a.id, p_kind: kind, p_client: me, p_on: on }).catch(() => {
-          s.mine = !on; s.n = Math.max(0, s.n + (on ? -1 : 1)); paintBtn();   // (it didn't go through: put it back)
-        });
-      });
+      b.type = "button"; b.className = "cm-react" + (s.mine ? " cm-react-on" : "");
+      b.setAttribute("aria-pressed", s.mine ? "true" : "false"); b.setAttribute("aria-label", r.label);
+      const g = document.createElement("span"); g.className = "cm-react-g"; g.textContent = r.glyph;
+      const n = document.createElement("span"); n.className = "cm-react-n"; n.textContent = String(s.n);
+      b.append(g, n);
+      b.addEventListener("click", (e) => { e.stopPropagation(); toggle(a, r.key); });
       bar.appendChild(b);
     });
+    const add = document.createElement("button");
+    add.type = "button"; add.className = "cm-react cm-react-add";
+    add.textContent = shown ? "+" : "+ react";
+    add.setAttribute("aria-label", "add a reaction"); add.setAttribute("aria-haspopup", "true");
+    add.addEventListener("click", (e) => { e.stopPropagation(); openPicker(add, a); });
+    bar.appendChild(add);
     return bar;
   }
+  function redrawReacts(id) {
+    const a = items.filter((x) => x.id === id)[0];
+    if (!a) return;
+    document.querySelectorAll('.ann-react[data-id="' + id + '"]').forEach((row) => row.replaceWith(reactBar(a)));
+  }
+  let picker = null, pickerFor = null;
+  function closePicker() { if (picker) { picker.remove(); picker = null; } pickerFor = null; }
+  function openPicker(btn, a) {
+    const same = pickerFor === btn;
+    closePicker();
+    if (same) return;
+    picker = document.createElement("div");
+    picker.className = "cm-picker"; picker.setAttribute("role", "menu");
+    KINDS.forEach((r) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.setAttribute("role", "menuitem");
+      b.className = "cm-pick" + (slot(a.id, r.key).mine ? " cm-pick-on" : "");
+      b.setAttribute("aria-label", r.label); b.textContent = r.glyph;
+      b.addEventListener("click", (e) => { e.stopPropagation(); closePicker(); toggle(a, r.key); });
+      picker.appendChild(b);
+    });
+    document.body.appendChild(picker);
+    pickerFor = btn;
+    const rect = btn.getBoundingClientRect(), pw = picker.offsetWidth, ph = picker.offsetHeight;
+    picker.style.left = Math.min(Math.max(8, rect.left), window.innerWidth - pw - 8) + "px";
+    let top = rect.bottom + 4;
+    if (top + ph > window.innerHeight - 8) top = Math.max(8, rect.top - ph - 4);
+    picker.style.top = top + "px";
+  }
+  document.addEventListener("click", (e) => { if (picker && !e.target.closest(".cm-picker")) closePicker(); });
 
   function onHome() { const n = location.hash.replace("#", "") || "home"; return n === "home" || !document.querySelector('.page[data-page="' + n + '"]'); }
 
@@ -82,10 +126,8 @@
     const home = onHome();
     buttons.forEach((b) => {
       const isHome = b.classList.contains("ann-home");
-      const touch = window.matchMedia && window.matchMedia("(hover: none)").matches;
-      const parked = touch && !v.length;               // phones: everything's hidden, so the megaphone moves up to the top left for good
+      const parked = !v.length;                        // everything's hidden: the megaphone moves up to the top left (next to refresh) for good
       b.hidden = !items.length || (parked ? isHome : isHome !== home);
-      b.classList.toggle("ann-ghost", !v.length);      // everything's hidden: the megaphone fades out, and comes back when you hover over where it was
       const dot = b.querySelector(".ann-dot");
       if (dot) dot.hidden = !fresh;
       b.setAttribute("aria-label", fresh ? "announcements (new)" : v.length ? "announcements" : "announcements (hidden ones)");
@@ -185,6 +227,7 @@
   let view = "latest";                        // "latest" (the newest few), "all" (the menu) or "one" (one picked from the menu)
   function build() { draw(); allBtn.parentNode.hidden = allBtn.hidden; }
   function draw() {
+    closePicker();
     list.innerHTML = "";
     if (view === "latest" && !shown().length) view = "all";   // everything's hidden: show the menu
     allBtn.hidden = false;
@@ -235,7 +278,7 @@
   }
   function close() {
     if (pop.hidden) return;
-    pop.hidden = true;
+    pop.hidden = true; closePicker();
     kept = []; paint();
     if (opener && !opener.hidden) opener.focus();
   }

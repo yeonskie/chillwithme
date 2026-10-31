@@ -43,23 +43,27 @@ grant insert, update, delete on public.announcements to authenticated;
 -- insert into public.announcements (title, body) values ('hello!', 'a megaphone for news from yeon. check back here for updates.');
 
 -- ----------------------------------------------------------------------------
--- Reactions: visitors can tap a heart, thumbs up or party popper on an announcement (once each per browser, tap again to undo).
+-- Reactions: visitors can tap a heart, smile, star or sad face (the same as the community board) on an announcement (once each per browser, tap again to undo).
 -- No sign-in needed: each browser has a random id. Safe to run again.
 -- ----------------------------------------------------------------------------
 create table if not exists public.announcement_reactions (
   ann_id     bigint not null references public.announcements(id) on delete cascade,
-  kind       text   not null check (kind in ('heart', 'thumbs', 'party')),
+  kind       text   not null,
   client     text   not null check (char_length(client) between 8 and 64),
   created_at timestamptz not null default now(),
   primary key (ann_id, kind, client)
 );
+-- (the reactions are the same four as the community board: heart / smile / star / sad. this also tidies up the first version, which had thumbs and party)
+alter table public.announcement_reactions drop constraint if exists announcement_reactions_kind_check;
+delete from public.announcement_reactions where kind not in ('heart', 'smile', 'star', 'sad');
+alter table public.announcement_reactions add constraint announcement_reactions_kind_check check (kind in ('heart', 'smile', 'star', 'sad'));
 alter table public.announcement_reactions enable row level security;
 revoke all on public.announcement_reactions from anon, authenticated;   -- (only the two functions below touch it)
 
 create or replace function public.ann_react(p_ann bigint, p_kind text, p_client text, p_on boolean) returns void
 language plpgsql security definer set search_path = public as $$
 begin
-  if p_kind not in ('heart', 'thumbs', 'party') or p_client is null or char_length(p_client) not between 8 and 64 then return; end if;
+  if p_kind not in ('heart', 'smile', 'star', 'sad') or p_client is null or char_length(p_client) not between 8 and 64 then return; end if;
   if coalesce(p_on, false) then
     insert into public.announcement_reactions (ann_id, kind, client)
     select a.id, p_kind, p_client from public.announcements a where a.id = p_ann and a.active

@@ -4,7 +4,7 @@
 //   2. pick your rat (diego, charlotte or stitch, each with speed / jump / hunger)
 //   3. place your bet (a pop-up over the track), then the race
 // The race never shows an end: the track just keeps scrolling past you until the flag shows up.
-// First rat over the flag wins: 2x your bet in rounds 1-2, 3x in rounds 3-4, 5x from round 5 on. A tie gives your bet back. Anything else is 0x.
+// First rat over the flag wins: 2x your bet in round 1, 3x in round 2, 5x in round 3, and 3x in every round after that. A tie gives your bet back. Anything else is 0x.
 // Jump the traps (tap the track or press space), jump up to grab cheese (0.5s boost each).
 // Every trip costs a gerber puff and a second. Out of puffs = out of the race.
 //
@@ -98,7 +98,7 @@
   const ups = Object.assign({ shield: 0, soft: 0, magnet: 0, hang: 0, stash: 0 }, store.get("rr-ups", {}));   // held for the next race (0 or 1 each)
   let activeUp = store.get("rr-active", null);                       // the one upgrade switched on for the next race
   if (!activeUp || !ups[activeUp]) activeUp = null;
-  const winMult = (r) => r >= 5 ? 5 : r >= 3 ? 3 : 2;   // what a win pays: rounds 1-2 pay 2x, rounds 3-4 pay 3x, round 5 and on pay 5x
+  const winMult = (r) => r === 1 ? 2 : r === 3 ? 5 : 3;   // what a win pays: round 1 pays 2x, round 2 pays 3x, round 3 pays 5x, and every round after that pays 3x
   let boughtAt = 0;       // the round you bought a boost in: you can buy one per game, then again 5 rounds later (a new game starts fresh)
   const canBuyBoost = () => !boughtAt || round >= boughtAt + 5;
   let act = {};                                                      // what is switched on in the race that's running
@@ -151,7 +151,7 @@
   const bb = (b) => b.map((v) => Math.round(v)).join(" ");
   const TRAP = '<svg viewBox="' + bb(ART.trapBB) + '" aria-hidden="true" focusable="false">' + ART.trap.map((d) => '<path d="' + d + '"/>').join("") + "</svg>";
   const CHEESE = '<svg viewBox="' + bb(ART.cheeseBB) + '" aria-hidden="true" focusable="false">' + ART.cheese.map((d) => '<path d="' + d + '"/>').join("") + "</svg>";
-  const PUFF = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 34C9 26 4.5 20 4.5 13.5a7.8 7.8 0 0 1 15.5-2 7.8 7.8 0 0 1 15.5 2C35.5 20 31 26 20 34Z"/></svg>';
+  const PUFF = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M18.6 6.6Q20.0 3.5 21.4 6.6L23.9 12.1Q25.1 14.5 27.7 14.8L33.7 15.5Q37.1 15.9 34.6 18.2L30.1 22.3Q28.2 24.2 28.7 26.8L29.9 32.7Q30.6 36.1 27.6 34.4L22.3 31.4Q20.0 30.1 17.7 31.4L12.4 34.4Q9.4 36.1 10.1 32.7L11.3 26.8Q11.8 24.2 9.9 22.3L5.4 18.2Q2.9 15.9 6.3 15.5L12.3 14.8Q14.9 14.5 16.1 12.1Z"/></svg>';
   const FLAG = '<svg viewBox="0 0 120 200" aria-hidden="true"><path d="M14 4V196" class="fl-pole"/><path d="M14 8H112V76H14Z" class="fl-cloth"/><path d="M14 8h24v17H14zM62 8h25v17H62zM38 25h24v17H38zM87 25h25v17H87zM14 42h24v17H14zM62 42h25v17H62zM38 59h24v17H38zM87 59h25v17H87z" class="fl-sq"/></svg>';
 
   if (!document.getElementById("rr-defs")) {   // little patterns for the extra rats' coats

@@ -5114,7 +5114,7 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .rr-box-title { margin: 0; font-family: var(--font-heading); font-weight: 400; font-synthesis: none; font-size: 1.9rem; line-height: 1.1; }
 .rr-box-sub { margin: 0; font-size: 0.82rem; line-height: 1.6; }
 .rr-box .rr-opt { padding: 0.6rem 1.8rem; font-size: 1.1rem; }
-.rr-how-box { max-width: 30rem; text-align: left; align-items: stretch; }
+.rr-how-box { max-width: 30rem; text-align: left; align-items: stretch; max-height: calc(100% - 13rem); margin: 3rem 0 3rem; overflow-y: auto; }
 .rr-how-box .rr-box-title { text-align: center; }
 .rr-how-box .rr-opt { align-self: center; }
 .rr-how-list { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.82rem; line-height: 1.55; }
@@ -5320,17 +5320,8 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .mp-mine .mp-swap { margin: 0.1rem 0 0.9rem; }
 .mp-mine em b { font-size: 0.95rem; }
 
-.ann-react { display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.4rem; }
-.ann-rx { display: inline-flex; align-items: center; gap: 0.3rem; font: inherit; font-size: 0.78rem; color: var(--text); background: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); padding: 0.25rem 0.6rem; cursor: pointer; line-height: 1.2; }
-.ann-rx .ann-rx-i { font-size: 0.95rem; filter: grayscale(1); opacity: 0.65; transition: opacity 0.15s, transform 0.15s; }
-.ann-rx:hover .ann-rx-i, .ann-rx:focus-visible .ann-rx-i { opacity: 1; transform: scale(1.12); }
-.ann-rx[aria-pressed="true"] { background: var(--text); color: var(--bg); }
-.ann-rx[aria-pressed="true"] .ann-rx-i { filter: none; opacity: 1; }
-.ann-rx:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.ann-react { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px; margin-top: 0.4rem; }
 
-.ann-btn.ann-ghost { opacity: 0; transition: opacity 0.2s; }
-.ann-btn.ann-ghost:hover, .ann-btn.ann-ghost:focus-visible { opacity: 0.7; }
-@media (hover: none) { .ann-btn.ann-ghost { opacity: 1; } }
 
 /* multi-player countdown: the track fades back, "get ready" rises in letter by letter (like the jukebox title), then 3, 2, 1, go! pop in big and settle */
 .page.mp .rr-count { top: 50%; transform: translateY(-50%); }
@@ -5341,5 +5332,8 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .rr-cnt-l { display: inline-block; white-space: pre; animation: jb-pop 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both; animation-delay: calc(0.07s * var(--i, 0)); }
 @keyframes rr-num { 0% { transform: scale(2.6); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(0.9); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .rr-cnt-n, .rr-cnt-l { animation: none; } }
-/* hidden-away megaphone on the home page: still there to hover, but takes no room, so the page doesn't shift down */
-.ann-home.ann-ghost { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; }
+
+.rr-how-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.rr-how-table th, .rr-how-table td { text-align: left; padding: 0.3rem 0.2rem; border-bottom: 1px solid var(--text); }
+.rr-how-table th { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.72rem; }
+.rr-how-table th:last-child, .rr-how-table td:last-child { width: 40%; }
