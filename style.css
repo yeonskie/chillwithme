@@ -5341,3 +5341,4 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 
 /* multi-player pop-up open: the little buttons in the bottom left (yeonbucks, inventory, test mode) go away so they can't cover "leave room" */
 body:has(#mp-modal:not([hidden])) :is(.yb-box, .sr-door, #tm) { display: none; }
+.mp-mine .mp-locked { font-size: 0.68rem; opacity: 0.7; margin: 0.1rem 0 0.9rem; }

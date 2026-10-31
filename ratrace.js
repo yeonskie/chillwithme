@@ -184,8 +184,8 @@
   }
 
   const bar = (n) => '<span class="rr-meter"><i style="width:' + Math.max(0, Math.min(10, n)) * 10 + '%"></i></span>';
-  function buildCards() {
-    rollStats();
+  function buildCards(keep) {   // (keep: show the rats as they are, with no new roll: multi-player hands you the same three every time)
+    if (!keep) rollStats();
     const wrap = $("#rr-cards");
     wrap.innerHTML = "";
     ROSTER.forEach((r) => {
@@ -674,7 +674,8 @@
   }
   const pickBackBtn = $("#rr-pick-back");
   let mpBack = null;
-  function endPick() { mpBack = null; pickBackBtn.innerHTML = "&larr; back to the arcade"; }
+  const pickTag = document.querySelector('[data-screen="pick"] .rr-tag'), pickTagText = pickTag.textContent;
+  function endPick() { mpBack = null; pickBackBtn.innerHTML = "&larr; back"; pickTag.textContent = pickTagText; }
   function mpReset() {   // the race is over (or you left): back to a plain title screen
     if (!mp && !mpPick) return;
     mp = null; mpPick = null; endPick(); decided = false; phase = "menu";
@@ -684,7 +685,13 @@
     show("menu");
   }
   window.RRMP = {
-    pickRat(cb, back) { mpPick = cb; mpBack = back || null; pickBackBtn.innerHTML = "&larr; back"; phase = "pick"; buildCards(); show("pick"); },   // (multi-player: "back" returns to the room instead of leaving for the arcade)
+    pickRat(cb, back, offer) {   // returns the three rats on offer ({ id, name, base }) so the room can hand the same three out again
+      mpPick = cb; mpBack = back || null; pickBackBtn.innerHTML = "&larr; back";
+      pickTag.textContent = "pick one of these three. once you're ready, it's yours for the whole room!";
+      if (offer && offer.length === ROSTER.length) { offer.forEach((o, i) => { ROSTER[i].name = o.name; ROSTER[i].base = Object.assign({}, o.base); }); applyStats(); }
+      phase = "pick"; buildCards(!!(offer && offer.length === ROSTER.length)); show("pick");
+      return ROSTER.map((r) => ({ id: r.id, name: r.name, base: Object.assign({}, r.base) }));
+    },   // (multi-player: "back" returns to the room instead of leaving for the arcade)
     cancelPick() { if (mpPick) { mpPick = null; endPick(); phase = "menu"; show("menu"); } },
     race: mpRace, remote: mpRemote, stop: mpReset,
     get racing() { return !!mp; },
@@ -825,7 +832,9 @@
     document.getElementById("rat-upinv-close").addEventListener("click", () => { upInv2.hidden = true; });
   }
   page.addEventListener("click", (e) => {
-    if (mpPick && e.target.closest("#rr-pick-back")) { const back = mpBack; mpPick = null; endPick(); phase = "menu"; show("menu"); if (back) back(); return; }   // multi-player: back to the room
+    if (e.target.closest("#rr-pick-back")) {   // "back" on the rat pick screen: the title screen (single / multi-player / how it works), or the room when picking for multi-player
+      const back = mpBack; mpPick = null; endPick(); phase = "menu"; show("menu"); if (back) back(); return;
+    }
     if (e.target.closest("[data-exit]")) location.hash = "#arcade";
   });   // every "exit" leaves for the arcade
   let invFrom = betModal;   // which pop-up the inventory opened from, so closing it goes back there

@@ -133,6 +133,13 @@
   const keepRat = (r) => { myRat = r; try { if (r) sessionStorage.setItem("rr-mp-rat", JSON.stringify(r)); else sessionStorage.removeItem("rr-mp-rat"); } catch (e) {} };
   const say = (t) => { notice = t || ""; const m = $("#mp-msg"); if (m) m.textContent = notice; };
   function setRoom(c) { code = c; try { if (c) sessionStorage.setItem("rr-mp-room", c); else sessionStorage.removeItem("rr-mp-room"); } catch (e) {} }
+  // the three rats a room hands you are the same every time you look, and once you press "i'm ready" (or start the race as the host) your rat is yours for the whole room
+  const sget = (k) => { try { return JSON.parse(sessionStorage.getItem(k)); } catch (e) { return null; } };
+  const sset = (k, v) => { try { if (v == null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const offerOf = () => { const o = sget("rr-mp-offer"); return o && o.room === code ? o.rats : null; };
+  const isLocked = () => sget("rr-mp-lock") === code;
+  const lockRat = () => sset("rr-mp-lock", code);
+  const forgetRats = () => { sset("rr-mp-offer", null); sset("rr-mp-lock", null); keepRat(null); };
   const mineOf = (s) => ((s && s.players) || []).find((p) => p.me) || {};
 
   // opened from an invite link (?mp=ABCD): ask for a name, then join that room
@@ -263,11 +270,11 @@
     let mineBox;
     if (mine.ready && myRat) {
       mineBox = '<div class="mp-mine"><span class="mp-ratimg">' + ratImg(myRat.coat) + "</span><b>" + esc(myRat.name) + "</b><small>" + statsLine(myRat) + "</small><em>bet <b>" + fmt(mine.bet) + "</b> placed</em></div>" +
-        '<div class="mp-row"><button type="button" class="hy-btn" data-mp="pick">change rat or bet</button><button type="button" class="hy-btn" data-mp="unbet">take back</button></div>' +
+        '<div class="mp-row"><button type="button" class="hy-btn" data-mp="unbet">change bet</button></div>' +   // (the rat is locked in for the race: only the bet can change)
         (mine.host ? "" : '<button type="button" class="rr-opt rr-start" data-mp="go">' + (mine.go ? "ready! (tap to undo)" : "i'm ready") + "</button>");
     } else if (myRat) {
       mineBox = '<div class="mp-mine"><span class="mp-ratimg">' + ratImg(myRat.coat) + "</span><b>" + esc(myRat.name) + "</b><small>" + statsLine(myRat) + "</small>" +
-        '<button type="button" class="rr-text mp-swap" data-mp="pick">pick a different rat</button></div>' +
+        (isLocked() ? '<small class="mp-locked">your rat is yours for the whole room</small>' : '<button type="button" class="rr-text mp-swap" data-mp="pick">pick a different rat</button>') + "</div>" +
         '<div class="mp-row"><input id="mp-bet" type="text" inputmode="numeric" autocomplete="off" value="' + esc(fmt(+betVal)) + '" aria-label="your bet"><button type="button" class="hy-btn" data-mp="bet">place bet</button></div>' +
         '<span class="rr-quick"><button type="button" data-q="50">50</button><button type="button" data-q="500">500</button><button type="button" data-q="5000">5000</button><button type="button" data-q="max">max</button></span>';
     } else {
@@ -338,11 +345,11 @@
   }
   function enterRoom(c) {
     if (pending && pending.room !== c) { if (!pending.started) give(pending.bet); setPending(null); }   // (a bet left in another room comes back)
-    setRoom(c); keepRat(null); raceKey = ""; sig = ""; return tick(true);
+    setRoom(c); forgetRats(); raceKey = ""; sig = ""; return tick(true);
   }
   async function leaveRoom() {
     const c = code, was = st;
-    endRace(); setRoom(null); st = null; stopPolling(); keepRat(null);
+    endRace(); setRoom(null); st = null; stopPolling(); forgetRats();
     if (pending && pending.room === c) {
       const mine = was && mineOf(was);
       if (mine && mine.paid_round === pending.round) give(mine.paid);                              // it was decided: collect
@@ -381,14 +388,15 @@
       if (!window.RRMP) throw new Error("the game isn't ready yet");
       const back = () => { modal.hidden = false; sig = ""; render(true); tick(true); };
       modal.hidden = true;
-      window.RRMP.pickRat(async (rat) => {
+      const rats = window.RRMP.pickRat(async (rat) => {
         keepRat(rat);
         if (mineOf(st).ready) {                      // changing: the old bet comes back first
           try { await rpc("rrm_pick", { p_code: code, p_rat_name: null, p_coat: null, p_bet: 0 }); } catch (e) {}
           if (pending && pending.room === code) { give(pending.bet); setPending(null); }
         }
         back();
-      }, back);                                      // ("back" on the pick screen: return to the room, nothing changes)
+      }, back, offerOf());                           // ("back" on the pick screen: return to the room, nothing changes)
+      if (!offerOf()) sset("rr-mp-offer", { room: code, rats });
     });
     if (act === "bet") return run(async () => {
       if (!myRat) throw new Error("pick a rat first");
@@ -402,14 +410,14 @@
       setPending({ room: code, round: st.room.round, bet: n, started: false });
       await tick(true);
     });
-    if (act === "go") return run(async () => { await rpc("rrm_go", { p_code: code, p_go: !mineOf(st).go }); await tick(true); });
+    if (act === "go") return run(async () => { lockRat(); await rpc("rrm_go", { p_code: code, p_go: !mineOf(st).go }); await tick(true); });
     if (act === "unbet") return run(async () => {
       await rpc("rrm_pick", { p_code: code, p_rat_name: null, p_coat: null, p_bet: 0 });
       if (pending && pending.room === code) { give(pending.bet); setPending(null); }
       await tick(true);
     });
-    if (act === "start") return run(async () => { await rpc("rrm_start", { p_code: code }); await tick(true); });
-    if (act === "next") return run(async () => { await rpc("rrm_next", { p_code: code }); keepRat(null); raceKey = ""; await tick(true); });
+    if (act === "start") return run(async () => { lockRat(); await rpc("rrm_start", { p_code: code }); await tick(true); });
+    if (act === "next") return run(async () => { await rpc("rrm_next", { p_code: code }); if (!isLocked()) keepRat(null); raceKey = ""; await tick(true); });
     if (act === "leave") return run(leaveRoom);
   });
   box.addEventListener("input", (e) => { if (e.target.id === "mp-bet") betVal = String(digits(e.target.value)); if (e.target.id === "mp-code") e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g, ""); });

@@ -787,6 +787,8 @@ const SHOP_CATS = [
     },
     owns: owns,
     nameOf: nameOf,
+    // the rare pets from the rare items shop (everything marked rare, except remy), for the wheel's mystery pet. [{ id, name }]
+    rarePets: function () { return ITEMS.filter((i) => i.kind === "pet" && i.rare && i.id !== "pet-rat").map((i) => ({ id: i.id, name: i.name })); },
     // a little picture for an item (the lost and found shows it when you find something). "" if it has none
     art: function (id) {
       const it = find(id);

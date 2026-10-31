@@ -62,7 +62,8 @@
   function owns(id) { try { return JSON.parse(read("yb-own") || "[]").indexOf(id) !== -1; } catch (e) { return false; } }
   const boostOn = () => Number(read("yb-boost-until") || 0) > Date.now();   // the wheel's 24 hour boost
   const foundOn = (k) => Number(read(k) || 0) > Date.now();       // the timed boosts from the lost and found (see lostfound.js): "yb-luck-until", "yb-pay-until", "yb-earn-until"
-  const earnAmt = () => (boostOn() ? 200 : owns("boost2") ? 100 : owns("boost") ? 75 : EARN) + (foundOn("yb-earn-until") ? 100 : 0);   // the best boost you have (the wheel's 24 hour boost is +200), plus the lost and found's +100 while it lasts
+  const wheelEarn = () => read("yb-wheel-earn") === "1";           // the wheel's permanent boost (secret room): +50 on top of everything else, for good
+  const earnAmt = () => (boostOn() ? 200 : owns("boost2") ? 100 : owns("boost") ? 75 : EARN) + (foundOn("yb-earn-until") ? 100 : 0) + (wheelEarn() ? 50 : 0);   // the best boost you have (the wheel's 24 hour boost is +200), plus the lost and found's +100 while it lasts
   function setBalance(n) { write("yeonbucks", Math.max(0, Math.floor(n))); }
 
   // ----- earning: counts the seconds this tab is showing -----

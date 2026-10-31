@@ -174,14 +174,14 @@
   // from the pointer (each is 45 degrees). "weight" is how likely it is (they're out of 100). The mystery pet is on the
   // wheel; when it lands you pick one of the pets you don't have yet (once you have them all it stops coming up).
   const SPIN_COST = 1000, EXTRA_SPINS = 3;
-  const PET_KINDS = ["koala", "frog", "panda"];                 // the mystery pets (add a new one here AND in shop.js and index.html)
+  // the mystery pet is any rare pet from the rare items shop that you don't own yet (not remy), picked at random: shop.js has the list
   const SLICES = [
     { id: "again",   w: 16 },   // spin again
     { id: "boost",   w: 11 },   // 24 hr boost, +200 every 30 secs
     { id: "c200",    w: 20, coins: 200 },
     { id: "oops",    w: 24 },   // +0
-    { id: "c100000", w: 1,  coins: 100000 },
-    { id: "rainbow", w: 10 },   // rainbow sparkle tap (if you already have it, you get a random pet accessory you don't have yet; if you have them all, 1,000 instead)
+    { id: "c300000", w: 3.45, coins: 300000 },   // the jackpot: about 3.5 in 100 spins
+    { id: "rainbow", w: 10 },   // rainbow sparkle tap (three steps: the tap first; once you have it, a random pet accessory you don't have yet; once you have all three accessories, a permanent +50 every 30 secs on top of everything else; after that, 15,000 yeonbucks each time)
     { id: "c5000",   w: 9,  coins: 5000 },
     { id: "pet",     w: 5 },   // new mystery pet! (the weight drops to 0 once all the pets are owned)
   ];
@@ -199,15 +199,22 @@
   const bal = () => (window.YB ? window.YB.have() : 0);
   function boostLeft() { let u = 0; try { u = Number(localStorage.getItem("yb-boost-until") || 0); } catch (e) {} return Math.max(0, u - Date.now()); }
   const spinItems = () => (window.YBItems ? window.YBItems.count("spin") : 0);     // free spin items from the lost and found
-  function rainbowLabel() {                                    // once you own the rainbow sparkle tap, that slice says "random pet accessory" (it gives you one instead)
+  const ACCESSORIES = { "wear-hat": "witch hat", "wear-bow": "bow", "wear-soda": "soda" };
+  const accessoriesLeft = () => Object.keys(ACCESSORIES).filter((id) => !(window.YBShop && window.YBShop.owns(id)));
+  const permEarn = () => { try { return localStorage.getItem("yb-wheel-earn") === "1"; } catch (e) { return false; } };   // the permanent +50 boost (casino.js adds it to what you earn)
+  function rainbowLabel() {                                    // the rainbow slice has three steps: "rainbow sparkle tap", then "random pet accessory" (once you own the tap), then "15,000 yeonbucks" (once you own all the accessories too)
     const t = $("sw-rainbow");
-    if (!t || spinning) return;   // (not while the wheel is turning: the slice keeps its name until it has landed, so the tap can be won; it changes right after)
-    const have = !!(window.YBShop && window.YBShop.owns("tap-rainbow"));
-    if (t.dataset.have === String(have)) return;
-    t.dataset.have = String(have);
+    if (!t || spinning) return;   // (not while the wheel is turning: the slice keeps its name until it has landed, so the prize can be won; it changes right after)
+    const hasTap = !!(window.YBShop && window.YBShop.owns("tap-rainbow"));
+    const step = !hasTap ? "tap" : accessoriesLeft().length ? "accessory" : !permEarn() ? "perm" : "coins";
+    if (t.dataset.have === step) return;
+    t.dataset.have = step;
     const a = t.querySelectorAll("tspan");
-    if (have) { a[0].textContent = "random pet"; a[0].setAttribute("x", "-15"); a[1].textContent = "accessory"; a[1].setAttribute("x", "-8"); }
-    else { a[0].textContent = "rainbow "; a[0].setAttribute("x", "0"); a[1].textContent = "sparkle tap"; a[1].setAttribute("x", "-30"); }
+    ["font-size", "font-weight"].forEach((k) => { a[0].removeAttribute(k); a[1].removeAttribute(k); });
+    if (step === "tap") { a[0].textContent = "rainbow "; a[0].setAttribute("x", "0"); a[1].textContent = "sparkle tap"; a[1].setAttribute("x", "-30"); }
+    else if (step === "perm") { a[0].textContent = "+50 forever"; a[0].setAttribute("x", "-30"); a[1].textContent = "every 30 secs"; a[1].setAttribute("x", "-14"); a[1].setAttribute("font-size", "17"); a[1].setAttribute("font-weight", "400"); }
+    else if (step === "accessory") { a[0].textContent = "random pet"; a[0].setAttribute("x", "-15"); a[1].textContent = "accessory"; a[1].setAttribute("x", "-8"); }
+    else { a[0].textContent = "15,000"; a[0].setAttribute("x", "-2"); a[0].setAttribute("font-size", "30"); a[1].textContent = "yeonbucks"; a[1].setAttribute("x", "-7.5"); a[1].setAttribute("font-size", "22"); a[1].setAttribute("font-weight", "400"); }
   }
   function wDraw() {
     rainbowLabel();
@@ -221,44 +228,25 @@
     wClose.disabled = spinning;
   }
   // mystery pets: which ones you don't have yet, and how many "pick a pet" prizes are waiting
-  const petsLeft = () => PET_KINDS.filter((k) => !(window.YBShop && window.YBShop.owns("pet-" + k)));
+  const petsLeft = () => (window.YBShop && window.YBShop.rarePets ? window.YBShop.rarePets() : []).filter((p) => !window.YBShop.owns(p.id));
   const pending = () => { try { return Math.max(0, Number(localStorage.getItem("yb-pet-pending") || 0)); } catch (e) { return 0; } };
   const setPending = (n) => { try { localStorage.setItem("yb-pet-pending", String(Math.max(0, n))); } catch (e) {} };
-  const weightOf = (s) => (s.id === "pet" && petsLeft().length - pending() <= 0 ? 0 : s.w);
+  const weightOf = (s) => (s.id === "pet" && petsLeft().length <= 0 ? 0 : s.w);
   function pick() {
     const tot = SLICES.reduce((a, s) => a + weightOf(s), 0);
     let r = Math.random() * tot;
     for (let i = 0; i < SLICES.length; i++) { r -= weightOf(SLICES[i]); if (r < 0) return i; }
     return 0;
   }
-  const pickBox = $("sw-pick"), pickOpts = $("sw-pick-opts"), pickOk = $("sw-pick-ok"), controls = $("sw-controls");
-  let chosen = "";
-  function showPick() {
-    const left = petsLeft();
-    if (!pending() || !left.length) { pickBox.hidden = true; controls.hidden = false; return false; }
-    chosen = ""; pickOk.disabled = true; pickOpts.innerHTML = "";
-    left.forEach((k) => {
-      const art = document.querySelector('#pet .pet-art[data-pet="' + k + '"] .pet-a');
-      const b = document.createElement("button");
-      b.type = "button"; b.className = "sw-pet-opt"; b.setAttribute("aria-pressed", "false");
-      b.innerHTML = '<span class="shop-prev-pet">' + (art ? art.outerHTML : "") + '</span><span class="nm">' + k + "</span>";
-      b.addEventListener("click", () => {
-        chosen = k; pickOk.disabled = false;
-        pickOpts.querySelectorAll(".sw-pet-opt").forEach((o) => o.setAttribute("aria-pressed", o === b ? "true" : "false"));
-      });
-      pickOpts.appendChild(b);
-    });
-    pickBox.hidden = false; controls.hidden = true;
-    return true;
+  function giveWaitingPets() {                                              // (a "pick a pet" prize won before this change: it just comes home with you now)
+    let n = pending(), names = [];
+    while (n > 0 && petsLeft().length) {
+      const left = petsLeft(), pet = left[Math.floor(Math.random() * left.length)];
+      window.YBShop.give(pet.id, true); names.push(pet.name); n--;
+    }
+    setPending(0);
+    return names;
   }
-  pickOk.addEventListener("click", () => {
-    if (!chosen || !window.YBShop) return;
-    const k = chosen;
-    window.YBShop.give("pet-" + k, true);
-    setPending(pending() - 1);
-    wRes.textContent = "";
-    if (!showPick()) { wRes.textContent = k + " came home with you! find them in your inventory"; wDraw(); }
-  });
   function showResult(msg, sub) {                                             // the message (bold), and optionally a plain line under it
     wRes.textContent = "";
     msg.split("\n").forEach((line, n) => { if (n) wRes.appendChild(document.createElement("br")); wRes.appendChild(document.createTextNode(line)); });   // a new line in the message becomes a line break
@@ -277,7 +265,7 @@
     const i = pick(), s = SLICES[i];
     // the prize is decided and handed over right now; the spinning is just for show
     let msg = "", sub = "";                                                    // sub: a second line under the message, not bold
-    if (s.coins) { window.YB.add(s.coins); msg = (s.id === "c100000" ? "jackpot! " : "") + "+" + fmtN(s.coins) + " yeonbucks!"; }
+    if (s.coins) { window.YB.add(s.coins); msg = (s.id === "c300000" ? "jackpot! " : "") + "+" + fmtN(s.coins) + " yeonbucks!"; }
     else if (s.id === "oops") msg = "oops! +0 yeonbucks. better luck next time";
     else if (s.id === "again") { st.extra++; msg = "spin again! you got a free extra spin"; }
     else if (s.id === "boost") {
@@ -286,25 +274,37 @@
       msg = "24 hr boost! +200 every 30 secs for the next 24 hours";
     } else if (s.id === "rainbow") {
       if (window.YBShop && window.YBShop.give("tap-rainbow")) msg = "rainbow sparkle tap! turn it on in your inventory";
-      else {                                                                       // already have it: a random pet accessory you don't have yet
-        const NAMES = { "wear-hat": "witch hat", "wear-bow": "bow", "wear-soda": "soda" };
-        const left = Object.keys(NAMES).filter((id) => !(window.YBShop && window.YBShop.owns(id)));
+      else {                                                                       // already have it: a random pet accessory you don't have yet, and 15,000 yeonbucks once you have them all
+        const left = accessoriesLeft();
         if (left.length) {
           const id = left[Math.floor(Math.random() * left.length)];
           window.YBShop.give(id);
-          msg = "you got a new pet accessory:\nthe " + NAMES[id] + "!"; sub = "put it on in your inventory";
-        } else { window.YB.add(1000); msg = "you already have the rainbow sparkle tap and every accessory, so here's +1,000 yeonbucks"; }
+          msg = "you got a new pet accessory:\nthe " + ACCESSORIES[id] + "!"; sub = "put it on in your inventory";
+        } else if (!permEarn()) {                                                   // all three accessories: a permanent +50 every 30 secs
+          try { localStorage.setItem("yb-wheel-earn", "1"); } catch (e) {}
+          msg = "a permanent boost!\n+50 every 30 secs, for good"; sub = "it stacks with everything else you have";
+        } else { window.YB.add(15000); msg = "you have everything from this slice, so here's +15,000 yeonbucks!"; }
       }
-    } else { setPending(pending() + 1); msg = "a new mystery pet!"; }
+    } else {                                                                      // a new mystery pet: any rare pet you don't have yet, picked for you
+      const left = petsLeft();
+      if (left.length) {
+        const pet = left[Math.floor(Math.random() * left.length)];
+        window.YBShop.give(pet.id, true);
+        msg = "a new mystery pet!\nthe " + pet.name + " came home with you"; sub = "find them in your inventory";
+      } else { window.YB.add(5000); msg = "you have every rare pet, so here's +5,000 yeonbucks"; }
+    }
     wSave(st);
     spinning = true; wRes.textContent = ""; wDraw();
     const center = i * 45 + 22.5 + (Math.random() * 24 - 12);                 // somewhere inside the slice
     rot += ((360 - center - (rot % 360)) % 360 + 360) % 360 + 360 * 5;        // lands that slice under the pointer
     wheelG.style.transform = "rotate(" + rot + "deg)";
     const ms = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches ? 600 : 4700;
-    setTimeout(() => { spinning = false; showResult(msg, sub); wDraw(); if (s.id === "pet") showPick(); }, ms);
+    setTimeout(() => { spinning = false; showResult(msg, sub); wDraw(); }, ms);
   }
-  function openWheel() { wRes.textContent = ""; wDraw(); showPick(); wOv.hidden = false; (pickBox.hidden ? wBtn : pickOpts.querySelector("button") || wBtn).focus(); }
+  function openWheel() {
+    wRes.textContent = ""; const got = giveWaitingPets(); wDraw(); wOv.hidden = false; wBtn.focus();
+    if (got.length) showResult("a mystery pet was waiting for you!\n" + got.join(", ") + (got.length > 1 ? " came" : " came") + " home with you", "find them in your inventory");
+  }
   function closeWheel() { if (spinning) return; wOv.hidden = true; }
   wBtn.addEventListener("click", spin);
   wClose.addEventListener("click", closeWheel);
