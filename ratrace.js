@@ -83,6 +83,10 @@
   let round = 1;                                                     // a game starts at round 1 every time the page loads
   let items = Object.assign({ puff: 0, cheese: 0 }, store.get("rr-items", {}));
   let myId = null;
+  let mp = null, mpPick = null;   // (multi-player state; see below)
+  let mode = "single";           // "single" = one 3-round game, "infinite" = one endless solo run: how far can one rat get?
+  const isInf = () => mode === "infinite" && !mp;
+  const trackLen = () => (isInf() ? Infinity : TUNING.trackLen);
   let locked = false;            // rat can only be changed before the first round begins
   const setLocked = (v) => { locked = v; store.set("rr-locked", v); if (typeof changeBtns === "function") changeBtns(); };
   // ----- power ups (each is good for one race: bought in the upgrade shop or won in "test your luck") and rat levels -----
@@ -206,7 +210,7 @@
   let lanes = [], course = null, cam = 0, sc = 0.5, span = 1920;
   let raf = 0, last = 0, T = 0;
   let phase = "menu";      // menu | pick | bet | count | race | done
-  let paused = false, countT = 0, resultTimer = 0;
+  let paused = false, countT = 0, countStep = 0.75, resultTimer = 0;
   let allFin = null, bet = 0, startLives = 3, lives = 3, jumpQ = 0, firstFin = null, decided = false;
   let myStats = ROSTER[0].stats, myBoostDur = 0.5;
   const XP = 200;          // where your rat sits on the screen (in units from the left)
@@ -228,9 +232,9 @@
   }
 
   function buildLanes(custom) {   // (custom: the rats of a multi-player race, me first)
-    track.innerHTML = "";
+    track.innerHTML = ""; track.classList.toggle("solo", !custom && isInf());
     const me = custom ? null : myRat();
-    const list = custom || [{ id: me.id, name: me.name, coat: me.coat }].concat(chooseOpponents());
+    const list = custom || [{ id: me.id, name: me.name, coat: me.coat }].concat(isInf() ? [] : chooseOpponents());
     lanes = list.map((r, i) => {
       const el = document.createElement("div");
       el.className = "rr-lane" + (i === 0 ? " me" : "");
@@ -250,7 +254,7 @@
   function makeCourse(rand = Math.random) {
     const obs = [];
     let x = 1500 + rand() * 300;
-    while (x < TUNING.trackLen - 1500) { obs.push({ x, kind: "trap" }); x += 700 + rand() * 330; }
+    while (x < trackLen() - 1500) { obs.push({ x, kind: "trap" }); x += 700 + rand() * 330; }
     const cheese = [];
     const G = TUNING.groundCheese, Hh = TUNING.highCheese;
     const add = (x, hi) => cheese.push({ x, y0: hi ? Hh[0] : G[0], y1: hi ? Hh[1] : G[1], hi });
@@ -275,6 +279,136 @@
       L.passedC = course.cheese.map(() => false);
     });
   }
+
+  // infinite mode: the course is made as you run (a bit ahead of the rat) and what you passed is dropped
+  let infX = 0;
+  function growCourse() {
+    const me = lanes[0], L = me;
+    while (infX < me.x + 4500) {
+      const x = infX, gap = 700 + Math.random() * 330, nx = x + gap, mid = (x + nx) / 2;
+      const add = (cx, hi) => {
+        const c = { x: cx, y0: hi ? TUNING.highCheese[0] : TUNING.groundCheese[0], y1: hi ? TUNING.highCheese[1] : TUNING.groundCheese[1], hi };
+        course.cheese.push(c);
+        const e = document.createElement("div"); e.className = "rr-cheese" + (hi ? " hi" : ""); e.innerHTML = CHEESE; L.el.appendChild(e); L.chEls.push(e); L.passedC.push(false);
+      };
+      course.obs.push({ x, kind: "trap" });
+      const e = document.createElement("div"); e.className = "rr-ob"; e.innerHTML = TRAP; L.el.appendChild(e); L.obEls.push(e); L.passedO.push(false);
+      const r = Math.random;
+      if (r() < 0.2) { add(x + 230, false); add(x + 330, false); }
+      if (r() < 0.25) add(mid, false);
+      if (r() < 0.25) { add(mid - 60, true); add(mid + 60, true); }
+      if (r() < 0.25) add(x, true);
+      infX = nx;
+    }
+    while (course.obs.length && L.passedO[0] && course.obs[0].x < cam - 700) { course.obs.shift(); L.passedO.shift(); L.obEls.shift().remove(); }
+    while (course.cheese.length && L.passedC[0] && course.cheese[0].x < cam - 700) { course.cheese.shift(); L.passedC.shift(); L.chEls.shift().remove(); }
+  }
+  function placePre(run) { $("#rr-place-pre").textContent = run ? "distance: " : "you are currently "; $("#rr-place-post").textContent = run ? "" : " place"; }
+  const bestRun = () => Math.max(0, store.get("rr-best", 0) | 0);
+  const barR = () => pauseBtn.parentElement;
+  function startRun() {   // infinite mode: no bet, no pause, no upgrades. just you and one rat
+    resBox.hidden = true; betModal.hidden = true; howModal.hidden = true; pausedEl.hidden = true; paused = false; pauseBtn.textContent = "pause";
+    clearTimeout(resultTimer);
+    barR().hidden = false;
+    STATS.forEach((k) => { bonus[k] = 0; });
+    act = {}; shieldReady = false; bet = 0;
+    const me = myRat();
+    myStats = me.stats; myBoostDur = boostOf(myStats.hunger);
+    startLives = TUNING.lives; lives = startLives;
+    decided = false; firstFin = null; allFin = null; T = 0; cam = 0; jumpQ = 0;
+    show("race");
+    buildLanes();
+    lanes[0].air = airOf(myStats.jump); lanes[0].peak = peakOf(myStats.jump);
+    course = { obs: [], cheese: [] }; infX = 1500 + Math.random() * 300;
+    lanes[0].obEls = []; lanes[0].chEls = []; lanes[0].passedO = []; lanes[0].passedC = [];
+    growCourse();
+    page.classList.add("racing");
+    drawLives(); placeEl.textContent = "0 m"; placePre(true); $("#rr-betshow").innerHTML = "<b>best:</b> " + bestRun() + " m";
+    phase = "count"; countT = 3 * 0.75; countStep = 0.75;
+    countEl.hidden = false; countEl.textContent = "3";
+    render(0);
+  }
+  function resumeRun() {
+    paused = false; pauseBtn.textContent = "pause"; pausedEl.hidden = true;
+    phase = "count"; countT = 3; countStep = 1;   // 3, 2, 1: a full 3 seconds
+    countEl.hidden = false; countEl.textContent = "3"; render(0);
+  }
+  function finishRun() {
+    const dist = Math.floor(lanes[0].x / 100), prev = bestRun(), isBest = dist > prev;
+    if (isBest) store.set("rr-best", dist);
+    resBox.dataset.kind = "out"; resBtn.dataset.end = ""; resChange.dataset.new = "";
+    resTitle.textContent = "run over";
+    resText.innerHTML = "you ran <b>" + fmt(dist) + " m</b>." + (isBest ? "<br>new best!" : "<br>best: " + fmt(prev) + " m");
+    lastRun = { dist, secs: T, rat: myRat().name };
+    const sub = $("#rr-submit"); $("#rr-sub-msg").textContent = ""; $("#rr-sub-go").disabled = false;
+    sub.hidden = !(isBest && boardOn()); $("#rr-sub-name").value = boardName();
+    $("#rr-board-open").hidden = !boardOn();
+    resBtn.textContent = "run again";
+    resChange.textContent = "change rat"; resChange.hidden = false;
+    $("#rr-res-extra").hidden = true; placesEl.innerHTML = ""; $("#rr-res-xp").innerHTML = "";
+    $("#rr-betshow").innerHTML = "<b>best:</b> " + fmt(Math.max(dist, prev)) + " m";
+    clearTimeout(resultTimer);
+    resultTimer = setTimeout(() => { resBox.hidden = false; resBtn.focus({ preventScroll: true }); }, 0);
+  }
+
+  // ----- the leaderboard (see supabase-ratrace-board.sql) -----
+  let lastRun = null;
+  const boardCfg = () => { const c = typeof COMMUNITY !== "undefined" ? COMMUNITY : {}; const url = String(c.url || "").trim().replace(/\/+$/, ""), key = String(c.key || "").trim(); return /^https:\/\/[^\s/]+/i.test(url) && key.length > 20 ? { url, key } : null; };
+  const boardOn = () => !!boardCfg();
+  const boardName = () => store.get("rr-mp-name", "") || (store.get("sg-me", {}) || {}).name || "";
+  let boardId = store.get("rr-mp-id", "");
+  if (!boardId) { boardId = "p" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36); store.set("rr-mp-id", boardId); }
+  async function boardRpc(fn, args) {
+    const c = boardCfg(); if (!c) throw new Error("the leaderboard isn't set up yet");
+    const headers = { apikey: c.key, "Content-Type": "application/json" };
+    if (/^eyJ/.test(c.key)) headers.Authorization = "Bearer " + c.key;
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 15000);
+    try {
+      const res = await fetch(c.url + "/rest/v1/rpc/" + fn, { method: "POST", headers, body: JSON.stringify(Object.assign({ p_id: boardId }, args)), signal: ctl.signal });
+      const text = await res.text(); let j = null; try { j = text ? JSON.parse(text) : null; } catch (e) {}
+      if (!res.ok) { const e = new Error((j && (j.message || j.msg)) || "something went wrong"); e.status = res.status; e.code = j && j.code; throw e; }
+      return j;
+    } catch (e) {
+      if (e && (e.code === "PGRST202" || e.status === 404)) throw new Error("the leaderboard isn't set up yet: run supabase-ratrace-board.sql in Supabase.");
+      if (e && e.name === "AbortError") throw new Error("the server is slow. try again.");
+      if (e instanceof TypeError) throw new Error("can't reach the server. check your connection.");
+      throw e;
+    } finally { clearTimeout(timer); }
+  }
+  const mmss = (t) => { const n = Math.round(t); return Math.floor(n / 60) + ":" + String(n % 60).padStart(2, "0"); };
+  const ordOf = (k) => (k % 100 >= 11 && k % 100 <= 13 ? k + "th" : k + (["th", "st", "nd", "rd"][k % 10] || "th"));
+  async function submitRun() {
+    if (!lastRun) return;
+    const nm = $("#rr-sub-name").value.trim().slice(0, 20), msgEl = $("#rr-sub-msg");
+    if (!nm) { msgEl.textContent = "type a name first."; return; }
+    store.set("rr-mp-name", nm);
+    $("#rr-sub-go").disabled = true; msgEl.textContent = "sending...";
+    try {
+      const r = await boardRpc("rrb_submit", { p_name: nm, p_rat: lastRun.rat, p_dist: lastRun.dist, p_secs: Math.round(lastRun.secs * 100) / 100 });
+      msgEl.innerHTML = r && r.ok ? "submitted! you're " + ordOf(r.rank) + " on the leaderboard." : "you already have a farther run on the leaderboard (" + fmt(r ? r.best : 0) + " m).";
+      if (r && r.ok) $("#rr-sub-go").disabled = true; else $("#rr-sub-go").disabled = false;
+    } catch (e) { msgEl.textContent = e.message || "couldn't submit."; $("#rr-sub-go").disabled = false; }
+  }
+  async function openBoard() {
+    const modal = $("#rr-board"), list = $("#rr-board-list");
+    modal.hidden = false; list.innerHTML = ""; const li0 = document.createElement("li"); li0.textContent = "loading..."; list.appendChild(li0);
+    try {
+      const rows = await boardRpc("rrb_top", { p_limit: 20 });
+      list.innerHTML = "";
+      if (!rows || !rows.length) { const li = document.createElement("li"); li.textContent = "no runs yet. be the first!"; list.appendChild(li); return; }
+      rows.forEach((r, k) => {
+        const li = document.createElement("li"); if (r.me) li.className = "me";
+        [ordOf(k + 1), r.name + (r.rat ? " · " + r.rat : ""), fmt(r.dist) + " m · " + mmss(+r.secs)].forEach((t) => { const sp = document.createElement("span"); sp.textContent = t; li.appendChild(sp); });
+        list.appendChild(li);
+      });
+    } catch (e) { list.innerHTML = ""; const li = document.createElement("li"); li.textContent = e.message || "couldn't load the leaderboard."; list.appendChild(li); }
+  }
+  $("#rr-sub-go").addEventListener("click", submitRun);
+  $("#rr-sub-name").addEventListener("keydown", (e) => { if (e.key === "Enter") submitRun(); });
+  $("#rr-board-open").addEventListener("click", openBoard);
+  $("#rr-board-open2").addEventListener("click", openBoard);
+  $("#rr-board-close").addEventListener("click", () => { $("#rr-board").hidden = true; });
+  $("#rr-board").addEventListener("click", (e) => { if (e.target === $("#rr-board")) $("#rr-board").hidden = true; });
 
   // each computer rat rolls its trips and cheese before the race (harder rounds: fewer trips, more cheese)
   function rollRats() {
@@ -333,7 +467,7 @@
         e.style.visibility = on ? "visible" : "hidden";
       });
       if (L.flagEl) {
-        const px = (XP + (TUNING.trackLen - cam) - 14) * sc;
+        const px = (XP + (trackLen() - cam) - 14) * sc;
         const on = px < (span + 100) * sc;
         if (on) L.flagEl.style.transform = "translate3d(" + px.toFixed(1) + "px,0,0)";
         L.flagEl.style.visibility = on ? "visible" : "hidden";
@@ -343,7 +477,7 @@
       const me = lanes[0];
       // the "boost 1.2s" readout was removed: it pushed the header down while it showed
       const rank = lanes.filter((L) => L.x > me.x + 0.01).length + 1;
-      placeEl.textContent = rank + (rank === 1 ? "st" : rank === 2 ? "nd" : rank === 3 ? "rd" : "th");
+      placeEl.textContent = isInf() ? Math.floor(me.x / 100) + " m" : rank + (rank === 1 ? "st" : rank === 2 ? "nd" : rank === 3 ? "rd" : "th");
     }
   }
 
@@ -369,6 +503,7 @@
 
   function step(dt) {
     T += dt;
+    if (isInf()) growCourse();
     lanes.forEach((L) => {
       if (L.remote) { stepRemote(L, dt); return; }   // (multi-player: other players' rats are moved by what they send)
       // jumping
@@ -381,7 +516,7 @@
       if (L.i === 0 && jumpQ > 0) jumpQ -= dt;
       // speed
       const wob = L.i === 0 ? 1 : 1 + 0.025 * Math.sin(T * 1.3 + L.phase);
-      let sp = TUNING.baseSpeed * (L.i === 0 ? speedOf(myStats.speed) : L.speedMul) * wob * (L.boost > 0 ? TUNING.boostMul : 1);
+      let sp = TUNING.baseSpeed * (L.i === 0 ? speedOf(myStats.speed) : L.speedMul) * wob * (L.boost > 0 ? TUNING.boostMul : 1) * (isInf() ? Math.min(1.6, 1 + L.x / 100000) : 1);
       if (L.stun > 0) { sp = 0; L.stun -= dt; }
       if (L.out) sp = 0;
       if (L.boost > 0) L.boost -= dt;
@@ -422,13 +557,13 @@
         }
       });
       // the flag
-      if (L.fin == null && L.x >= TUNING.trackLen) {
-        L.fin = T - (L.x - TUNING.trackLen) / Math.max(sp, 1);
+      if (L.fin == null && L.x >= trackLen()) {
+        L.fin = T - (L.x - trackLen()) / Math.max(sp, 1);
         if (firstFin == null) firstFin = L.fin;
         if (mp && L.i === 0 && !mp.sentFin) { mp.sentFin = true; mp.onFinish(L.fin); }
       }
     });
-    cam = Math.max(cam, Math.min(lanes[0].x, TUNING.trackLen + 400));
+    cam = Math.max(cam, Math.min(lanes[0].x, trackLen() + 400));
     if (mp) { mpSend(); return; }   // (multi-player: the server decides who won)
     // who won? (a hair after the first rat crosses, so ties can show up)
     if (!decided && allFin == null && lanes.every((L) => L.fin != null)) allFin = T;
@@ -446,7 +581,7 @@
     if (!paused) {
       if (phase === "count") {
         if (mp) countT = (mp.startAt - Date.now()) / 1000; else countT -= dt;
-        const n = mp ? (countT > 3 ? "get ready" : Math.ceil(countT)) : Math.ceil(countT / 0.75);
+        const n = mp ? (countT > 3 ? "get ready" : Math.ceil(countT)) : Math.ceil(countT / countStep);
         if (countT <= 0) {
           phase = "race"; setCount("go!"); page.classList.remove("counting"); setTimeout(() => { if (phase !== "count") countEl.hidden = true; }, 700);
           lanes.forEach((L) => { if (L.i === 0 && L.boost > 0) pop(L, "head start!", "good"); });
@@ -478,6 +613,9 @@
 
   function finish(kind) {
     phase = "done";
+    if (isInf()) return finishRun();
+    $("#rr-res-extra").hidden = false;
+    $("#rr-submit").hidden = true; $("#rr-board-open").hidden = true;   // (the leaderboard is infinite mode only)
     played = true; store.set("rr-played", true); tries = 1; store.set("rr-tries", tries);
     const early = round <= TUNING.gameRounds;                                          // the first 3 rounds are one game: a bad round does not end it
     const over = (kind === "lose" || kind === "out") && !early;                        // after that, a lost round ends the run (no xp for it)
@@ -491,23 +629,26 @@
     if (kind === "win") { pay = bet * winMult(round); if (window.YB) window.YB.add(pay); }
     else if (kind === "tie") { if (window.YB) window.YB.add(bet * TUNING.payTie); }
     if (kind === "win" || early) { round++; store.set("rr-round", round); }          // (a tie after round 3 is a rematch of the same round)
-    const complete = early && round > TUNING.gameRounds;                               // that was the last round of the game
-    const next = complete ? "that's all " + TUNING.gameRounds + " rounds! keep playing with the same rat, or start a new game." : "round " + round + " next.";
+    const finale = mode === "single" && round > TUNING.gameRounds;                     // single player: round 3 was the end of the game
+    const complete = finale || (early && round > TUNING.gameRounds);                   // that was the last round of the game
+    const next = finale ? "that's all " + TUNING.gameRounds + " rounds! start a new game to play again." : complete ? "that's all " + TUNING.gameRounds + " rounds! keep playing with the same rat, or start a new game." : "round " + round + " next.";
+    resBtn.dataset.end = finale ? "1" : "";
     if (kind === "win") {
       resTitle.textContent = "you won!";
       resText.innerHTML = "+" + fmt(pay) + " yeonbucks. the rats are getting faster...<br>" + next;
-      resBtn.textContent = complete ? "keep playing" : "next round";
+      resBtn.textContent = finale ? "new game" : complete ? "keep playing" : "next round";
     } else if (kind === "tie") {
       resTitle.textContent = "photo finish: a tie";
       resText.innerHTML = "your bet (" + fmt(bet) + ") comes back to you.<br>" + (early ? next : "");
-      resBtn.textContent = complete ? "keep playing" : early ? "next round" : "run it back";
+      resBtn.textContent = finale ? "new game" : complete ? "keep playing" : early ? "next round" : "run it back";
     } else {
       if (over) newGame();
       resTitle.textContent = kind === "out" ? "out of puffs" : "the rats won this one";
       resText.innerHTML = (kind === "out" ? "you tripped " + TUNING.lives + " times. " : "") + "you lost " + fmt(bet) + " yeonbucks." + (over ? "" : "<br>" + next);
-      resBtn.textContent = over ? "try again" : complete ? "keep playing" : "next round";
+      resBtn.textContent = over ? "try again" : finale ? "new game" : complete ? "keep playing" : "next round";
     }
-    if (complete) { resChange.textContent = "new game"; resChange.dataset.new = "1"; resChange.hidden = false; }
+    if (finale) resChange.hidden = true;
+    else if (complete) { resChange.textContent = "new game"; resChange.dataset.new = "1"; resChange.hidden = false; }
     else { resChange.textContent = "change rat"; changeBtns(); }
     $("#rr-res-xp").innerHTML = gain ? "<b>+" + gain + " xp</b>" + (leveled ? " · level up!" : "") + xpBar() : "";
     renderPickers();
@@ -518,13 +659,13 @@
   // ----- betting and starting -----
   function openBet() {
     // a fresh track with the rats at the start, and the bet pop-up on top
-    resBox.hidden = true; countEl.hidden = true; pausedEl.hidden = true; paused = false; pauseBtn.textContent = "pause";
+    resBox.hidden = true; countEl.hidden = true; pausedEl.hidden = true; paused = false; pauseBtn.textContent = "pause"; barR().hidden = false;
     clearTimeout(resultTimer);
     phase = "bet"; decided = false; firstFin = null; allFin = null; cam = 0; T = 0;
     show("race");
     buildLanes(); course = null; render(0);
     page.classList.remove("racing");
-    startLives = TUNING.lives; lives = startLives; drawLives(); placeEl.textContent = "1st"; $("#rr-betshow").textContent = "";
+    startLives = TUNING.lives; lives = startLives; drawLives(); placeEl.textContent = "1st"; placePre(false); $("#rr-betshow").textContent = "";
     refreshBet();
     betModal.hidden = false;
     betIn.focus({ preventScroll: true });
@@ -598,7 +739,7 @@
     lanes[0].boost = headStart;
     page.classList.add("racing");
     drawLives(); placeEl.textContent = "1st";
-    phase = "count"; countT = 3 * 0.75;
+    phase = "count"; countT = 3 * 0.75; countStep = 0.75;
     countEl.hidden = false; countEl.textContent = "3";
     render(0);
   }
@@ -607,10 +748,9 @@
   // ----- multi-player (multiplayer.js runs the rooms; this is the race part) -----
   // Everyone races the same course (made from a shared seed) and sends where their rat is about 10 times a second.
   // Other players' rats are drawn from what they send. The server decides who won (see supabase-ratrace-mp.sql).
-  let mp = null, mpPick = null;
   const seeded = (a) => () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   function stepRemote(L, dt) {
-    if (L.fin != null) { L.x = TUNING.trackLen + 1; L.jt = -1; L.y = 0; L.sp = 0; return; }
+    if (L.fin != null) { L.x = trackLen() + 1; L.jt = -1; L.y = 0; L.sp = 0; return; }
     if (L.jt >= 0) { L.jt += dt; if (L.jt >= L.air) { L.jt = -1; } }
     L.y = jumpY(L);
     const sp = L.out ? 0 : (L.sp || 0);
@@ -619,7 +759,7 @@
       const target = L.tx + (L.sp || 0) * ((performance.now() - L.tt) / 1000);
       L.x += (target - L.x) * Math.min(1, dt * 6);
     }
-    L.x = Math.min(L.x, TUNING.trackLen + 1);
+    L.x = Math.min(L.x, trackLen() + 1);
     L.stun = L.stunned ? 1 : 0; L.boost = L.boosted ? 1 : 0;
   }
   function mpRemote(pid, m) {
@@ -652,13 +792,13 @@
     paused = false; decided = true; firstFin = null; allFin = null; T = 0; cam = 0; jumpQ = 0; act = {}; shieldReady = false;
     myStats = o.me.stats; myBoostDur = boostOf(myStats.hunger);
     startLives = TUNING.lives; lives = startLives;
-    page.classList.add("mp");
+    page.classList.add("mp"); barR().hidden = false;
     show("race");
     buildLanes([{ id: "me", name: o.me.name, coat: o.me.coat }].concat(o.others.map((x) => ({ id: x.pid, pid: x.pid, name: x.name, coat: x.coat }))));
     lanes[0].air = airOf(myStats.jump); lanes[0].peak = peakOf(myStats.jump);
     course = makeCourse(seeded(o.seed | 0)); layoutCourse();
     page.classList.add("racing");
-    drawLives(); placeEl.textContent = "1st"; $("#rr-betshow").innerHTML = "<b>pot:</b> " + fmt(o.pot);
+    drawLives(); placeEl.textContent = "1st"; placePre(false); $("#rr-betshow").innerHTML = "<b>pot:</b> " + fmt(o.pot);
     phase = "count"; countT = 99; countEl.hidden = false; delete countEl.dataset.v; page.classList.add("counting"); setCount("get ready");
     render(0);
     if (!raf && location.hash === "#ratrace") { last = performance.now(); raf = requestAnimationFrame(tick); }
@@ -686,7 +826,7 @@
   }
   window.RRMP = {
     pickRat(cb, back, offer) {   // returns the three rats on offer ({ id, name, base }) so the room can hand the same three out again
-      mpPick = cb; mpBack = back || null; pickBackBtn.innerHTML = "&larr; back";
+      mpPick = cb; mpBack = back || null; $("#rr-board-open2").hidden = true; pickBackBtn.innerHTML = "&larr; back";
       pickTag.textContent = "pick one of these three. once you're ready, it's yours for the whole room!";
       if (offer && offer.length === ROSTER.length) { offer.forEach((o, i) => { ROSTER[i].name = o.name; ROSTER[i].base = Object.assign({}, o.base); }); applyStats(); }
       phase = "pick"; buildCards(!!(offer && offer.length === ROSTER.length)); show("pick");
@@ -707,18 +847,30 @@
   $("#rr-how-close").addEventListener("click", closeHow);
   howModal.addEventListener("click", (e) => { if (e.target === howModal) closeHow(); });
 
-  $("[data-go=pick]").addEventListener("click", () => { if (locked) { openBet(); return; } phase = "pick"; buildCards(); show("pick"); });
+  function startMode(m) {
+    if (mode !== m) { mode = m; if (locked || round > 1) newGame(); }   // switching modes starts a fresh game
+    $("#rr-board-open2").hidden = m !== "infinite" || !boardOn();
+    if (locked && m === "single") { openBet(); return; }
+    phase = "pick"; buildCards(); show("pick");
+  }
+  $("[data-go=pick]").addEventListener("click", () => startMode("single"));
+  $("[data-go=infinite]").addEventListener("click", () => startMode("infinite"));
   $("[data-go=multi]").addEventListener("click", () => { if (window.RRMulti) window.RRMulti.open(); else menuNote.textContent = "multi-player isn't available right now."; });
   $("#rr-cards").addEventListener("click", (e) => {
     const b = e.target.closest(".rr-pickbtn");
     if (!b) return;
     if (mpPick) { const cb = mpPick, r = ROSTER.find((x) => x.id === b.dataset.id); mpPick = null; endPick(); show("menu"); cb({ name: r.name, coat: r.coat, stats: Object.assign({}, r.base) }); return; }   // (multi-player: just hand the rat back)
     myId = b.dataset.id; store.set("rr-rat", myId);
+    if (isInf()) { startRun(); return; }
     openBet();
   });
   $("#rr-bet-back").addEventListener("click", () => { betModal.hidden = true; phase = "pick"; buildCards(); show("pick"); });
   goBtn.addEventListener("click", start);
-  resBtn.addEventListener("click", openBet);
+  resBtn.addEventListener("click", () => {
+    if (isInf()) { startRun(); return; }
+    if (resBtn.dataset.end) { newGame(); resBtn.dataset.end = ""; resBox.hidden = true; phase = "pick"; buildCards(); show("pick"); page.classList.remove("racing"); return; }   // single player is over: pick a rat for a new game
+    openBet();
+  });
   resChange.addEventListener("click", () => { if (resChange.dataset.new) newGame(); resBox.hidden = true; phase = "pick"; buildCards(); show("pick"); page.classList.remove("racing"); });
   betIn.addEventListener("input", () => { fmtBetInput(); msg.textContent = ""; });
   betIn.addEventListener("keydown", (e) => { if (e.key === "Enter") start(); });
@@ -729,17 +881,20 @@
   }));
   pauseBtn.addEventListener("click", () => {
     if (phase !== "race" && phase !== "count") return;
+    if (isInf() && paused) { resumeRun(); return; }   // infinite mode: 3 seconds to get ready before the rat runs again
     paused = !paused;
     pauseBtn.textContent = paused ? "resume" : "pause";
     pausedEl.hidden = !paused;
-    if (paused) {
+    $("#rr-paused-info").hidden = isInf();
+    if (paused && !isInf()) {
       $("#rr-p-round").textContent = round;
       $("#rr-p-bet").textContent = fmt(bet);
       $("#rr-p-win").textContent = winMult(round) + "x = " + fmt(bet * winMult(round));
     }
   });
   $("#rr-resume").addEventListener("click", () => pauseBtn.click());
-  $("#rr-restart").addEventListener("click", () => {   // giving up counts as a loss: the bet is gone and you start again from round 1
+  $("#rr-restart").addEventListener("click", () => {
+    if (isInf() && (phase === "race" || phase === "count")) { startRun(); return; }   // (no bet to lose: just start the run over)   // giving up counts as a loss: the bet is gone and you start again from round 1
     if (phase !== "race" && phase !== "count") return;
     newGame();
     openBet();

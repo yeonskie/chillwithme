@@ -1092,6 +1092,7 @@
           <div class="rr-opts">
             <button type="button" class="rr-opt" data-go="pick">single player</button>
             <button type="button" class="rr-opt" data-go="multi">multi-player</button>
+            <button type="button" class="rr-opt" data-go="infinite">infinite mode</button>
             <button type="button" class="rr-opt" data-how>how it works</button>
           </div>
           <p class="rr-note" id="rr-menu-note" role="status"></p>
@@ -1106,20 +1107,21 @@
           <p class="rr-tag">upgrade your rats in the shop once you pick one</p>
           <div class="rr-cards" id="rr-cards"></div>
           <button type="button" class="hy-back rr-linkbtn rr-backlink" id="rr-pick-back">&larr; back</button>
+          <button type="button" class="rr-text" id="rr-board-open2" hidden>leaderboard</button>
         </div>
       </div>
 
       <div class="rr-screen rr-race" data-screen="race" hidden>
         <div class="rr-bar">
           <div class="rr-bar-l"><span class="rr-lives" id="rr-lives" aria-label="puffs left"></span><span class="rr-betshow" id="rr-betshow"></span></div>
-          <p class="rr-place">you are currently <b id="rr-place">1st</b> place</p>
+          <p class="rr-place"><span id="rr-place-pre">you are currently </span><b id="rr-place">1st</b><span id="rr-place-post"> place</span></p>
           <div class="rr-bar-r"><button type="button" class="rr-text" id="rr-pause">pause</button><button type="button" class="rr-text" data-how>how it works</button></div>
         </div>
         <div class="rr-track" id="rr-track" aria-label="the race track"></div>
       </div>
 
       <div class="rr-count" id="rr-count" hidden aria-live="assertive"></div>
-      <div class="rr-paused" id="rr-paused" hidden><div class="rr-paused-box"><dl class="rr-paused-info"><div><dt>round</dt><dd id="rr-p-round"></dd></div><div><dt>your bet</dt><dd id="rr-p-bet"></dd></div><div><dt>win pays</dt><dd id="rr-p-win"></dd></div></dl><button type="button" class="rr-opt" id="rr-resume">resume</button><button type="button" class="rr-opt" id="rr-restart">restart</button><button type="button" class="rr-opt" data-exit>exit</button></div></div>
+      <div class="rr-paused" id="rr-paused" hidden><div class="rr-paused-box"><dl class="rr-paused-info" id="rr-paused-info"><div><dt>round</dt><dd id="rr-p-round"></dd></div><div><dt>your bet</dt><dd id="rr-p-bet"></dd></div><div><dt>win pays</dt><dd id="rr-p-win"></dd></div></dl><button type="button" class="rr-opt" id="rr-resume">resume</button><button type="button" class="rr-opt" id="rr-restart">restart</button><button type="button" class="rr-opt" data-exit>exit</button></div></div>
 
       <!-- place your bet (over the track) -->
       <div class="rr-modal" id="rr-bet-modal" hidden>
@@ -1197,9 +1199,10 @@
             <li><b>tap the track or press space</b> to jump. jump over the traps.</li>
             <li>jump up to grab floating cheese. each piece is a short speed boost.</li>
             <li>trip on a trap and you lose a second and a puff. you have 4 lives (hearts), so lose all 4 and you're out.</li>
-            <li>a game is 3 rounds with the same rat, win or lose. after round 3 you can keep playing or start a new game, but from then on losing a round ends the game.</li>
-            <li>every round, the rats get faster and trip less.</li>
+            <li><b>single player:</b> a game is 3 rounds with the same rat, win or lose. after round 3 the game is over and you can start a new one.</li>
             <li><b>multi-player:</b> make a room, share the code, and everyone picks a rat and a bet. you all race the same course at once, and the first rat over the flag wins <b>everyone's bets</b>. run out of puffs and you're out. if everybody is out, the bets come back.</li>
+            <li>every round, the rats get faster and trip less.</li>
+            <li><b>infinite mode:</b> one endless run with one rat. no bet, no pause and no upgrades. see how far you can get! you have 4 lives, and the rat gets faster the further you go.</li>
             <li><b>speed</b> is how fast your rat runs. <b>jump</b> is how high and long it jumps. <b>hunger</b> is how much boost each cheese gives.</li>
           </ul>
           <button type="button" class="rr-opt" id="rr-how-close">got it</button>
@@ -1214,13 +1217,27 @@
           <ol class="rr-places" id="rr-places"></ol>
           <div class="rr-xprow" id="rr-res-xp"></div>
           <div class="rr-pickpts" data-pickpts></div>
+          <div class="rr-submit" id="rr-submit" hidden>
+            <p class="rr-box-sub">new personal best! put it on the leaderboard?</p>
+            <div class="rr-submit-row"><input id="rr-sub-name" type="text" maxlength="20" autocomplete="off" placeholder="your name" aria-label="your name"><button type="button" class="hy-btn" id="rr-sub-go">submit</button></div>
+            <p class="rr-box-sub" id="rr-sub-msg"></p>
+          </div>
           <button type="button" class="rr-opt" id="rr-result-btn"></button>
+          <button type="button" class="rr-text" id="rr-board-open" hidden>leaderboard</button>
           <div class="rr-extra" id="rr-res-extra">
             <a href="#rat-shop" class="hy-btn" id="rr-res-shop">upgrade shop</a>
             <button type="button" class="hy-btn" id="rr-res-upinv">upgrade inventory</button>
           </div>
           <button type="button" class="rr-text" id="rr-result-change">change rat</button>
           <button type="button" class="rr-text" data-exit>exit</button>
+        </div>
+      </div>
+      <div class="rr-modal" id="rr-board" role="dialog" aria-modal="true" aria-labelledby="rr-board-title" hidden>
+        <div class="rr-box">
+          <h2 class="rr-box-title" id="rr-board-title">leaderboard</h2>
+          <p class="rr-box-sub">the farthest infinite mode runs</p>
+          <ol class="rr-places" id="rr-board-list"></ol>
+          <button type="button" class="rr-text" id="rr-board-close">close</button>
         </div>
       </div>
     </section>
