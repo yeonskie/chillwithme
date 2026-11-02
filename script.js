@@ -147,7 +147,7 @@ function buildEntries() {
 
     const preview = document.createElement("span");
     preview.className = "entry-preview";
-    preview.textContent = String(entry.text || "").trim().split(/\n\s*\n/)[0];
+    preview.textContent = entryPlainText(entry.text);
 
     el.append(date, title, preview);
     el.addEventListener("click", () => openFeatured(i));
@@ -155,6 +155,54 @@ function buildEntries() {
     return el;
   });
 }
+
+// ----- entry text: plain paragraphs (older entries) or a little formatting made in the editor (bold, italic, underline, strikethrough, lists, links) -----
+// (only a few safe tags ever get through, here and when saving)
+const ENTRY_INLINE = { B: "b", STRONG: "b", I: "i", EM: "i", U: "u", S: "s", STRIKE: "s", DEL: "s" };
+const looksFormatted = (t) => /<\/?(b|i|u|s|p|div|br|ul|ol|li|a)\b/i.test(String(t || ""));
+function cleanInline(from, to) {
+  from.childNodes.forEach((n) => {
+    if (n.nodeType === 3) { to.appendChild(document.createTextNode(n.nodeValue.replace(/\u00a0/g, " "))); return; }
+    if (n.nodeType !== 1) return;
+    const t = n.tagName;
+    if (t === "SCRIPT" || t === "STYLE" || t === "TEMPLATE") return;
+    if (ENTRY_INLINE[t]) { const el = document.createElement(ENTRY_INLINE[t]); cleanInline(n, el); to.appendChild(el); }
+    else if (t === "BR") to.appendChild(document.createElement("br"));
+    else if (t === "A") {
+      const href = n.getAttribute("href") || "";
+      if (/^https?:\/\//i.test(href)) { const el = document.createElement("a"); el.href = href; el.target = "_blank"; el.rel = "noopener noreferrer"; cleanInline(n, el); to.appendChild(el); }
+      else cleanInline(n, to);
+    } else cleanInline(n, to);                           // anything else: keep its words, drop the tag
+  });
+}
+// html (or plain text) -> a safe list of blocks: <p>s and lists
+function entryBlocks(text) {
+  const out = [];
+  if (!looksFormatted(text)) {
+    String(text || "").trim().split(/\n\s*\n/).forEach((t) => { if (t.trim()) { const p = document.createElement("p"); p.textContent = t.trim(); out.push(p); } });
+    return out;
+  }
+  const doc = new DOMParser().parseFromString("<body>" + String(text) + "</body>", "text/html");
+  let cur = null;
+  const flush = () => { if (cur && cur.textContent.trim()) out.push(cur); cur = null; };
+  const walk = (parent) => parent.childNodes.forEach((n) => {
+    const t = n.nodeType === 1 ? n.tagName : "";
+    if (t === "UL" || t === "OL") {
+      flush();
+      const list = document.createElement(t.toLowerCase());
+      n.querySelectorAll(":scope > li").forEach((li) => { const l = document.createElement("li"); cleanInline(li, l); list.appendChild(l); });
+      if (list.childNodes.length) out.push(list);
+    } else if (t === "P" || t === "DIV") {
+      flush(); cur = document.createElement("p");
+      if (n.querySelector("ul, ol, div, p")) { flush(); walk(n); } else { cleanInline(n, cur); flush(); }
+    } else { if (!cur) cur = document.createElement("p"); cleanInline({ childNodes: [n] }, cur); }
+  });
+  walk(doc.body); flush();
+  return out;
+}
+const entryPlainText = (text) => { const b = entryBlocks(text)[0]; return b ? b.textContent.trim() : ""; };
+// blocks -> the html that gets saved
+function entryToHtml(blocks) { const d = document.createElement("div"); blocks.forEach((b) => d.appendChild(b)); return d.innerHTML; }
 
 // swaps in a new list of entries and redraws the grid
 function setEntries(list) {
@@ -169,13 +217,9 @@ function renderFeatured() {
   featuredDate.textContent = entry.date || "";
   featuredTitle.textContent = entry.title || "";
 
-  const paragraphs = String(entry.text || "").trim().split(/\n\s*\n/);
+  const blocks = entryBlocks(entry.text);
   featuredBody.innerHTML = "";
-  (isExpanded ? paragraphs : paragraphs.slice(0, 1)).forEach((text) => {
-    const p = document.createElement("p");
-    p.textContent = text.trim();
-    featuredBody.appendChild(p);
-  });
+  (isExpanded ? blocks : blocks.slice(0, 1)).forEach((b) => featuredBody.appendChild(b));
 
   featuredCard.classList.toggle("expanded", isExpanded);
   expandBtn.textContent = isExpanded ? "collapse" : "expand";

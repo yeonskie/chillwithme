@@ -9,6 +9,7 @@ const UPDATES = [
     date: "11.01.26",
     items: [
       "rat race updates: singleplayer now 3 rounds, multiplayer now available up to 6 players, infinite mode added with leaderboard",
+      "new thoughts to consume post (anxiety is a superpower)",
     ],
   },
   {

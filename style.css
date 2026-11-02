@@ -4938,6 +4938,7 @@ body.ww-wishes-open .ww { visibility: hidden; }
 .thoughts-toolbar .tb-all { background: var(--bg); }
 @media (max-width: 700px) { .cz-lb { width: min(21rem, calc(100% - 16px)); } }   /* wider on phones so the names fit */
 body.entry-open .sr-door { display: none; }
+body.has-yb .featured { padding-bottom: 5rem; }   /* (computers too: the card stops above the yeonbucks buttons in the bottom left) */
 @media (max-width: 40rem) { body.has-yb .featured { padding-bottom: 5.8rem; } }   /* an open entry stops above the yeonbucks box so its buttons stay reachable */
 
 /* phones: the yeonbucks count stays pinned under the sign (fixed, like the sign) while the shop scrolls beneath it; the page starts below it, with the soft fade under the count */
@@ -5360,3 +5361,19 @@ body:has(#mp-modal:not([hidden])) :is(.yb-box, .sr-door, #tm) { display: none; }
   #posts-pop .posts-list { max-height: min(42vh, 17rem); }
   #posts-pop .posts-date { flex-basis: 7rem; }
 }
+
+/* an expanded entry on a computer: wider and not as tall (it scrolls inside), so it stays clear of the bottom left buttons */
+@media (min-width: 40.01rem) {
+  .featured-card.expanded { width: min(60rem, 100%); max-height: min(100%, 36rem); }
+}
+
+/* the entry editor: a taller writing box, and entries can have lists and links */
+.entry-edit-card { max-height: 100%; overflow-y: auto; }
+.entry-edit-card .ann-field { margin-bottom: 0.4rem; }
+.entry-edit-card .entry-editor { min-height: 12rem; max-height: 40vh; }
+.entry-editor p, .entry-editor div { margin: 0; }
+.entry-editor > * + * { margin-top: 0.7rem; }
+.featured-body ul, .featured-body ol { margin: 0.5rem 0; padding-left: 1.3rem; }
+.featured-body li + li { margin-top: 0.2rem; }
+.featured-body a { color: inherit; text-decoration: underline; }
+.featured-body > * + * { margin-top: 0.9rem; }

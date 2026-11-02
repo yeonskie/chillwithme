@@ -385,13 +385,54 @@
     $("entry-dialog-title").textContent = entry ? "edit entry" : "new entry";
     $("entry-title").value = entry ? entry.title : "";
     $("entry-date").value = entry ? entry.date : todayText();
-    $("entry-text").value = entry ? entry.text : "";
+    $("entry-text").innerHTML = entry ? entryToHtml(entryBlocks(entry.text)) : "";   // (older plain entries open as paragraphs)
+    $("entry-link").hidden = true;
     msg.textContent = "";
     dialog.hidden = false;
     $("entry-title").focus();
   }
 
   function closeEditor() { dialog.hidden = true; }
+
+  // the little toolbar (bold, italic, lists, links...)
+  (function () {
+    const tools = $("entry-tools"), body = $("entry-text"), linkRow = $("entry-link"), urlIn = $("entry-url");
+    let savedRange = null;
+    const inEditor = () => { const s = getSelection(); return s.rangeCount && body.contains(s.anchorNode); };
+    const showState = () => tools.querySelectorAll("[data-cmd]").forEach((b) => { let on = false; try { on = document.queryCommandState(b.dataset.cmd); } catch (e) {} b.setAttribute("aria-pressed", String(on)); });
+    tools.addEventListener("mousedown", (e) => { if (e.target.closest("button")) e.preventDefault(); });   // keeps your selection while you tap a button
+    tools.addEventListener("click", (e) => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      body.focus();
+      if (b.dataset.cmd) { document.execCommand(b.dataset.cmd); showState(); }
+      else if (b.dataset.act === "clear") { document.execCommand("removeFormat"); document.execCommand("unlink"); showState(); }
+      else if (b.dataset.act === "link") {
+        savedRange = inEditor() ? getSelection().getRangeAt(0).cloneRange() : null;
+        linkRow.hidden = !linkRow.hidden;
+        if (!linkRow.hidden) { urlIn.value = ""; urlIn.focus(); }
+      }
+    });
+    function addLink() {
+      let url = urlIn.value.trim();
+      if (!url) { linkRow.hidden = true; return; }
+      if (!/^[a-z][a-z0-9+.-]*:/i.test(url)) url = "https://" + url;
+      if (!/^https?:\/\//i.test(url)) { msg.textContent = "links need to start with http:// or https://"; return; }
+      msg.textContent = "";
+      body.focus();
+      if (savedRange) { const s = getSelection(); s.removeAllRanges(); s.addRange(savedRange); }
+      if (getSelection().isCollapsed) document.execCommand("insertHTML", false, '<a href="' + url.replace(/"/g, "%22") + '">' + url.replace(/</g, "&lt;") + "</a>");
+      else document.execCommand("createLink", false, url);
+      linkRow.hidden = true;
+    }
+    $("entry-url-ok").addEventListener("click", addLink);
+    urlIn.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addLink(); } });
+    document.addEventListener("selectionchange", () => { if (!dialog.hidden && inEditor()) showState(); });
+    body.addEventListener("paste", (e) => {   // pasting keeps the words but drops the other app's styling
+      e.preventDefault();
+      document.execCommand("insertText", false, (e.clipboardData || window.clipboardData).getData("text/plain"));
+    });
+  })();
 
   addBtn.addEventListener("click", () => openEditor(null));
   editBtn.addEventListener("click", () => {
@@ -423,8 +464,10 @@
     e.preventDefault();
     const title = $("entry-title").value.trim();
     const date = $("entry-date").value.trim();
-    const text = $("entry-text").value.trim();
-    if (!title && !text) { msg.textContent = "write a title or some words first."; return; }
+    const blocks = entryBlocks($("entry-text").innerHTML);
+    const text = entryToHtml(blocks).trim();
+    if (!title && !blocks.length) { msg.textContent = "write a title or some words first."; return; }
+    if (text.length > 20000) { msg.textContent = "that's very long. split it into two entries."; return; }
     if (!DATE_RE.test(date)) { msg.textContent = "date should look like 10.12.2026"; return; }
     saveBtn.disabled = true;
     msg.textContent = "saving...";
@@ -451,7 +494,7 @@
   $("entry-cancel").addEventListener("click", closeEditor);
   $("entry-dialog-backdrop").addEventListener("click", () => {
     // clicking outside only closes it if nothing's been written, so a stray click can't lose your entry
-    if (!$("entry-title").value.trim() && !$("entry-text").value.trim()) closeEditor();
+    if (!$("entry-title").value.trim() && !$("entry-text").textContent.trim()) closeEditor();
   });
 
   document.addEventListener("keydown", (e) => {

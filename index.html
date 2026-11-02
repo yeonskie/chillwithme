@@ -1472,7 +1472,26 @@
         <h2 id="entry-dialog-title">new entry</h2>
         <label>title<input type="text" id="entry-title" maxlength="120" autocomplete="off"></label>
         <label>date<input type="text" id="entry-date" maxlength="10" placeholder="MM.DD.YYYY" autocomplete="off"></label>
-        <label>your words (leave a blank line between paragraphs)<textarea id="entry-text" rows="10"></textarea></label>
+        <div class="ann-field entry-field">
+          <span id="entry-text-label">your words (press enter to start a new paragraph)</span>
+          <div class="ann-tools" id="entry-tools" role="toolbar" aria-label="text formatting">
+            <button type="button" data-cmd="bold" title="bold (ctrl+b)" aria-label="bold" aria-pressed="false"><b>B</b></button>
+            <button type="button" data-cmd="italic" title="italic (ctrl+i)" aria-label="italic" aria-pressed="false"><i>I</i></button>
+            <button type="button" data-cmd="underline" title="underline (ctrl+u)" aria-label="underline" aria-pressed="false"><u>U</u></button>
+            <button type="button" data-cmd="strikeThrough" title="strikethrough" aria-label="strikethrough" aria-pressed="false"><s>S</s></button>
+            <button type="button" data-cmd="insertUnorderedList" title="bullet list" aria-label="bullet list" aria-pressed="false">&bull; list</button>
+            <button type="button" data-cmd="insertOrderedList" title="numbered list" aria-label="numbered list" aria-pressed="false">1. list</button>
+            <button type="button" data-act="link" title="add a link" aria-label="add a link">link</button>
+            <button type="button" data-act="clear" title="clear formatting" aria-label="clear formatting">clear</button>
+            <button type="button" data-cmd="undo" title="undo (ctrl+z)" aria-label="undo">undo</button>
+            <button type="button" data-cmd="redo" title="redo (ctrl+y)" aria-label="redo">redo</button>
+          </div>
+          <div class="ann-link" id="entry-link" hidden>
+            <input type="text" id="entry-url" placeholder="https://..." aria-label="link address">
+            <button type="button" id="entry-url-ok">add</button>
+          </div>
+          <div class="ann-editor entry-editor" id="entry-text" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="entry-text-label"></div>
+        </div>
         <p class="mb-add-msg" id="entry-msg" role="status"></p>
         <div class="mb-add-actions">
           <button type="submit" id="entry-save">save</button>
