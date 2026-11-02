@@ -1,8 +1,8 @@
 // ---------- Bringing your save over from the old address (yeonskie.github.io) to the new one (yeonskie.com) ----------
 // Everything you earn and own (yeonbucks, items, pets, your leaderboard name...) is saved in your browser, and a browser keeps
 // a separate save for every web address. So when the site moved to yeonskie.com it looked brand new. This brings the old save over:
-//   1. on a first visit with nothing saved, a little box asks "did you play before?"
-//   2. "yes" opens the helper page on the old address (see the transfer-helper folder: it lives in its own repo called
+//   1. the "transfer old data" button in the updates pop-up (nothing pops up by itself any more)
+//   2. the button opens the helper page on the old address (see the transfer-helper folder: it lives in its own repo called
 //      yeonskie.github.io), which packs the old save into the link and sends you back here
 //   3. this reads it out of the link, shows how much it found, and copies it in when you say yes
 // The owner sign-in for the journal and moodboards is NOT copied (just sign in again).
@@ -43,13 +43,6 @@
     } catch (e) { return null; }
   }
 
-  // (worked out right now, before the rest of the site gets going and saves its own first bits)
-  const wasNew = (function () {
-    try {
-      return !["yeonbucks", "yb-id", "yb-own", "yb-name", "yb-login", "yb-daily", "yb-t", "yb-prog"].some((k) => localStorage.getItem(k) !== null);
-    } catch (e) { return false; }
-  })();
-  function asked() { try { return localStorage.getItem(ASKED) === "1"; } catch (e) { return true; } }
   function markAsked() { try { localStorage.setItem(ASKED, "1"); } catch (e) {} }
 
   function box(html) {
@@ -82,11 +75,19 @@
       }
       return;
     }
-    if (/[?&]transfer(=|&|$)/.test(location.search) || (wasNew && !asked())) {
-      const d = box('<p><b>did you play before?</b></p><p>our url recently changed to yeonskie.com. please indicate if you would like to continue with the same account.</p><div class="xfer-row"><button type="button" class="hy-btn" data-go>yes, same account</button><button type="button" class="hy-btn" data-no>no, i\'m new</button></div>');
-      d.querySelector("[data-go]").addEventListener("click", () => { location.href = HELPER + "?go=1"; });
-      d.querySelector("[data-no]").addEventListener("click", () => { markAsked(); d.remove(); });
-    }
+    if (/[?&]transfer(=|&|$)/.test(location.search)) ask();
   }
+
+  // the button (and yeonskie.com/?transfer) goes straight to the helper page on the old address; no question box first
+  function ask() { location.href = HELPER + "?go=1"; }
+
+  // the "transfer old data" button inside the updates pop-up (only on the new address; on the old one it stays hidden)
+  function wire() {
+    const b = document.getElementById("updates-transfer");
+    if (!b) return;
+    b.hidden = false;
+    b.addEventListener("click", ask);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", wire); else wire();
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ready); else ready();
 })();

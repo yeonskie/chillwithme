@@ -4767,7 +4767,7 @@ body.ww-wishes-open .ww { visibility: hidden; }
 }
 
 /* ---------- the little "did you play before?" box (transfer.js) ---------- */
-.xfer { position: fixed; left: 50%; bottom: calc(var(--bar-height) + 1rem); transform: translateX(-50%); z-index: 90; width: min(22rem, calc(100vw - 2rem)); box-sizing: border-box; padding: 0.9rem 1rem; background: var(--text); color: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); font-size: 0.8rem; text-align: center; box-shadow: 0 0 0 0.3rem var(--bg); }
+.xfer { position: fixed; left: 50%; bottom: calc(var(--bar-height) + 1rem); transform: translateX(-50%); z-index: 20000; width: min(22rem, calc(100vw - 2rem)); box-sizing: border-box; padding: 0.9rem 1rem; background: var(--text); color: var(--bg); border: 1px solid var(--text); border-radius: var(--radius); font-size: 0.8rem; text-align: center; box-shadow: 0 0 0 0.3rem var(--bg); }
 .xfer p { margin: 0 0 0.6rem; }
 .xfer .hy-btn { background: var(--bg); color: var(--text); border-color: var(--bg); }
 .xfer .hy-btn:hover, .xfer .hy-btn:focus-visible { background: transparent; color: var(--bg); border-color: var(--bg); }
@@ -5390,3 +5390,10 @@ body:has(#mp-modal:not([hidden])) :is(.yb-box, .sr-door, #tm) { display: none; }
 .home-top { position: relative; }
 .ann-home { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin: 0 0 0.15rem; z-index: 2; }
 .ann-home[hidden] { display: none; }
+
+/* updates pop-up: "transfer old data" sits on the right of the "what's new" line */
+.updates-sub { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; margin: 0 0 0.8rem; }
+.updates-sub .credits-note { margin: 0 !important; }
+.updates-transfer { flex: none; font: inherit; font-size: 0.72rem; padding: 0.22rem 0.7rem; color: var(--text); background: none; border: 1px solid var(--text); border-radius: var(--radius); cursor: pointer; }
+.updates-transfer[hidden] { display: none; }
+.updates-transfer:hover, .updates-transfer:focus-visible { background: var(--text); color: var(--bg); }
