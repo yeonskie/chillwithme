@@ -3174,8 +3174,8 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 #cm-replies-msg { text-align: center; margin: 0 0 0.8rem; }
 
 /* community: the add button says what it does */
-#cm-add { width: auto; height: auto; padding: 0.55rem 1rem; font-size: 0.8rem; line-height: 1.2; }
-#cm-add::after { display: none; }
+#cm-add, #cm-poll-add, #cm-pin-add { width: auto; height: auto; padding: 0.55rem 1rem; font-size: 0.8rem; line-height: 1.2; }
+#cm-add::after, #cm-poll-add::after, #cm-pin-add::after { display: none; }
 
 /* first-visit name prompt (shown when someone enters the arcade) */
 #wel { z-index: 60; }
