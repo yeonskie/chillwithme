@@ -4955,10 +4955,13 @@ body.has-yb .featured { padding-bottom: 5rem; }   /* (computers too: the card st
 .ac-arrow {
   position: absolute; top: 54.5%; transform: translate(-50%, -50%); z-index: 2; margin: 0; padding: 0;
   width: 6cqw; height: 6cqw; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  background: var(--bg); border: 1.5px solid var(--text); box-sizing: border-box; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent;   /* an opaque outlined disc so the arrows can't get lost in the screen's frame; it fills in on hover */
-  font-family: var(--font-mono, "Roboto Mono", monospace); font-weight: 700; font-size: 5.4cqw; line-height: 1; padding-bottom: 0.7cqw;
+  background: none; border: 0; box-sizing: border-box; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent;   /* an opaque outlined disc so the arrows can't get lost in the screen's frame; it fills in on hover */
+  font-family: var(--font-mono, "Roboto Mono", monospace); font-weight: 700; font-size: 4.2cqw; line-height: 1; padding-bottom: 0;
 }
-.ac-arrow:hover:not(:disabled), .ac-arrow:focus-visible:not(:disabled) { outline: none; background: var(--text); color: var(--bg); }
+/* the button keeps its full size (that is what you can press); the drawn circle is smaller and sits in the middle of it */
+.ac-arrow::after { content: ""; position: absolute; inset: 12%; z-index: -1; border-radius: 50%; box-sizing: border-box; background: var(--bg); border: 1.5px solid var(--text); pointer-events: none; }
+.ac-arrow:hover:not(:disabled), .ac-arrow:focus-visible:not(:disabled) { outline: none; color: var(--bg); }
+.ac-arrow:hover:not(:disabled)::after, .ac-arrow:focus-visible:not(:disabled)::after { background: var(--text); }
 .ac-arrow:disabled { opacity: 0.3; cursor: default; }   /* nothing on that side: a greyed out outlined disc */
 .ac-next { padding-right: 0.35cqw; }   /* (nudges the › to the middle of its circle) */
 .ac-dots { position: absolute; left: 51.3%; top: 67.7%; transform: translateX(-50%); margin: 0; display: flex; gap: 1.6cqw; }
@@ -5206,7 +5209,7 @@ body:has(.page[data-page="ratrace"].on-race) :is(.yb-box, .sr-door) { display: n
 .ac-arrow::before { content: ""; position: absolute; top: -1.1rem; bottom: -1.1rem; left: -0.9rem; right: -0.9rem; }
 .ac-prev::before { left: -1.5rem; right: -0.4rem; }
 .ac-next::before { left: -0.1rem; right: -1.5rem; }
-@media (max-width: 40rem) { .ac-arrow { font-size: 6.4cqw; width: 8cqw; height: 8cqw; } }
+@media (max-width: 40rem) { .ac-arrow { font-size: 5cqw; width: 8cqw; height: 8cqw; } }
 
 
 /* ---------- announcements: the megaphone and its pop-up (see announcements.js) ---------- */
@@ -5377,3 +5380,13 @@ body:has(#mp-modal:not([hidden])) :is(.yb-box, .sr-door, #tm) { display: none; }
 .featured-body li + li { margin-top: 0.2rem; }
 .featured-body a { color: inherit; text-decoration: underline; }
 .featured-body > * + * { margin-top: 0.9rem; }
+
+/* phones: when the "see all" button is showing, the announcements title sits below it instead of under it */
+@media (max-width: 40rem) {
+  .ann-box:has(#ann-all:not([hidden])) .ann-title { margin-top: 2.1rem; }
+}
+
+/* home megaphone floats above the ticket instead of pushing everything down (short phones were covering the buttons under the carousel) */
+.home-top { position: relative; }
+.ann-home { position: absolute; left: 50%; bottom: 100%; transform: translateX(-50%); margin: 0 0 0.15rem; z-index: 2; }
+.ann-home[hidden] { display: none; }

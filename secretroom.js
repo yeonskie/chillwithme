@@ -221,7 +221,8 @@
     const st = wState(), free = freeLeft(st) > 0 || spinItems() > 0, canPay = !free && st.paid < EXTRA_SPINS;
     wBtn.disabled = spinning || (!free && !(canPay && bal() >= SPIN_COST));
     wBtn.textContent = free ? "spin (free)" : canPay ? "spin for " + fmtN(SPIN_COST) : "come back tomorrow";
-    let info = free ? (freeLeft(st) <= 0 ? "you have " + spinItems() + " free spin item" + (spinItems() === 1 ? "" : "s") + "!" : st.extra ? "you have a free spin!" : "1 free spin a day") : canPay ? (bal() >= SPIN_COST ? "extra spins today: " + (EXTRA_SPINS - st.paid) + " left" : "not enough yeonbucks for another spin") : "no spins left today. come back tomorrow!";
+    const nFree = Math.max(0, freeLeft(st)) + spinItems();   // every free spin you have: the daily one, ones from "spin again" and free spin items
+    let info = free ? (nFree > 1 ? "you have " + nFree + " free spins!" : st.extra || freeLeft(st) <= 0 ? "you have a free spin!" : "1 free spin a day") : canPay ? (bal() >= SPIN_COST ? "extra spins today: " + (EXTRA_SPINS - st.paid) + " left" : "not enough yeonbucks for another spin") : "no spins left today. come back tomorrow!";
     const bl = boostLeft();
     if (bl) info += "  |  boost on: " + Math.floor(bl / 3600000) + "h " + Math.floor((bl % 3600000) / 60000) + "m left";
     wInfo.textContent = info;
@@ -262,6 +263,7 @@
       st.paid++;
     }
     st.spins++;
+    wSave(st);   // (saved right away, so a free spin item that was used is never lost if something goes wrong later in this spin)
     const i = pick(), s = SLICES[i];
     // the prize is decided and handed over right now; the spinning is just for show
     let msg = "", sub = "";                                                    // sub: a second line under the message, not bold
@@ -299,7 +301,7 @@
     rot += ((360 - center - (rot % 360)) % 360 + 360) % 360 + 360 * 5;        // lands that slice under the pointer
     wheelG.style.transform = "rotate(" + rot + "deg)";
     const ms = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches ? 600 : 4700;
-    setTimeout(() => { spinning = false; showResult(msg, sub); wDraw(); }, ms);
+    setTimeout(() => { spinning = false; try { showResult(msg, sub); } finally { wDraw(); } }, ms);   // (the button always comes back)
   }
   function openWheel() {
     wRes.textContent = ""; const got = giveWaitingPets(); wDraw(); wOv.hidden = false; wBtn.focus();
