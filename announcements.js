@@ -119,11 +119,13 @@
   function onHome() { const n = location.hash.replace("#", "") || "home"; return n === "home" || !document.querySelector('.page[data-page="' + n + '"]'); }
 
   // which megaphone shows (home page one or top bar one), and whether the dot is on
+  // short phones (in-app browsers etc.): no room above the ticket, so the megaphone stays up in the header even on the home page
+  const shortPhone = window.matchMedia("(max-width: 40rem) and (pointer: coarse) and (max-height: 46rem)");
   function paint() {
     const v = visible();
     const s = seen();
     const fresh = v.some((a) => s.indexOf(a.id) === -1);
-    const home = onHome();
+    const home = onHome() && !shortPhone.matches;   // ("home" here = show the one above the ticket)
     buttons.forEach((b) => {
       const isHome = b.classList.contains("ann-home");
       const parked = !v.length;                        // everything's hidden: the megaphone moves up to the top left (next to refresh) for good
@@ -287,6 +289,7 @@
   pop.addEventListener("click", (e) => { if (e.target === pop) close(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
   window.addEventListener("hashchange", () => { paint(); });
+  if (shortPhone.addEventListener) shortPhone.addEventListener("change", () => paint());
 
   async function load() {
     lastLoad = Date.now();
