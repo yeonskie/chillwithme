@@ -503,13 +503,62 @@
             <div class="cm-top">
               <button type="button" class="mb-plus" id="cm-add">+ add your own post</button>
               <button type="button" class="mb-reset" id="cm-refresh">check for new</button>
+              <!-- owner only (see polls.js) -->
+              <button type="button" class="mb-plus" id="cm-poll-add" hidden>+ new poll</button>
+              <button type="button" class="mb-plus" id="cm-pin-add" hidden>+ pin a post</button>
             </div>
           </div>
           <div class="cm-remy" id="cm-remy" aria-hidden="true"></div>
         </div>
+        <div class="cm-pins" id="cm-pins" hidden></div>
+        <div class="cm-polls" id="cm-polls" hidden></div>
         <p class="cm-status" id="cm-status" role="status"></p>
         <div class="cm-grid" id="cm-grid"></div>
         <button type="button" class="mb-reset cm-more" id="cm-more" hidden>show more</button>
+      </div>
+
+      <!-- owner only: make a poll (see polls.js) -->
+      <div class="mb-add" id="cm-poll-dlg" hidden role="dialog" aria-modal="true" aria-labelledby="cm-poll-title">
+        <div class="mb-add-backdrop"></div>
+        <form class="mb-add-card" id="cm-poll-form" novalidate autocomplete="off">
+          <h2 id="cm-poll-title">new poll</h2>
+          <label>question<input type="text" id="cm-poll-q" maxlength="140"></label>
+          <label>description (optional)<textarea id="cm-poll-desc" rows="3" maxlength="600"></textarea></label>
+          <span class="pl-form-label">choices (2 to 6)</span>
+          <div class="pl-form-opts" id="cm-poll-opts"></div>
+          <button type="button" class="mb-reset" id="cm-poll-more">+ add a choice</button>
+          <label>ends on (optional)<input type="date" id="cm-poll-end"></label>
+          <p class="mb-add-msg" id="cm-poll-msg" role="status"></p>
+          <div class="mb-add-actions">
+            <button type="submit" id="cm-poll-send">post poll</button>
+            <button type="button" id="cm-poll-cancel">cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- owner only: pin a post (see polls.js) -->
+      <div class="mb-add" id="cm-pin-dlg" hidden role="dialog" aria-modal="true" aria-labelledby="cm-pin-dlg-title">
+        <div class="mb-add-backdrop"></div>
+        <form class="mb-add-card" id="cm-pin-form" novalidate autocomplete="off">
+          <h2 id="cm-pin-dlg-title">pin a post</h2>
+          <label>title<input type="text" id="cm-pin-title" maxlength="80"></label>
+          <label>text<textarea id="cm-pin-body" rows="6" maxlength="2000"></textarea></label>
+          <p class="mb-add-msg" id="cm-pin-msg" role="status"></p>
+          <div class="mb-add-actions">
+            <button type="submit" id="cm-pin-send">pin it</button>
+            <button type="button" id="cm-pin-cancel">cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- a pinned post, opened (see polls.js) -->
+      <div class="mb-add" id="cm-pin-view" hidden role="dialog" aria-modal="true" aria-labelledby="cm-pin-view-title">
+        <div class="mb-add-backdrop" id="cm-pin-view-backdrop"></div>
+        <div class="mb-add-card pn-card">
+          <button type="button" class="inv-close" id="cm-pin-view-close" aria-label="close">&times;</button>
+          <h2 id="cm-pin-view-title"></h2>
+          <p class="pn-body" id="cm-pin-view-body"></p>
+        </div>
       </div>
 
       <!-- one post with its replies (see community.js) -->
@@ -1942,6 +1991,7 @@
   <script src="music.js"></script>
   <script src="community-config.js"></script>
   <script src="community.js"></script>
+  <script src="polls.js"></script>
   <script src="announcements.js"></script>
   <script src="marquee.js"></script>
   <script src="homefun.js"></script>

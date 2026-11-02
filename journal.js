@@ -271,6 +271,23 @@
     async addAnnouncement(row) {
       await asOwner("/rest/v1/announcements", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(row) });
     },
+    // polls on the community page (see supabase-polls.sql)
+    async addPoll(row) {
+      await asOwner("/rest/v1/polls", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(row) });
+    },
+    async endPoll(id) {
+      await asOwner("/rest/v1/polls?id=eq." + encodeURIComponent(id), { method: "PATCH", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ ends_at: new Date().toISOString() }) });
+    },
+    async removePoll(id) {
+      await asOwner("/rest/v1/polls?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+    },
+    // pinned posts at the top of the community page (see supabase-polls.sql)
+    async addPin(row) {
+      await asOwner("/rest/v1/pinned_posts", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(row) });
+    },
+    async removePin(id) {
+      await asOwner("/rest/v1/pinned_posts?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+    },
     // idols for the "guess the k-pop idol" game (see supabase-idols.sql)
     async addIdol(row) {
       await asOwner("/rest/v1/idols", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(row) });
