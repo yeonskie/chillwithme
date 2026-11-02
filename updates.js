@@ -6,6 +6,16 @@
 
 const UPDATES = [
   {
+    date: "11.02.26",
+    items: [
+      "new pinned community polls in community board",
+      "comment threads",
+      "reactions/comments on thoughts to consume entries",
+      "transfer data button moved to updates tab",
+      "sizing adjustments on homepage for shorter screens",
+    ],
+  },
+  {
     date: "11.01.26",
     items: [
       "rat race updates: singleplayer now 3 rounds, multiplayer now available up to 6 players, infinite mode added with leaderboard",
