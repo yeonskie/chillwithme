@@ -24,6 +24,7 @@
   let session = null;                              // { access_token, refresh_token, expires_at, email }
   let isOwner = false;
   let editingId = null;                            // null = writing a new entry
+  let editingDraft = false;                        // is the entry being edited a draft right now
   let shown = null;                                // the entry open in the big card
 
   const addBtn = $("entry-add"), editBtn = $("btn-edit"), delBtn = $("btn-delete");
@@ -127,9 +128,13 @@
   async function loadOnline() {
     if (!configured) return;
     try {
-      const res = await request("/rest/v1/entries?select=id,title,entry_date,body&order=created_at.desc&limit=500", { method: "GET" });
+      // (signed in as the owner, the database also hands over your drafts; visitors only ever get published entries)
+      const get = (cols) => { const path = "/rest/v1/entries?select=" + cols + "&order=created_at.desc&limit=500"; return isOwner ? asOwner(path, { method: "GET" }) : request(path, { method: "GET" }); };
+      let res;
+      try { res = await get("id,title,entry_date,body,draft"); }
+      catch (e) { res = await get("id,title,entry_date,body"); }   // (supabase-entries-drafts.sql hasn't been run yet: no drafts)
       const rows = await res.json();
-      onlineEntries = rows.map((r) => ({ id: r.id, title: r.title || "", date: r.entry_date || "", text: r.body || "", online: true }));
+      onlineEntries = rows.map((r) => ({ id: r.id, title: r.title || "", date: r.entry_date || "", text: r.body || "", online: true, draft: !!r.draft }));
       showAll();
     } catch (e) {
       // can't reach the database: the entries from entries.js are still there
@@ -291,9 +296,11 @@
   }
 
   async function setOwner(on) {
+    const changed = isOwner !== on;
     isOwner = on;
     updateOwnerUI();
     setOwnerMode(on);       // the moodboard page shows or hides its owner buttons
+    if (changed) loadOnline();   // drafts show up when you sign in and go away when you sign out
   }
 
   document.addEventListener("entryshown", (e) => {
@@ -382,6 +389,9 @@
 
   function openEditor(entry) {
     editingId = entry ? entry.id : null;
+    editingDraft = !!(entry && entry.draft);
+    saveBtn.textContent = !entry || entry.draft ? "publish" : "save";
+    $("entry-draft").textContent = entry && !entry.draft ? "unpublish (save as draft)" : "save draft";
     $("entry-dialog-title").textContent = entry ? "edit entry" : "new entry";
     $("entry-title").value = entry ? entry.title : "";
     $("entry-date").value = entry ? entry.date : todayText();
@@ -460,8 +470,12 @@
     askConfirm(text, "ok");
   }
 
+  let asDraft = false;
+  $("entry-draft").addEventListener("click", () => { asDraft = true; form.requestSubmit(saveBtn); });
+  saveBtn.addEventListener("click", () => { asDraft = false; });
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const draft = asDraft; asDraft = false;
     const title = $("entry-title").value.trim();
     const date = $("entry-date").value.trim();
     const blocks = entryBlocks($("entry-text").innerHTML);
@@ -469,9 +483,11 @@
     if (!title && !blocks.length) { msg.textContent = "write a title or some words first."; return; }
     if (text.length > 20000) { msg.textContent = "that's very long. split it into two entries."; return; }
     if (!DATE_RE.test(date)) { msg.textContent = "date should look like 10.12.2026"; return; }
-    saveBtn.disabled = true;
+    saveBtn.disabled = $("entry-draft").disabled = true;
     msg.textContent = "saving...";
     const row = { title, entry_date: date, body: text };
+    if (draft) row.draft = true;                  // (a normal entry leaves "draft" out, so it works before the drafts sql has been run)
+    else if (editingDraft) row.draft = false;     // publishing a draft
     try {
       if (editingId) {
         await asOwner("/rest/v1/entries?id=eq." + encodeURIComponent(editingId), { method: "PATCH", body: JSON.stringify(row) });
@@ -485,10 +501,10 @@
         msg.textContent = "you're not signed in anymore. tap the date 5 times to sign in again.";
         session = null; saveSession(); setOwner(false);
       } else {
-        msg.textContent = "couldn't save that right now (" + err.message + ")";
+        msg.textContent = draft && /draft/i.test(err.message) ? "drafts need supabase-entries-drafts.sql to be run first." : "couldn't save that right now (" + err.message + ")";
       }
     } finally {
-      saveBtn.disabled = false;
+      saveBtn.disabled = $("entry-draft").disabled = false;
     }
   });
   $("entry-cancel").addEventListener("click", closeEditor);

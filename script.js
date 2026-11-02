@@ -139,7 +139,7 @@ function buildEntries() {
 
     const date = document.createElement("span");
     date.className = "entry-date";
-    date.textContent = entry.date || "";
+    date.textContent = (entry.draft ? "draft · " : "") + (entry.date || "");
 
     const title = document.createElement("span");
     title.className = "entry-title";
@@ -214,7 +214,7 @@ function setEntries(list) {
 // ----- the enlarged entry -----
 function renderFeatured() {
   const entry = entries[currentIndex];
-  featuredDate.textContent = entry.date || "";
+  featuredDate.textContent = (entry.draft ? "draft · only you can see this · " : "") + (entry.date || "");
   featuredTitle.textContent = entry.title || "";
 
   const blocks = entryBlocks(entry.text);
@@ -2120,7 +2120,7 @@ setTheme(saved);
       const b = document.createElement("button");
       b.type = "button"; b.className = "posts-row";
       const d = document.createElement("span"); d.className = "posts-date"; d.textContent = en.date || "";
-      const t = document.createElement("span"); t.className = "posts-title"; t.textContent = en.title || "untitled";
+      const t = document.createElement("span"); t.className = "posts-title"; t.textContent = (en.title || "untitled") + (en.draft ? " (draft)" : "");
       b.append(d, t);
       b.addEventListener("click", () => { ov.hidden = true; openFeatured(i); });
       list.appendChild(b);
