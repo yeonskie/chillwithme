@@ -5353,3 +5353,10 @@ body:has(#mp-modal:not([hidden])) :is(.yb-box, .sr-door, #tm) { display: none; }
 #rr-board .rr-places li { grid-template-columns: 2.6rem 1fr auto; }
 .rr-paused-info[hidden] { display: none; }
 .rr-submit[hidden] { display: none; }
+
+/* all posts on a computer: wider and not as tall, so it never reaches the bottom left buttons */
+@media (min-width: 40.01rem) {
+  #posts-pop .lb-card { width: min(44rem, 100%); }
+  #posts-pop .posts-list { max-height: min(42vh, 17rem); }
+  #posts-pop .posts-date { flex-basis: 7rem; }
+}

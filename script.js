@@ -2070,7 +2070,9 @@ setTheme(saved);
   function fill() {
     list.innerHTML = "";
     note.textContent = entries.length ? entries.length + (entries.length === 1 ? " post so far" : " posts so far") : "no posts yet";
-    entries.forEach((en, i) => {
+    // oldest first (the entries themselves are kept newest first, so walk the list backwards; i stays each entry's real spot)
+    for (let i = entries.length - 1; i >= 0; i--) {
+      const en = entries[i];
       const b = document.createElement("button");
       b.type = "button"; b.className = "posts-row";
       const d = document.createElement("span"); d.className = "posts-date"; d.textContent = en.date || "";
@@ -2078,7 +2080,7 @@ setTheme(saved);
       b.append(d, t);
       b.addEventListener("click", () => { ov.hidden = true; openFeatured(i); });
       list.appendChild(b);
-    });
+    }
   }
   function open() { fill(); ov.hidden = false; list.scrollTop = 0; closeBtn.focus(); }
   function close() { if (ov.hidden) return; ov.hidden = true; openBtn.focus(); }

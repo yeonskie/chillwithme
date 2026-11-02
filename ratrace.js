@@ -548,7 +548,7 @@
         if (L.i === 0) {
           if (L.x > c.x + TUNING.cheeseHalf * (act.magnet ? 1.6 : 1)) { L.passedC[k] = true; L.chEls[k].classList.add("missed"); return; }
           if (lives > 0 && Math.abs(L.x - c.x) < TUNING.cheeseHalf * (act.magnet ? 1.6 : 1) && L.stun <= 0 && L.y + TUNING.ratH + (act.magnet ? 60 : 0) > c.y0 && L.y < c.y1 + (act.magnet ? 40 : 0)) {
-            L.passedC[k] = true; L.boost += myBoostDur; L.chEls[k].classList.add("got"); pop(L, "+" + myBoostDur.toFixed(1) + "s", "good");
+            L.passedC[k] = true; L.boost += myBoostDur; L.chEls[k].classList.add("got"); pop(L, isInf() ? "+" + (myBoostDur * TUNING.baseSpeed * speedOf(myStats.speed) * Math.min(1.6, 1 + L.x / 100000) * (TUNING.boostMul - 1) / 100).toFixed(1) + "m" : "+" + myBoostDur.toFixed(1) + "s", "good");   // (infinite mode: how many extra metres the boost is worth)
           }
         } else if (L.x >= c.x) {
           L.passedC[k] = true;
