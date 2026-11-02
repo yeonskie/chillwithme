@@ -3174,8 +3174,8 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 #cm-replies-msg { text-align: center; margin: 0 0 0.8rem; }
 
 /* community: the add button says what it does */
-#cm-add, #cm-poll-add, #cm-pin-add { width: auto; height: auto; padding: 0.55rem 1rem; font-size: 0.8rem; line-height: 1.2; }
-#cm-add::after, #cm-poll-add::after, #cm-pin-add::after { display: none; }
+#cm-add, #cm-poll-add { width: auto; height: auto; padding: 0.55rem 1rem; font-size: 0.8rem; line-height: 1.2; }
+#cm-add::after, #cm-poll-add::after { display: none; }
 
 /* first-visit name prompt (shown when someone enters the arcade) */
 #wel { z-index: 60; }
@@ -5448,9 +5448,19 @@ button.pl-shown:hover, button.pl-shown:focus-visible { outline: 2px solid var(--
 .pn-card { width: min(30rem, 100%); padding-top: 2.4rem; font-family: var(--font-mono); }
 .pn-card h2 { margin: 0 0 0.8rem; font-family: var(--font-mono); font-size: 1.45rem; line-height: 1.2; font-weight: 700; overflow-wrap: anywhere; }
 .pn-body { margin: 0; font-size: 0.8rem; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
-#cm-pin-add[hidden] { display: none; }
+#cm-pin-btn[hidden] { display: none; }
+.pn-img { display: block; max-width: 100%; max-height: 50vh; margin: 0 auto 0.8rem; border-radius: var(--radius); }
+.pn-meta { margin: 0.8rem 0 0; font-size: 0.7rem; opacity: 0.65; }
+.pn-meta:empty { display: none; }
+.cm-thread-btns { display: flex; justify-content: center; align-items: center; gap: 0.5rem; }
+.cm-thread-btns .cm-reply-open { margin: 0; }
+.cm-pin-note { margin-top: 0.5rem; text-align: center; }
 @media (max-width: 30rem) {
   .pn-row { flex-wrap: wrap; row-gap: 0.15rem; }
   .pn-title { max-width: calc(100% - 4.5rem); }
   .pn-peek { flex: 0 0 100%; text-align: left; }
 }
+
+/* less empty space above the first post: the status line only takes room while it has something to say */
+.cm-status { min-height: 0; padding-top: 0; margin-bottom: 0.8rem; }
+.cm-status:empty { margin-bottom: 0; }

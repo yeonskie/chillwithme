@@ -1,5 +1,5 @@
 // ---------- Polls and pinned posts on the community page ----------
-// (pinned posts: the owner pins up to 3, shown as slim rows above the polls; tapping one opens it in a pop-up)
+// (pinned posts: the owner pins up to 3 community posts with the "pin" button on an opened post; they show as slim rows above the polls, and tapping one opens it in a pop-up)
 // The owner makes a poll (question, 2-6 choices, an optional end date). Visitors pick a choice, THEN the results show up, and they can
 // change their pick any time until the poll ends. Polls live in Supabase (see supabase-polls.sql, which also keeps results hidden until you've voted).
 
@@ -208,7 +208,7 @@
   const MAX_PINS = 3;
   async function loadPins() {
     try {
-      const res = await fetch(BASE + "/rest/v1/pinned_posts?select=id,created_at,title,body&order=created_at.desc&limit=10", { headers: headers() });
+      const res = await fetch(BASE + "/rest/v1/pinned_posts?select=id,created_at,title,body,post_id,image_url,author&order=created_at.desc&limit=10", { headers: headers() });
       if (!res.ok) throw new Error("pins " + res.status);
       const rows = await res.json();
       pins = (Array.isArray(rows) ? rows : []).filter((x) => x && typeof x.title === "string").slice(0, MAX_PINS);
@@ -219,6 +219,7 @@
     if (!pinBox) return;
     pinBox.innerHTML = "";
     pinBox.hidden = !pins.length;
+    syncPinBtn();
     pins.forEach((x) => {
       const wrap = el("div", "pn-wrap");
       const row = el("button", "pn-row"); row.type = "button";
@@ -246,6 +247,9 @@
     viewFrom = from || null;
     $("cm-pin-view-title").textContent = x.title;
     $("cm-pin-view-body").textContent = x.body || "";
+    const img = $("cm-pin-view-img");
+    if (x.image_url && /^https:\/\/[^\s]{4,500}$/.test(x.image_url)) { img.referrerPolicy = "no-referrer"; img.src = x.image_url; img.hidden = false; } else { img.hidden = true; img.removeAttribute("src"); }
+    $("cm-pin-view-meta").textContent = [x.author, x.created_at ? dateText(new Date(x.created_at)) : ""].filter(Boolean).join(" \u00b7 ");
     viewDlg.hidden = false;
     $("cm-pin-view-close").focus();
   }
@@ -255,40 +259,60 @@
     $("cm-pin-view-backdrop").addEventListener("click", closePin);
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePin(); });
   }
-  const pinAdd = $("cm-pin-add"), pinDlg = $("cm-pin-dlg"), pinForm = $("cm-pin-form");
-  if (pinAdd && pinDlg && pinForm) {
-    const tIn = $("cm-pin-title"), bIn = $("cm-pin-body"), pMsg = $("cm-pin-msg"), pSend = $("cm-pin-send");
-    const syncPinOwner = (on) => { pinAdd.hidden = !on; if (!on) pinDlg.hidden = true; renderPins(); };
+  // ----- owner only: the "pin" button on an opened post (next to "+ add reply") -----
+  const pinBtn = $("cm-pin-btn"), pinNote = $("cm-pin-note"), pinDlg = $("cm-pin-dlg"), pinForm = $("cm-pin-form");
+  let current = null;                                    // the post that's open in the thread window
+  const pinOf = (post) => (post ? pins.filter((x) => x.post_id === String(post.id))[0] : null);
+  function syncPinBtn() {
+    if (!pinBtn) return;
+    pinBtn.hidden = !owner || !current;
+    if (pinNote) pinNote.textContent = "";
+    pinBtn.textContent = pinOf(current) ? "unpin" : "pin";
+  }
+  window.addEventListener("cm-thread-open", (e) => { current = e.detail; syncPinBtn(); });
+  if (pinBtn && pinDlg && pinForm) {
+    const tIn = $("cm-pin-title"), peek = $("cm-pin-peek"), pMsg = $("cm-pin-msg"), pSend = $("cm-pin-send");
+    const syncPinOwner = (on) => { if (!on) pinDlg.hidden = true; renderPins(); syncPinBtn(); };
     window.addEventListener("ownermode", (e) => syncPinOwner(!!e.detail));
-    syncPinOwner(typeof ownerMode !== "undefined" && ownerMode);
-    pinAdd.addEventListener("click", () => {
-      tIn.value = ""; bIn.value = ""; pMsg.textContent = "";
-      pMsg.textContent = pins.length >= MAX_PINS ? "you already have " + MAX_PINS + " pinned. unpin one first." : "";
-      pinDlg.hidden = false; tIn.focus();
+    const snippet = (post) => String((post && post.body) || "").replace(/\s+/g, " ").trim();
+    pinBtn.addEventListener("click", async () => {
+      if (!current) return;
+      const mine = pinOf(current);
+      if (mine) {                                        // already pinned: this unpins it
+        try { await window.siteDb.removePin(mine.id); await loadPins(); } catch (e) { pinNote.textContent = "couldn't unpin (still signed in?)"; }
+        return;
+      }
+      if (pins.length >= MAX_PINS) { pinNote.textContent = "you already have " + MAX_PINS + " pinned. unpin one first (the \"unpin\" next to it at the top)."; return; }
+      pinNote.textContent = ""; pMsg.textContent = "";
+      const text = snippet(current);
+      peek.textContent = text ? "\u201c" + (text.length > 90 ? text.slice(0, 90) + "\u2026" : text) + "\u201d" : (current.image_url ? "a photo post" : "");
+      tIn.value = text ? text.slice(0, 40).replace(/\s+\S*$/, (m) => (text.length > 40 ? "" : m)) : "a photo from the board";
+      pinDlg.hidden = false; tIn.focus(); tIn.select();
     });
-    $("cm-pin-cancel").addEventListener("click", () => { pinDlg.hidden = true; pinAdd.focus(); });
+    const closePinDlg = () => { if (pinDlg.hidden) return; pinDlg.hidden = true; pinBtn.focus(); };
+    $("cm-pin-cancel").addEventListener("click", closePinDlg);
+    $("cm-pin-backdrop").addEventListener("click", closePinDlg);
     pinForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const title = tIn.value.trim(), body = bIn.value.trim();
+      const title = tIn.value.trim();
       if (!title) { pMsg.textContent = "give it a title first."; return; }
       if (pins.length >= MAX_PINS) { pMsg.textContent = "you already have " + MAX_PINS + " pinned. unpin one first."; return; }
-      if (!window.siteDb || !window.siteDb.addPin) { pMsg.textContent = "sign in as the owner first."; return; }
+      if (!window.siteDb || !window.siteDb.addPin || !current) { pMsg.textContent = "sign in as the owner first."; return; }
       pSend.disabled = true; pMsg.textContent = "pinning...";
       try {
-        await window.siteDb.addPin({ title, body });
+        await window.siteDb.addPin({ title, body: String(current.body || "").slice(0, 2000), post_id: String(current.id), image_url: current.image_url || null, author: String(current.name || "").slice(0, 24) || null });
         pinDlg.hidden = true; pMsg.textContent = "";
         await loadPins();
       } catch (err) {
         const why = String(err && err.message);
-        pMsg.textContent = /only 3/.test(why) ? "you already have 3 pinned. unpin one first." : /pinned_posts|schema cache|relation|404/.test(why) ? "the pinned posts table isn't set up yet. run supabase-polls.sql in Supabase." : "couldn't pin that. are you still signed in?";
+        pMsg.textContent = /only 3/.test(why) ? "you already have 3 pinned. unpin one first." : /pinned_posts|schema cache|relation|column|404/.test(why) ? "the pinned posts table needs updating. run supabase-polls.sql in Supabase again." : "couldn't pin that. are you still signed in?";
       } finally { pSend.disabled = false; }
     });
   }
 
-  // load when the community page opens (and again if it's been a minute), and with the "check for new" button
+  // load when the community page opens (and again if it's been a minute)
   function onShow() { if (location.hash === "#community" && (!loadedAt || Date.now() - loadedAt > 60000)) { load(); loadPins(); } }
   window.addEventListener("hashchange", onShow);
-  const refresh = $("cm-refresh"); if (refresh) refresh.addEventListener("click", () => { load(); loadPins(); });
   onShow();
   setInterval(() => { if (location.hash === "#community" && polls.some((p) => endsAt(p))) render(); }, 30000);   // (a poll flips to "closed" on its own when its time passes)
 })();

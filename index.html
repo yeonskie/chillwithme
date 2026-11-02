@@ -502,10 +502,8 @@
             <p class="cm-intro">leave something here. a thought, a photo, anything.</p>
             <div class="cm-top">
               <button type="button" class="mb-plus" id="cm-add">+ add your own post</button>
-              <button type="button" class="mb-reset" id="cm-refresh">check for new</button>
               <!-- owner only (see polls.js) -->
               <button type="button" class="mb-plus" id="cm-poll-add" hidden>+ new poll</button>
-              <button type="button" class="mb-plus" id="cm-pin-add" hidden>+ pin a post</button>
             </div>
           </div>
           <div class="cm-remy" id="cm-remy" aria-hidden="true"></div>
@@ -536,28 +534,15 @@
         </form>
       </div>
 
-      <!-- owner only: pin a post (see polls.js) -->
-      <div class="mb-add" id="cm-pin-dlg" hidden role="dialog" aria-modal="true" aria-labelledby="cm-pin-dlg-title">
-        <div class="mb-add-backdrop"></div>
-        <form class="mb-add-card" id="cm-pin-form" novalidate autocomplete="off">
-          <h2 id="cm-pin-dlg-title">pin a post</h2>
-          <label>title<input type="text" id="cm-pin-title" maxlength="80"></label>
-          <label>text<textarea id="cm-pin-body" rows="6" maxlength="2000"></textarea></label>
-          <p class="mb-add-msg" id="cm-pin-msg" role="status"></p>
-          <div class="mb-add-actions">
-            <button type="submit" id="cm-pin-send">pin it</button>
-            <button type="button" id="cm-pin-cancel">cancel</button>
-          </div>
-        </form>
-      </div>
-
       <!-- a pinned post, opened (see polls.js) -->
       <div class="mb-add" id="cm-pin-view" hidden role="dialog" aria-modal="true" aria-labelledby="cm-pin-view-title">
         <div class="mb-add-backdrop" id="cm-pin-view-backdrop"></div>
         <div class="mb-add-card pn-card">
           <button type="button" class="inv-close" id="cm-pin-view-close" aria-label="close">&times;</button>
           <h2 id="cm-pin-view-title"></h2>
+          <img class="pn-img" id="cm-pin-view-img" alt="" hidden>
           <p class="pn-body" id="cm-pin-view-body"></p>
+          <p class="pn-meta" id="cm-pin-view-meta"></p>
         </div>
       </div>
 
@@ -569,7 +554,12 @@
           <div id="cm-thread-post"></div>
           <ol class="cm-replies" id="cm-replies"></ol>
           <p class="mb-add-msg" id="cm-replies-msg" role="status"></p>
-          <button type="button" class="cm-react cm-react-add cm-reply-open" id="cm-reply-open">+ add reply</button>
+          <div class="cm-thread-btns">
+            <button type="button" class="cm-react cm-react-add cm-reply-open" id="cm-reply-open">+ add reply</button>
+            <!-- owner only (see polls.js): pins this post to the top of the board -->
+            <button type="button" class="cm-react cm-react-add" id="cm-pin-btn" hidden>pin</button>
+          </div>
+          <p class="mb-add-msg cm-pin-note" id="cm-pin-note" role="status"></p>
         </div>
       </div>
 
@@ -584,6 +574,21 @@
           <div class="mb-add-actions">
             <button type="submit" id="cm-reply-send">send</button>
             <button type="button" id="cm-reply-cancel">cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- owner only: pin this post (opens on top of the thread; see polls.js) -->
+      <div class="mb-add cm-reply-dlg" id="cm-pin-dlg" hidden role="dialog" aria-modal="true" aria-labelledby="cm-pin-dlg-title">
+        <div class="mb-add-backdrop" id="cm-pin-backdrop"></div>
+        <form class="mb-add-card" id="cm-pin-form" novalidate autocomplete="off">
+          <h2 id="cm-pin-dlg-title">pin this post</h2>
+          <p class="mb-add-sub" id="cm-pin-peek"></p>
+          <label>title for the pinned row<input type="text" id="cm-pin-title" maxlength="80"></label>
+          <p class="mb-add-msg" id="cm-pin-msg" role="status"></p>
+          <div class="mb-add-actions">
+            <button type="submit" id="cm-pin-send">pin it</button>
+            <button type="button" id="cm-pin-cancel">cancel</button>
           </div>
         </form>
       </div>

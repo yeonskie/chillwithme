@@ -85,7 +85,7 @@ grant execute on function public.poll_vote(bigint, text, int), public.poll_resul
 
 -- ----------------------------------------------------------------------------
 -- Pinned posts: up to 3 at a time, shown in a row at the top of the community page (click one to read all of it).
--- The owner pins one with "+ pin a post" on the community page, and unpins it with the "unpin" button next to it.
+-- The owner pins one with the "pin" button on an opened post (next to "+ add reply"), and unpins it the same way (or with the "unpin" button next to it at the top).
 -- ----------------------------------------------------------------------------
 create table if not exists public.pinned_posts (
   id          bigint generated always as identity primary key,
@@ -94,6 +94,10 @@ create table if not exists public.pinned_posts (
   body        text not null default '' check (char_length(body) <= 2000),
   active      boolean not null default true           -- untick to unpin without deleting
 );
+-- (a pinned post is a copy of a community post, pinned from the post itself: its text, its photo if it has one, who wrote it, and which post it was)
+alter table public.pinned_posts add column if not exists post_id   text;
+alter table public.pinned_posts add column if not exists image_url text;
+alter table public.pinned_posts add column if not exists author    text;
 alter table public.pinned_posts enable row level security;
 
 drop policy if exists "read active pins"     on public.pinned_posts;

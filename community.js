@@ -300,7 +300,6 @@
   }
 
   window.addEventListener("hashchange", onShow);
-  $("cm-refresh").addEventListener("click", () => load(false));
   moreBtn.addEventListener("click", () => load(true));
   onShow();
 
@@ -545,6 +544,7 @@
     $("cm-reply-msg").textContent = "";
     thread.hidden = false;
     loadReplies(p.id);
+    window.dispatchEvent(new CustomEvent("cm-thread-open", { detail: p }));   // (polls.js uses this for the owner's "pin" button)
   }
 
   // the reply box: a small window on top of the thread
