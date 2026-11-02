@@ -195,6 +195,8 @@
           <p class="featured-date" id="featured-date"></p>
           <h2 id="featured-title"></h2>
           <div class="featured-body" id="featured-body"></div>
+          <!-- reactions and comments (see entrysocial.js) -->
+          <div class="es-social" id="es-social" hidden></div>
           <div class="featured-actions">
             <button type="button" id="btn-expand" aria-expanded="false">expand</button>
             <button type="button" id="btn-edit" hidden>edit</button>
@@ -202,6 +204,23 @@
             <button type="button" id="btn-close">close</button>
           </div>
         </article>
+      </div>
+
+      <!-- comments on an entry (see entrysocial.js) -->
+      <div class="mb-add es-dlg" id="es-cm" hidden role="dialog" aria-modal="true" aria-labelledby="es-cm-title">
+        <div class="mb-add-backdrop" id="es-cm-backdrop"></div>
+        <div class="mb-add-card cm-thread-card">
+          <button type="button" class="inv-close" id="es-cm-close" aria-label="close">&times;</button>
+          <h2 class="pl-cm-title" id="es-cm-title"></h2>
+          <ol class="cm-replies" id="es-cm-list"></ol>
+          <p class="mb-add-msg" id="es-cm-note" role="status"></p>
+          <form id="es-cm-form" novalidate autocomplete="off">
+            <p class="mb-add-sub cm-reply-to-line" id="es-cm-to" hidden>x<button type="button" class="cm-reply-act" id="es-cm-cancel-reply">cancel</button></p>
+            <label>name (optional)<input type="text" id="es-cm-name" maxlength="24"></label>
+            <label>your comment<textarea id="es-cm-body" rows="3" maxlength="300"></textarea></label>
+            <div class="mb-add-actions"><button type="submit" id="es-cm-send">send</button></div>
+          </form>
+        </div>
       </div>
     </section>
 
@@ -584,7 +603,8 @@
       <div class="mb-add cm-reply-dlg" id="cm-reply-dlg" hidden role="dialog" aria-modal="true" aria-label="add a reply">
         <div class="mb-add-backdrop" id="cm-reply-backdrop"></div>
         <form class="mb-add-card" id="cm-reply-form" novalidate autocomplete="off">
-          <h2>add a reply</h2>
+          <h2 id="cm-reply-title">add a reply</h2>
+          <p class="mb-add-sub cm-reply-to-line" id="cm-reply-to" hidden></p>
           <label>name (optional)<input type="text" id="cm-reply-name" maxlength="24"></label>
           <label>your reply<textarea id="cm-reply-body" rows="4" maxlength="300"></textarea></label>
           <p class="mb-add-msg" id="cm-reply-msg" role="status"></p>
@@ -2012,8 +2032,10 @@
   <script src="multiplayer.js"></script>
   <script src="music.js"></script>
   <script src="community-config.js"></script>
+  <script src="threads.js"></script>
   <script src="community.js"></script>
   <script src="polls.js"></script>
+  <script src="entrysocial.js"></script>
   <script src="announcements.js"></script>
   <script src="marquee.js"></script>
   <script src="homefun.js"></script>

@@ -508,12 +508,17 @@
   const thread = $("cm-thread");
   let threadPost = null, threadFrom = null;
 
-  function replyLine(r) {
+  // one reply in the thread: replies under another reply are indented a little and say who they answer, and every reply has a "reply" link
+  function replyLine(item) {
+    const r = item.row;
     const li = document.createElement("li");
-    li.className = "cm-reply";
+    li.className = "cm-reply" + (item.depth ? " cm-reply-nested" : "");
+    if (item.to) { const w = document.createElement("p"); w.className = "cm-reply-to"; w.textContent = "\u21b3 replying to " + item.to; li.appendChild(w); }
     const t = document.createElement("p"); t.className = "cm-reply-text"; t.textContent = r.body;
     const m = document.createElement("p"); m.className = "cm-card-meta"; m.textContent = [r.name, dateText(r.created_at)].filter(Boolean).join(" \u00b7 ");
-    li.append(t, m);
+    const a = document.createElement("button"); a.type = "button"; a.className = "cm-reply-act"; a.textContent = "reply";
+    a.addEventListener("click", () => openReply(r));
+    li.append(t, m, a);
     return li;
   }
 
@@ -522,10 +527,12 @@
     list.innerHTML = "";
     note.textContent = "loading...";
     try {
-      const res = await api("/rest/v1/post_replies?select=id,created_at,name,body&approved=eq.true&post_id=eq." + encodeURIComponent(id) + "&order=created_at.asc&limit=200", { headers: headers() });
+      const res = await api("/rest/v1/post_replies?select=id,created_at,name,body,parent_id&approved=eq.true&post_id=eq." + encodeURIComponent(id) + "&order=created_at.asc&limit=200", { headers: headers() });
       const rows = (await res.json()).filter((r) => r && typeof r.id === "string");
       if (!threadPost || threadPost.id !== id) return;
-      rows.forEach((r) => list.appendChild(replyLine(r)));
+      let ordered = rows.map((r) => ({ row: r, depth: 0, to: null }));
+      try { ordered = window.threadOrder(rows); } catch (e) { /* threads.js missing: a plain list */ }
+      ordered.forEach((it) => list.appendChild(replyLine(it)));
       statOf(id).replies = rows.length;
       note.textContent = rows.length ? "" : "no replies yet. be the first.";
       redrawActions(id);
@@ -549,10 +556,18 @@
 
   // the reply box: a small window on top of the thread
   const replyDlg = $("cm-reply-dlg");
-  function openReply() {
+  let replyTo = null;                                    // the reply you're answering (empty = a reply straight to the post)
+  function openReply(to) {
     if (!threadPost) return;
+    replyTo = to && to.id ? to : null;                   // (the "+ add reply" button passes a click, which isn't a reply)
     $("cm-reply-form").reset();
     $("cm-reply-msg").textContent = "";
+    const who = $("cm-reply-to"), ttl = $("cm-reply-title");
+    if (replyTo) {
+      const snip = String(replyTo.body || "").replace(/\s+/g, " ").trim();
+      who.textContent = "\u21b3 " + (replyTo.name || "someone") + ": \u201c" + (snip.length > 70 ? snip.slice(0, 70) + "\u2026" : snip) + "\u201d";
+      who.hidden = false; ttl.textContent = "reply to " + (replyTo.name || "someone");
+    } else { who.hidden = true; ttl.textContent = "add a reply"; }
     replyDlg.hidden = false;
     $("cm-reply-body").focus();
   }
@@ -562,7 +577,7 @@
     const b = $("cm-reply-open"); if (b) b.focus();
     return true;
   }
-  $("cm-reply-open").addEventListener("click", openReply);
+  $("cm-reply-open").addEventListener("click", () => openReply(null));
   $("cm-reply-cancel").addEventListener("click", closeReply);
   $("cm-reply-backdrop").addEventListener("click", closeReply);
 
@@ -598,10 +613,11 @@
       await api("/rest/v1/post_replies", {
         method: "POST",
         headers: headers({ "Content-Type": "application/json", Prefer: "return=minimal" }),
-        body: JSON.stringify({ post_id: id, name, body }),
+        body: JSON.stringify(replyTo ? { post_id: id, parent_id: replyTo.id, name, body } : { post_id: id, name, body }),
       });
       try { localStorage.setItem(REPLY_KEY, String(Date.now())); } catch (err) {}
       $("cm-reply-body").value = "";
+      replyTo = null;
       replyDlg.hidden = true;
       await loadReplies(id);
     } catch (err) {

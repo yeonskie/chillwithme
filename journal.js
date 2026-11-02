@@ -271,6 +271,10 @@
     async addAnnouncement(row) {
       await asOwner("/rest/v1/announcements", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(row) });
     },
+    // comments on thoughts to consume (see supabase-entry-social.sql)
+    async removeEntryComment(id) {
+      await asOwner("/rest/v1/entry_comments?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+    },
     // polls on the community page (see supabase-polls.sql)
     async addPoll(row) {
       await asOwner("/rest/v1/polls", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(row) });

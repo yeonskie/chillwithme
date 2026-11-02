@@ -5470,3 +5470,21 @@ button.pl-shown:hover, button.pl-shown:focus-visible { outline: 2px solid var(--
 .pl-cm-title { margin: 0 0 0.8rem; font-family: var(--font-mono); font-size: 1.1rem; line-height: 1.25; font-weight: 700; overflow-wrap: anywhere; }
 #pl-cm-form { margin-top: 0.8rem; }
 #pl-cm .cm-reply .pl-small { margin-top: 0.2rem; }
+
+/* threads: replies under a reply are tucked in a little and say who they answer */
+.cm-reply-nested { margin-left: 1.1rem; }
+.cm-reply-to { margin: 0 0 0.3rem; font-size: 0.68rem; opacity: 0.65; }
+.cm-reply-act { display: block; margin-top: 0.25rem; padding: 0; font: inherit; font-size: 0.68rem; color: inherit; background: none; border: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 0.2em; opacity: 0.75; }
+.cm-reply-act:hover, .cm-reply-act:focus-visible { opacity: 1; outline: none; }
+.cm-reply-to-line { margin: 0 0 0.6rem; opacity: 0.75; overflow-wrap: anywhere; }
+
+/* reactions and comments under an opened thoughts-to-consume entry (see entrysocial.js) */
+.es-social { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; padding-top: 0.6rem; border-top: 1px dashed var(--line); }
+.es-social[hidden] { display: none; }
+.es-reacts { display: flex; flex-wrap: wrap; gap: 4px; }
+.es-cbtn { font: inherit; font-size: 0.72rem; color: inherit; background: none; border: 0; padding: 0.2rem 0; cursor: pointer; text-decoration: underline; text-underline-offset: 0.2em; }
+.es-dlg { z-index: 45; }
+.es-line-acts { display: flex; gap: 0.9rem; }
+
+/* reactions and comments only show at the bottom of the expanded entry, so people read it first */
+.featured-card:not(.expanded) .es-social { display: none; }
