@@ -3356,12 +3356,12 @@ a.hy-btn { display: inline-block; text-decoration: none; line-height: normal; }
 /* ---------- home on small phones / in-app browsers (discord etc. have less screen height) ----------
    everything is a bit smaller, and the page can scroll so the last buttons always end up above the door and the yeonbucks box */
 @media (max-width: 1100px) and (pointer: coarse) {
-  body.has-yb .page[data-page="home"].active { overflow-y: auto; align-items: safe center; padding: clamp(1.8rem, calc(100svh - 50rem), 4.8rem) 1rem 9rem; }   /* tablets: the door sits bottom left above one row of buttons */
+  body.has-yb .page[data-page="home"].active { overflow-y: auto; align-items: safe center; padding: clamp(1.8rem, calc(100svh - 50rem), 9rem) 1rem 9rem; }   /* tablets: the door sits bottom left above one row of buttons */
   body.has-mini.has-yb .page[data-page="home"].active { padding-top: 8.3rem; padding-bottom: 12.5rem; }
   .home-mid { --merry-w: clamp(8.5rem, calc(100svh - 33rem), 15rem); }
 }
 @media (max-width: 40rem) and (pointer: coarse) {
-  body.has-yb .page[data-page="home"].active { padding: clamp(1.2rem, calc(1.2rem + (100svh - 40rem) * 0.3), 7.2rem) 1rem 5.6rem; }   /* phones: just enough room under the buttons for the yeonbucks box (fithome.js shrinks the home page to fit what's left) */
+  body.has-yb .page[data-page="home"].active { padding: clamp(1.2rem, calc(1.2rem + (100svh - 40rem) * 0.5), 5.6rem) 1rem 5.6rem; }   /* phones: just enough room under the buttons for the yeonbucks box (fithome.js shrinks the home page to fit what's left) */
   body.has-mini.has-yb .page[data-page="home"].active { padding-top: clamp(2rem, calc(2rem + (100svh - 42rem) * 0.4), 10.7rem); padding-bottom: 15rem; }
   .home-mid { --merry-w: clamp(8.5rem, calc(100svh - 43rem), 15rem); }
 }
@@ -5401,5 +5401,5 @@ body:has(#mp-modal:not([hidden])) :is(.yb-box, .sr-door, #tm) { display: none; }
 /* short phones / in-app browsers: the home content never squeezes below its own height. the page scrolls instead, so the buttons end up above the yeonbucks box (not on top of it) */
 @media (max-width: 40rem) and (pointer: coarse) {
   .page[data-page="home"].active .home { min-height: min-content; flex: none; }
-  body.has-yb:not(.has-mini) .page[data-page="home"].active { padding-top: clamp(1.2rem, calc(1.2rem + (100svh - 44rem) * 0.3), 7.2rem); }
+  body.has-yb:not(.has-mini) .page[data-page="home"].active { padding-top: clamp(1.2rem, calc(1.2rem + (100svh - 40rem) * 0.5), 5.6rem); }
 }
