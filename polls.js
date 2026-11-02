@@ -14,6 +14,9 @@
   const SHOWN = 3;                       // polls shown before "older polls"
   const MAX_OPTS = 6;
   let polls = [], results = {}, loadedAt = 0, showAll = false, owner = false;
+  let pins = [], viewFrom = null, viewPollId = null;     // pinned rows, and the pop-up that opens one
+  const MAX_PINS = 3;
+  const viewDlg = $("cm-pin-view");
   const busy = {};                       // poll id -> true while a vote is going through
 
   function headers(extra) {
@@ -50,7 +53,7 @@
     try {
       const rows = await rpc("poll_results", { p_client: me() });
       results = {};
-      (Array.isArray(rows) ? rows : []).forEach((r) => { results[r.id] = { mine: r.mine === null || r.mine === undefined ? null : +r.mine, counts: Array.isArray(r.counts) ? r.counts.map(Number) : null }; });
+      (Array.isArray(rows) ? rows : []).forEach((r) => { results[r.id] = { mine: r.mine === null || r.mine === undefined ? null : +r.mine, comments: +r.comments || 0, counts: Array.isArray(r.counts) ? r.counts.map(Number) : null }; });
     } catch (e) { /* results stay hidden */ }
     if (!quiet) render();
   }
@@ -108,12 +111,26 @@
     if (r.counts) foot.textContent = total + (total === 1 ? " vote" : " votes") + (!closed && r.mine !== null ? " · tap another choice to change yours" : "");
     else foot.textContent = closed ? "no votes yet" : "pick one to see the results";
     card.appendChild(foot);
+    const cb = el("button", "pl-small pl-cbtn", r.comments > 0 ? "comments (" + r.comments + ")" : "add a comment"); cb.type = "button";
+    cb.addEventListener("click", () => openComments(p));
+    card.appendChild(cb);
     if (owner) card.appendChild(ownerRow(p, closed));
     return card;
   }
 
   function ownerRow(p, closed) {
     const row = el("div", "pl-owner");
+    const mine = pollPin(p);
+    const pin = el("button", "pl-small", mine ? "unpin" : "pin"); pin.type = "button";
+    pin.addEventListener("click", async () => {
+      try {
+        if (mine) { await window.siteDb.removePin(mine.id); await loadPins(); return; }
+        if (pins.length >= MAX_PINS) { pin.textContent = "3 pinned already. unpin one first"; return; }
+        await window.siteDb.addPin({ title: p.question.slice(0, 80), body: String(p.description || "").slice(0, 2000), poll_id: p.id });
+        await loadPins();
+      } catch (e) { pin.textContent = /only 3/.test(String(e && e.message)) ? "3 pinned already. unpin one first" : /column|schema cache|poll_id/.test(String(e && e.message)) ? "run supabase-polls.sql again" : "couldn't (still signed in?)"; }
+    });
+    row.appendChild(pin);
     if (!closed) {
       const end = el("button", "pl-small", "end poll now"); end.type = "button";
       end.addEventListener("click", async () => {
@@ -133,9 +150,11 @@
 
   function render() {
     box.innerHTML = "";
-    box.hidden = !polls.length;
+    // (a pinned poll lives in the slim pinned rows instead, so it isn't shown twice)
+    const shown = polls.filter((p) => !pollPin(p));
+    box.hidden = !shown.length;
     // open polls first, then closed ones (newest first inside each)
-    const sorted = polls.filter((p) => !isClosed(p)).concat(polls.filter(isClosed));
+    const sorted = shown.filter((p) => !isClosed(p)).concat(shown.filter(isClosed));
     sorted.slice(0, showAll ? sorted.length : SHOWN).forEach((p) => box.appendChild(buildPoll(p)));
     if (sorted.length > SHOWN) {
       const more = el("button", "mb-reset pl-more", showAll ? "show fewer polls" : "older polls (" + (sorted.length - SHOWN) + ")");
@@ -143,6 +162,7 @@
       more.addEventListener("click", () => { showAll = !showAll; render(); });
       box.appendChild(more);
     }
+    refreshPollView();
   }
 
   // ----- owner only: "+ new poll" (the database checks it's really you) -----
@@ -202,13 +222,85 @@
   }
 
 
+
+  // ----- comments on a poll (like replies on a community post) -----
+  const cDlg = $("pl-cm");
+  let cPoll = null;
+  const REPLY_COOLDOWN = 20 * 1000;
+  async function loadComments() {
+    const list = $("pl-cm-list"), note = $("pl-cm-note");
+    if (!cPoll) return;
+    const id = cPoll.id;
+    note.textContent = "loading...";
+    try {
+      const res = await fetch(BASE + "/rest/v1/poll_comments?select=id,created_at,name,body&approved=eq.true&poll_id=eq." + encodeURIComponent(id) + "&order=created_at.asc&limit=200", { headers: headers() });
+      if (!res.ok) throw new Error("comments " + res.status);
+      const rows = await res.json();
+      if (!cPoll || cPoll.id !== id) return;
+      list.innerHTML = "";
+      (Array.isArray(rows) ? rows : []).forEach((c) => {
+        const li = el("li", "cm-reply");
+        li.appendChild(el("p", "cm-reply-text", c.body));
+        li.appendChild(el("p", "cm-card-meta", [c.name, dateText(new Date(c.created_at))].filter(Boolean).join(" \u00b7 ")));
+        if (owner) {
+          const del = el("button", "pl-small", "delete"); del.type = "button";
+          del.addEventListener("click", async () => {
+            if (del.dataset.sure !== "1") { del.dataset.sure = "1"; del.textContent = "sure?"; return; }
+            try { await window.siteDb.removePollComment(c.id); await loadComments(); } catch (e) { del.textContent = "couldn't"; }
+          });
+          li.appendChild(del);
+        }
+        list.appendChild(li);
+      });
+      const r = results[id] || (results[id] = { mine: null, counts: null, comments: 0 });
+      r.comments = rows.length; render();
+      note.textContent = rows.length ? "" : "no comments yet. be the first.";
+    } catch (e) { if (cPoll && cPoll.id === id) note.textContent = "couldn't load the comments right now."; }
+  }
+  function openComments(p) {
+    if (!cDlg) return;
+    cPoll = p;
+    $("pl-cm-title").textContent = p.question;
+    $("pl-cm-list").innerHTML = "";
+    $("pl-cm-note").textContent = "";
+    $("pl-cm-body").value = "";
+    cDlg.hidden = false;
+    loadComments();
+    $("pl-cm-body").focus();
+  }
+  function closeComments() { if (!cDlg || cDlg.hidden) return false; cDlg.hidden = true; cPoll = null; return true; }
+  if (cDlg) {
+    $("pl-cm-close").addEventListener("click", closeComments);
+    $("pl-cm-backdrop").addEventListener("click", closeComments);
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && closeComments()) e.stopImmediatePropagation(); }, true);   // (Esc closes just this window, not the one under it)
+    $("pl-cm-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!cPoll) return;
+      const note = $("pl-cm-note"), send = $("pl-cm-send");
+      const body = $("pl-cm-body").value.trim(), name = $("pl-cm-name").value.trim().slice(0, 24);
+      if (!body) { note.textContent = "write something first"; return; }
+      let last = 0; try { last = Number(localStorage.getItem("poll-last-comment")) || 0; } catch (err) {}
+      const wait = REPLY_COOLDOWN - (Date.now() - last);
+      if (wait > 0) { note.textContent = "one comment every 20 seconds, please. try again in " + Math.ceil(wait / 1000) + "s"; return; }
+      send.disabled = true; note.textContent = "sending...";
+      try {
+        const res = await fetch(BASE + "/rest/v1/poll_comments", { method: "POST", headers: headers({ "Content-Type": "application/json", Prefer: "return=minimal" }), body: JSON.stringify({ poll_id: cPoll.id, name, body }) });
+        if (!res.ok) throw new Error("comment " + res.status);
+        try { localStorage.setItem("poll-last-comment", String(Date.now())); } catch (err) {}
+        $("pl-cm-body").value = "";
+        await loadComments();
+      } catch (err) {
+        note.textContent = "couldn't send that right now. try again in a bit.";
+      } finally { send.disabled = false; }
+    });
+  }
+
   // ----- pinned posts -----
   const pinBox = $("cm-pins");
-  let pins = [];
-  const MAX_PINS = 3;
+  function pollPin(p) { return pins.filter((x) => x.poll_id !== null && x.poll_id !== undefined && String(x.poll_id) === String(p.id))[0] || null; }
   async function loadPins() {
     try {
-      const res = await fetch(BASE + "/rest/v1/pinned_posts?select=id,created_at,title,body,post_id,image_url,author&order=created_at.desc&limit=10", { headers: headers() });
+      const res = await fetch(BASE + "/rest/v1/pinned_posts?select=id,created_at,title,body,post_id,poll_id,image_url,author&order=created_at.desc&limit=10", { headers: headers() });
       if (!res.ok) throw new Error("pins " + res.status);
       const rows = await res.json();
       pins = (Array.isArray(rows) ? rows : []).filter((x) => x && typeof x.title === "string").slice(0, MAX_PINS);
@@ -226,7 +318,8 @@
       row.setAttribute("aria-haspopup", "dialog");
       row.appendChild(el("span", "pl-meta pn-tag", "pinned"));
       row.appendChild(el("span", "pn-title", x.title));
-      if (x.body) row.appendChild(el("span", "pn-peek", x.body.replace(/\s+/g, " ")));
+      if (x.poll_id) row.appendChild(el("span", "pn-peek", "poll \u00b7 " + (x.body ? x.body.replace(/\s+/g, " ") : "tap to vote")));
+      else if (x.body) row.appendChild(el("span", "pn-peek", x.body.replace(/\s+/g, " ")));
       row.addEventListener("click", () => openPin(x, row));
       wrap.appendChild(row);
       if (owner) {
@@ -239,12 +332,25 @@
       }
       pinBox.appendChild(wrap);
     });
+    if (viewPollId !== null && !pins.some((x) => String(x.poll_id) === String(viewPollId)) && viewDlg && !viewDlg.hidden) closePin();   // (it got unpinned while open)
+    render();                                          // (polls that are pinned move out of the list below)
   }
-  const viewDlg = $("cm-pin-view");
-  let viewFrom = null;
+  // a pinned poll opens as the real poll (so people can vote right there); it redraws whenever the votes change
+  function refreshPollView() {
+    const holder = $("cm-pin-view-poll");
+    if (!holder || viewPollId === null || !viewDlg || viewDlg.hidden) return;
+    const poll = polls.filter((p) => String(p.id) === String(viewPollId))[0];
+    holder.innerHTML = "";
+    if (poll) holder.appendChild(buildPoll(poll));
+  }
   function openPin(x, from) {
     if (!viewDlg) return;
     viewFrom = from || null;
+    const asPoll = x.poll_id !== null && x.poll_id !== undefined && polls.some((p) => String(p.id) === String(x.poll_id));
+    viewPollId = asPoll ? x.poll_id : null;
+    ["cm-pin-view-title", "cm-pin-view-body", "cm-pin-view-meta"].forEach((id) => { $(id).hidden = asPoll; });
+    $("cm-pin-view-poll").hidden = !asPoll;
+    if (asPoll) { $("cm-pin-view-img").hidden = true; viewDlg.hidden = false; refreshPollView(); $("cm-pin-view-close").focus(); return; }
     $("cm-pin-view-title").textContent = x.title;
     $("cm-pin-view-body").textContent = x.body || "";
     const img = $("cm-pin-view-img");
@@ -253,7 +359,7 @@
     viewDlg.hidden = false;
     $("cm-pin-view-close").focus();
   }
-  function closePin() { if (viewDlg.hidden) return; viewDlg.hidden = true; if (viewFrom && document.contains(viewFrom)) viewFrom.focus(); }
+  function closePin() { if (viewDlg.hidden) return; viewDlg.hidden = true; viewPollId = null; const ph = $("cm-pin-view-poll"); if (ph) ph.innerHTML = ""; if (viewFrom && document.contains(viewFrom)) viewFrom.focus(); }
   if (viewDlg) {
     $("cm-pin-view-close").addEventListener("click", closePin);
     $("cm-pin-view-backdrop").addEventListener("click", closePin);

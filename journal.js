@@ -281,6 +281,9 @@
     async removePoll(id) {
       await asOwner("/rest/v1/polls?id=eq." + encodeURIComponent(id), { method: "DELETE" });
     },
+    async removePollComment(id) {
+      await asOwner("/rest/v1/poll_comments?id=eq." + encodeURIComponent(id), { method: "DELETE" });
+    },
     // pinned posts at the top of the community page (see supabase-polls.sql)
     async addPin(row) {
       await asOwner("/rest/v1/pinned_posts", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify(row) });

@@ -534,6 +534,22 @@
         </form>
       </div>
 
+      <!-- comments on a poll (see polls.js) -->
+      <div class="mb-add cm-reply-dlg" id="pl-cm" hidden role="dialog" aria-modal="true" aria-labelledby="pl-cm-title">
+        <div class="mb-add-backdrop" id="pl-cm-backdrop"></div>
+        <div class="mb-add-card cm-thread-card">
+          <button type="button" class="inv-close" id="pl-cm-close" aria-label="close">&times;</button>
+          <h2 class="pl-cm-title" id="pl-cm-title"></h2>
+          <ol class="cm-replies" id="pl-cm-list"></ol>
+          <p class="mb-add-msg" id="pl-cm-note" role="status"></p>
+          <form id="pl-cm-form" novalidate autocomplete="off">
+            <label>name (optional)<input type="text" id="pl-cm-name" maxlength="24"></label>
+            <label>your comment<textarea id="pl-cm-body" rows="3" maxlength="300"></textarea></label>
+            <div class="mb-add-actions"><button type="submit" id="pl-cm-send">send</button></div>
+          </form>
+        </div>
+      </div>
+
       <!-- a pinned post, opened (see polls.js) -->
       <div class="mb-add" id="cm-pin-view" hidden role="dialog" aria-modal="true" aria-labelledby="cm-pin-view-title">
         <div class="mb-add-backdrop" id="cm-pin-view-backdrop"></div>
@@ -543,6 +559,7 @@
           <img class="pn-img" id="cm-pin-view-img" alt="" hidden>
           <p class="pn-body" id="cm-pin-view-body"></p>
           <p class="pn-meta" id="cm-pin-view-meta"></p>
+          <div id="cm-pin-view-poll" hidden></div>
         </div>
       </div>
 

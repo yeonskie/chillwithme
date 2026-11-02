@@ -49,6 +49,32 @@ create table if not exists public.poll_votes (
 alter table public.poll_votes enable row level security;
 revoke all on public.poll_votes from anon, authenticated;   -- (only the two functions below touch it)
 
+-- comments on a poll (like replies on a community post): anyone can add one, no sign-in. The owner can delete them.
+create table if not exists public.poll_comments (
+  id         bigint generated always as identity primary key,
+  poll_id    bigint not null references public.polls(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  name       text   not null default '' check (char_length(name) <= 24),
+  body       text   not null check (char_length(body) between 1 and 300),
+  approved   boolean not null default true               -- untick to hide one without deleting it
+);
+alter table public.poll_comments enable row level security;
+drop policy if exists "read poll comments"   on public.poll_comments;
+drop policy if exists "add poll comments"    on public.poll_comments;
+drop policy if exists "owner edits poll comments"   on public.poll_comments;
+drop policy if exists "owner deletes poll comments" on public.poll_comments;
+drop policy if exists "owner reads all poll comments" on public.poll_comments;
+create policy "read poll comments"   on public.poll_comments for select to anon, authenticated using (approved = true);
+create policy "owner reads all poll comments" on public.poll_comments for select to authenticated using (public.is_owner());
+create policy "add poll comments"    on public.poll_comments for insert to anon, authenticated with check (approved = true and exists (select 1 from public.polls p where p.id = poll_id and p.active));
+create policy "owner edits poll comments"   on public.poll_comments for update to authenticated using (public.is_owner()) with check (public.is_owner());
+create policy "owner deletes poll comments" on public.poll_comments for delete to authenticated using (public.is_owner());
+revoke all on public.poll_comments from anon, authenticated;
+grant select on public.poll_comments to anon, authenticated;
+grant insert (poll_id, name, body) on public.poll_comments to anon, authenticated;   -- (visitors can only fill in these three)
+grant update, delete on public.poll_comments to authenticated;
+grant usage on sequence public.poll_comments_id_seq to anon, authenticated;
+
 -- vote (or change your vote). Does nothing if the poll has ended, is hidden, or the choice doesn't exist.
 create or replace function public.poll_vote(p_poll bigint, p_client text, p_choice int) returns void
 language plpgsql security definer set search_path = public as $$
@@ -67,11 +93,12 @@ end $$;
 -- for every shown poll: which choice is mine (or null), and the counts (only if I've voted or the poll has ended; otherwise null)
 create or replace function public.poll_results(p_client text) returns jsonb
 language sql security definer set search_path = public as $$
-  select coalesce(jsonb_agg(jsonb_build_object('id', x.id, 'mine', x.mine, 'counts', case when x.mine is not null or x.ended then x.counts end) order by x.id), '[]'::jsonb)
+  select coalesce(jsonb_agg(jsonb_build_object('id', x.id, 'mine', x.mine, 'comments', x.ncomments, 'counts', case when x.mine is not null or x.ended then x.counts end) order by x.id), '[]'::jsonb)
   from (
     select p.id,
            (select v.choice from public.poll_votes v where v.poll_id = p.id and v.client = p_client) as mine,
            (p.ends_at is not null and p.ends_at <= now()) as ended,
+           (select count(*) from public.poll_comments c where c.poll_id = p.id and c.approved) as ncomments,
            (select jsonb_agg(coalesce(c.n, 0) order by g.i)
               from generate_series(0, jsonb_array_length(p.options) - 1) as g(i)
               left join (select choice, count(*) as n from public.poll_votes where poll_id = p.id group by choice) c on c.choice = g.i) as counts
@@ -98,6 +125,8 @@ create table if not exists public.pinned_posts (
 alter table public.pinned_posts add column if not exists post_id   text;
 alter table public.pinned_posts add column if not exists image_url text;
 alter table public.pinned_posts add column if not exists author    text;
+-- (a poll can be pinned too: it shows as one of the slim rows, and opens as the full poll. deleting the poll removes its pin)
+alter table public.pinned_posts add column if not exists poll_id   bigint references public.polls(id) on delete cascade;
 alter table public.pinned_posts enable row level security;
 
 drop policy if exists "read active pins"     on public.pinned_posts;

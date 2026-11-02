@@ -5464,3 +5464,9 @@ button.pl-shown:hover, button.pl-shown:focus-visible { outline: 2px solid var(--
 /* less empty space above the first post: the status line only takes room while it has something to say */
 .cm-status { min-height: 0; padding-top: 0; margin-bottom: 0.8rem; }
 .cm-status:empty { margin-bottom: 0; }
+#cm-pin-view-poll[hidden] { display: none; }
+#cm-pin-view-poll .pl-card { border: 0; padding: 0; }
+.pl-cbtn { display: block; margin-top: 0.5rem; }
+.pl-cm-title { margin: 0 0 0.8rem; font-family: var(--font-mono); font-size: 1.1rem; line-height: 1.25; font-weight: 700; overflow-wrap: anywhere; }
+#pl-cm-form { margin-top: 0.8rem; }
+#pl-cm .cm-reply .pl-small { margin-top: 0.2rem; }
