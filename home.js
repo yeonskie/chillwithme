@@ -86,7 +86,7 @@
   let lastPick = "";
   let deck = [];
   // pages that are in the random pool but not in the carousel: add a game here once it's finished
-  const EXTRA_RANDOM = ["#hyrax", "#casino", "#idol", "#scattergories"];   // the arcade games (the arcade page and the prize shop are in the carousel)
+  const EXTRA_RANDOM = ["#hyrax", "#casino", "#idol", "#scattergories", "#ratrace"];   // the arcade games (the arcade page and the prize shop are in the carousel)
 
   function shuffled(a) {
     a = a.slice();
