@@ -5,7 +5,7 @@ const pages = document.querySelectorAll(".page");
 const DEFAULT_PAGE = "home";
 
 function showPage() {
-  const name = location.hash.replace("#", "") || DEFAULT_PAGE;
+  const name = location.hash.replace("#", "").split("?")[0] || DEFAULT_PAGE;   // (anything after a ? is extra info for the page, like #community?poll=3)
   let found = false;
 
   pages.forEach((page) => {

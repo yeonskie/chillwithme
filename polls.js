@@ -15,6 +15,7 @@
   const MAX_OPTS = 6;
   let polls = [], results = {}, loadedAt = 0, showAll = false, owner = false;
   let pins = [], viewFrom = null, viewPollId = null;     // pinned rows, and the pop-up that opens one
+  let viewDirect = false;                                // true when the pop-up was opened from a link (so it stays open even if that poll isn't pinned)
   const MAX_PINS = 3;
   const viewDlg = $("cm-pin-view");
   const busy = {};                       // poll id -> true while a vote is going through
@@ -38,6 +39,18 @@
   const isClosed = (p) => { const d = endsAt(p); return !!d && d.getTime() <= Date.now(); };
   function dateText(d) { return String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0") + "." + d.getFullYear(); }
 
+  // ----- links to one poll: yeonskie.com/#community?poll=ID (the owner gets a "copy link" button on every poll) -----
+  const onCommunity = () => location.hash.split("?")[0] === "#community";
+  function linkedId() { const m = /[?&]poll=([^&]+)/.exec(location.hash); return m ? decodeURIComponent(m[1]) : null; }
+  function openLinked() {
+    const id = linkedId();
+    if (id === null || !viewDlg) return;
+    if (!polls.some((p) => String(p.id) === id)) return;
+    if (!viewDlg.hidden && String(viewPollId) === id) return;
+    viewDirect = true;
+    openPin({ poll_id: polls.filter((p) => String(p.id) === id)[0].id }, null);
+  }
+
   async function load() {
     try {
       const res = await fetch(BASE + "/rest/v1/polls?select=id,created_at,question,description,options,ends_at&order=created_at.desc&limit=30", { headers: headers() });
@@ -48,6 +61,7 @@
       loadedAt = Date.now();
     } catch (e) { polls = []; /* no polls table yet (supabase-polls.sql not run?): the board just works without them */ }
     render();
+    if (onCommunity()) openLinked();
   }
   async function loadResults(quiet) {
     try {
@@ -120,6 +134,14 @@
 
   function ownerRow(p, closed) {
     const row = el("div", "pl-owner");
+    const copy = el("button", "pl-small", "copy link"); copy.type = "button";
+    copy.addEventListener("click", async () => {
+      const url = location.origin + location.pathname + "#community?poll=" + encodeURIComponent(p.id);
+      try { await navigator.clipboard.writeText(url); copy.textContent = "copied!"; }
+      catch (e) { copy.textContent = url; }              // (no clipboard access: show the link so it can be copied by hand)
+      setTimeout(() => { copy.textContent = "copy link"; }, 2500);
+    });
+    row.appendChild(copy);
     const mine = pollPin(p);
     const pin = el("button", "pl-small", mine ? "unpin" : "pin"); pin.type = "button";
     pin.addEventListener("click", async () => {
@@ -332,7 +354,7 @@
       }
       pinBox.appendChild(wrap);
     });
-    if (viewPollId !== null && !pins.some((x) => String(x.poll_id) === String(viewPollId)) && viewDlg && !viewDlg.hidden) closePin();   // (it got unpinned while open)
+    if (viewPollId !== null && !viewDirect && !pins.some((x) => String(x.poll_id) === String(viewPollId)) && viewDlg && !viewDlg.hidden) closePin();   // (it got unpinned while open)
     render();                                          // (polls that are pinned move out of the list below)
   }
   // a pinned poll opens as the real poll (so people can vote right there); it redraws whenever the votes change
@@ -345,6 +367,7 @@
   }
   function openPin(x, from) {
     if (!viewDlg) return;
+    if (from) viewDirect = false;
     viewFrom = from || null;
     const asPoll = x.poll_id !== null && x.poll_id !== undefined && polls.some((p) => String(p.id) === String(x.poll_id));
     viewPollId = asPoll ? x.poll_id : null;
@@ -359,7 +382,10 @@
     viewDlg.hidden = false;
     $("cm-pin-view-close").focus();
   }
-  function closePin() { if (viewDlg.hidden) return; viewDlg.hidden = true; viewPollId = null; const ph = $("cm-pin-view-poll"); if (ph) ph.innerHTML = ""; if (viewFrom && document.contains(viewFrom)) viewFrom.focus(); }
+  function closePin() {
+    if (viewDlg.hidden) return;
+    if (linkedId() !== null) { try { history.replaceState(null, "", location.pathname + location.search + "#community"); } catch (e) {} }   // (so a refresh doesn't pop it open again)
+    viewDirect = false; viewDlg.hidden = true; viewPollId = null; const ph = $("cm-pin-view-poll"); if (ph) ph.innerHTML = ""; if (viewFrom && document.contains(viewFrom)) viewFrom.focus(); }
   if (viewDlg) {
     $("cm-pin-view-close").addEventListener("click", closePin);
     $("cm-pin-view-backdrop").addEventListener("click", closePin);
@@ -417,8 +443,12 @@
   }
 
   // load when the community page opens (and again if it's been a minute)
-  function onShow() { if (location.hash === "#community" && (!loadedAt || Date.now() - loadedAt > 60000)) { load(); loadPins(); } }
+  function onShow() {
+    if (!onCommunity()) return;
+    if (!loadedAt || Date.now() - loadedAt > 60000) { load(); loadPins(); }
+    else openLinked();
+  }
   window.addEventListener("hashchange", onShow);
   onShow();
-  setInterval(() => { if (location.hash === "#community" && polls.some((p) => endsAt(p))) render(); }, 30000);   // (a poll flips to "closed" on its own when its time passes)
+  setInterval(() => { if (onCommunity() && polls.some((p) => endsAt(p))) render(); }, 30000);   // (a poll flips to "closed" on its own when its time passes)
 })();

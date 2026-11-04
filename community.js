@@ -291,7 +291,7 @@
 
   // load when someone opens the page (and again if it's been a minute)
   function onShow() {
-    if (location.hash !== "#community") return;
+    if (location.hash.split("?")[0] !== "#community") return;
     if (!configured) {
       say("the community isn't set up yet. check back soon.", true);
       return;
