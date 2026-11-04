@@ -190,7 +190,7 @@ const WWDB = (function () {
     if (WWDB.configured) saved = WWDB.add(text).then(() => true, () => false);
     flip("front").then(() => {
       ww.classList.remove("is-open");                       // the page comes back as the coin flies
-      const fr = ww.querySelector(".ww-fit").getBoundingClientRect();
+      const fr = art.getBoundingClientRect();                  // (the fountain drawing itself: the coin sits below it inside .ww-fit, so using that box landed the coin too low)
       const cr = coin.getBoundingClientRect();
       const cx = cr.left + cr.width / 2, cy = cr.top + cr.height / 2;
       const tx = fr.left + ((LAND.x - VB.x) / VB.w) * fr.width;
@@ -227,7 +227,7 @@ const WWDB = (function () {
       }
       // a proper toss: a little dip as it's wound up, then a parabola (quick off the hand, slow at the top,
       // quicker on the way down), spinning like a coin (see the little 3D rig below), shrinking as it travels away
-      const DUR = 1500, T0 = 0.1, T1 = 0.9, N = 30;
+      const DUR = 1150, T0 = 0.1, T1 = 0.9, N = 30;
       const H = 0.34 * fr.height;                      // how high above the straight line it goes
       const frames = [{ offset: 0, transform: base + "translate(0px, 0px) scale(1)", opacity: 1 },
                       { offset: T0 * 0.6, transform: base + "translate(0px, " + 0.035 * fr.height + "px) scale(0.94)", opacity: 1 }];
@@ -239,7 +239,7 @@ const WWDB = (function () {
         const tilt = 45 * t;
         frames.push({ offset: T0 + (T1 - T0) * t, transform: base + "translate(" + x + "px, " + y + "px) scale(" + sc + ") rotate(" + tilt + "deg)", opacity: 1 });
       }
-      frames.push({ offset: 1, transform: base + "translate(" + dx + "px, " + (dy + endScale * cr.height * 0.3) + "px) scale(" + endScale * 0.75 + ") rotate(45deg)", opacity: 0 });   // it only fades as it sinks into the water
+      frames.push({ offset: 1, transform: base + "translate(" + dx + "px, " + (dy + endScale * cr.height * 0.12) + "px) scale(" + endScale * 0.75 + ") rotate(45deg)", opacity: 0 });   // it only fades as it sinks into the water
       // for the flight the coin is the same little 3D disc, spinning one full turn on the way down
       const faceArt = front.querySelector("svg");
       const rig = CoinRig.build(coin, faceArt, null);
